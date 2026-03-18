@@ -73,6 +73,7 @@ export class ByondUi extends Component {
     super(props);
     this.containerRef = createRef();
     this.byondUiElement = createByondUiElement(props.params?.id);
+    this.resizeObserver = null;
     this.handleResize = debounce(() => {
       this.forceUpdate();
     }, 100);
@@ -89,8 +90,17 @@ export class ByondUi extends Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
+    if (window.ResizeObserver && this.containerRef.current) {
+      this.resizeObserver = new window.ResizeObserver(() => {
+        this.handleResize();
+      });
+      this.resizeObserver.observe(this.containerRef.current);
+    }
     this.componentDidUpdate();
     this.handleResize();
+    requestAnimationFrame(() => {
+      this.handleResize();
+    });
   }
 
   componentDidUpdate() {
@@ -107,6 +117,10 @@ export class ByondUi extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleResize);
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     this.byondUiElement.unmount();
   }
 
