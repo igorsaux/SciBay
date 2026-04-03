@@ -1,4 +1,4 @@
-GLOBAL_DATUM_INIT(using_map, /datum/map, text2path(copytext(file2text("data/use_map"),1,-1)) || USING_MAP_DATUM; using_map = new using_map)
+GLOBAL_DATUM_INIT(using_map, /datum/map, text2path(copytext(file2text("data/use_map"),1,-1)) || /datum/map/ishita; using_map = new using_map)
 GLOBAL_LIST_EMPTY(all_maps)
 
 var/const/MAP_HAS_BRANCH = 1	//Branch system for occupations, togglable
@@ -13,10 +13,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		else
 			M = new type
 
-		var/low_name = lowertext("[M.name]") // The config uses only the lowercase btw, so we use lowertext()
-		if(low_name in config.mapping.allowed_maps)
-			M.can_be_voted = config.mapping.allowed_maps[low_name]
-
 		if(!M.path)
 			log_error("Map '[M]' does not have a defined path, not adding to map list!")
 		else
@@ -29,7 +25,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 	var/full_name = "Unnamed Map"
 	var/path
 
-	var/shuttle_types = null         // Only the specified shuttles will be initialized.
 	var/list/map_levels
 
 	var/list/derelict_levels		// List for random derelicts
@@ -65,13 +60,9 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 	var/allowed_spawns = list("Arrivals Shuttle","Gateway", "Cryogenic Storage", "Cyborg Storage")
 	var/default_spawn = "Arrivals Shuttle"
 	var/flags = 0
-	var/evac_controller_type = /datum/evacuation_controller
 
 	var/lobby_music/lobby_music                     // The track that will play in the lobby screen. Handed in the /setup_map() proc.
 	var/welcome_sound = 'sound/signals/start1.ogg'	// Sound played on roundstart
-
-	var/default_law_type = /datum/ai_laws/nanotrasen  // The default lawset use by synth units, if not overriden by their laws var.
-	var/security_state = /decl/security_state/default // The default security state system to use.
 
 	var/list/loadout_blacklist	//list of types of loadout items that will not be pickable
 	var/legacy_mode = FALSE // When TRUE, some things (like walls and windows) use their classical appearance and mechanics
@@ -82,55 +73,9 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 	var/salary_modifier	= 1			//Multiplier to starting character money
 	var/station_departments = list()//Gets filled automatically depending on jobs allowed
 
-	//Factions prefs stuff
-	var/list/background_choices = list(
-		"Nanotrasen",
-		"Nova Magnitka",
-		"Gaia Magna",
-		"Zeng-Hu Clique",
-		"Zermig VIII",
-		"Independent Arcturia",
-		"Parthenonnus Ark Space Vessel",
-		"Moghes",
-		"Skrell Empire",
-		"Adhomai",
-		"Corporate Sector"
-		)
-
-	var/list/home_system_choices = list(
-		"Gilgamesh",
-		"Tau Ceti",
-		"Epsilon Ursae Minoris",
-		"Zermig",
-		"Arcturus",
-		"Vega",
-		"Renenet",
-		"Alpha Centauri",
-		"Sirius",
-		"Qerrbalak",
-		"S`randarr",
-		"Uioa-Esa"
-		)
-
-	var/list/religion_choices = list(
-		"Pan-Christian United Church",
-		"Mahadeva Marga",
-		"Buddhism",
-		"Allah Chosen Devotees",
-		"A-Kami",
-		"Geng Hao Dao",
-		"Jesus Witnesses",
-		"Syncretism",
-		"Neohumanism",
-		"Agnosticism",
-		"Atheism"
-		)
-
 /datum/map/New()
 	if(!allowed_jobs)
 		allowed_jobs = subtypesof(/datum/job)
-	if(!shuttle_types)
-		util_crash_with("[src] has no shuttle_types!")
 
 /datum/map/proc/level_has_trait(z, trait)
 	return map_levels[z].has_trait(trait)
@@ -152,10 +97,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		maploader.load_map(L.path, 1, 1, level, FALSE, FALSE, TRUE, FALSE)
 
 	world.update_status()
-	var/list/antags = GLOB.all_antag_types_
-	for(var/id in antags)
-		var/datum/antagonist/A = antags[id]
-		A.get_starting_locations()
 
 /datum/map/proc/send_welcome()
 	return
@@ -167,20 +108,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 			continue
 
 		L.generate(level)
-
-// Used to apply various post-compile procedural effects to the map.
-/datum/map/proc/refresh_mining_turfs(zlevel)
-
-	set background = 1
-	set waitfor = 0
-
-	for(var/thing in mining_walls["[zlevel]"])
-		var/turf/simulated/mineral/M = thing
-		M.update_icon()
-	for(var/thing in mining_floors["[zlevel]"])
-		var/turf/simulated/floor/asteroid/M = thing
-		if(istype(M))
-			M.updateMineralOverlays()
 
 /datum/map/proc/get_network_access(network)
 	switch(network)
@@ -223,29 +150,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 			empty_levels += level
 
 	return pick(empty_levels)
-
-
-/datum/map/proc/setup_economy()
-	news_network.CreateFeedChannel("Nyx Daily", "SolGov Minister of Information", 1, 1)
-	news_network.CreateFeedChannel("The Gibson Gazette", "Editor Mike Hammers", 1, 1)
-
-	for(var/loc_type in typesof(/datum/trade_destination) - /datum/trade_destination)
-		var/datum/trade_destination/D = new loc_type
-		weighted_randomevent_locations[D] = D.viable_random_events.len
-		weighted_mundaneevent_locations[D] = D.viable_mundane_events.len
-
-	if(!station_account)
-		station_account = create_account("[station_name()] Primary Account", starting_money)
-
-	for(var/job in allowed_jobs)
-		var/datum/job/J = decls_repository.get_decl(job)
-		if(J.department)
-			station_departments |= J.department
-	for(var/department in station_departments)
-		department_accounts[department] = create_account("[department] Account", department_money)
-
-	department_accounts["Vendor"] = create_account("Vendor Account", 0)
-	vendor_account = department_accounts["Vendor"]
 
 /datum/map/proc/map_info(client/victim)
 	return

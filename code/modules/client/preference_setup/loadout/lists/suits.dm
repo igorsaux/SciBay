@@ -9,36 +9,6 @@
 	subgroup = "Ponchos"
 	flags = GEAR_HAS_TYPE_SELECTION
 
-/datum/gear/suit/security_poncho
-	display_name = "poncho, security"
-	path = /obj/item/clothing/suit/poncho/roles/security
-	subgroup = "Ponchos"
-	allowed_roles = SECURITY_ROLES
-
-/datum/gear/suit/medical_poncho
-	display_name = "poncho, medical"
-	path = /obj/item/clothing/suit/poncho/roles/medical
-	subgroup = "Ponchos"
-	allowed_roles = MEDICAL_ROLES
-
-/datum/gear/suit/engineering_poncho
-	display_name = "poncho, engineering"
-	path = /obj/item/clothing/suit/poncho/roles/engineering
-	subgroup = "Ponchos"
-	allowed_roles = ENGINEERING_ROLES
-
-/datum/gear/suit/science_poncho
-	display_name = "poncho, science"
-	path = /obj/item/clothing/suit/poncho/roles/science
-	subgroup = "Ponchos"
-	allowed_roles = RESEARCH_ROLES
-
-/datum/gear/suit/cargo_poncho
-	display_name = "poncho, supply"
-	path = /obj/item/clothing/suit/poncho/roles/cargo
-	subgroup = "Ponchos"
-	allowed_roles = CARGO_ROLES
-
 /datum/gear/suit/suit_jacket
 	display_name = "standard suit jackets"
 	path = /obj/item/clothing/suit/storage/toggle/suit
@@ -236,32 +206,6 @@
 	path = /obj/item/clothing/suit/storage/hooded/bee
 	subgroup = "Costumes"
 	price = 10
-
-/datum/gear/suit/hos_formal
-	display_name = "head of security's formal coat"
-	path = /obj/item/clothing/suit/hos_formal
-	subgroup = "Jackets & Coats"
-	price = 10
-	allowed_roles = list(/datum/job/hos)
-
-/datum/gear/suit/witchhunter
-	display_name = "witchunter garb"
-	path = /obj/item/clothing/suit/witchhunter
-	subgroup = "Costumes"
-	price = 10
-	allowed_roles = list(/datum/job/chaplain)
-
-/datum/gear/suit/wizrobe_fake
-	display_name = "wizard robe"
-	path = /obj/item/clothing/suit/wizrobe/fake
-	subgroup = "Costumes"
-	price = 20
-
-/datum/gear/suit/wizrobe_marisa_fake
-	display_name = "witch robe"
-	path = /obj/item/clothing/suit/wizrobe/marisa/fake
-	subgroup = "Costumes"
-	price = 20
 
 /datum/gear/suit/ianshirt
 	display_name = "ian shirt"

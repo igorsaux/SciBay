@@ -7,7 +7,6 @@
 	desc = "Sweet-sour goodness."
 	icon_state = "limejuice"
 	item_state = "limejuice"
-	startswith = list(/datum/reagent/drink/juice/lime)
 
 /obj/item/reagent_containers/vessel/plastic/milk
 	name = "milk bottle"
@@ -21,8 +20,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;60;100;150;250;300;1000"
 
-	startswith = list(/datum/reagent/drink/milk)
-
 /obj/item/reagent_containers/vessel/plastic/soymilk
 	name = "soymilk bottle"
 	desc = "It's soy milk. White and nutritious... goodness?"
@@ -35,15 +32,12 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;60;100;150;250;300;1000"
 
-	startswith = list(/datum/reagent/drink/milk/soymilk)
-
 /obj/item/reagent_containers/vessel/plastic/waterbottle
 	name = "bottled water"
 	desc = "Pure drinking water, imported from the Martian poles."
 	icon_state = "waterbottle"
 	item_state = "waterbottle"
 	center_of_mass = "x=15;y=8"
-	startswith = list(/datum/reagent/water)
 
 /obj/item/reagent_containers/vessel/plastic/waterbottle/fi4i
 	name = "\improper FI4I water"
@@ -82,21 +76,14 @@
 
 	var/obj/item/trash/plastic_cup/trash_item = new trash(get_turf(src))
 
-	if(reagents?.total_volume)
-		reagents.splash(splash_target, reagents.total_volume)
-
 	if(user && istype(user))
 		user.replace_item(src, trash_item, TRUE, TRUE)
 
 	qdel(src)
 
 /obj/item/reagent_containers/vessel/plastic/cup/attack_self(mob/user)
-	if(reagents?.total_volume)
-		user.visible_message(SPAN_DANGER("[user] crushes \the [src] in their hand, spilling its contents on themselves!"),
-						 	 SPAN_WARNING("You crush \the [src] and its contents spill out onto you!"))
-	else
-		user.visible_message(SPAN_NOTICE("[user] crushes \the [src] in their hand."),
-							 SPAN_NOTICE("You crush \the [src]."))
+	user.visible_message(SPAN_NOTICE("[user] crushes \the [src] in their hand."),
+							SPAN_NOTICE("You crush \the [src]."))
 	crush(user, user)
 
 obj/item/reagent_containers/vessel/plastic/cup/Crossed(atom/movable/AM)

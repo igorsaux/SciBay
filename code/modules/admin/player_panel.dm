@@ -228,38 +228,8 @@
 			var/M_job = ""
 
 			if(isliving(M))
-
-				if(iscarbon(M)) //Carbon stuff
-					if(ishuman(M))
-						var/mob/living/carbon/human/H = M
-						M_job = H.job
-					else if(ismetroid(M))
-						M_job = "Metroid"
-					else if(issmall(M))
-						M_job = "Monkey"
-					else if(islarva(M))
-						M_job = "Larva"
-					else
-						M_job = "Carbon-based"
-
-				else if(issilicon(M)) //silicon
-					if(isAI(M))
-						M_job = "AI"
-					else if(ispAI(M))
-						M_job = "pAI"
-					else if(isrobot(M))
-						M_job = "Cyborg"
-					else
-						M_job = "Silicon-based"
-
-				else if(isanimal(M)) //simple animals
-					if(iscorgi(M))
-						M_job = "Corgi"
-					else
-						M_job = "Animal"
-
-				else
-					M_job = "Living"
+				var/mob/living/carbon/human/H = M
+				M_job = H.job
 
 			else if(istype(M,/mob/new_player))
 				M_job = "New player"
@@ -336,22 +306,12 @@
 		if(!M.ckey) continue
 
 		dat += "<tr><td>[M.name]</td>"
-		if(isAI(M))
-			dat += "<td>AI</td>"
-		else if(isrobot(M))
-			dat += "<td>Cyborg</td>"
-		else if(ishuman(M))
+		if(ishuman(M))
 			dat += "<td>[M.real_name]</td>"
-		else if(istype(M, /mob/living/silicon/pai))
-			dat += "<td>pAI</td>"
 		else if(istype(M, /mob/new_player))
 			dat += "<td>New Player</td>"
 		else if(isghost(M))
 			dat += "<td>Ghost</td>"
-		else if(issmall(M))
-			dat += "<td>Monkey</td>"
-		else if(islarva(M))
-			dat += "<td>Larva</td>"
 		else
 			dat += "<td>Unknown</td>"
 
@@ -391,31 +351,3 @@
 	dat += "</table></body></html>"
 
 	show_browser(usr, dat, "window=players;size=640x480")
-
-
-
-/datum/admins/proc/check_antagonists()
-	if (GAME_STATE >= RUNLEVEL_GAME)
-		var/dat = list()
-		dat += "<html><meta charset=\"utf-8\"><head><title>Round Status</title></head><body><h1><B>Round Status</B></h1>"
-		dat += "Current Game Mode: <B>[SSticker.mode.name]</B><BR>"
-		dat += "Round Duration: <B>[roundduration2text()]</B><BR>"
-		dat += "<B>Evacuation</B><BR>"
-		if (evacuation_controller.is_idle())
-			dat += "<a href='?src=\ref[src];call_shuttle=1'>Call Evacuation</a><br>"
-		else
-			var/timeleft = evacuation_controller.get_eta()
-			if (evacuation_controller.waiting_to_leave())
-				dat += "ETA: [(timeleft / 60) % 60]:[add_zero(num2text(timeleft % 60), 2)]<BR>"
-				dat += "<a href='?src=\ref[src];call_shuttle=2'>Send Back</a><br>"
-
-		dat += "<a href='?src=\ref[src];delay_round_end=1'>[SSticker.delay_end ? "End Round Normally" : "Delay Round End"]</a><br>"
-		dat += "<hr>"
-		var/list/all_antag_types = GLOB.all_antag_types_
-		for(var/antag_type in all_antag_types)
-			var/datum/antagonist/A = all_antag_types[antag_type]
-			dat += A.get_check_antag_output(src)
-		dat += "</body></html>"
-		show_browser(usr, jointext(dat,null), "window=roundstatus;size=400x500")
-	else
-		alert("The game hasn't started yet!")

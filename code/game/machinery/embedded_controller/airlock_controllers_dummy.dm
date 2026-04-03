@@ -35,9 +35,6 @@
 		remote_state = null
 	return ..()
 
-/obj/machinery/dummy_airlock_controller/attack_ai(mob/user)
-	open_remote_ui(user)
-
 /obj/machinery/dummy_airlock_controller/attack_hand(mob/user)
 	open_remote_ui(user)
 
@@ -45,9 +42,3 @@
 	if(master_controller)
 		appearance = master_controller
 		return master_controller.ui_interact(user, state = remote_state)
-
-/obj/machinery/dummy_airlock_controller/powered(chan = -1, area/check_area = null)
-	if(master_controller)
-		var/area/A = get_area(master_controller)
-		return master_controller.powered(chan, A)
-	return ..()

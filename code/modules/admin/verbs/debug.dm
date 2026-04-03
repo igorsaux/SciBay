@@ -12,10 +12,7 @@
 		message_admins("[key_name(src)] toggled debugging on.")
 		log_admin("[key_name(src)] toggled debugging on.")
 
-	feedback_add_details("admin_verb","DG2") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 // callproc moved to code/modules/admin/callproc
-
 
 /client/proc/Cell()
 	set category = "Debug"
@@ -36,86 +33,6 @@
 		t += "<span class='notice'>[g]: [env.gas[g]] / [env.gas[g] * R_IDEAL_GAS_EQUATION * env.temperature / env.volume]kPa</span>\n"
 
 	usr.show_message(t, 1)
-	feedback_add_details("admin_verb","ASL") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/cmd_admin_robotize(mob/M in SSmobs.mob_list)
-	set category = "Fun"
-	set name = "Make Robot"
-
-	if(GAME_STATE < RUNLEVEL_GAME)
-		alert("Wait until the game starts")
-		return
-	if(istype(M, /mob/living/carbon/human))
-		log_admin("[key_name(src)] has robotized [M.key].")
-		spawn(10)
-			M:Robotize()
-
-	else
-		alert("Invalid mob")
-
-/client/proc/cmd_admin_animalize(mob/M in SSmobs.mob_list)
-	set category = "Fun"
-	set name = "Make Simple Animal"
-
-	if(GAME_STATE < RUNLEVEL_GAME)
-		alert("Wait until the game starts")
-		return
-
-	if(!M)
-		alert("That mob doesn't seem to exist, close the panel and try again.")
-		return
-
-	if(istype(M, /mob/new_player))
-		alert("The mob must not be a new_player.")
-		return
-
-	log_admin("[key_name(src)] has animalized [M.key].")
-	spawn(10)
-		M.Animalize()
-
-
-/client/proc/makepAI(turf/T in SSmobs.mob_list)
-	set category = "Fun"
-	set name = "Make pAI"
-	set desc = "Specify a location to spawn a pAI device, then specify a key to play that pAI"
-
-	var/list/available = list()
-	for(var/mob/C in SSmobs.mob_list)
-		if(C.key)
-			available.Add(C)
-	var/mob/choice = input("Choose a player to play the pAI", "Spawn pAI") in available
-	if(!choice)
-		return 0
-	if(!isghost(choice))
-		var/confirm = input("[choice.key] isn't ghosting right now. Are you sure you want to yank them out of them out of their body and place them in this pAI?", "Spawn pAI Confirmation", "No") in list("Yes", "No")
-		if(confirm != "Yes")
-			return 0
-	var/obj/item/device/paicard/card = new(T)
-	var/mob/living/silicon/pai/pai = new(card)
-	pai.SetName(sanitizeSafe(input(choice, "Enter your pAI name:", "pAI Name", "Personal AI") as text))
-	pai.real_name = pai.name
-	pai.key = choice.key
-	card.setPersonality(pai)
-	for(var/datum/paiCandidate/candidate in paiController.pai_candidates)
-		if(candidate.key == choice.key)
-			paiController.pai_candidates.Remove(candidate)
-	feedback_add_details("admin_verb","MPAI") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/cmd_admin_metroidize(mob/M in SSmobs.mob_list)
-	set category = "Fun"
-	set name = "Make metroid"
-
-	if(GAME_STATE < RUNLEVEL_GAME)
-		alert("Wait until the game starts")
-		return
-	if(ishuman(M))
-		log_admin("[key_name(src)] has metroidized [M.key].")
-		spawn(10)
-			M:metroidize()
-			feedback_add_details("admin_verb","MKMET") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-		log_and_message_admins("made [key_name(M)] into a metroid.")
-	else
-		alert("Invalid mob")
 
 //TODO: merge the vievars version into this or something maybe mayhaps
 /client/proc/cmd_debug_del_all()
@@ -131,7 +48,6 @@
 				qdel(O)
 		log_admin("[key_name(src)] has deleted all instances of [hsbitem].")
 		message_admins("[key_name_admin(src)] has deleted all instances of [hsbitem].", 0)
-	feedback_add_details("admin_verb","DELA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_debug_make_powernets()
 	set category = "Debug"
@@ -139,7 +55,6 @@
 	SSmachines.makepowernets()
 	log_admin("[key_name(src)] has remade the powernet. makepowernets() called.")
 	message_admins("[key_name_admin(src)] has remade the powernets. makepowernets() called.", 0)
-	feedback_add_details("admin_verb","MPWN") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_debug_tog_aliens()
 	set category = "Server"
@@ -148,7 +63,6 @@
 	config.misc.aliens_allowed = !config.misc.aliens_allowed
 	log_admin("[key_name(src)] has turned aliens [config.misc.aliens_allowed ? "on" : "off"].")
 	message_admins("[key_name_admin(src)] has turned aliens [config.misc.aliens_allowed ? "on" : "off"].", 0)
-	feedback_add_details("admin_verb","TAL") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_grantfullaccess(mob/M in SSmobs.mob_list)
 	set category = "Admin"
@@ -161,9 +75,6 @@
 		var/mob/living/carbon/human/H = M
 		if (H.wear_id)
 			var/obj/item/card/id/id = H.wear_id
-			if(istype(H.wear_id, /obj/item/device/pda))
-				var/obj/item/device/pda/pda = H.wear_id
-				id = pda.id
 			id.icon_state = "card_gold"
 			id.access = get_all_accesses()
 		else
@@ -171,13 +82,12 @@
 			id.icon_state = "card_gold"
 			id.access = get_all_accesses()
 			id.registered_name = H.real_name
-			id.assignment = "Captain"
+			id.assignment = JOB_ID_CEO
 			id.SetName("[id.registered_name]'s ID Card ([id.assignment])")
 			H.equip_to_slot_or_del(id, slot_wear_id)
 			H.update_inv_wear_id()
 	else
 		alert("Invalid mob")
-	feedback_add_details("admin_verb","GFA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	log_and_message_admins("has granted [M.key] full access.")
 
 /client/proc/cmd_assume_direct_control(mob/M in SSmobs.mob_list)
@@ -197,12 +107,6 @@
 	M.ckey = src.ckey
 	if(isghost(adminmob))
 		qdel(adminmob)
-	feedback_add_details("admin_verb","ADC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-
-
-
-
 
 /client/proc/cmd_admin_areatest()
 	set category = "Mapping"
@@ -226,16 +130,6 @@
 		if(!(A.type in areas_with_APC))
 			areas_with_APC.Add(A.type)
 
-	for(var/obj/machinery/alarm/alarm in GLOB.firealarm_list)
-		var/area/A = get_area(alarm)
-		if(!(A.type in areas_with_air_alarm))
-			areas_with_air_alarm.Add(A.type)
-
-	for(var/obj/machinery/requests_console/RC in SSmachines.machinery)
-		var/area/A = get_area(RC)
-		if(!(A.type in areas_with_RC))
-			areas_with_RC.Add(A.type)
-
 	for(var/obj/machinery/light/L in SSmachines.machinery)
 		var/area/A = get_area(L)
 		if(!(A.type in areas_with_light))
@@ -245,16 +139,6 @@
 		var/area/A = get_area(LS)
 		if(!(A.type in areas_with_LS))
 			areas_with_LS.Add(A.type)
-
-	for(var/obj/item/device/radio/intercom/I in world)
-		var/area/A = get_area(I)
-		if(!(A.type in areas_with_intercom))
-			areas_with_intercom.Add(A.type)
-
-	for(var/obj/machinery/camera/C in world)
-		var/area/A = get_area(C)
-		if(!(A.type in areas_with_camera))
-			areas_with_camera.Add(A.type)
 
 	var/list/areas_without_APC = areas_all - areas_with_APC
 	var/list/areas_without_air_alarm = areas_all - areas_with_air_alarm
@@ -311,7 +195,6 @@
 	if(!reset_equipment)
 		reset_equipment = alert("Do you wish to delete all current equipment first?", "Delete Equipment?","Yes", "No") == "Yes"
 
-	feedback_add_details("admin_verb","SEQ")
 	dressup_human(H, outfit, reset_equipment)
 
 /proc/dressup_human(mob/living/carbon/human/H, decl/hierarchy/outfit/outfit, undress = TRUE)
@@ -352,35 +235,6 @@
 		return
 
 	GLOB.error_cache.show_to(usr.client)
-
-/client/proc/cmd_analyse_health(mob/living/carbon/human/target_human)
-	if(!check_rights(R_DEBUG))
-		return
-
-	if(!istype(target_human))
-		return
-
-	var/dat = target_human.get_medical_data()
-
-	dat += text("<BR><A href='?src=\ref[];mach_close=scanconsole'>Close</A>", usr)
-	show_browser(usr, dat, "window=scanconsole;size=430x600")
-
-/client/proc/cmd_analyse_health_panel()
-	set category = "Debug"
-	set name = "Analyse Health"
-
-	var/mob/living/carbon/human/chosen_one = tgui_input_list(src, "Select mob a mob to analyse.", "Analyse Health", GLOB.human_mob_list)
-
-	if(isnull(chosen_one))
-		return
-
-	cmd_analyse_health(chosen_one)
-
-/client/proc/cmd_analyse_health_context(mob/living/carbon/human/H as mob in GLOB.human_mob_list)
-	set name = "Analyse Human Health"
-
-	cmd_analyse_health(H)
-	feedback_add_details("admin_verb","ANLS") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_view_language(mob/target_mob)
 	if(!check_rights(R_DEBUG))

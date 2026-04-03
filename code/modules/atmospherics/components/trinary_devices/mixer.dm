@@ -6,8 +6,6 @@
 
 	name = "Gas mixer"
 
-	use_power = POWER_USE_IDLE
-	idle_power_usage = 150 WATTS //internal circuitry, friction losses and stuff
 	power_rating = 3700	//This also doubles as a measure of how powerful the mixer is, in Watts. 3700 W ~ 5 HP
 
 	var/set_flow_rate = ATMOS_DEFAULT_VOLUME_MIXER
@@ -27,13 +25,10 @@
 	else
 		icon_state = ""
 
-	if(!powered())
-		icon_state += "off"
-	else if(node2 && node3 && node1)
-		icon_state += use_power ? "on" : "off"
+	if(node2 && node3 && node1)
+		icon_state += "on"
 	else
 		icon_state += "off"
-		update_use_power(POWER_USE_OFF)
 
 /obj/machinery/atmospherics/trinary/mixer/update_underlays()
 	if(..())
@@ -72,7 +67,7 @@
 	last_power_draw = 0
 	last_flow_rate = 0
 
-	if((stat & (NOPOWER|BROKEN)) || !use_power)
+	if((stat & (NOPOWER|BROKEN)))
 		return
 
 	//Figure out the amount of moles to transfer
@@ -93,7 +88,6 @@
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 
 	return 1
 
@@ -124,8 +118,7 @@
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 		return
 	usr.set_machine(src)
-	var/dat = {"<b>Power: </b><a href='?src=\ref[src];power=1'>[use_power?"On":"Off"]</a><br>
-				<b>Set Flow Rate Limit: </b>
+	var/dat = {"<b>Set Flow Rate Limit: </b>
 				[set_flow_rate]L/s | <a href='?src=\ref[src];set_press=1'>Change</a>
 				<br>
 				<b>Flow Rate: </b>[round(last_flow_rate, 0.1)]L/s
@@ -151,8 +144,6 @@
 
 /obj/machinery/atmospherics/trinary/mixer/Topic(href,href_list)
 	if(..()) return 1
-	if(href_list["power"])
-		update_use_power(!use_power)
 	if(href_list["set_press"])
 		var/max_flow_rate = min(air1.volume, air2.volume)
 		var/new_flow_rate = input(usr,"Enter new flow rate limit (0-[max_flow_rate]L/s)","Flow Rate Control",src.set_flow_rate) as num

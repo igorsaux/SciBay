@@ -77,8 +77,6 @@
 	siemens_coefficient = 1.0
 	coverage = 0.4
 
-	wizard_garb = 1
-
 	armor = list(melee = 10, bullet = 10, laser = 10, energy = 5, bomb = 10, bio = 3)
 
 	item_state_slots = list(
@@ -102,7 +100,6 @@
 	name = "sandals"
 	desc = "A pair of plain sandals."
 	icon_state = "sandals"
-	wizard_garb = 0
 
 /obj/item/clothing/shoes/sandal/color/black
 	name = "black sandals"

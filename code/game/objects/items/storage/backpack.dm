@@ -24,11 +24,6 @@
 	drop_sound = SFX_DROP_BACKPACK
 	pickup_sound = SFX_PICKUP_BACKPACK
 
-/obj/item/storage/backpack/Initialize()
-	. = ..()
-
-	AddComponent(/datum/component/cardborg)
-
 /obj/item/storage/backpack/attackby(obj/item/W, mob/user)
 	if(use_sound)
 		playsound(loc, src.use_sound, 50, 1, -5)
@@ -63,49 +58,6 @@
 /*
  * Backpack Types
  */
-
-/obj/item/storage/backpack/holding
-	name = "bag of holding"
-	desc = "A backpack that opens into a localized pocket of Blue Space."
-	origin_tech = list(TECH_BLUESPACE = 4)
-	icon_state = "holdingpack"
-	inspect_state = FALSE
-	max_w_class = ITEM_SIZE_GARGANTUAN
-	max_storage_space = 56
-
-/obj/item/storage/backpack/holding/attackby(obj/item/W, mob/user)
-	if(istype(W, /obj/item/storage/backpack/holding))
-		to_chat(usr, "\red The Bluespace interfaces of the two devices catastrophically malfunction!")
-
-		var/mob/living/carbon/human/human_user = user
-		if (istype(human_user))
-			for (var/limb_tag in list(BP_R_ARM, BP_L_ARM))
-				var/obj/item/organ/external/limb_to_drop = human_user.get_organ(limb_tag)
-				limb_to_drop.droplimb()
-				qdel(limb_to_drop)
-
-			human_user.visible_message(SPAN_DANGER("[human_user]'s hands are violently yanked into the collapsing structure of \the [src]!"))
-
-		var/outcome
-		if (config.misc.meme_content && prob(15))
-			new /obj/singularity(get_turf(src), 300)
-			outcome = "singularity"
-		else if (prob(60))
-			var/obj/effect/portal/wormhole/wormhole = create_wormhole(get_turf(src), get_random_turf_in_range(src, 16, 8))
-			wormhole.Bumped(user) // Otherwise spessman won't go through it...
-			outcome = "single wormhole"
-		else
-			var/datum/event/wormholes_event = SSevents.total_events["wormholes"]
-			wormholes_event.fire()
-			outcome = "wormhole event"
-
-		investigate_log("has triggered \a [outcome]. Caused by [user.key]")
-		log_and_message_admins("detonated a bag of holding", user, loc)
-
-		qdel(W)
-		qdel_self()
-
-	. = ..()
 
 /obj/item/storage/backpack/santabag
 	name = "\improper Santa's gift bag"
@@ -251,9 +203,6 @@
 
 /obj/item/storage/backpack/satchel/grey
 	name = "grey satchel"
-
-/obj/item/storage/backpack/satchel/grey/withwallet
-	startswith = list(/obj/item/storage/wallet/random)
 
 /obj/item/storage/backpack/satchel/leather //brown, master type
 	name = "brown leather satchel"

@@ -5,8 +5,6 @@
 	layer = BELOW_OBJ_LAYER
 	density = 1
 	anchored = 1
-	idle_power_usage = 10 WATTS
-	active_power_usage = 2 KILO WATTS
 	clicksound = 'sound/effects/using/console/press2.ogg'
 	clickvol = 30
 
@@ -31,15 +29,6 @@
 		/obj/item/stock_parts/manipulator,
 		/obj/item/stock_parts/console_screen
 	)
-
-/obj/machinery/autolathe/Initialize()
-	. = ..()
-	wires = new(src)
-
-/obj/machinery/autolathe/Destroy()
-	qdel(wires)
-	wires = null
-	return ..()
 
 /obj/machinery/autolathe/proc/update_recipe_list()
 	if(!machine_recipes)
@@ -148,12 +137,9 @@
 	if(O.loc != user && !(istype(O,/obj/item/stack)))
 		return 0
 
-	if(is_robot_module(O))
-		return 0
-
 	//Resources are being loaded.
 	var/obj/item/eating = O
-	if(!issilicon(user) && !user.can_unequip(eating))
+	if(!user.can_unequip(eating))
 		to_chat(user, "You can't place that item inside \the [src].")
 		return
 	if(!eating.matter)
@@ -232,11 +218,6 @@
 	if(shocked)
 		shock(user, 50)
 
-	if(panel_open)
-		var/datum/browser/hack_panel = new(user, "hack_panel", "Maintenance Panel", 400, 400)
-		hack_panel.set_content(wires.GetInteractWindow())
-		hack_panel.open()
-
 	tgui_interact(user)
 
 /obj/machinery/autolathe/tgui_act(action, params)
@@ -270,14 +251,12 @@
 				return TRUE
 
 			busy = TRUE
-			update_use_power(POWER_USE_ACTIVE)
 
 			// Check if we still have the materials.
 			for(var/material in making.resources)
 				if(!isnull(stored_material[material]))
 					if(stored_material[material] < round(making.resources[material] * mat_efficiency) * multiplier)
 						busy = FALSE
-						update_use_power(POWER_USE_IDLE)
 						tgui_update()
 						return TRUE
 
@@ -293,7 +272,6 @@
 			sleep(build_time)
 
 			busy = FALSE
-			update_use_power(POWER_USE_IDLE)
 
 			// Sanity check.
 			if(!making || QDELETED(src))

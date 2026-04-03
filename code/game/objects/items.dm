@@ -101,7 +101,8 @@
 
 	/// Sound played when this tool is used. Can be a list too.
 	var/tool_sound
-
+	/// 1.0 is normal price, 0.5 is half price, etc.
+	var/price_modifier = 1
 	rad_resist_type = /datum/rad_resist/item
 
 /datum/rad_resist/item
@@ -362,15 +363,6 @@
 
 	return ..()
 
-/obj/item/attack_ai(mob/user)
-	if (istype(src.loc, /obj/item/robot_module))
-		//If the item is part of a cyborg module, equip it
-		if(!isrobot(user))
-			return
-		var/mob/living/silicon/robot/R = user
-		R.activate_module(src)
-		R.hud_used.update_robot_modules_display()
-
 /obj/item/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/storage))
 		var/obj/item/storage/S = W
@@ -530,7 +522,7 @@ var/list/global/slot_flags_enumeration = list(
 				if(!disable_warning)
 					to_chat(usr, SPAN("warning", "You somehow have a suit with no defined allowed items for suit storage, stop that."))
 				return 0
-			if( !(istype(src, /obj/item/device/pda) || istype(src, /obj/item/pen) || is_type_in_list(src, H.wear_suit.allowed)) )
+			if( !(istype(src, /obj/item/pen) || is_type_in_list(src, H.wear_suit.allowed)) )
 				return 0
 		if(slot_handcuffed)
 			if(!istype(src, /obj/item/handcuffs) || !istype(src, /obj/item/clothing/suit/straight_jacket))
@@ -629,40 +621,7 @@ var/list/global/slot_flags_enumeration = list(
 		return 0 // We weren't ready bruh
 	if(user.incapacitated(INCAPACITATION_DISABLED))
 		return 0
-	if(istype(damage_source, /obj/item/projectile))
-		var/obj/item/projectile/P = damage_source
-		if(!P.blockable)
-			return 0
-		if(block_tier == BLOCK_TIER_PROJECTILE)
-			if(P.armor_penetration > (25 * mod_shield) - 5)
-				visible_message(SPAN("warning", "\The [user] tries to block [P] with their [name]. <b>Not the best idea.</b>"))
-				return 0
-			visible_message(SPAN("warning", "\The [user] blocks [P] with their [name]!"))
-			proj_poise_drain(user, P)
-			spawn()
-				shake_camera(user, 1)
-			return PROJECTILE_FORCE_BLOCK
-		else if(block_tier == BLOCK_TIER_ADVANCED)
-			// some effects here
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(3, 0, user.loc)
-			spark_system.start()
-
-			visible_message(SPAN("warning", "\The [user] disintegrates [P] with their [name]!"))
-			proj_poise_drain(user, P)
-			return PROJECTILE_FORCE_BLOCK
 	return 0
-
-/obj/item/proc/proj_poise_drain(mob/user, obj/item/projectile/P)
-	if(istype(user, /mob/living/carbon/human))
-		var/mob/living/carbon/human/H = user
-		var/poise_dmg = P.damage / (mod_shield * 2.5)
-		if(block_tier != BLOCK_TIER_ADVANCED && P.damage_type == BRUTE)
-			poise_dmg = (P.damage + (P.agony / 1.5)) / (mod_shield * 2.5)
-		poise_dmg *= (src == H.get_active_hand()) ? 1.25 : 2.0
-		H.damage_poise(poise_dmg)
-		if(H.poise < poise_dmg)
-			shot_out(H, P)
 
 /obj/item/proc/shot_out(mob/living/carbon/human/H, obj/item/projectile/P, msg = "shot", dist = 3) // item gets shot out of one's hands w/ a projectile
 	H.useblock_off()
@@ -742,8 +701,7 @@ var/list/global/slot_flags_enumeration = list(
 		eyes.damage += rand(3,4)
 		if(eyes.damage >= eyes.min_bruised_damage)
 			if(M.stat != 2)
-				if(!BP_IS_ROBOTIC(eyes)) //robot eyes bleeding might be a bit silly
-					to_chat(M, SPAN("danger", "Your eyes start to bleed profusely!"))
+				to_chat(M, SPAN("danger", "Your eyes start to bleed profusely!"))
 			if(prob(50))
 				if(M.stat != 2)
 					to_chat(M, SPAN("warning", "You drop what you're holding and clutch at your eyes!"))

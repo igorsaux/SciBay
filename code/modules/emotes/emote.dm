@@ -73,7 +73,7 @@ GLOBAL_LIST_INIT(all_emotes, list(); for(var/emotepath in subtypesof(/datum/emot
 	return msg
 
 /datum/emote/proc/get_sound(mob/user, intentional)
-	if(ishuman(user) && !isMonkey(user))
+	if(ishuman(user))
 		if(!isnull(sound_human_female) && user.gender == FEMALE)
 			return pick(sound_human_female)
 		else if(!isnull(sound_human_male) && user.gender == MALE)
@@ -124,10 +124,10 @@ GLOBAL_LIST_INIT(all_emotes, list(); for(var/emotepath in subtypesof(/datum/emot
 	if((state_checks & EMOTE_CHECK_IS_HEAD_PRESENT) && !is_present_bodypart(BP_HEAD, user, intentional))
 		return FALSE
 
-	if((state_checks & EMOTE_CHECK_IS_SYNTH_OR_ROBOT) && !is_synth_or_robot(user, intentional))
+	if((state_checks & EMOTE_CHECK_IS_SYNTH_OR_ROBOT))
 		return FALSE
 
-	if((state_checks & EMOTE_CHECK_ROBOT_SEC_MODULE) && !has_robot_module(/obj/item/robot_module/security, user, intentional))
+	if((state_checks & EMOTE_CHECK_ROBOT_SEC_MODULE))
 		return FALSE
 
 	if((state_checks & EMOTE_CHECK_CONSCIOUS_OR_NOT_INTENTIONAL) && !conscious_or_not_intentional(CONSCIOUS, user, intentional))
@@ -138,11 +138,6 @@ GLOBAL_LIST_INIT(all_emotes, list(); for(var/emotepath in subtypesof(/datum/emot
 /datum/emote/proc/do_emote(mob/user, emote_key, intentional, target, additional_params)
 	LAZYINITLIST(user.next_emote_use)
 	set_cooldown(user.next_emote_use, cooldown, intentional)
-
-	for(var/obj/item/implant/I in user)
-		if(!I.implanted)
-			continue
-		I.trigger(emote_key, user)
 
 	var/msg_1p = get_emote_message_1p(user, target, additional_params)
 	var/text_3p = get_emote_message_3p(user, target, additional_params)

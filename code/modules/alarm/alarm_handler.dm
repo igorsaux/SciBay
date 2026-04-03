@@ -34,7 +34,6 @@
 	LAZYDISTINCTADD(alarms_by_z["[existing.alarm_z()]"], existing)
 	if(new_alarm)
 		alarms = dd_sortedObjectList(alarms)
-		on_alarm_change(existing, ALARM_RAISED)
 
 	return new_alarm
 
@@ -77,17 +76,8 @@
 		alarms -= alarm
 		alarms_assoc -= alarm.origin
 		alarms_by_z["[alarm.alarm_z()]"] -= alarm
-		on_alarm_change(alarm, ALARM_CLEARED)
 		return 1
 	return 0
-
-/datum/alarm_handler/proc/on_alarm_change(datum/alarm/alarm, was_raised)
-	for(var/obj/machinery/camera/C in alarm.cameras())
-		if(was_raised)
-			C.add_network(category)
-		else
-			C.remove_network(category)
-	notify_listeners(alarm, was_raised)
 
 /datum/alarm_handler/proc/get_alarm_severity_for_origin(atom/origin)
 	if(!origin)

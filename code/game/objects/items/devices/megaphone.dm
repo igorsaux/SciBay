@@ -63,18 +63,6 @@ GLOBAL_LIST_INIT(megaphone_insults, world.file2list("strings/translation/megapho
 	for(var/mob/O in hearing_mobs)
 		O.hear_say(FONT_GIANT(SPAN_BOLD(msg)), "broadcasts", speaking, speaker = talker, speech_sound = 'sound/items/megaphone.ogg', sound_vol = 20)
 
-	for(var/obj/item/device/radio/intercom/I in hearing_objs)
-		I.talk_into(talker, msg, verb = "broadcasts", speaking = speaking)
-
 	last_use = world.time
-
-
-/obj/item/device/megaphone/emag_act(remaining_charges, mob/user)
-	if(emagged)
-		return FALSE
-
-	show_splash_text(user, "overload voice synthesizer!", "You overload the voice synthesizer, setting the loudness setting way above the safe levels.")
-	emagged = TRUE
-	return TRUE
 
 #undef MEGAPHONE_COOLDOWN

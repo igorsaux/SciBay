@@ -30,10 +30,7 @@ import {
   Tooltip,
 } from "../components";
 import { Window } from "../layouts";
-import {
-  CharacterRenderConfig,
-  getCompositor,
-} from "../spriteCompositor";
+import { CharacterRenderConfig, getCompositor } from "../spriteCompositor";
 // Stamp images for ID card
 import stampCap from "../assets/stamps/stamp-cap.png";
 import stampCargo from "../assets/stamps/stamp-cargo.png";
@@ -68,10 +65,13 @@ interface SearchDropdownProps {
   fluid?: boolean;
 }
 
-class SearchDropdown extends Component<SearchDropdownProps, {
-  query: string;
-  open: boolean;
-}> {
+class SearchDropdown extends Component<
+  SearchDropdownProps,
+  {
+    query: string;
+    open: boolean;
+  }
+> {
   private scrollRef: HTMLDivElement | null = null;
 
   constructor(props) {
@@ -94,9 +94,11 @@ class SearchDropdown extends Component<SearchDropdownProps, {
         <Box className="SearchDropdown__inputWrap">
           <input
             className="SearchDropdown__input"
-            placeholder={open ? (placeholder || "Search...") : selected}
+            placeholder={open ? placeholder || "Search..." : selected}
             value={query}
-            onInput={(e: any) => this.setState({ query: e.target.value, open: true })}
+            onInput={(e: any) =>
+              this.setState({ query: e.target.value, open: true })
+            }
             onClick={() => this.setState({ open: true })}
             onFocusin={() => this.setState({ open: true })}
             onFocusout={() => {
@@ -104,13 +106,11 @@ class SearchDropdown extends Component<SearchDropdownProps, {
               setTimeout(() => this.setState({ open: false, query: "" }), 150);
             }}
           />
-          <Icon
-            name="chevron-down"
-            className="SearchDropdown__chevron"
-          />
+          <Icon name="chevron-down" className="SearchDropdown__chevron" />
         </Box>
         {open && filtered.length > 0 && (
-          <Box className="SearchDropdown__list"
+          <Box
+            className="SearchDropdown__list"
             ref={(el) => {
               if (el && el !== this.scrollRef) {
                 this.scrollRef = el;
@@ -149,26 +149,26 @@ class SearchDropdown extends Component<SearchDropdownProps, {
 }
 
 const UI_THEME_IMAGE: Record<string, string> = {
-  "Goon": uiGoon,
-  "Midnight": uiMidnight,
-  "Orange": uiOrange,
-  "Old": uiOld,
-  "White": uiWhite,
+  Goon: uiGoon,
+  Midnight: uiMidnight,
+  Orange: uiOrange,
+  Old: uiOld,
+  White: uiWhite,
   "Old-noborder": uiOldNoborder,
-  "Minimalist": uiMinimalist,
+  Minimalist: uiMinimalist,
 };
 
 // Map departments → department head stamp (always use the head's stamp)
 const DEPT_STAMP: Record<string, string> = {
-  "Command": stampCap,
-  "Security": stampHos,
-  "Medical": stampCmo,
-  "Engineering": stampCe,
-  "Science": stampRd,
-  "Cargo": stampCargo,
-  "Civilian": stampHop,
-  "Provisioning": stampHop,
-  "Supply": stampCargo,
+  Command: stampCap,
+  Security: stampHos,
+  Medical: stampCmo,
+  Engineering: stampCe,
+  Science: stampRd,
+  Cargo: stampCargo,
+  Civilian: stampHop,
+  Provisioning: stampHop,
+  Supply: stampCargo,
 };
 
 const getStampForJob = (job: JobInfo | null): string => {
@@ -461,9 +461,6 @@ interface CharacterData {
   // Background static
   company_alignments: string[];
   company_name: string;
-  home_systems: string[];
-  backgrounds: string[];
-  religions: string[];
   bank_security_options: BankSecurityOption[];
   flavor_text_parts: string[];
   robot_module_types: string[];
@@ -473,7 +470,10 @@ interface CharacterData {
   // Render data (for client-side sprite compositor)
   hair_icons: Record<string, Record<string, string>>;
   facial_hair_icons: Record<string, Record<string, string>>;
-  body_build_render: Record<string, { index: string; clothing_icons: Record<string, string> }>;
+  body_build_render: Record<
+    string,
+    { index: string; clothing_icons: Record<string, string> }
+  >;
   // Settings static
   client_preference_categories: Record<string, ClientPreferenceDef[]>;
   keybinding_categories: Record<string, KeybindingDef[]>;
@@ -503,11 +503,20 @@ interface CharacterData {
   all_underwear: Record<string, string>;
   all_underwear_color: Record<string, string>;
   underwear_render: { state: string; dmiFile: string; color: string | null }[];
-  equipment_render: { dmiFile: string; state: string; color: string | null; layer: number }[];
+  equipment_render: {
+    dmiFile: string;
+    state: string;
+    color: string | null;
+    layer: number;
+  }[];
   hide_hair: boolean;
   hide_facial_hair: boolean;
   backpack: string;
-  backpack_tweaks?: { tweakIndex: number; options: string[]; current: string }[];
+  backpack_tweaks?: {
+    tweakIndex: number;
+    options: string[];
+    current: string;
+  }[];
   equip_preview_mob: number;
   bgstate: string;
   can_undo: boolean;
@@ -649,15 +658,21 @@ function buildRenderConfig(data: CharacterData): CharacterRenderConfig | null {
   if (!speciesInfo) return null;
 
   const { buildIndex, hairDmiFile, facialDmiFile, hairStyle, facialStyle } =
-    resolveHairInfo(data, data.body || "Default", speciesInfo.hair_key, data.h_style, data.f_style);
+    resolveHairInfo(
+      data,
+      data.body || "Default",
+      speciesInfo.hair_key,
+      data.h_style,
+      data.f_style,
+    );
 
-  const underwear = data.underwear_render?.map(uw => ({
+  const underwear = data.underwear_render?.map((uw) => ({
     state: uw.state,
     dmiFile: uw.dmiFile,
     color: uw.color,
   }));
 
-  const clothing = data.equipment_render?.map(eq => ({
+  const clothing = data.equipment_render?.map((eq) => ({
     state: eq.state,
     dmiFile: eq.dmiFile,
     color: eq.color,
@@ -672,16 +687,30 @@ function buildRenderConfig(data: CharacterData): CharacterRenderConfig | null {
   }
 
   // Expand skin markings to per-organ entries; hair markings are drawn masked to hair shape
-  const markings: { icon: string; iconState: string; organTag: string; color: string }[] = [];
+  const markings: {
+    icon: string;
+    iconState: string;
+    organTag: string;
+    color: string;
+  }[] = [];
   const hairMarkings: { icon: string; iconState: string; color: string }[] = [];
   if (data.body_markings) {
     for (const m of data.body_markings) {
       if (!m.icon || !m.icon_state) continue;
       if (m.draw_target === MARKING_TARGET_HAIR) {
-        hairMarkings.push({ icon: m.icon, iconState: m.icon_state, color: m.color });
+        hairMarkings.push({
+          icon: m.icon,
+          iconState: m.icon_state,
+          color: m.color,
+        });
       } else if (m.draw_target === MARKING_TARGET_SKIN && m.body_parts) {
         for (const organTag of m.body_parts) {
-          markings.push({ icon: m.icon, iconState: `${m.icon_state}-${organTag}`, organTag, color: m.color });
+          markings.push({
+            icon: m.icon,
+            iconState: `${m.icon_state}-${organTag}`,
+            organTag,
+            color: m.color,
+          });
         }
       }
     }
@@ -693,7 +722,8 @@ function buildRenderConfig(data: CharacterData): CharacterRenderConfig | null {
     bodyBuild: buildIndex,
     direction: data.preview_dir,
     skinTone: data.s_tone || 0,
-    skinColor: (speciesInfo.appearance_flags & HAS_SKIN_COLOR) ? data.skin_color : null,
+    skinColor:
+      speciesInfo.appearance_flags & HAS_SKIN_COLOR ? data.skin_color : null,
     hairStyle: hairStyle?.icon_state || "",
     hairColor: data.hair_color,
     secondaryHairColor: hairStyle?.has_secondary ? data.s_hair_color : null,
@@ -723,7 +753,13 @@ function buildSlotRenderConfig(
   if (!appearance.icobase) return null;
 
   const { buildIndex, hairDmiFile, facialDmiFile, hairStyle, facialStyle } =
-    resolveHairInfo(data, appearance.body || "Default", appearance.hair_key, appearance.h_style, appearance.f_style);
+    resolveHairInfo(
+      data,
+      appearance.body || "Default",
+      appearance.hair_key,
+      appearance.h_style,
+      appearance.f_style,
+    );
 
   return {
     species: appearance.species,
@@ -731,10 +767,15 @@ function buildSlotRenderConfig(
     bodyBuild: buildIndex,
     direction: SOUTH,
     skinTone: appearance.s_tone || 0,
-    skinColor: (appearance.appearance_flags & HAS_SKIN_COLOR) ? appearance.skin_color : null,
+    skinColor:
+      appearance.appearance_flags & HAS_SKIN_COLOR
+        ? appearance.skin_color
+        : null,
     hairStyle: hairStyle?.icon_state || "",
     hairColor: appearance.hair_color,
-    secondaryHairColor: hairStyle?.has_secondary ? appearance.s_hair_color : null,
+    secondaryHairColor: hairStyle?.has_secondary
+      ? appearance.s_hair_color
+      : null,
     hairDmiFile,
     facialStyle: facialStyle?.icon_state || "",
     facialColor: appearance.facial_color,
@@ -793,9 +834,7 @@ const CsButton = (props: {
           mr={props.children ? 0.5 : 0}
         />
       )}
-      {props.icon && (
-        <Icon name={props.icon} mr={props.children ? 0.5 : 0} />
-      )}
+      {props.icon && <Icon name={props.icon} mr={props.children ? 0.5 : 0} />}
       {props.children}
     </Box>
   );
@@ -804,7 +843,6 @@ const CsButton = (props: {
   }
   return btn;
 };
-
 
 // ================================================================
 // Category definitions
@@ -828,7 +866,7 @@ type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function getSpeciesInfo(
   speciesList: SpeciesInfo[],
-  speciesName: string
+  speciesName: string,
 ): SpeciesInfo | null {
   return speciesList.find((s) => s.name === speciesName) || null;
 }
@@ -840,7 +878,7 @@ function getSpeciesInfo(
 function getValidHairStyles(
   allStyles: HairStyle[],
   species: string,
-  gender: string
+  gender: string,
 ): string[] {
   return allStyles
     .filter((s) => {
@@ -855,7 +893,7 @@ function getValidHairStyles(
 function getValidFacialStyles(
   allStyles: FacialHairStyle[],
   species: string,
-  gender: string
+  gender: string,
 ): string[] {
   return allStyles
     .filter((s) => {
@@ -871,7 +909,7 @@ function getValidFacialStyles(
 
 function getValidMarkings(
   allMarkings: MarkingInfo[],
-  species: string
+  species: string,
 ): string[] {
   return allMarkings
     .filter((m) => {
@@ -892,7 +930,7 @@ export const CharacterSetup = (props, context) => {
   const [category, setCategory] = useLocalState<CategoryId>(
     context,
     "category",
-    "identity"
+    "identity",
   );
 
   if (data.is_guest) {
@@ -1014,10 +1052,7 @@ const rotateDir = (currentDir: number, delta: number): number => {
   return DIR_CYCLE[next];
 };
 
-const RotateControls = (props: {
-  currentDir: number;
-  act: Function;
-}) => {
+const RotateControls = (props: { currentDir: number; act: Function }) => {
   const { currentDir, act } = props;
   return (
     <Box className="CharSetup__dirControls">
@@ -1047,12 +1082,15 @@ const CharacterSlotSelector = (props: {
   context: any;
 }) => {
   const { data, act, context } = props;
-  const [showPicker, setShowPicker] = useLocalState(context, "showSlotPicker", false);
+  const [showPicker, setShowPicker] = useLocalState(
+    context,
+    "showSlotPicker",
+    false,
+  );
 
   const currentSlotName =
-    (data.character_slots_info || []).find(
-      (s) => s.slot === data.default_slot
-    )?.name || `Character ${data.default_slot}`;
+    (data.character_slots_info || []).find((s) => s.slot === data.default_slot)
+      ?.name || `Character ${data.default_slot}`;
 
   const handleOpenPicker = () => {
     if (!showPicker) {
@@ -1066,9 +1104,10 @@ const CharacterSlotSelector = (props: {
     act("loadSlot", { slot });
   };
 
-  const displayName = currentSlotName.length > 14
-    ? currentSlotName.slice(0, 13) + "…"
-    : currentSlotName;
+  const displayName =
+    currentSlotName.length > 14
+      ? currentSlotName.slice(0, 13) + "…"
+      : currentSlotName;
 
   return (
     <Box className="CharSetup__slotSelectorWrap">
@@ -1140,7 +1179,7 @@ const CharacterSlotSelector = (props: {
                     </Box>
                   </Box>
                 );
-              }
+              },
             )}
           </Box>
         </Box>
@@ -1152,17 +1191,27 @@ const CharacterSlotSelector = (props: {
 /** Generate a cache key from the render-affecting preference fields */
 function previewCacheKey(data: CharacterData): string {
   return [
-    data.species, data.gender, data.body, data.preview_dir,
-    data.s_tone, data.skin_color, data.h_style, data.hair_color,
-    data.s_hair_color, data.f_style, data.facial_color,
-    data.eye_color, data.body_height,
+    data.species,
+    data.gender,
+    data.body,
+    data.preview_dir,
+    data.s_tone,
+    data.skin_color,
+    data.h_style,
+    data.hair_color,
+    data.s_hair_color,
+    data.f_style,
+    data.facial_color,
+    data.eye_color,
+    data.body_height,
     JSON.stringify(data.organ_data),
     JSON.stringify(data.rlimb_data),
     JSON.stringify(data.underwear_render),
     JSON.stringify(data.all_underwear),
     JSON.stringify(data.equipment_render),
     JSON.stringify(data.body_markings),
-    data.hide_hair, data.hide_facial_hair,
+    data.hide_hair,
+    data.hide_facial_hair,
   ].join("|");
 }
 
@@ -1208,13 +1257,16 @@ class CharacterCanvas extends Component<
       this.doRender();
       return;
     }
-    this.initPromise = compositor.init().then(() => {
-      this.setState({ ready: true });
-      this.lastCacheKey = previewCacheKey(this.props.data);
-      this.doRender();
-    }).catch(() => {
-      // Compositor failed to load
-    });
+    this.initPromise = compositor
+      .init()
+      .then(() => {
+        this.setState({ ready: true });
+        this.lastCacheKey = previewCacheKey(this.props.data);
+        this.doRender();
+      })
+      .catch(() => {
+        // Compositor failed to load
+      });
   }
 
   doRender() {
@@ -1238,7 +1290,7 @@ class CharacterCanvas extends Component<
           className="CharSetup__previewCanvas"
           width={192}
           height={192}
-          style={{ display: ready ? undefined : 'none' }}
+          style={{ display: ready ? undefined : "none" }}
         />
         {!ready && (
           <Box className="CharSetup__previewLoading">
@@ -1291,10 +1343,7 @@ class SlotThumbnail extends Component<
   render() {
     if (this.state.url) {
       return (
-        <img
-          className="CharSetup__slotPickerPreviewImg"
-          src={this.state.url}
-        />
+        <img className="CharSetup__slotPickerPreviewImg" src={this.state.url} />
       );
     }
     return <Icon name="user" style={{ opacity: 0.3 }} />;
@@ -1328,15 +1377,15 @@ class CompositorPreview extends Component<
   tryRender() {
     const compositor = getCompositor();
     if (!compositor.isReady()) {
-      compositor.init().then(() => this.tryRender()).catch(() => {});
+      compositor
+        .init()
+        .then(() => this.tryRender())
+        .catch(() => {});
       return;
     }
     const config = buildRenderConfig(this.props.data);
     if (!config) return;
-    const url = compositor.renderCharacter(
-      config,
-      this.props.size || 64,
-    );
+    const url = compositor.renderCharacter(config, this.props.size || 64);
     if (url) {
       this.setState({ url });
     }
@@ -1402,12 +1451,7 @@ class GearSpriteIcon extends Component<
 
   render() {
     if (this.state.url) {
-      return (
-        <img
-          className="CharSetup__gearSpriteIcon"
-          src={this.state.url}
-        />
-      );
+      return <img className="CharSetup__gearSpriteIcon" src={this.state.url} />;
     }
     return <Icon name="question" />;
   }
@@ -1431,11 +1475,14 @@ const CharacterPreview = (props: {
       <RotateControls currentDir={data.preview_dir} act={act} />
 
       {/* Name display */}
-      <Box className="CharSetup__previewName">
-        {data.real_name}
-      </Box>
+      <Box className="CharSetup__previewName">{data.real_name}</Box>
       <Box className="CharSetup__previewMeta">
-        {data.species} &middot; {data.gender === "male" ? "M" : data.gender === "female" ? "F" : data.gender?.charAt(0).toUpperCase()}{" "}
+        {data.species} &middot;{" "}
+        {data.gender === "male"
+          ? "M"
+          : data.gender === "female"
+            ? "F"
+            : data.gender?.charAt(0).toUpperCase()}{" "}
         &middot; {data.age}
       </Box>
 
@@ -1465,9 +1512,7 @@ const CharacterPreview = (props: {
           icon="tshirt"
           tooltip="Toggle job gear preview"
           selected={!!(data.equip_preview_mob & EQUIP_PREVIEW_JOB)}
-          onClick={() =>
-            act("togglePreviewFlag", { flag: EQUIP_PREVIEW_JOB })
-          }
+          onClick={() => act("togglePreviewFlag", { flag: EQUIP_PREVIEW_JOB })}
         />
         <CsButton
           compact
@@ -1518,7 +1563,6 @@ const CategoryPanel = (props: {
   }
 };
 
-
 // ================================================================
 // Identity Panel
 // ================================================================
@@ -1534,12 +1578,14 @@ const IdentityPanel = (props: {
   const [showSpeciesInfo, setShowSpeciesInfo] = useLocalState(
     context,
     "showSpeciesInfo",
-    false
+    false,
   );
 
   // Generate a deterministic "card number" from the character name
   const cardNum = data.real_name
-    ? data.real_name.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % 90000 + 10000
+    ? (data.real_name.split("").reduce((a, c) => a + c.charCodeAt(0), 0) %
+        90000) +
+      10000
     : "00000";
 
   // Find high-priority job info for card coloring
@@ -1552,273 +1598,266 @@ const IdentityPanel = (props: {
 
   return (
     <>
-    <Box
-      className="CharSetup__idCard"
-      style={{
-        "--id-accent": cardColor,
-        borderColor: `${cardColor}22`,
-      }}
-    >
-      {/* Top stripe — colored by department */}
       <Box
-        className="CharSetup__idCardStripe"
+        className="CharSetup__idCard"
         style={{
-          background: `linear-gradient(90deg, ${cardColor}88 0%, ${cardColor}55 50%, ${cardColor}30 100%)`,
-          borderBottomColor: `${cardColor}66`,
+          "--id-accent": cardColor,
+          borderColor: `${cardColor}22`,
         }}
       >
-        <Box className="CharSetup__idCardStripeLogo" style={{ color: "#fff" }}>
-          <Icon name="atom" mr={0.75} />
-          NANOTRASEN CORPORATION
-        </Box>
-        <Box className="CharSetup__idCardStripeRight" style={{ color: "rgba(255,255,255,0.7)" }}>
-          NT-{cardNum}
-        </Box>
-      </Box>
-
-      {/* Main card body */}
-      <Box className="CharSetup__idCardBody">
-        {/* Left column: headshot + stamp */}
-        <Box className="CharSetup__idCardLeft">
-          {/* Headshot photo */}
-          <Box className="CharSetup__idCardPhoto">
-            <Box className="CharSetup__idCardPhotoInner">
-              <CompositorPreview
-                data={data}
-                size={64}
-                className="CharSetup__idCardHeadshot"
-              />
-            </Box>
-            <Box className="CharSetup__idCardPhotoLabel">
-              PERSONNEL PHOTO
-            </Box>
+        {/* Top stripe — colored by department */}
+        <Box
+          className="CharSetup__idCardStripe"
+          style={{
+            background: `linear-gradient(90deg, ${cardColor}88 0%, ${cardColor}55 50%, ${cardColor}30 100%)`,
+            borderBottomColor: `${cardColor}66`,
+          }}
+        >
+          <Box
+            className="CharSetup__idCardStripeLogo"
+            style={{ color: "#fff" }}
+          >
+            <Icon name="atom" mr={0.75} />
+            NANOTRASEN CORPORATION
           </Box>
-
-          {/* Barcode */}
-          <Box className="CharSetup__idCardBarcode">
-            ||||| ||| || |||| ||| |||||| || |||
+          <Box
+            className="CharSetup__idCardStripeRight"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+          >
+            NT-{cardNum}
           </Box>
         </Box>
 
-        {/* Right column: all editable fields */}
-        <Box className="CharSetup__idCardFields">
-          {/* Name — big field */}
-          <Box className="CharSetup__idCardField">
-            <Box className="CharSetup__idCardFieldLabel">Full Name</Box>
-            <Stack>
-              <Stack.Item grow>
-                <Input
-                  fluid
-                  value={data.real_name}
-                  maxLength={data.config.max_name_len}
-                  onEnter={(e, val) => act("setName", { name: val })}
-                  onChange={(e, val) => act("setName", { name: val })}
+        {/* Main card body */}
+        <Box className="CharSetup__idCardBody">
+          {/* Left column: headshot + stamp */}
+          <Box className="CharSetup__idCardLeft">
+            {/* Headshot photo */}
+            <Box className="CharSetup__idCardPhoto">
+              <Box className="CharSetup__idCardPhotoInner">
+                <CompositorPreview
+                  data={data}
+                  size={64}
+                  className="CharSetup__idCardHeadshot"
                 />
-              </Stack.Item>
-              <Stack.Item>
-                <CsButton
-                  compact
-                  icon="dice"
-                  tooltip="Randomize name"
-                  onClick={() => act("randomizeName")}
-                />
-              </Stack.Item>
-            </Stack>
-            <CsButton
-              mt={0.125}
-              checked={!!data.be_random_name}
-              onClick={() => act("toggleRandomName")}
-            >
-              Always randomize
-            </CsButton>
+              </Box>
+              <Box className="CharSetup__idCardPhotoLabel">PERSONNEL PHOTO</Box>
+            </Box>
+
+            {/* Barcode */}
+            <Box className="CharSetup__idCardBarcode">
+              ||||| ||| || |||| ||| |||||| || |||
+            </Box>
           </Box>
 
-          {/* Species + Info */}
-          <Box className="CharSetup__idCardField">
-            <Box className="CharSetup__idCardFieldLabel">Species</Box>
-            <Stack>
-              <Stack.Item grow>
+          {/* Right column: all editable fields */}
+          <Box className="CharSetup__idCardFields">
+            {/* Name — big field */}
+            <Box className="CharSetup__idCardField">
+              <Box className="CharSetup__idCardFieldLabel">Full Name</Box>
+              <Stack>
+                <Stack.Item grow>
+                  <Input
+                    fluid
+                    value={data.real_name}
+                    maxLength={data.config.max_name_len}
+                    onEnter={(e, val) => act("setName", { name: val })}
+                    onChange={(e, val) => act("setName", { name: val })}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <CsButton
+                    compact
+                    icon="dice"
+                    tooltip="Randomize name"
+                    onClick={() => act("randomizeName")}
+                  />
+                </Stack.Item>
+              </Stack>
+              <CsButton
+                mt={0.125}
+                checked={!!data.be_random_name}
+                onClick={() => act("toggleRandomName")}
+              >
+                Always randomize
+              </CsButton>
+            </Box>
+
+            {/* Species + Info */}
+            <Box className="CharSetup__idCardField">
+              <Box className="CharSetup__idCardFieldLabel">Species</Box>
+              <Stack>
+                <Stack.Item grow>
+                  <Dropdown
+                    fluid
+                    selected={data.species}
+                    options={data.species_list.map((s) => s.name)}
+                    onSelected={(val) => act("setSpecies", { species: val })}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <CsButton
+                    compact
+                    icon="info-circle"
+                    tooltip={
+                      showSpeciesInfo
+                        ? "Hide species info"
+                        : "Show species info"
+                    }
+                    onClick={() => setShowSpeciesInfo(!showSpeciesInfo)}
+                  />
+                </Stack.Item>
+              </Stack>
+              {showSpeciesInfo && speciesInfo && (
+                <Box className="CharSetup__infoBlurb" mt={0.375}>
+                  {speciesInfo.blurb || "No description available."}
+                </Box>
+              )}
+            </Box>
+
+            {/* Gender + Age row */}
+            <Box className="CharSetup__idCardFieldRow">
+              <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
+                <Box className="CharSetup__idCardFieldLabel">Gender</Box>
+                <Box>
+                  {(speciesInfo?.genders || ["male", "female"]).map((g) => (
+                    <CsButton
+                      key={g}
+                      compact
+                      selected={data.gender === g}
+                      icon={
+                        g === "male"
+                          ? "mars"
+                          : g === "female"
+                            ? "venus"
+                            : "genderless"
+                      }
+                      color={
+                        data.gender === g
+                          ? g === "male"
+                            ? "blue"
+                            : g === "female"
+                              ? "pink"
+                              : "grey"
+                          : undefined
+                      }
+                      tooltip={
+                        g === "male" ? "Male" : g === "female" ? "Female" : g
+                      }
+                      onClick={() => act("setGender", { gender: g })}
+                    />
+                  ))}
+                </Box>
+              </Box>
+              <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
+                <Box className="CharSetup__idCardFieldLabel">Age</Box>
+                <Box className="CharSetup__ageInputWrap">
+                  <NumberInput
+                    value={data.age}
+                    minValue={speciesInfo?.min_age || 17}
+                    maxValue={speciesInfo?.max_age || 85}
+                    step={1}
+                    onChange={(e, val) => act("setAge", { age: val })}
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Two-column row: Blood Type + Body Build */}
+            <Box className="CharSetup__idCardFieldRow">
+              <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
+                <Box className="CharSetup__idCardFieldLabel">Blood Type</Box>
                 <Dropdown
                   fluid
-                  selected={data.species}
-                  options={data.species_list.map((s) => s.name)}
-                  onSelected={(val) => act("setSpecies", { species: val })}
+                  selected={data.b_type}
+                  options={data.blood_types}
+                  onSelected={(val) => act("setBloodType", { blood_type: val })}
                 />
-              </Stack.Item>
-              <Stack.Item>
-                <CsButton
-                  compact
-                  icon="info-circle"
-                  tooltip={showSpeciesInfo ? "Hide species info" : "Show species info"}
-                  onClick={() => setShowSpeciesInfo(!showSpeciesInfo)}
+              </Box>
+              <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
+                <Box className="CharSetup__idCardFieldLabel">Body Build</Box>
+                <Dropdown
+                  fluid
+                  selected={data.body}
+                  options={bodyBuilds}
+                  onSelected={(val) => act("setBody", { body: val })}
                 />
-              </Stack.Item>
-            </Stack>
-            {showSpeciesInfo && speciesInfo && (
-              <Box className="CharSetup__infoBlurb" mt={0.375}>
-                {speciesInfo.blurb || "No description available."}
+              </Box>
+            </Box>
+
+            {/* Height */}
+            <Box className="CharSetup__idCardField">
+              <Box className="CharSetup__idCardFieldLabel">Height</Box>
+              <Dropdown
+                width="9rem"
+                reselectable
+                selected={
+                  data.body_heights.find((h) => h.value === data.body_height)
+                    ?.label || ""
+                }
+                options={data.body_heights.map((h) => h.label)}
+                onSelected={(label: string) => {
+                  const h = data.body_heights.find((h) => h.label === label);
+                  if (h) act("setHeight", { height: h.value });
+                }}
+              />
+            </Box>
+
+            {/* OOC Notes */}
+            {!!data.config.allow_metadata && (
+              <Box className="CharSetup__idCardField">
+                <Box className="CharSetup__idCardFieldLabel">OOC Notes</Box>
+                <Input
+                  fluid
+                  value={data.metadata || ""}
+                  onEnter={(e, val) => act("setMetadata", { metadata: val })}
+                  onChange={(e, val) => act("setMetadata", { metadata: val })}
+                />
               </Box>
             )}
           </Box>
+        </Box>
 
-          {/* Gender + Age row */}
-          <Box className="CharSetup__idCardFieldRow">
-            <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
-              <Box className="CharSetup__idCardFieldLabel">Gender</Box>
-              <Box>
-                {(speciesInfo?.genders || ["male", "female"]).map((g) => (
-                  <CsButton
-                    key={g}
-                    compact
-                    selected={data.gender === g}
-                    icon={g === "male" ? "mars" : g === "female" ? "venus" : "genderless"}
-                    color={data.gender === g ? (g === "male" ? "blue" : g === "female" ? "pink" : "grey") : undefined}
-                    tooltip={g === "male" ? "Male" : g === "female" ? "Female" : g}
-                    onClick={() => act("setGender", { gender: g })}
-                  />
-                ))}
-              </Box>
-            </Box>
-            <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
-              <Box className="CharSetup__idCardFieldLabel">Age</Box>
-              <Box className="CharSetup__ageInputWrap">
-                <NumberInput
-                  value={data.age}
-                  minValue={speciesInfo?.min_age || 17}
-                  maxValue={speciesInfo?.max_age || 85}
-                  step={1}
-                  onChange={(e, val) => act("setAge", { age: val })}
-                />
-              </Box>
-            </Box>
+        {/* Stamp overlay — positioned absolutely over the card */}
+        <Box className="CharSetup__idCardStamp">
+          <img
+            src={getStampForJob(highJob)}
+            className="CharSetup__idCardStampImg"
+            alt="stamp"
+          />
+        </Box>
+
+        {/* Bottom edge — card number + role */}
+        <Box
+          className="CharSetup__idCardFooter"
+          style={{ borderTopColor: `${cardColor}14` }}
+        >
+          <Box>
+            ID: NT-{cardNum}-
+            {data.species?.substring(0, 3).toUpperCase() || "UNK"}
           </Box>
-
-          {/* Two-column row: Blood Type + Body Build */}
-          <Box className="CharSetup__idCardFieldRow">
-            <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
-              <Box className="CharSetup__idCardFieldLabel">Blood Type</Box>
-              <Dropdown
-                fluid
-                selected={data.b_type}
-                options={data.blood_types}
-                onSelected={(val) => act("setBloodType", { blood_type: val })}
-              />
-            </Box>
-            <Box className="CharSetup__idCardField" style={{ flex: "1" }}>
-              <Box className="CharSetup__idCardFieldLabel">Body Build</Box>
-              <Dropdown
-                fluid
-                selected={data.body}
-                options={bodyBuilds}
-                onSelected={(val) => act("setBody", { body: val })}
-              />
-            </Box>
-          </Box>
-
-          {/* Height */}
-          <Box className="CharSetup__idCardField">
-            <Box className="CharSetup__idCardFieldLabel">Height</Box>
-            <Dropdown
-              width="9rem"
-              reselectable
-              selected={
-                data.body_heights.find((h) => h.value === data.body_height)
-                  ?.label || ""
-              }
-              options={data.body_heights.map((h) => h.label)}
-              onSelected={(label: string) => {
-                const h = data.body_heights.find((h) => h.label === label);
-                if (h) act("setHeight", { height: h.value });
-              }}
-            />
-          </Box>
-
-          {/* OOC Notes */}
-          {!!data.config.allow_metadata && (
-            <Box className="CharSetup__idCardField">
-              <Box className="CharSetup__idCardFieldLabel">OOC Notes</Box>
-              <Input
-                fluid
-                value={data.metadata || ""}
-                onEnter={(e, val) => act("setMetadata", { metadata: val })}
-                onChange={(e, val) => act("setMetadata", { metadata: val })}
-              />
-            </Box>
-          )}
-
-          {/* Origin section */}
-          <Box className="CharSetup__idCardSectionSep">Origin</Box>
-
-          {/* Faction + Religion + Home System — one row, width-capped to avoid stamp */}
-          <Box className="CharSetup__idCardFieldRow" style={{ maxWidth: "calc(100% - 9rem)" }}>
-            <Box className="CharSetup__idCardField">
-              <Box className="CharSetup__idCardFieldLabel">Faction</Box>
-              <Dropdown
-                fluid
-                selected={data.background}
-                options={data.backgrounds || []}
-                onSelected={(val: string) =>
-                  act("setBackground", { value: val })
-                }
-              />
-            </Box>
-            <Box className="CharSetup__idCardField">
-              <Box className="CharSetup__idCardFieldLabel">Religion</Box>
-              <Dropdown
-                fluid
-                selected={data.religion}
-                options={data.religions || []}
-                onSelected={(val: string) =>
-                  act("setReligion", { value: val })
-                }
-              />
-            </Box>
-            <Box className="CharSetup__idCardField">
-              <Box className="CharSetup__idCardFieldLabel">
-                Home System
-              </Box>
-              <Dropdown
-                fluid
-                selected={data.home_system}
-                options={data.home_systems || []}
-                onSelected={(val: string) =>
-                  act("setHomeSystem", { value: val })
-                }
-              />
-            </Box>
+          <Box style={{ color: `${cardColor}55` }}>
+            {cardDept
+              ? `${cardDept.toUpperCase()} — ${cardRole.toUpperCase()}`
+              : "CLEARANCE: PENDING ASSIGNMENT"}
           </Box>
         </Box>
       </Box>
 
-      {/* Stamp overlay — positioned absolutely over the card */}
-      <Box className="CharSetup__idCardStamp">
-        <img
-          src={getStampForJob(highJob)}
-          className="CharSetup__idCardStampImg"
-          alt="stamp"
-        />
+      {/* ── Card backside divider ── */}
+      <Box className="CharSetup__idCardDivider">
+        <Icon name="rotate" mr={0.5} />
+        CARD REVERSE
       </Box>
 
-      {/* Bottom edge — card number + role */}
-      <Box
-        className="CharSetup__idCardFooter"
-        style={{ borderTopColor: `${cardColor}14` }}
-      >
-        <Box>ID: NT-{cardNum}-{data.species?.substring(0, 3).toUpperCase() || "UNK"}</Box>
-        <Box style={{ color: `${cardColor}55` }}>
-          {cardDept ? `${cardDept.toUpperCase()} — ${cardRole.toUpperCase()}` : "CLEARANCE: PENDING ASSIGNMENT"}
-        </Box>
-      </Box>
-    </Box>
-
-    {/* ── Card backside divider ── */}
-    <Box className="CharSetup__idCardDivider">
-      <Icon name="rotate" mr={0.5} />
-      CARD REVERSE
-    </Box>
-
-    {/* ── ID Card Back — Appearance controls ── */}
-    <AppearanceCardBack data={data} act={act} context={context} cardColor={cardColor} cardNum={cardNum} />
+      {/* ── ID Card Back — Appearance controls ── */}
+      <AppearanceCardBack
+        data={data}
+        act={act}
+        context={context}
+        cardColor={cardColor}
+        cardNum={cardNum}
+      />
     </>
   );
 };
@@ -1841,18 +1880,18 @@ const AppearanceCardBack = (props: {
   const secondaryIsSkin = !!(flags & SECONDARY_HAIR_IS_SKIN);
   const validMarkings = getValidMarkings(
     data.body_markings_available,
-    data.species
+    data.species,
   );
 
   const validHairStyles = getValidHairStyles(
     data.hair_styles,
     data.species,
-    data.gender
+    data.gender,
   );
   const validFacialStyles = getValidFacialStyles(
     data.facial_hair_styles,
     data.species,
-    data.gender
+    data.gender,
   );
 
   return (
@@ -1862,7 +1901,6 @@ const AppearanceCardBack = (props: {
 
       {/* Main content area */}
       <Box className="CharSetup__idCardBackContent">
-
         {/* Skin Tone */}
         {!!(flags & HAS_A_SKIN_TONE) && (
           <Box mb={0.75}>
@@ -1922,9 +1960,10 @@ const AppearanceCardBack = (props: {
                       tooltip="Previous style"
                       onClick={() => {
                         const idx = validHairStyles.indexOf(data.h_style);
-                        const prev = idx <= 0
-                          ? validHairStyles[validHairStyles.length - 1]
-                          : validHairStyles[idx - 1];
+                        const prev =
+                          idx <= 0
+                            ? validHairStyles[validHairStyles.length - 1]
+                            : validHairStyles[idx - 1];
                         act("setHairStyle", { style: prev });
                       }}
                     />
@@ -1935,9 +1974,10 @@ const AppearanceCardBack = (props: {
                       ml={0.25}
                       onClick={() => {
                         const idx = validHairStyles.indexOf(data.h_style);
-                        const next = idx >= validHairStyles.length - 1
-                          ? validHairStyles[0]
-                          : validHairStyles[idx + 1];
+                        const next =
+                          idx >= validHairStyles.length - 1
+                            ? validHairStyles[0]
+                            : validHairStyles[idx + 1];
                         act("setHairStyle", { style: next });
                       }}
                     />
@@ -1960,9 +2000,10 @@ const AppearanceCardBack = (props: {
                       tooltip="Previous style"
                       onClick={() => {
                         const idx = validFacialStyles.indexOf(data.f_style);
-                        const prev = idx <= 0
-                          ? validFacialStyles[validFacialStyles.length - 1]
-                          : validFacialStyles[idx - 1];
+                        const prev =
+                          idx <= 0
+                            ? validFacialStyles[validFacialStyles.length - 1]
+                            : validFacialStyles[idx - 1];
                         act("setFacialStyle", { style: prev });
                       }}
                     />
@@ -1973,9 +2014,10 @@ const AppearanceCardBack = (props: {
                       ml={0.25}
                       onClick={() => {
                         const idx = validFacialStyles.indexOf(data.f_style);
-                        const next = idx >= validFacialStyles.length - 1
-                          ? validFacialStyles[0]
-                          : validFacialStyles[idx + 1];
+                        const next =
+                          idx >= validFacialStyles.length - 1
+                            ? validFacialStyles[0]
+                            : validFacialStyles[idx + 1];
                         act("setFacialStyle", { style: next });
                       }}
                     />
@@ -2054,12 +2096,6 @@ const AppearanceCardBack = (props: {
                   />
                 </Box>
               )}
-
-            </Box>
-
-            {/* THIRD COL — Languages */}
-            <Box className="CharSetup__idCardBackCol">
-              <LanguagesCompact data={data} act={act} />
             </Box>
           </Box>
         )}
@@ -2073,7 +2109,11 @@ const AppearanceCardBack = (props: {
                 <Box style={{ flex: "1" }}>{m.name}</Box>
                 <Box
                   className="CharSetup__idCardColorSwatch"
-                  style={{ "background-color": m.color, width: "1.125rem", height: "1.125rem" }}
+                  style={{
+                    "background-color": m.color,
+                    width: "1.125rem",
+                    height: "1.125rem",
+                  }}
                 />
                 <CsButton
                   compact
@@ -2097,7 +2137,7 @@ const AppearanceCardBack = (props: {
               mt={0.25}
               displayText="+ Add marking..."
               options={validMarkings.filter(
-                (m) => !data.body_markings.find((bm) => bm.name === m)
+                (m) => !data.body_markings.find((bm) => bm.name === m),
               )}
               onSelected={(val) => act("addBodyMarking", { marking: val })}
             />
@@ -2199,8 +2239,14 @@ const SlotTile = (props: {
 // --- Compact slot icon button (used in the icon bar below the doll) ---
 
 const SLOT_ABBR: Record<string, string> = {
-  "Head": "HEAD", "Eyes": "EYES", "Mask": "MASK", "Accessory": "ACC",
-  "Uniform": "UNIF", "Suit": "SUIT", "Gloves": "GLOV", "Shoes": "SHOE",
+  Head: "HEAD",
+  Eyes: "EYES",
+  Mask: "MASK",
+  Accessory: "ACC",
+  Uniform: "UNIF",
+  Suit: "SUIT",
+  Gloves: "GLOV",
+  Shoes: "SHOE",
 };
 
 const SlotIconBtn = (props: {
@@ -2250,12 +2296,24 @@ const ZONE_SLOTS: Array<{
   organTags?: string[];
   clothingItem?: { dmiFile: string; state: string };
 }> = [
-  { slot: "Gloves",  organTags: ["l_hand", "r_hand"] },
-  { slot: "Shoes",   organTags: ["l_foot", "r_foot"] },
-  { slot: "Suit",    organTags: ["l_arm", "r_arm"] },
-  { slot: "Eyes",    clothingItem: { dmiFile: "icons/inv_slots/glasses/mob.dmi", state: "glasses" } },
-  { slot: "Mask",    clothingItem: { dmiFile: "icons/inv_slots/masks/mob.dmi",   state: "sterile" } },
-  { slot: "Head",    organTags: ["head"] },
+  { slot: "Gloves", organTags: ["l_hand", "r_hand"] },
+  { slot: "Shoes", organTags: ["l_foot", "r_foot"] },
+  { slot: "Suit", organTags: ["l_arm", "r_arm"] },
+  {
+    slot: "Eyes",
+    clothingItem: {
+      dmiFile: "icons/inv_slots/glasses/mob.dmi",
+      state: "glasses",
+    },
+  },
+  {
+    slot: "Mask",
+    clothingItem: {
+      dmiFile: "icons/inv_slots/masks/mob.dmi",
+      state: "sterile",
+    },
+  },
+  { slot: "Head", organTags: ["head"] },
   { slot: "Uniform", organTags: ["chest", "groin"] },
 ];
 
@@ -2264,12 +2322,12 @@ const ZONE_SLOTS: Array<{
  * Eyes and Mask use equipment sprites (handled in buildHighlights via ZONE_SLOTS).
  */
 const SLOT_ORGAN_TAGS: Record<string, string[]> = {
-  "Head":      ["head"],
-  "Accessory": ["chest", "groin"],
-  "Uniform":   ["chest", "groin"],
-  "Suit":      ["l_arm", "r_arm"],
-  "Gloves":    ["l_hand", "r_hand"],
-  "Shoes":     ["l_foot", "r_foot"],
+  Head: ["head"],
+  Accessory: ["chest", "groin"],
+  Uniform: ["chest", "groin"],
+  Suit: ["l_arm", "r_arm"],
+  Gloves: ["l_hand", "r_hand"],
+  Shoes: ["l_foot", "r_foot"],
 };
 
 /** Cache key for the parts of data that affect body-part silhouette rendering */
@@ -2328,13 +2386,22 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
     // Render display highlights: body-part based slots
     const highlightUrls: Record<string, string> = {};
     for (const [slot, organTags] of Object.entries(SLOT_ORGAN_TAGS)) {
-      highlightUrls[slot] = compositor.renderBodyPartHighlight(config, organTags, teal, 320);
+      highlightUrls[slot] = compositor.renderBodyPartHighlight(
+        config,
+        organTags,
+        teal,
+        320,
+      );
     }
     // Equipment-sprite based slots (Eyes, Mask) — shown on doll as actual item silhouettes
     for (const zone of ZONE_SLOTS) {
       if (zone.clothingItem) {
         highlightUrls[zone.slot] = compositor.renderEquipmentHighlight(
-          config.direction, zone.clothingItem.dmiFile, zone.clothingItem.state, teal, 320,
+          config.direction,
+          zone.clothingItem.dmiFile,
+          zone.clothingItem.state,
+          teal,
+          320,
         );
       }
     }
@@ -2352,7 +2419,11 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
 
     for (const zone of ZONE_SLOTS) {
       const url = highlightUrls[zone.slot];
-      if (!url) { pending--; done(); continue; }
+      if (!url) {
+        pending--;
+        done();
+        continue;
+      }
 
       const canvas = document.createElement("canvas");
       canvas.width = 320;
@@ -2365,7 +2436,10 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
         pending--;
         done();
       };
-      img.onerror = () => { pending--; done(); };
+      img.onerror = () => {
+        pending--;
+        done();
+      };
       img.src = url;
     }
 
@@ -2416,7 +2490,8 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
   };
 
   render() {
-    const { data, equippedBySlot, selectedSlotName, currentDir, act } = this.props;
+    const { data, equippedBySlot, selectedSlotName, currentDir, act } =
+      this.props;
     const { hoveredSlot, highlightUrls } = this.state;
     const activeSlot = hoveredSlot || selectedSlotName;
 
@@ -2424,7 +2499,9 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
       <>
         <div
           className="CharSetup__dollContainer"
-          ref={(el: HTMLElement) => { this.containerEl = el; }}
+          ref={(el: HTMLElement) => {
+            this.containerEl = el;
+          }}
           onMouseMove={this.handleMouseMove}
           onMouseLeave={this.handleMouseLeave}
           onClick={this.handleClick}
@@ -2447,7 +2524,9 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
                   className={classes([
                     "CharSetup__dollPartHighlight",
                     isHovered && "CharSetup__dollPartHighlight--hovered",
-                    isEquipped && !isHovered && "CharSetup__dollPartHighlight--equipped",
+                    isEquipped &&
+                      !isHovered &&
+                      "CharSetup__dollPartHighlight--equipped",
                   ])}
                 />
               );
@@ -2469,8 +2548,15 @@ class CharacterDoll extends Component<CharacterDollProps, CharacterDollState> {
 // Categories that map directly to body slots
 // and hidden from the misc category browser.
 const SLOT_CATEGORIES = new Set([
-  "Hats", "Glasses", "Masks", "Earwear", "Gloves", "Shoes",
-  "Suits", "Uniforms", "Clothing Pieces",
+  "Hats",
+  "Glasses",
+  "Masks",
+  "Earwear",
+  "Gloves",
+  "Shoes",
+  "Suits",
+  "Uniforms",
+  "Clothing Pieces",
 ]);
 
 // --- Misc item browser: collapsible categories ---
@@ -2488,10 +2574,11 @@ const MiscItemBrowser = (props: {
   act: Function;
   context: any;
 }) => {
-  const { categories, equippedGear, selectedHash, onSelectGear, act, context } = props;
-  const [expandedCats, setExpandedCats] = useLocalState<Record<string, boolean>>(
-    context, "miscExpandedCats", {}
-  );
+  const { categories, equippedGear, selectedHash, onSelectGear, act, context } =
+    props;
+  const [expandedCats, setExpandedCats] = useLocalState<
+    Record<string, boolean>
+  >(context, "miscExpandedCats", {});
 
   const isExpanded = (name: string) => expandedCats[name] !== false;
   const toggleCat = (name: string) =>
@@ -2514,7 +2601,10 @@ const MiscItemBrowser = (props: {
             onClick={() => toggleCat(cat.name)}
           >
             <Box className="CharSetup__miscCatHeader__label">{cat.name}</Box>
-            <Icon name={isExpanded(cat.name) ? "chevron-down" : "chevron-right"} color="label" />
+            <Icon
+              name={isExpanded(cat.name) ? "chevron-down" : "chevron-right"}
+              color="label"
+            />
           </Box>
           {isExpanded(cat.name) && (
             <LoadoutItemList
@@ -2543,33 +2633,33 @@ const LoadoutSubPanel = (props: {
   const [searchText, setSearchText] = useLocalState(
     context,
     "loadoutSearch",
-    ""
+    "",
   );
   const [selectedSlotName, setSelectedSlotName] = useLocalState<string | null>(
     context,
     "loadoutSlotName",
-    null
+    null,
   );
   const [wardrobeView, setWardrobeView] = useLocalState(
     context,
     "wardrobeView",
-    "equipment" as "equipment" | "misc"
+    "equipment" as "equipment" | "misc",
   );
   // Misc categories — only categories NOT covered by body slots
   const miscCategories = (data.loadout_categories || []).filter(
-    (cat) => !SLOT_CATEGORIES.has(cat.name)
+    (cat) => !SLOT_CATEGORIES.has(cat.name),
   );
 
   const [detailOpen, setDetailOpen] = useLocalState(
     context,
     "loadoutDetailOpen",
-    false
+    false,
   );
 
   const [selectedCategory, setSelectedCategory] = useLocalState(
     context,
     "loadoutCategory",
-    miscCategories.length > 0 ? miscCategories[0].name : ""
+    miscCategories.length > 0 ? miscCategories[0].name : "",
   );
 
   // Build slot name → slotId mapping from data
@@ -2580,7 +2670,7 @@ const LoadoutSubPanel = (props: {
 
   // All items flattened
   const allItems: GearItem[] = (data.loadout_categories || []).flatMap(
-    (cat) => cat.items || []
+    (cat) => cat.items || [],
   );
 
   // Build equipped items by slot name for the body diagram
@@ -2588,7 +2678,7 @@ const LoadoutSubPanel = (props: {
   for (const item of allItems) {
     if (data.equippedGear?.[item.hash]) {
       const slotType = (data.loadout_slot_types || []).find(
-        (st) => st.slotId === item.slot
+        (st) => st.slotId === item.slot,
       );
       if (slotType) {
         if (!equippedBySlot[slotType.name]) {
@@ -2623,24 +2713,31 @@ const LoadoutSubPanel = (props: {
   // Apply client-side filters
   if (data.hideUnavailable) {
     displayItems = displayItems.filter(
-      (item) => item.allowed || data.equippedGear?.[item.hash]
+      (item) => item.allowed || data.equippedGear?.[item.hash],
     );
   }
   if (data.hideDonate) {
     displayItems = displayItems.filter(
-      (item) => !item.price && !item.patronTier
+      (item) => !item.price && !item.patronTier,
     );
   }
 
   // Filter misc categories too
-  const filteredMiscCategories = miscCategories.map((cat) => ({
-    ...cat,
-    items: cat.items.filter((item) => {
-      if (data.hideUnavailable && !item.allowed && !data.equippedGear?.[item.hash]) return false;
-      if (data.hideDonate && (item.price || item.patronTier)) return false;
-      return true;
-    }),
-  })).filter((cat) => cat.items.length > 0);
+  const filteredMiscCategories = miscCategories
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter((item) => {
+        if (
+          data.hideUnavailable &&
+          !item.allowed &&
+          !data.equippedGear?.[item.hash]
+        )
+          return false;
+        if (data.hideDonate && (item.price || item.patronTier)) return false;
+        return true;
+      }),
+    }))
+    .filter((cat) => cat.items.length > 0);
 
   // Right-panel item browser
   const itemBrowser = (
@@ -2671,38 +2768,41 @@ const LoadoutSubPanel = (props: {
           </Box>
         )}
       </Stack.Item>
-      {(showingItems || (wardrobeView === "misc" && !searchText)) && detailOpen && data.selectedGearDetail && (
-        <Stack.Item>
-          <Stack align="center">
-            <Stack.Item grow>
-              <Divider />
-            </Stack.Item>
-            <Stack.Item>
-              <CsButton
-                compact
-                icon="times"
-                onClick={() => {
-                  setDetailOpen(false);
-                  act("selectGear", { hash: "" });
-                }}
+      {(showingItems || (wardrobeView === "misc" && !searchText)) &&
+        detailOpen &&
+        data.selectedGearDetail && (
+          <Stack.Item>
+            <Stack align="center">
+              <Stack.Item grow>
+                <Divider />
+              </Stack.Item>
+              <Stack.Item>
+                <CsButton
+                  compact
+                  icon="times"
+                  onClick={() => {
+                    setDetailOpen(false);
+                    act("selectGear", { hash: "" });
+                  }}
+                />
+              </Stack.Item>
+            </Stack>
+            <Box style={{ maxHeight: "9rem", overflowY: "auto" }}>
+              <LoadoutItemDetail
+                detail={data.selectedGearDetail}
+                tweaks={data.selectedGearTweaks}
+                act={act}
               />
-            </Stack.Item>
-          </Stack>
-          <Box style={{ maxHeight: "9rem", overflowY: "auto" }}>
-            <LoadoutItemDetail
-              detail={data.selectedGearDetail}
-              tweaks={data.selectedGearTweaks}
-              act={act}
-            />
-          </Box>
-        </Stack.Item>
-      )}
+            </Box>
+          </Stack.Item>
+        )}
     </Stack>
   );
 
-  const lpRatio = data.maxLoadoutPoints > 0
-    ? Math.min(data.usedLoadoutPoints / data.maxLoadoutPoints, 1)
-    : 0;
+  const lpRatio =
+    data.maxLoadoutPoints > 0
+      ? Math.min(data.usedLoadoutPoints / data.maxLoadoutPoints, 1)
+      : 0;
   const lpOverBudget = data.usedLoadoutPoints > data.maxLoadoutPoints;
 
   return (
@@ -2716,10 +2816,12 @@ const LoadoutSubPanel = (props: {
               <Icon name="suitcase" mr={0.5} />
               LOADOUT POINTS
             </Box>
-            <Box className={classes([
-              "CharSetup__lpBarWrap",
-              lpOverBudget && "CharSetup__lpBarWrap--over",
-            ])}>
+            <Box
+              className={classes([
+                "CharSetup__lpBarWrap",
+                lpOverBudget && "CharSetup__lpBarWrap--over",
+              ])}
+            >
               <Box
                 className={classes([
                   "CharSetup__lpBarFill",
@@ -2736,14 +2838,28 @@ const LoadoutSubPanel = (props: {
                 inline
                 fontSize="11px"
                 color="gold"
-                style={{ whiteSpace: "nowrap", alignSelf: "center", marginRight: "0.25rem" }}
+                style={{
+                  whiteSpace: "nowrap",
+                  alignSelf: "center",
+                  marginRight: "0.25rem",
+                }}
               >
                 <Icon name="coins" mr={0.25} />
                 {data.currentOpyxes}
               </Box>
             )}
-            <CsButton compact icon="random" onClick={() => act("randomizeLoadout")} tooltip="Random loadout" />
-            <CsButton compact icon="trash-alt" onClick={() => act("clearLoadout")} tooltip="Clear loadout" />
+            <CsButton
+              compact
+              icon="random"
+              onClick={() => act("randomizeLoadout")}
+              tooltip="Random loadout"
+            />
+            <CsButton
+              compact
+              icon="trash-alt"
+              onClick={() => act("clearLoadout")}
+              tooltip="Clear loadout"
+            />
           </Box>
           {/* Backpack + type tweak row */}
           <Box className="CharSetup__loadoutHudSetRow">
@@ -2756,14 +2872,20 @@ const LoadoutSubPanel = (props: {
               options={data.backpack_types}
               onSelected={(val) => act("setBackpack", { name: val })}
             />
-            {data.backpack_tweaks && data.backpack_tweaks.map((tweak, i) => (
-              <Dropdown
-                key={i}
-                selected={tweak.current}
-                options={tweak.options}
-                onSelected={(val) => act("setBackpackTweak", { tweakIndex: tweak.tweakIndex, value: val })}
-              />
-            ))}
+            {data.backpack_tweaks &&
+              data.backpack_tweaks.map((tweak, i) => (
+                <Dropdown
+                  key={i}
+                  selected={tweak.current}
+                  options={tweak.options}
+                  onSelected={(val) =>
+                    act("setBackpackTweak", {
+                      tweakIndex: tweak.tweakIndex,
+                      value: val,
+                    })
+                  }
+                />
+              ))}
           </Box>
           {/* Set navigation row */}
           <Box className="CharSetup__loadoutHudSetRow">
@@ -2773,9 +2895,10 @@ const LoadoutSubPanel = (props: {
               tooltip="Previous gear set"
               onClick={() =>
                 act("setGearSlot", {
-                  slot: data.currentGearSlot <= 1
-                    ? data.config.loadout_slots
-                    : data.currentGearSlot - 1,
+                  slot:
+                    data.currentGearSlot <= 1
+                      ? data.config.loadout_slots
+                      : data.currentGearSlot - 1,
                 })
               }
             />
@@ -2788,9 +2911,10 @@ const LoadoutSubPanel = (props: {
               tooltip="Next gear set"
               onClick={() =>
                 act("setGearSlot", {
-                  slot: data.currentGearSlot >= data.config.loadout_slots
-                    ? 1
-                    : data.currentGearSlot + 1,
+                  slot:
+                    data.currentGearSlot >= data.config.loadout_slots
+                      ? 1
+                      : data.currentGearSlot + 1,
                 })
               }
             />
@@ -2814,7 +2938,9 @@ const LoadoutSubPanel = (props: {
               compact
               icon={data.hideUnavailable ? "eye-slash" : "eye"}
               selected={data.hideUnavailable}
-              tooltip={data.hideUnavailable ? "Show unavailable" : "Hide unavailable"}
+              tooltip={
+                data.hideUnavailable ? "Show unavailable" : "Hide unavailable"
+              }
               onClick={() => act("toggleHideUnavailable")}
             />
           </Stack.Item>
@@ -2823,7 +2949,9 @@ const LoadoutSubPanel = (props: {
               compact
               icon="coins"
               selected={data.hideDonate}
-              tooltip={data.hideDonate ? "Show donation items" : "Hide donation items"}
+              tooltip={
+                data.hideDonate ? "Show donation items" : "Hide donation items"
+              }
               onClick={() => act("toggleHideDonate")}
             />
           </Stack.Item>
@@ -2850,83 +2978,93 @@ const LoadoutSubPanel = (props: {
               act={act}
             />
 
-              {/* Slot icon bar — 4×2 grid below the doll */}
-              <Box className="CharSetup__slotIconBar">
-                {SLOT_LABELS.map((slot) => (
-                  <SlotIconBtn
-                    key={slot.name}
-                    slot={slot}
-                    equipped={equippedBySlot[slot.name]}
-                    isActive={wardrobeView === "equipment" && selectedSlotName === slot.name && !searchText}
-                    onSelect={(name) => {
-                      setSelectedSlotName(name);
-                      setWardrobeView("equipment");
-                      setDetailOpen(false);
-                      act("selectGear", { hash: "" });
-                      setSearchText("");
-                    }}
-                  />
-                ))}
-              </Box>
-
-              {/* MISC wide button — third row below slot grid */}
-              <Box
-                className={classes([
-                  "CharSetup__miscBtn",
-                  wardrobeView === "misc" && !searchText && "CharSetup__miscBtn--active",
-                ])}
-                onClick={() => {
-                  setSearchText("");
-                  setWardrobeView("misc");
-                  setSelectedSlotName(null);
-                  setDetailOpen(false);
-                  act("selectGear", { hash: "" });
-                }}
-              >
-                <Box className="CharSetup__miscBtnIcon">
-                  <Icon name="box-open" />
-                </Box>
-                <Box className="CharSetup__miscBtnLabel">Misc</Box>
-              </Box>
-
-              {/* Underwear + Backpack — compact row below slot bar */}
-              <Box className="CharSetup__dollUnderwear">
-                {data.underwear_categories.map((cat) => {
-                  const selected = data.all_underwear?.[cat.name] || "None";
-                  const isColorable = cat.colorable?.includes(selected);
-                  const currentColor = data.all_underwear_color?.[cat.name];
-                  return (
-                    <Box key={cat.name} className="CharSetup__dollUnderwearItem">
-                      <Box className="CharSetup__dollUnderwearLabel">{cat.name}</Box>
-                      <Box className="CharSetup__dollUnderwearRow">
-                        <Dropdown
-                          fluid
-                          selected={selected}
-                          options={cat.items}
-                          onSelected={(val: string) =>
-                            act("setUnderwear", { category: cat.name, name: val })
-                          }
-                        />
-                        {isColorable && (
-                          <Box
-                            className="CharSetup__uwColorSwatch"
-                            style={{ "background-color": currentColor || "#ffffff" }}
-                            onClick={() => act("setUnderwearColor", { category: cat.name })}
-                            title="Pick color"
-                          />
-                        )}
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Box>
+            {/* Slot icon bar — 4×2 grid below the doll */}
+            <Box className="CharSetup__slotIconBar">
+              {SLOT_LABELS.map((slot) => (
+                <SlotIconBtn
+                  key={slot.name}
+                  slot={slot}
+                  equipped={equippedBySlot[slot.name]}
+                  isActive={
+                    wardrobeView === "equipment" &&
+                    selectedSlotName === slot.name &&
+                    !searchText
+                  }
+                  onSelect={(name) => {
+                    setSelectedSlotName(name);
+                    setWardrobeView("equipment");
+                    setDetailOpen(false);
+                    act("selectGear", { hash: "" });
+                    setSearchText("");
+                  }}
+                />
+              ))}
             </Box>
 
-            {/* Right: item browser */}
-            <Box className="CharSetup__wardrobeRight">
-              {itemBrowser}
+            {/* MISC wide button — third row below slot grid */}
+            <Box
+              className={classes([
+                "CharSetup__miscBtn",
+                wardrobeView === "misc" &&
+                  !searchText &&
+                  "CharSetup__miscBtn--active",
+              ])}
+              onClick={() => {
+                setSearchText("");
+                setWardrobeView("misc");
+                setSelectedSlotName(null);
+                setDetailOpen(false);
+                act("selectGear", { hash: "" });
+              }}
+            >
+              <Box className="CharSetup__miscBtnIcon">
+                <Icon name="box-open" />
+              </Box>
+              <Box className="CharSetup__miscBtnLabel">Misc</Box>
+            </Box>
+
+            {/* Underwear + Backpack — compact row below slot bar */}
+            <Box className="CharSetup__dollUnderwear">
+              {data.underwear_categories.map((cat) => {
+                const selected = data.all_underwear?.[cat.name] || "None";
+                const isColorable = cat.colorable?.includes(selected);
+                const currentColor = data.all_underwear_color?.[cat.name];
+                return (
+                  <Box key={cat.name} className="CharSetup__dollUnderwearItem">
+                    <Box className="CharSetup__dollUnderwearLabel">
+                      {cat.name}
+                    </Box>
+                    <Box className="CharSetup__dollUnderwearRow">
+                      <Dropdown
+                        fluid
+                        selected={selected}
+                        options={cat.items}
+                        onSelected={(val: string) =>
+                          act("setUnderwear", { category: cat.name, name: val })
+                        }
+                      />
+                      {isColorable && (
+                        <Box
+                          className="CharSetup__uwColorSwatch"
+                          style={{
+                            "background-color": currentColor || "#ffffff",
+                          }}
+                          onClick={() =>
+                            act("setUnderwearColor", { category: cat.name })
+                          }
+                          title="Pick color"
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                );
+              })}
             </Box>
           </Box>
+
+          {/* Right: item browser */}
+          <Box className="CharSetup__wardrobeRight">{itemBrowser}</Box>
+        </Box>
       </Stack.Item>
     </Stack>
   );
@@ -2949,13 +3087,16 @@ const LoadoutItemList = (props: {
   act: Function;
   context: any;
 }) => {
-  const { items, equippedGear, selectedHash, onSelectGear, act, context } = props;
+  const { items, equippedGear, selectedHash, onSelectGear, act, context } =
+    props;
   const [ctxMenu, setCtxMenu] = useLocalState<ContextMenuState | null>(
-    context, "gearCtxMenu", null,
+    context,
+    "gearCtxMenu",
+    null,
   );
-  const [collapsedGroups, setCollapsedGroups] = useLocalState<Record<string, boolean>>(
-    context, "gearCollapsedGroups", {},
-  );
+  const [collapsedGroups, setCollapsedGroups] = useLocalState<
+    Record<string, boolean>
+  >(context, "gearCollapsedGroups", {});
 
   if (!items || items.length === 0) {
     return (
@@ -3000,9 +3141,13 @@ const LoadoutItemList = (props: {
                       className="CharSetup__miscCatHeader"
                       onClick={() => toggleGroup(sg)}
                     >
-                      <Box className="CharSetup__miscCatHeader__label">{sg}</Box>
+                      <Box className="CharSetup__miscCatHeader__label">
+                        {sg}
+                      </Box>
                       <Icon
-                        name={collapsedGroups[sg] ? "chevron-right" : "chevron-down"}
+                        name={
+                          collapsedGroups[sg] ? "chevron-right" : "chevron-down"
+                        }
                         color="label"
                       />
                     </Box>
@@ -3010,88 +3155,91 @@ const LoadoutItemList = (props: {
                 </tr>,
               ]
             : []),
-          ...(collapsedGroups[sg] ? [] : groups[sg].map((item) => {
-            const isEquipped = equippedGear?.[item.hash];
-            const isSelected = selectedHash === item.hash;
-            const isLocked = !item.allowed && !isEquipped;
-            const isUnavailable = isLocked || (!item.canEquip && !item.price);
-            return (
-              <Table.Row
-                key={item.hash}
-                className={classes([
-                  "candystripe",
-                  "CharSetup__gearRow",
-                  isSelected && "CharSetup__gearRow--selected",
-                  isEquipped && "CharSetup__gearRow--equipped",
-                  isUnavailable && "CharSetup__gearRow--unavailable",
-                ])}
-                onClick={
-                  isUnavailable
-                    ? undefined
-                    : () => {
-                        onSelectGear?.();
-                        act("selectGear", { hash: item.hash });
-                      }
-                }
-                onContextMenu={
-                  isUnavailable
-                    ? undefined
-                    : (e: MouseEvent) => {
-                        e.preventDefault();
-                        setCtxMenu({
-                          x: e.clientX,
-                          y: e.clientY,
-                          item,
-                          isEquipped: !!isEquipped,
-                        });
-                      }
-                }
-              >
-                <Table.Cell collapsing>
-                  {item.icon && item.iconState ? (
-                    <Box className="CharSetup__gearIcon">
-                      <GearSpriteIcon
-                        dmiFile={item.icon}
-                        state={item.iconState}
-                        size={32}
-                      />
-                    </Box>
-                  ) : (
-                    <Icon name="question" />
-                  )}
-                </Table.Cell>
-                <Table.Cell
-                  bold={!!isEquipped}
-                  color={
-                    isEquipped
-                      ? "good"
-                      : isLocked
-                        ? "bad"
-                        : item.price
-                          ? "gold"
-                          : isUnavailable
+          ...(collapsedGroups[sg]
+            ? []
+            : groups[sg].map((item) => {
+                const isEquipped = equippedGear?.[item.hash];
+                const isSelected = selectedHash === item.hash;
+                const isLocked = !item.allowed && !isEquipped;
+                const isUnavailable =
+                  isLocked || (!item.canEquip && !item.price);
+                return (
+                  <Table.Row
+                    key={item.hash}
+                    className={classes([
+                      "candystripe",
+                      "CharSetup__gearRow",
+                      isSelected && "CharSetup__gearRow--selected",
+                      isEquipped && "CharSetup__gearRow--equipped",
+                      isUnavailable && "CharSetup__gearRow--unavailable",
+                    ])}
+                    onClick={
+                      isUnavailable
+                        ? undefined
+                        : () => {
+                            onSelectGear?.();
+                            act("selectGear", { hash: item.hash });
+                          }
+                    }
+                    onContextMenu={
+                      isUnavailable
+                        ? undefined
+                        : (e: MouseEvent) => {
+                            e.preventDefault();
+                            setCtxMenu({
+                              x: e.clientX,
+                              y: e.clientY,
+                              item,
+                              isEquipped: !!isEquipped,
+                            });
+                          }
+                    }
+                  >
+                    <Table.Cell collapsing>
+                      {item.icon && item.iconState ? (
+                        <Box className="CharSetup__gearIcon">
+                          <GearSpriteIcon
+                            dmiFile={item.icon}
+                            state={item.iconState}
+                            size={32}
+                          />
+                        </Box>
+                      ) : (
+                        <Icon name="question" />
+                      )}
+                    </Table.Cell>
+                    <Table.Cell
+                      bold={!!isEquipped}
+                      color={
+                        isEquipped
+                          ? "good"
+                          : isLocked
                             ? "bad"
-                            : undefined
-                  }
-                >
-                  {item.name}
-                </Table.Cell>
-                <Table.Cell collapsing color="label">
-                  {item.cost > 0 ? `${item.cost}LP` : ""}
-                </Table.Cell>
-                <Table.Cell collapsing color="gold">
-                  {item.price > 0 && !isEquipped && (
-                    <Box inline>
-                      <Icon name="coins" mr={0.25} />
-                      {item.discount > 0
-                        ? Math.round(item.price * item.discount)
-                        : item.price}
-                    </Box>
-                  )}
-                </Table.Cell>
-              </Table.Row>
-            );
-          })),
+                            : item.price
+                              ? "gold"
+                              : isUnavailable
+                                ? "bad"
+                                : undefined
+                      }
+                    >
+                      {item.name}
+                    </Table.Cell>
+                    <Table.Cell collapsing color="label">
+                      {item.cost > 0 ? `${item.cost}LP` : ""}
+                    </Table.Cell>
+                    <Table.Cell collapsing color="gold">
+                      {item.price > 0 && !isEquipped && (
+                        <Box inline>
+                          <Icon name="coins" mr={0.25} />
+                          {item.discount > 0
+                            ? Math.round(item.price * item.discount)
+                            : item.price}
+                        </Box>
+                      )}
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })),
         ])}
       </Table>
     </Box>
@@ -3116,7 +3264,10 @@ const GearContextMenu = (props: {
     <Box
       className="CharSetup__ctxMenuBackdrop"
       onClick={onClose}
-      onContextMenu={(e: MouseEvent) => { e.preventDefault(); onClose(); }}
+      onContextMenu={(e: MouseEvent) => {
+        e.preventDefault();
+        onClose();
+      }}
     >
       <Box
         className="CharSetup__ctxMenu"
@@ -3196,8 +3347,8 @@ const LoadoutItemDetail = (props: {
         <Box color="gold" fontSize="11px" mb={0.5}>
           {detail.discount > 0 ? (
             <Box as="span">
-              <s>{detail.price}</s>{" "}
-              {Math.round(detail.price * detail.discount)} opyxes
+              <s>{detail.price}</s> {Math.round(detail.price * detail.discount)}{" "}
+              opyxes
             </Box>
           ) : (
             `${detail.price} opyx${detail.price !== 1 ? "es" : ""}`
@@ -3249,10 +3400,7 @@ const LoadoutItemDetail = (props: {
 
 // --- Loadout tweak controls ---
 
-const LoadoutTweakControl = (props: {
-  tweak: GearTweakDef;
-  act: Function;
-}) => {
+const LoadoutTweakControl = (props: { tweak: GearTweakDef; act: Function }) => {
   const { tweak, act } = props;
 
   switch (tweak.type) {
@@ -3268,7 +3416,8 @@ const LoadoutTweakControl = (props: {
                 key={color}
                 className={classes([
                   "CharSetup__colorSwatch",
-                  tweak.currentValue === color && "CharSetup__colorSwatch--selected",
+                  tweak.currentValue === color &&
+                    "CharSetup__colorSwatch--selected",
                 ])}
                 style={{ "background-color": color }}
                 onClick={() =>
@@ -3392,10 +3541,9 @@ const getOrganStatusLabel = (
   status: string | null,
   tag: string,
   isExternal: boolean,
-  brand: string | null
+  brand: string | null,
 ): { label: string; color: string; icon: string } => {
-  if (!status)
-    return { label: "ORGANIC", color: "#6ec87a", icon: "leaf" };
+  if (!status) return { label: "ORGANIC", color: "#6ec87a", icon: "leaf" };
   if (status === "cyborg")
     return {
       label: brand || "PROSTHETIC",
@@ -3440,14 +3588,14 @@ const AugmentationPanel = (props: {
   const installedModules = data.installed_modules || {};
 
   const externalParts = (data.body_parts || []).filter(
-    (bp) => bp.type === "external"
+    (bp) => bp.type === "external",
   );
   const internalParts = (data.body_parts || []).filter(
-    (bp) => bp.type === "internal"
+    (bp) => bp.type === "internal",
   );
 
   const selectedPart = (data.body_parts || []).find(
-    (bp) => bp.tag === selectedOrgan
+    (bp) => bp.tag === selectedOrgan,
   );
   const isExternal = selectedPart?.type === "external";
   const organStatus = organData[selectedOrgan] || null;
@@ -3519,13 +3667,13 @@ const AugmentationPanel = (props: {
     organStatus,
     selectedOrgan,
     !!isExternal,
-    organBrand
+    organBrand,
   );
 
   // Count installed modules across all organs
   const totalInstalledModules = Object.values(installedModules).reduce(
     (sum: number, mods: any) => sum + (Array.isArray(mods) ? mods.length : 0),
-    0
+    0,
   );
 
   return (
@@ -3555,10 +3703,8 @@ const AugmentationPanel = (props: {
         <Stack className="CharSetup__augHudStats">
           <Stack.Item grow>
             <Icon name="microchip" mr={0.5} />
-            {totalInstalledModules} MODULE{totalInstalledModules !== 1
-              ? "S"
-              : ""}{" "}
-            ACTIVE
+            {totalInstalledModules} MODULE
+            {totalInstalledModules !== 1 ? "S" : ""} ACTIVE
           </Stack.Item>
           {!!data.config.use_cortical_stacks && (
             <Stack.Item>
@@ -3600,17 +3746,21 @@ const AugmentationPanel = (props: {
               status,
               bp.tag,
               true,
-              rlimbData[bp.tag]
+              rlimbData[bp.tag],
             );
             const isSelected = selectedOrgan === bp.tag;
             // Head: subtract CPU modules (they show under Brain)
-            const headCpuCount = bp.tag === "head"
-              ? (installedModules["head"] || []).filter((p) =>
-                  (data.organ_modules_available || []).some(
-                    (m) => m.path === p && m.module_type === OM_TYPE_PROCESSOR
-                  )).length
-              : 0;
-            const modCount = (installedModules[bp.tag] || []).length - headCpuCount;
+            const headCpuCount =
+              bp.tag === "head"
+                ? (installedModules["head"] || []).filter((p) =>
+                    (data.organ_modules_available || []).some(
+                      (m) =>
+                        m.path === p && m.module_type === OM_TYPE_PROCESSOR,
+                    ),
+                  ).length
+                : 0;
+            const modCount =
+              (installedModules[bp.tag] || []).length - headCpuCount;
             return (
               <Box
                 key={bp.tag}
@@ -3648,21 +3798,20 @@ const AugmentationPanel = (props: {
           </Box>
           {internalParts.map((bp) => {
             const status = organData[bp.tag];
-            const info = getOrganStatusLabel(
-              status,
-              bp.tag,
-              false,
-              null
-            );
+            const info = getOrganStatusLabel(status, bp.tag, false, null);
             const isSelected = selectedOrgan === bp.tag;
             // Brain shows CPU modules stored under head
-            const brainCpuCount = bp.tag === "brain"
-              ? (installedModules["head"] || []).filter((p) =>
-                  (data.organ_modules_available || []).some(
-                    (m) => m.path === p && m.module_type === OM_TYPE_PROCESSOR
-                  )).length
-              : 0;
-            const modCount = (installedModules[bp.tag] || []).length + brainCpuCount;
+            const brainCpuCount =
+              bp.tag === "brain"
+                ? (installedModules["head"] || []).filter((p) =>
+                    (data.organ_modules_available || []).some(
+                      (m) =>
+                        m.path === p && m.module_type === OM_TYPE_PROCESSOR,
+                    ),
+                  ).length
+                : 0;
+            const modCount =
+              (installedModules[bp.tag] || []).length + brainCpuCount;
             return (
               <Box
                 key={bp.tag}
@@ -3732,9 +3881,7 @@ const AugmentationPanel = (props: {
                         <Box
                           className={
                             "CharSetup__augChip" +
-                            (!organStatus
-                              ? " CharSetup__augChip--active"
-                              : "")
+                            (!organStatus ? " CharSetup__augChip--active" : "")
                           }
                           onClick={() =>
                             act("setOrganStatus", {
@@ -3747,27 +3894,29 @@ const AugmentationPanel = (props: {
                           Organic
                         </Box>
                       </Stack.Item>
-                      {selectedOrgan !== "chest" && selectedOrgan !== "head" && selectedOrgan !== "groin" && (
-                        <Stack.Item>
-                          <Box
-                            className={
-                              "CharSetup__augChip" +
-                              (organStatus === "amputated"
-                                ? " CharSetup__augChip--danger"
-                                : "")
-                            }
-                            onClick={() =>
-                              act("setOrganStatus", {
-                                organ: selectedOrgan,
-                                action: "amputated",
-                              })
-                            }
-                          >
-                            <Icon name="times-circle" mr={0.5} />
-                            Amputated
-                          </Box>
-                        </Stack.Item>
-                      )}
+                      {selectedOrgan !== "chest" &&
+                        selectedOrgan !== "head" &&
+                        selectedOrgan !== "groin" && (
+                          <Stack.Item>
+                            <Box
+                              className={
+                                "CharSetup__augChip" +
+                                (organStatus === "amputated"
+                                  ? " CharSetup__augChip--danger"
+                                  : "")
+                              }
+                              onClick={() =>
+                                act("setOrganStatus", {
+                                  organ: selectedOrgan,
+                                  action: "amputated",
+                                })
+                              }
+                            >
+                              <Icon name="times-circle" mr={0.5} />
+                              Amputated
+                            </Box>
+                          </Stack.Item>
+                        )}
                     </>
                   ) : (
                     <>
@@ -3775,9 +3924,7 @@ const AugmentationPanel = (props: {
                         <Box
                           className={
                             "CharSetup__augChip" +
-                            (!organStatus
-                              ? " CharSetup__augChip--active"
-                              : "")
+                            (!organStatus ? " CharSetup__augChip--active" : "")
                           }
                           onClick={() =>
                             act("setOrganStatus", {
@@ -3888,8 +4035,7 @@ const AugmentationPanel = (props: {
                         : mod.augment_cost > 0
                           ? `${mod.augment_cost} AP`
                           : "FREE";
-                    const isActuator =
-                      mod.module_type === OM_TYPE_ACTUATOR;
+                    const isActuator = mod.module_type === OM_TYPE_ACTUATOR;
                     const typeLabel = modIsProcessor
                       ? "CPU"
                       : isActuator
@@ -3922,11 +4068,7 @@ const AugmentationPanel = (props: {
                               }
                             >
                               <Icon
-                                name={
-                                  isInstalled
-                                    ? "check-circle"
-                                    : "circle"
-                                }
+                                name={isInstalled ? "check-circle" : "circle"}
                               />
                             </Box>
                           </Stack.Item>
@@ -3990,10 +4132,7 @@ const JOB_PRIORITY_MEDIUM = 2;
 const JOB_PRIORITY_LOW = 3;
 const JOB_PRIORITY_NEVER = 4;
 
-function getJobPriority(
-  data: CharacterData,
-  jobTitle: string
-): number {
+function getJobPriority(data: CharacterData, jobTitle: string): number {
   if (data.job_high === jobTitle) return JOB_PRIORITY_HIGH;
   if (data.job_medium?.includes(jobTitle)) return JOB_PRIORITY_MEDIUM;
   if (data.job_low?.includes(jobTitle)) return JOB_PRIORITY_LOW;
@@ -4047,20 +4186,14 @@ const CareerPanel = (props: {
               <CsButton
                 key={opt.value}
                 selected={data.alternate_option === opt.value}
-                onClick={() =>
-                  act("setFallbackOption", { option: opt.value })
-                }
+                onClick={() => act("setFallbackOption", { option: opt.value })}
               >
                 {opt.label}
               </CsButton>
             ))}
           </Stack.Item>
           <Stack.Item>
-            <CsButton
-              icon="undo"
-              color="bad"
-              onClick={() => act("resetJobs")}
-            >
+            <CsButton icon="undo" color="bad" onClick={() => act("resetJobs")}>
               Reset All
             </CsButton>
           </Stack.Item>
@@ -4071,235 +4204,128 @@ const CareerPanel = (props: {
         <Divider />
       </Stack.Item>
 
-      {/* Company relation */}
-      <Stack.Item>
-        <Box bold mb={0.5}>
-          <Icon name="building" mr={0.5} />
-          {data.company_name} Relation
-        </Box>
-        <Stack>
-          {(data.company_alignments || []).map((alignment) => (
-            <Stack.Item key={alignment} grow basis={0}>
-              <CsButton
-                fluid
-                textAlign="center"
-                selected={data.nanotrasen_relation === alignment}
-                color={
-                  data.nanotrasen_relation === alignment
-                    ? ALIGNMENT_COLORS[alignment]
-                    : undefined
-                }
-                onClick={() => act("setRelation", { value: alignment })}
-                icon={ALIGNMENT_ICONS[alignment] || "circle"}
-              >
-                {alignment}
-              </CsButton>
-            </Stack.Item>
-          ))}
-        </Stack>
-      </Stack.Item>
-
-      {/* Bank Account */}
-      <Stack.Item>
-        <Box
-          className={classes([
-            "CharSetup__card",
-            "CharSetup__card--expandable",
-            showBankDetails && "CharSetup__card--expanded",
-          ])}
-          onClick={() => setShowBankDetails(!showBankDetails)}
-        >
-          <Stack align="center">
-            <Stack.Item>
-              <Box inline mr={1} color="gold" style={{ fontSize: "120%" }}>
-                <Icon name="university" />
-              </Box>
-            </Stack.Item>
-            <Stack.Item grow>
-              <Box bold>Bank Account</Box>
-              <Box fontSize="11px" color="label">
-                Security:{" "}
-                {(data.bank_security_options || []).find(
-                  (o) => o.value === data.bank_security,
-                )?.label || "Moderate"}{" "}
-                | PIN: {data.bank_pin === 0 ? "Random" : data.bank_pin}
-              </Box>
-            </Stack.Item>
-            <Stack.Item>
-              <Icon name={showBankDetails ? "chevron-up" : "chevron-down"} />
-            </Stack.Item>
-          </Stack>
-        </Box>
-        {showBankDetails && (
-          <Box className="CharSetup__cardBody">
-            <Box bold mb={0.5}>
-              Security Level
-            </Box>
-            <Stack mb={1}>
-              {(data.bank_security_options || []).map((opt) => (
-                <Stack.Item key={opt.value} grow basis={0}>
-                  <CsButton
-                    fluid
-                    textAlign="center"
-                    selected={data.bank_security === opt.value}
-                    onClick={() =>
-                      act("setBankSecurity", { value: opt.value })
-                    }
-                  >
-                    {opt.label}
-                  </CsButton>
-                </Stack.Item>
-              ))}
-            </Stack>
-            <Box bold mb={0.5}>
-              PIN Code
-            </Box>
-            <Stack align="center">
-              <Stack.Item>
-                <NumberInput
-                  value={data.bank_pin || 0}
-                  minValue={0}
-                  maxValue={9999}
-                  step={1}
-                  width="80px"
-                  onChange={(e, val) => act("setBankPin", { value: val })}
-                />
-              </Stack.Item>
-              <Stack.Item>
-                <CsButton
-                  icon="dice"
-                  selected={data.bank_pin === 0}
-                  onClick={() => act("setBankPin", { value: 0 })}
-                >
-                  Random
-                </CsButton>
-              </Stack.Item>
-            </Stack>
-          </Box>
-        )}
-      </Stack.Item>
-
-      <Stack.Item>
-        <Divider />
-      </Stack.Item>
-
       {/* Job list grouped by department */}
       <Stack.Item grow basis={0} style={{ overflow: "auto" }}>
         <Box className="CharSetup__jobList">
-        {deptOrder.map((dept) => {
-          const deptColor = departments[dept][0]?.color || "#888";
-          return (
-            <Box
-              key={dept}
-              className="CharSetup__deptBox"
-              mb={0.75}
-              style={{
-                "border-left": `0.1875rem solid ${deptColor}`,
-              }}
-            >
+          {deptOrder.map((dept) => {
+            const deptColor = departments[dept][0]?.color || "#888";
+            return (
               <Box
-                className="CharSetup__deptHeader"
-                bold
+                key={dept}
+                className="CharSetup__deptBox"
+                mb={0.75}
                 style={{
-                  "background-color": hexToRgba(deptColor, 0.10),
+                  "border-left": `0.1875rem solid ${deptColor}`,
                 }}
               >
-                {dept}
-              </Box>
-              {departments[dept].map((job) => {
-                const priority = getJobPriority(data, job.title);
-                const prioInfo = PRIORITY_LABELS[priority];
-                const isAvailable = job.status === "available";
-                const statusText = getJobStatusText(job);
-                const altTitle =
-                  data.player_alt_titles?.[job.title] || job.title;
-                const hasAltTitles = isAvailable && job.alt_titles && job.alt_titles.length > 0;
+                <Box
+                  className="CharSetup__deptHeader"
+                  bold
+                  style={{
+                    "background-color": hexToRgba(deptColor, 0.1),
+                  }}
+                >
+                  {dept}
+                </Box>
+                {departments[dept].map((job) => {
+                  const priority = getJobPriority(data, job.title);
+                  const prioInfo = PRIORITY_LABELS[priority];
+                  const isAvailable = job.status === "available";
+                  const statusText = getJobStatusText(job);
+                  const altTitle =
+                    data.player_alt_titles?.[job.title] || job.title;
+                  const hasAltTitles =
+                    isAvailable && job.alt_titles && job.alt_titles.length > 0;
 
-                return (
-                  <Box
-                    key={job.title}
-                    className={classes([
-                      "CharSetup__jobRow",
-                      job.head && "CharSetup__jobRow--head",
-                    ])}
-                    style={{
-                      opacity: isAvailable ? 1 : 0.5,
-                      ...(job.head ? { "--dept-color-bg": hexToRgba(deptColor, 0.14) } as any : {}),
-                    }}
-                  >
-                    {/* Job name or alt title dropdown */}
-                    <Box className="CharSetup__jobName">
-                      {hasAltTitles ? (
-                        <Dropdown
-                          nochevron={false}
-                          color="transparent"
-                          selected={altTitle}
-                          options={[job.title, ...job.alt_titles]}
-                          onSelected={(val: string) =>
-                            act("setAltTitle", {
-                              job: job.title,
-                              title: val,
-                            })
-                          }
-                        />
-                      ) : (
-                        <Box
-                          inline
-                          bold={job.head}
-                          style={{
-                            "text-decoration": !isAvailable
-                              ? "line-through"
-                              : undefined,
-                          }}
-                        >
-                          {job.title}
-                        </Box>
-                      )}
-                      {statusText && (
-                        <Box inline ml={0.5} color="bad" fontSize="11px">
-                          [{statusText}]
-                        </Box>
-                      )}
-                    </Box>
-
-                    {/* Priority button */}
-                    <Box className="CharSetup__jobPriority">
-                      {isAvailable ? (
-                        job.title === "Assistant" ? (
-                          <CsButton
-                            compact
-                            color={
-                              data.job_low?.includes("Assistant")
-                                ? "good"
-                                : undefined
+                  return (
+                    <Box
+                      key={job.title}
+                      className={classes([
+                        "CharSetup__jobRow",
+                        job.head && "CharSetup__jobRow--head",
+                      ])}
+                      style={{
+                        opacity: isAvailable ? 1 : 0.5,
+                        ...(job.head
+                          ? ({
+                              "--dept-color-bg": hexToRgba(deptColor, 0.14),
+                            } as any)
+                          : {}),
+                      }}
+                    >
+                      {/* Job name or alt title dropdown */}
+                      <Box className="CharSetup__jobName">
+                        {hasAltTitles ? (
+                          <Dropdown
+                            nochevron={false}
+                            color="transparent"
+                            selected={altTitle}
+                            options={[job.title, ...job.alt_titles]}
+                            onSelected={(val: string) =>
+                              act("setAltTitle", {
+                                job: job.title,
+                                title: val,
+                              })
                             }
-                            onClick={() =>
-                              act("switchJobPriority", { job: job.title })
-                            }
-                          >
-                            {data.job_low?.includes("Assistant")
-                              ? "Yes"
-                              : "No"}
-                          </CsButton>
+                          />
                         ) : (
-                          <CsButton
-                            compact
-                            color={prioInfo.color}
-                            onClick={() =>
-                              act("switchJobPriority", { job: job.title })
-                            }
+                          <Box
+                            inline
+                            bold={job.head}
+                            style={{
+                              "text-decoration": !isAvailable
+                                ? "line-through"
+                                : undefined,
+                            }}
                           >
-                            {prioInfo.text}
-                          </CsButton>
-                        )
-                      ) : null}
+                            {job.title}
+                          </Box>
+                        )}
+                        {statusText && (
+                          <Box inline ml={0.5} color="bad" fontSize="11px">
+                            [{statusText}]
+                          </Box>
+                        )}
+                      </Box>
+
+                      {/* Priority button */}
+                      <Box className="CharSetup__jobPriority">
+                        {isAvailable ? (
+                          job.title === "Assistant" ? (
+                            <CsButton
+                              compact
+                              color={
+                                data.job_low?.includes("Assistant")
+                                  ? "good"
+                                  : undefined
+                              }
+                              onClick={() =>
+                                act("switchJobPriority", { job: job.title })
+                              }
+                            >
+                              {data.job_low?.includes("Assistant")
+                                ? "Yes"
+                                : "No"}
+                            </CsButton>
+                          ) : (
+                            <CsButton
+                              compact
+                              color={prioInfo.color}
+                              onClick={() =>
+                                act("switchJobPriority", { job: job.title })
+                              }
+                            >
+                              {prioInfo.text}
+                            </CsButton>
+                          )
+                        ) : null}
+                      </Box>
                     </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          );
-        })}
+                  );
+                })}
+              </Box>
+            );
+          })}
         </Box>
       </Stack.Item>
     </Stack>
@@ -4348,7 +4374,7 @@ const PersonalityPanel = (props: {
   const [personalityTab, setPersonalityTab] = useLocalState(
     context,
     "personalityTab",
-    "traits" as "traits" | "antag"
+    "traits" as "traits" | "antag",
   );
 
   const tabDefs = [
@@ -4375,9 +4401,7 @@ const PersonalityPanel = (props: {
             key={tab.id}
             className={
               "CharSetup__medTab" +
-              (personalityTab === tab.id
-                ? " CharSetup__medTab--active"
-                : "")
+              (personalityTab === tab.id ? " CharSetup__medTab--active" : "")
             }
             style={
               personalityTab === tab.id
@@ -4420,10 +4444,10 @@ const TraitsSubPanel = (props: {
   const [traitCategory, setTraitCategory] = useLocalState(
     context,
     "traitCategory",
-    categories[0] || "Physical"
+    categories[0] || "Physical",
   );
   const traits = (data.trait_list || []).filter(
-    (t) => t.category === traitCategory
+    (t) => t.category === traitCategory,
   );
   const currentTraits = data.traits || [];
   const activeCount = currentTraits.length;
@@ -4434,10 +4458,7 @@ const TraitsSubPanel = (props: {
       <Box className="CharSetup__medDocHeader">
         <Stack align="center">
           <Stack.Item>
-            <Icon
-              name="notes-medical"
-              className="CharSetup__medDocIcon"
-            />
+            <Icon name="notes-medical" className="CharSetup__medDocIcon" />
           </Stack.Item>
           <Stack.Item grow>
             <Box className="CharSetup__medDocTitle">
@@ -4460,26 +4481,21 @@ const TraitsSubPanel = (props: {
       <Box className="CharSetup__medCatBar">
         {categories.map((cat) => {
           const catTraits = (data.trait_list || []).filter(
-            (t) => t.category === cat
+            (t) => t.category === cat,
           );
           const catActive = catTraits.filter((t) =>
-            currentTraits.includes(t.name)
+            currentTraits.includes(t.name),
           ).length;
           return (
             <Box
               key={cat}
               className={
                 "CharSetup__medCatTab" +
-                (traitCategory === cat
-                  ? " CharSetup__medCatTab--active"
-                  : "")
+                (traitCategory === cat ? " CharSetup__medCatTab--active" : "")
               }
               onClick={() => setTraitCategory(cat)}
             >
-              <Icon
-                name={TRAIT_CATEGORY_ICONS[cat] || "tag"}
-                mr={0.5}
-              />
+              <Icon name={TRAIT_CATEGORY_ICONS[cat] || "tag"} mr={0.5} />
               {cat}
               {catActive > 0 && (
                 <Box as="span" className="CharSetup__medCatCount">
@@ -4539,7 +4555,8 @@ const TraitsSubPanel = (props: {
                     )}
                   </Box>
                   <Box className="CharSetup__medTraitDesc">
-                    Subject requires corrective lenses for standard visual acuity.
+                    Subject requires corrective lenses for standard visual
+                    acuity.
                   </Box>
                 </Stack.Item>
               </Stack>
@@ -4550,7 +4567,7 @@ const TraitsSubPanel = (props: {
             const hasConflict =
               !isActive &&
               trait.mutually_exclusive.some((excl) =>
-                currentTraits.includes(excl)
+                currentTraits.includes(excl),
               );
 
             return (
@@ -4559,22 +4576,16 @@ const TraitsSubPanel = (props: {
                 className={
                   "CharSetup__medTraitRow" +
                   (isActive ? " CharSetup__medTraitRow--active" : "") +
-                  (hasConflict
-                    ? " CharSetup__medTraitRow--conflict"
-                    : "")
+                  (hasConflict ? " CharSetup__medTraitRow--conflict" : "")
                 }
-                onClick={() =>
-                  act("toggleTrait", { trait: trait.name })
-                }
+                onClick={() => act("toggleTrait", { trait: trait.name })}
               >
                 <Stack align="flex-start">
                   <Stack.Item>
                     <Box
                       className={
                         "CharSetup__medTraitCheck" +
-                        (isActive
-                          ? " CharSetup__medTraitCheck--on"
-                          : "") +
+                        (isActive ? " CharSetup__medTraitCheck--on" : "") +
                         (hasConflict
                           ? " CharSetup__medTraitCheck--conflict"
                           : "")
@@ -4595,25 +4606,18 @@ const TraitsSubPanel = (props: {
                     <Box className="CharSetup__medTraitName">
                       {trait.name}
                       {isActive && (
-                        <Box
-                          as="span"
-                          className="CharSetup__medTraitStamp"
-                        >
+                        <Box as="span" className="CharSetup__medTraitStamp">
                           DOCUMENTED
                         </Box>
                       )}
                     </Box>
-                    <Box className="CharSetup__medTraitDesc">
-                      {trait.desc}
-                    </Box>
+                    <Box className="CharSetup__medTraitDesc">{trait.desc}</Box>
                     {hasConflict && (
                       <Box className="CharSetup__medTraitConflict">
                         <Icon name="exclamation-circle" mr={0.5} />
                         INCOMPATIBLE:{" "}
                         {trait.mutually_exclusive
-                          .filter((excl) =>
-                            currentTraits.includes(excl)
-                          )
+                          .filter((excl) => currentTraits.includes(excl))
                           .join(", ")}
                       </Box>
                     )}
@@ -4636,10 +4640,7 @@ const ANTAG_PRIORITY_LABELS = {
   never: { label: "NEVER", color: "#666", icon: "arrow-down" },
 };
 
-const AntagSubPanel = (props: {
-  data: CharacterData;
-  act: Function;
-}) => {
+const AntagSubPanel = (props: { data: CharacterData; act: Function }) => {
   const { data, act } = props;
   const antagRoles = data.antag_roles || [];
   const ghostRoles = data.ghost_roles || [];
@@ -4652,10 +4653,7 @@ const AntagSubPanel = (props: {
       <Box className="CharSetup__medDocHeader CharSetup__medDocHeader--red">
         <Stack align="center">
           <Stack.Item>
-            <Icon
-              name="user-secret"
-              className="CharSetup__medDocIcon"
-            />
+            <Icon name="user-secret" className="CharSetup__medDocIcon" />
           </Stack.Item>
           <Stack.Item grow>
             <Box className="CharSetup__medDocTitle">
@@ -4725,23 +4723,18 @@ const AntagSubPanel = (props: {
             >
               <Stack align="center">
                 <Stack.Item grow>
-                  <Box className="CharSetup__medAntagName">
-                    {role.name}
-                  </Box>
+                  <Box className="CharSetup__medAntagName">{role.name}</Box>
                 </Stack.Item>
                 <Stack.Item>
                   {isBanned ? (
                     <Box className="CharSetup__medAntagBanned">
                       <Icon name="lock" mr={0.5} />
-                      {role.status === "whitelist"
-                        ? "RESTRICTED"
-                        : "REVOKED"}
+                      {role.status === "whitelist" ? "RESTRICTED" : "REVOKED"}
                     </Box>
                   ) : (
                     <Stack>
                       {(["high", "low", "never"] as const).map((p) => {
-                        const info =
-                          ANTAG_PRIORITY_LABELS[p];
+                        const info = ANTAG_PRIORITY_LABELS[p];
                         const isSelected = priority === p;
                         return (
                           <Stack.Item key={p}>
@@ -4754,7 +4747,10 @@ const AntagSubPanel = (props: {
                               }
                               style={
                                 isSelected
-                                  ? { color: info.color, borderColor: info.color }
+                                  ? {
+                                      color: info.color,
+                                      borderColor: info.color,
+                                    }
                                   : undefined
                               }
                               onClick={() =>
@@ -4788,8 +4784,7 @@ const AntagSubPanel = (props: {
           </Box>
           {ghostRoles.map((role) => {
             const isActive =
-              beSpecial.includes(role.id) ||
-              mayBeSpecial.includes(role.id);
+              beSpecial.includes(role.id) || mayBeSpecial.includes(role.id);
             const isBanned = role.status !== "available";
 
             return (
@@ -4802,9 +4797,7 @@ const AntagSubPanel = (props: {
               >
                 <Stack align="center">
                   <Stack.Item grow>
-                    <Box className="CharSetup__medAntagName">
-                      {role.name}
-                    </Box>
+                    <Box className="CharSetup__medAntagName">{role.name}</Box>
                   </Stack.Item>
                   <Stack.Item>
                     {isBanned ? (
@@ -4816,9 +4809,7 @@ const AntagSubPanel = (props: {
                       <Box
                         className={
                           "CharSetup__medAntagPrio" +
-                          (isActive
-                            ? " CharSetup__medAntagPrio--active"
-                            : "")
+                          (isActive ? " CharSetup__medAntagPrio--active" : "")
                         }
                         style={
                           isActive
@@ -4835,10 +4826,7 @@ const AntagSubPanel = (props: {
                           })
                         }
                       >
-                        <Icon
-                          name={isActive ? "check" : "times"}
-                          mr={0.25}
-                        />
+                        <Icon name={isActive ? "check" : "times"} mr={0.25} />
                         {isActive ? "CLEARED" : "DENIED"}
                       </Box>
                     )}
@@ -4855,14 +4843,11 @@ const AntagSubPanel = (props: {
 
 // --- Uplink sources sub-panel — Comms Config ---
 
-const UplinkSubPanel = (props: {
-  data: CharacterData;
-  act: Function;
-}) => {
+const UplinkSubPanel = (props: { data: CharacterData; act: Function }) => {
   const { data, act } = props;
   const currentOrder = data.uplink_source_order || [];
   const available = (data.uplink_sources_available || []).filter(
-    (src) => !currentOrder.includes(src.name)
+    (src) => !currentOrder.includes(src.name),
   );
 
   return (
@@ -4871,10 +4856,7 @@ const UplinkSubPanel = (props: {
       <Box className="CharSetup__medDocHeader CharSetup__medDocHeader--blue">
         <Stack align="center">
           <Stack.Item>
-            <Icon
-              name="satellite-dish"
-              className="CharSetup__medDocIcon"
-            />
+            <Icon name="satellite-dish" className="CharSetup__medDocIcon" />
           </Stack.Item>
           <Stack.Item grow>
             <Box className="CharSetup__medDocTitle">
@@ -4895,13 +4877,13 @@ const UplinkSubPanel = (props: {
 
         <Box className="CharSetup__medCommsNote">
           <Icon name="info-circle" mr={0.5} />
-          System attempts each source sequentially. First available
-          connection is established.
+          System attempts each source sequentially. First available connection
+          is established.
         </Box>
 
         {currentOrder.map((name, index) => {
           const srcDef = (data.uplink_sources_available || []).find(
-            (s) => s.name === name
+            (s) => s.name === name,
           );
           return (
             <Box key={name} className="CharSetup__medCommsRow">
@@ -4914,9 +4896,7 @@ const UplinkSubPanel = (props: {
                 <Stack.Item grow>
                   <Box className="CharSetup__medCommsName">{name}</Box>
                   {srcDef?.desc && (
-                    <Box className="CharSetup__medCommsDesc">
-                      {srcDef.desc}
-                    </Box>
+                    <Box className="CharSetup__medCommsDesc">{srcDef.desc}</Box>
                   )}
                 </Stack.Item>
                 <Stack.Item>
@@ -4945,8 +4925,7 @@ const UplinkSubPanel = (props: {
                       })
                     }
                     style={{
-                      opacity:
-                        index === currentOrder.length - 1 ? 0.3 : 1,
+                      opacity: index === currentOrder.length - 1 ? 0.3 : 1,
                     }}
                   >
                     <Icon name="chevron-down" />
@@ -4955,9 +4934,7 @@ const UplinkSubPanel = (props: {
                 <Stack.Item>
                   <Box
                     className="CharSetup__medCommsBtn CharSetup__medCommsBtn--danger"
-                    onClick={() =>
-                      act("removeUplinkSource", { name })
-                    }
+                    onClick={() => act("removeUplinkSource", { name })}
                   >
                     <Icon name="times" />
                   </Box>
@@ -5053,90 +5030,6 @@ const BackgroundPanel = (props: {
         )}
       </Stack.Item>
     </Stack>
-  );
-};
-
-// --- Origins: big tappable cards for each background field ---
-
-const ALIGNMENT_ICONS: Record<string, string> = {
-  Loyal: "heart",
-  Supportive: "thumbs-up",
-  Neutral: "balance-scale",
-  Skeptical: "question-circle",
-  Opposed: "fist-raised",
-};
-
-const ALIGNMENT_COLORS: Record<string, string> = {
-  Loyal: "green",
-  Supportive: "teal",
-  Neutral: "default",
-  Skeptical: "orange",
-  Opposed: "red",
-};
-
-// --- Languages: compact section for ID card back ---
-
-const LanguagesCompact = (props: {
-  data: CharacterData;
-  act: Function;
-}) => {
-  const { data, act } = props;
-  const langInfo = data.species_languages?.[data.species];
-  const altLangs = data.alternate_languages || [];
-
-  return (
-    <Box>
-      <Box className="CharSetup__idCardBackLabel">Languages</Box>
-
-      {/* Native language row */}
-      {langInfo?.native && (
-        <Box className="CharSetup__langRow">
-          <Icon name="star" className="CharSetup__langIcon CharSetup__langIcon--native" />
-          <Box className="CharSetup__langName">{langInfo.native}</Box>
-          <Box className="CharSetup__langTag CharSetup__langTag--native">native</Box>
-        </Box>
-      )}
-
-      {/* Default language row (if different from native) */}
-      {langInfo?.default && langInfo.default !== langInfo.native && (
-        <Box className="CharSetup__langRow">
-          <Icon name="comment" className="CharSetup__langIcon" />
-          <Box className="CharSetup__langName">{langInfo.default}</Box>
-          <Box className="CharSetup__langTag">default</Box>
-        </Box>
-      )}
-
-      {/* Secondary language rows */}
-      {altLangs.map((lang) => (
-        <Box key={lang} className="CharSetup__langRow">
-          <Icon name="plus" className="CharSetup__langIcon CharSetup__langIcon--alt" />
-          <Box className="CharSetup__langName">{lang}</Box>
-          <CsButton
-            icon="times"
-            compact
-            color="danger"
-            tooltip="Remove"
-            onClick={() => act("removeLanguage", { language: lang })}
-          />
-        </Box>
-      ))}
-
-      {/* Add language dropdown */}
-      {langInfo && langInfo.max_alternates > 0 &&
-        altLangs.length < langInfo.max_alternates && (
-          <Dropdown
-            fluid
-            mt={0.25}
-            displayText={`+ Add language (${altLangs.length}/${langInfo.max_alternates})`}
-            options={(langInfo.available || []).filter(
-              (l) => !altLangs.includes(l),
-            )}
-            onSelected={(val: string) =>
-              act("addLanguage", { language: val })
-            }
-          />
-        )}
-    </Box>
   );
 };
 
@@ -5266,7 +5159,12 @@ const BackgroundRecordsSubPanel = (props: {
 // --- Flavor Text: body diagram with clickable parts ---
 
 const FLAVOR_PARTS = [
-  { key: "general", label: "General", icon: "user", desc: "Visible regardless of clothing" },
+  {
+    key: "general",
+    label: "General",
+    icon: "user",
+    desc: "Visible regardless of clothing",
+  },
   { key: "head", label: "Head", icon: "hat-wizard", desc: "Head appearance" },
   { key: "face", label: "Face", icon: "laugh-beam", desc: "Facial features" },
   { key: "eyes", label: "Eyes", icon: "eye", desc: "Eye appearance" },
@@ -5275,7 +5173,12 @@ const FLAVOR_PARTS = [
   { key: "hands", label: "Hands", icon: "hand-sparkles", desc: "Hand details" },
   { key: "legs", label: "Legs", icon: "running", desc: "Leg appearance" },
   { key: "feet", label: "Feet", icon: "shoe-prints", desc: "Feet details" },
-  { key: "action", label: "Pose", icon: "theater-masks", desc: "Default action or pose" },
+  {
+    key: "action",
+    label: "Pose",
+    icon: "theater-masks",
+    desc: "Default action or pose",
+  },
 ];
 
 const BackgroundFlavorSubPanel = (props: {
@@ -5346,29 +5249,27 @@ const BackgroundFlavorSubPanel = (props: {
                     isActive && "CharSetup__bodyPart--active",
                     hasText && "CharSetup__bodyPart--filled",
                   ])}
-                  onClick={() =>
-                    setActivePart(isActive ? null : part.key)
-                  }
+                  onClick={() => setActivePart(isActive ? null : part.key)}
                 >
-                    <Stack align="center">
+                  <Stack align="center">
+                    <Stack.Item>
+                      <Icon
+                        name={part.icon}
+                        color={hasText ? "good" : "label"}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow ml={0.5}>
+                      <Box bold fontSize="11px">
+                        {part.label}
+                      </Box>
+                    </Stack.Item>
+                    {hasText && (
                       <Stack.Item>
-                        <Icon
-                          name={part.icon}
-                          color={hasText ? "good" : "label"}
-                        />
+                        <Icon name="check" color="good" size={0.8} />
                       </Stack.Item>
-                      <Stack.Item grow ml={0.5}>
-                        <Box bold fontSize="11px">
-                          {part.label}
-                        </Box>
-                      </Stack.Item>
-                      {hasText && (
-                        <Stack.Item>
-                          <Icon name="check" color="good" size={0.8} />
-                        </Stack.Item>
-                      )}
-                    </Stack>
-                  </Box>
+                    )}
+                  </Stack>
+                </Box>
               );
             })}
           </Box>
@@ -5379,8 +5280,8 @@ const BackgroundFlavorSubPanel = (props: {
               <Box bold mb={0.5}>
                 <Icon
                   name={
-                    FLAVOR_PARTS.find((p) => p.key === activePart)
-                      ?.icon || "pen"
+                    FLAVOR_PARTS.find((p) => p.key === activePart)?.icon ||
+                    "pen"
                   }
                   mr={0.5}
                 />
@@ -5602,9 +5503,7 @@ const BackgroundRelationsSubPanel = (props: {
                   textAlign="center"
                   selected={isEnabled}
                   color={isEnabled ? "good" : undefined}
-                  onClick={() =>
-                    act("toggleRelation", { name: rel.name })
-                  }
+                  onClick={() => act("toggleRelation", { name: rel.name })}
                 >
                   {isEnabled ? "ON" : "OFF"}
                 </CsButton>
@@ -5627,9 +5526,7 @@ const BackgroundRelationsSubPanel = (props: {
                       compact
                       tooltip={isEditingThis ? "Save" : "Edit note"}
                       onClick={() =>
-                        setEditingInfo(
-                          isEditingThis ? null : rel.name,
-                        )
+                        setEditingInfo(isEditingThis ? null : rel.name)
                       }
                     />
                   </Stack.Item>
@@ -5670,10 +5567,7 @@ const BackgroundRelationsSubPanel = (props: {
 // Settings Panel — dynamic grouped layout
 // ================================================================
 
-const PREF_CATEGORY_META: Record<
-  string,
-  { icon: string; color: string }
-> = {
+const PREF_CATEGORY_META: Record<string, { icon: string; color: string }> = {
   UI: { icon: "desktop", color: "#82aaff" },
   Graphics: { icon: "paint-brush", color: "#c792ea" },
   Audio: { icon: "volume-up", color: "#ff6b6b" },
@@ -5704,9 +5598,11 @@ const SettingsPanel = (props: {
   context: any;
 }) => {
   const { data, act, context } = props;
-  const [settingsMode, setSettingsMode] = useLocalState<
-    "prefs" | "keys"
-  >(context, "settingsMode", "prefs");
+  const [settingsMode, setSettingsMode] = useLocalState<"prefs" | "keys">(
+    context,
+    "settingsMode",
+    "prefs",
+  );
 
   return (
     <Stack vertical fill>
@@ -5761,15 +5657,25 @@ const UiPreviewCard = (props: {
 }) => {
   const { data, act, context } = props;
 
-  const [style, setStyle] = useLocalState(context, "uiPrevStyle", data.ui_style || "Goon");
-  const [alpha, setAlpha] = useLocalState(context, "uiPrevAlpha",
-    (data.ui_style_alpha ?? 255) / 255);
+  const [style, setStyle] = useLocalState(
+    context,
+    "uiPrevStyle",
+    data.ui_style || "Goon",
+  );
+  const [alpha, setAlpha] = useLocalState(
+    context,
+    "uiPrevAlpha",
+    (data.ui_style_alpha ?? 255) / 255,
+  );
 
   const hexColor = data.ui_style_color || "#ffffff";
   const themeImg = UI_THEME_IMAGE[style] || uiGoon;
 
   const [hudExpanded, setHudExpanded] = useLocalState(
-    context, "hudPreviewExpanded", false);
+    context,
+    "hudPreviewExpanded",
+    false,
+  );
 
   return (
     <Box mb={0.5}>
@@ -5801,100 +5707,103 @@ const UiPreviewCard = (props: {
         </Stack>
       </Box>
       {hudExpanded && (
-      <Box className="CharSetup__cardBody">
-        <Stack>
-          {/* Preview — left, fills available space */}
-          <Stack.Item grow basis={0}>
-            <Box className="CharSetup__uiPreview">
-              <img
-                className="CharSetup__uiPreviewBg"
-                src={uiPreviewBg}
-              />
-              <svg
-                className="CharSetup__uiPreviewHud"
-                xmlns="http://www.w3.org/2000/svg"
-                version="1.1"
-              >
-                <defs>
-                  <filter id="uiColorMask">
-                    <feFlood floodColor={hexColor} result="flood" />
-                    <feComposite
-                      in="SourceGraphic"
-                      in2="flood"
-                      operator="arithmetic"
-                      k1="1"
-                      k2="0"
-                      k3="0"
-                      k4="0"
-                    />
-                  </filter>
-                </defs>
-                <image
-                  opacity={alpha}
-                  width="100%"
-                  height="100%"
-                  preserveAspectRatio="xMaxYMax slice"
-                  xlinkHref={themeImg}
-                  filter="url(#uiColorMask)"
-                />
-              </svg>
-              <img
-                className="CharSetup__uiPreviewItems"
-                src={uiPreviewItems}
-              />
-            </Box>
-          </Stack.Item>
-          {/* Controls — right sidebar */}
-          <Stack.Item ml={0.5}>
-            <Stack vertical>
-              <Stack.Item mb={0.5}>
-                <Box bold fontSize="11px" mb={0.2}>Theme</Box>
-                <Dropdown
-                  selected={style}
-                  options={data.ui_themes || []}
-                  onSelected={(v: string) => setStyle(v)}
-                  width="9rem"
-                />
-              </Stack.Item>
-              <Stack.Item mb={0.5}>
-                <Box bold fontSize="11px" mb={0.2}>Color</Box>
-                <Box
-                  className="CharSetup__colorSwatch"
-                  style={{ backgroundColor: hexColor }}
-                  onClick={() => act("pickUiColor")}
-                />
-              </Stack.Item>
-              <Stack.Item mb={0.5}>
-                <Box bold fontSize="11px" mb={0.2}>Alpha</Box>
-                <NumberInput
-                  value={alpha}
-                  minValue={0.0}
-                  maxValue={1.0}
-                  step={0.05}
-                  stepPixelSize={10}
-                  width="4rem"
-                  onDrag={(_, v) => setAlpha(v)}
-                  format={(v) => v.toFixed(2)}
-                />
-              </Stack.Item>
-              <Stack.Item>
-                <CsButton
-                  fluid
-                  icon="check"
-                  onClick={() =>
-                    act("setUiStyle", {
-                      style,
-                      alpha: Math.round(alpha * 255),
-                    })
-                  }
+        <Box className="CharSetup__cardBody">
+          <Stack>
+            {/* Preview — left, fills available space */}
+            <Stack.Item grow basis={0}>
+              <Box className="CharSetup__uiPreview">
+                <img className="CharSetup__uiPreviewBg" src={uiPreviewBg} />
+                <svg
+                  className="CharSetup__uiPreviewHud"
+                  xmlns="http://www.w3.org/2000/svg"
+                  version="1.1"
                 >
-                  Apply
-                </CsButton>
-              </Stack.Item>
-            </Stack>
-          </Stack.Item>
-        </Stack>
-      </Box>
+                  <defs>
+                    <filter id="uiColorMask">
+                      <feFlood floodColor={hexColor} result="flood" />
+                      <feComposite
+                        in="SourceGraphic"
+                        in2="flood"
+                        operator="arithmetic"
+                        k1="1"
+                        k2="0"
+                        k3="0"
+                        k4="0"
+                      />
+                    </filter>
+                  </defs>
+                  <image
+                    opacity={alpha}
+                    width="100%"
+                    height="100%"
+                    preserveAspectRatio="xMaxYMax slice"
+                    xlinkHref={themeImg}
+                    filter="url(#uiColorMask)"
+                  />
+                </svg>
+                <img
+                  className="CharSetup__uiPreviewItems"
+                  src={uiPreviewItems}
+                />
+              </Box>
+            </Stack.Item>
+            {/* Controls — right sidebar */}
+            <Stack.Item ml={0.5}>
+              <Stack vertical>
+                <Stack.Item mb={0.5}>
+                  <Box bold fontSize="11px" mb={0.2}>
+                    Theme
+                  </Box>
+                  <Dropdown
+                    selected={style}
+                    options={data.ui_themes || []}
+                    onSelected={(v: string) => setStyle(v)}
+                    width="9rem"
+                  />
+                </Stack.Item>
+                <Stack.Item mb={0.5}>
+                  <Box bold fontSize="11px" mb={0.2}>
+                    Color
+                  </Box>
+                  <Box
+                    className="CharSetup__colorSwatch"
+                    style={{ backgroundColor: hexColor }}
+                    onClick={() => act("pickUiColor")}
+                  />
+                </Stack.Item>
+                <Stack.Item mb={0.5}>
+                  <Box bold fontSize="11px" mb={0.2}>
+                    Alpha
+                  </Box>
+                  <NumberInput
+                    value={alpha}
+                    minValue={0.0}
+                    maxValue={1.0}
+                    step={0.05}
+                    stepPixelSize={10}
+                    width="4rem"
+                    onDrag={(_, v) => setAlpha(v)}
+                    format={(v) => v.toFixed(2)}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <CsButton
+                    fluid
+                    icon="check"
+                    onClick={() =>
+                      act("setUiStyle", {
+                        style,
+                        alpha: Math.round(alpha * 255),
+                      })
+                    }
+                  >
+                    Apply
+                  </CsButton>
+                </Stack.Item>
+              </Stack>
+            </Stack.Item>
+          </Stack>
+        </Box>
       )}
     </Box>
   );
@@ -5918,7 +5827,9 @@ const PreferencesSubPanel = (props: {
     }
   }
 
-  const visibleCats = sortedCats.filter((c) => (categories[c] || []).length > 0);
+  const visibleCats = sortedCats.filter(
+    (c) => (categories[c] || []).length > 0,
+  );
 
   const [expandedCat, setExpandedCat] = useLocalState<string | null>(
     context,
@@ -5948,13 +5859,15 @@ const PreferencesSubPanel = (props: {
                 isExpanded && "CharSetup__card--expanded",
               ])}
               style={{ "--cs-card-accent": meta.color }}
-              onClick={() =>
-                setExpandedCat(isExpanded ? null : catName)
-              }
+              onClick={() => setExpandedCat(isExpanded ? null : catName)}
             >
               <Stack align="center">
                 <Stack.Item>
-                  <Box inline className="CharSetup__cardIcon" color={meta.color}>
+                  <Box
+                    inline
+                    className="CharSetup__cardIcon"
+                    color={meta.color}
+                  >
                     <Icon name={meta.icon} />
                   </Box>
                 </Stack.Item>
@@ -5962,12 +5875,7 @@ const PreferencesSubPanel = (props: {
                   <Box bold>{catName}</Box>
                 </Stack.Item>
                 <Stack.Item>
-                  <Box
-                    inline
-                    fontSize="11px"
-                    color="label"
-                    mr={0.5}
-                  >
+                  <Box inline fontSize="11px" color="label" mr={0.5}>
                     {prefs.length} settings
                   </Box>
                   <Icon
@@ -5994,8 +5902,7 @@ const PreferencesSubPanel = (props: {
                     </Box>
                     <Stack wrap>
                       {(pref.options || []).map((option) => {
-                        const isSelected =
-                          values[pref.key] === option;
+                        const isSelected = values[pref.key] === option;
                         return (
                           <Stack.Item key={option} mr={0.25} mb={0.25}>
                             <CsButton
@@ -6043,9 +5950,18 @@ const JS_TO_BYOND_KEY: Record<string, string> = {
   Escape: "Escape",
   Tab: "Tab",
   Backspace: "Backspace",
-  F1: "F1", F2: "F2", F3: "F3", F4: "F4",
-  F5: "F5", F6: "F6", F7: "F7", F8: "F8",
-  F9: "F9", F10: "F10", F11: "F11", F12: "F12",
+  F1: "F1",
+  F2: "F2",
+  F3: "F3",
+  F4: "F4",
+  F5: "F5",
+  F6: "F6",
+  F7: "F7",
+  F8: "F8",
+  F9: "F9",
+  F10: "F10",
+  F11: "F11",
+  F12: "F12",
 };
 
 const jsKeyToBYOND = (e: KeyboardEvent): string | null => {
@@ -6073,9 +5989,14 @@ const jsKeyToBYOND = (e: KeyboardEvent): string | null => {
 
 // Display-friendly names for BYOND key codes
 const BYOND_KEY_DISPLAY: Record<string, string> = {
-  North: "Up", South: "Down", East: "Right", West: "Left",
-  Northwest: "Home", Northeast: "PageUp",
-  Southwest: "End", Southeast: "PageDown",
+  North: "Up",
+  South: "Down",
+  East: "Right",
+  West: "Left",
+  Northwest: "Home",
+  Northeast: "PageUp",
+  Southwest: "End",
+  Southeast: "PageDown",
 };
 
 // Sorted longest-first to avoid substring collisions (e.g. "North" before "Northwest")
@@ -6115,16 +6036,19 @@ const KB_CATEGORY_ICONS: Record<string, string> = {
   MISC: "puzzle-piece",
 };
 
-class KeybindingsSubPanel extends Component<{
-  data: CharacterData;
-  act: Function;
-  context: any;
-}, {
-  expandedKbCat: string | null;
-  capturingBinding: string | null;
-  capturingOldKey: string | null;
-  kbSearch: string;
-}> {
+class KeybindingsSubPanel extends Component<
+  {
+    data: CharacterData;
+    act: Function;
+    context: any;
+  },
+  {
+    expandedKbCat: string | null;
+    capturingBinding: string | null;
+    capturingOldKey: string | null;
+    kbSearch: string;
+  }
+> {
   keyHandler: ((e: KeyboardEvent) => void) | null;
 
   constructor(props) {
@@ -6238,171 +6162,179 @@ class KeybindingsSubPanel extends Component<{
           />
         </Box>
 
-        {sortedCats.filter((catName) => (kbCategories[catName] || []).length > 0).map((catName) => {
+        {sortedCats
+          .filter((catName) => (kbCategories[catName] || []).length > 0)
+          .map((catName) => {
+            const allBindings = kbCategories[catName] || [];
+            const bindings = searchLower
+              ? allBindings.filter(
+                  (kb) =>
+                    kb.full_name.toLowerCase().includes(searchLower) ||
+                    (kb.description &&
+                      kb.description.toLowerCase().includes(searchLower)),
+                )
+              : allBindings;
+            if (bindings.length === 0) return null;
+            const isExpanded = expandedKbCat === catName || !!searchLower;
+            const iconName = KB_CATEGORY_ICONS[catName] || "cog";
 
-          const allBindings = kbCategories[catName] || [];
-          const bindings = searchLower
-            ? allBindings.filter((kb) =>
-                kb.full_name.toLowerCase().includes(searchLower)
-                || (kb.description && kb.description.toLowerCase().includes(searchLower)))
-            : allBindings;
-          if (bindings.length === 0) return null;
-          const isExpanded = expandedKbCat === catName || !!searchLower;
-          const iconName = KB_CATEGORY_ICONS[catName] || "cog";
+            return (
+              <Box key={catName} mb={0.5}>
+                {/* Category header */}
+                <Box
+                  className={classes([
+                    "CharSetup__card",
+                    "CharSetup__card--expandable",
+                    isExpanded && "CharSetup__card--expanded",
+                  ])}
+                  onClick={() =>
+                    this.setState({
+                      expandedKbCat: isExpanded ? null : catName,
+                    })
+                  }
+                >
+                  <Stack align="center">
+                    <Stack.Item>
+                      <Icon name={iconName} color="label" />
+                    </Stack.Item>
+                    <Stack.Item grow ml={0.5}>
+                      <Box bold>
+                        {catName.charAt(0) + catName.slice(1).toLowerCase()}
+                      </Box>
+                    </Stack.Item>
+                    <Stack.Item>
+                      <Box inline fontSize="11px" color="label" mr={0.5}>
+                        {bindings.length} bindings
+                      </Box>
+                      <Icon
+                        name={isExpanded ? "chevron-up" : "chevron-down"}
+                        color="label"
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Box>
 
-          return (
-            <Box key={catName} mb={0.5}>
-              {/* Category header */}
-              <Box
-                className={classes([
-                  "CharSetup__card",
-                  "CharSetup__card--expandable",
-                  isExpanded && "CharSetup__card--expanded",
-                ])}
-                onClick={() =>
-                  this.setState({ expandedKbCat: isExpanded ? null : catName })
-                }
-              >
-                <Stack align="center">
-                  <Stack.Item>
-                    <Icon name={iconName} color="label" />
-                  </Stack.Item>
-                  <Stack.Item grow ml={0.5}>
-                    <Box bold>
-                      {catName.charAt(0) +
-                        catName.slice(1).toLowerCase()}
-                    </Box>
-                  </Stack.Item>
-                  <Stack.Item>
-                    <Box inline fontSize="11px" color="label" mr={0.5}>
-                      {bindings.length} bindings
-                    </Box>
-                    <Icon
-                      name={isExpanded ? "chevron-up" : "chevron-down"}
-                      color="label"
-                    />
-                  </Stack.Item>
-                </Stack>
-              </Box>
+                {/* Binding rows */}
+                {isExpanded && (
+                  <Box className="CharSetup__cardBody">
+                    {bindings.map((kb, i) => {
+                      const keys = userBinds[kb.name] || [];
+                      const activeKeys = keys.filter((k) => k !== "None");
+                      const isDefault =
+                        JSON.stringify([...keys].sort()) ===
+                        JSON.stringify([...(kb.default_keys || [])].sort());
+                      const isThisCapturing = capturingBinding === kb.name;
 
-              {/* Binding rows */}
-              {isExpanded && (
-                <Box className="CharSetup__cardBody">
-                  {bindings.map((kb, i) => {
-                    const keys = userBinds[kb.name] || [];
-                    const activeKeys = keys.filter(
-                      (k) => k !== "None",
-                    );
-                    const isDefault =
-                      JSON.stringify([...keys].sort()) ===
-                      JSON.stringify(
-                        [...(kb.default_keys || [])].sort(),
-                      );
-                    const isThisCapturing = capturingBinding === kb.name;
-
-                    return (
-                      <Box
-                        key={kb.name}
-                        className={classes([
-                          "CharSetup__prefRow",
-                          i % 2 !== 0 && "CharSetup__prefRow--alt",
-                        ])}
-                      >
-                        <Stack align="center">
-                          <Stack.Item grow basis={0}>
-                            <Box bold fontSize="11px">
-                              {kb.full_name}
-                            </Box>
-                            {kb.description && (
-                              <Box fontSize="11px" color="label">
-                                {kb.description}
+                      return (
+                        <Box
+                          key={kb.name}
+                          className={classes([
+                            "CharSetup__prefRow",
+                            i % 2 !== 0 && "CharSetup__prefRow--alt",
+                          ])}
+                        >
+                          <Stack align="center">
+                            <Stack.Item grow basis={0}>
+                              <Box bold fontSize="11px">
+                                {kb.full_name}
                               </Box>
-                            )}
-                          </Stack.Item>
-                          <Stack.Item>
-                            <Stack align="center">
-                              {isThisCapturing ? (
-                                <Stack.Item>
-                                  <Box
-                                    inline
-                                    className="CharSetup__keyBadge CharSetup__keyBadge--capturing"
-                                  >
-                                    Press a key...
-                                  </Box>
-                                </Stack.Item>
-                              ) : (
-                                <>
-                                  {activeKeys.length > 0 ? (
-                                    activeKeys.map((key, ki) => (
-                                      <Stack.Item key={ki}>
-                                        <Box inline className="CharSetup__keyBadgeWrap">
+                              {kb.description && (
+                                <Box fontSize="11px" color="label">
+                                  {kb.description}
+                                </Box>
+                              )}
+                            </Stack.Item>
+                            <Stack.Item>
+                              <Stack align="center">
+                                {isThisCapturing ? (
+                                  <Stack.Item>
+                                    <Box
+                                      inline
+                                      className="CharSetup__keyBadge CharSetup__keyBadge--capturing"
+                                    >
+                                      Press a key...
+                                    </Box>
+                                  </Stack.Item>
+                                ) : (
+                                  <>
+                                    {activeKeys.length > 0 ? (
+                                      activeKeys.map((key, ki) => (
+                                        <Stack.Item key={ki}>
                                           <Box
                                             inline
-                                            className="CharSetup__keyBadge"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => this.startCapture(kb.name, key)}
+                                            className="CharSetup__keyBadgeWrap"
                                           >
-                                            {displayKey(key)}
+                                            <Box
+                                              inline
+                                              className="CharSetup__keyBadge"
+                                              style={{ cursor: "pointer" }}
+                                              onClick={() =>
+                                                this.startCapture(kb.name, key)
+                                              }
+                                            >
+                                              {displayKey(key)}
+                                            </Box>
+                                            <Box
+                                              inline
+                                              className="CharSetup__keyBadgeRemove"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                act("clearKeybinding", {
+                                                  binding: kb.name,
+                                                  old_key: key,
+                                                });
+                                              }}
+                                            >
+                                              <Icon name="times" />
+                                            </Box>
                                           </Box>
-                                          <Box
-                                            inline
-                                            className="CharSetup__keyBadgeRemove"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              act("clearKeybinding", {
-                                                binding: kb.name,
-                                                old_key: key,
-                                              });
-                                            }}
-                                          >
-                                            <Icon name="times" />
-                                          </Box>
+                                        </Stack.Item>
+                                      ))
+                                    ) : (
+                                      <Stack.Item>
+                                        <Box
+                                          inline
+                                          className="CharSetup__keyBadge CharSetup__keyBadge--unbound"
+                                        >
+                                          Unbound
                                         </Box>
                                       </Stack.Item>
-                                    ))
-                                  ) : (
-                                    <Stack.Item>
-                                      <Box
-                                        inline
-                                        className="CharSetup__keyBadge CharSetup__keyBadge--unbound"
-                                      >
-                                        Unbound
-                                      </Box>
-                                    </Stack.Item>
-                                  )}
-                                </>
-                              )}
-                              <Stack.Item ml={0.5}>
-                                <CsButton
-                                  icon="plus"
-                                  compact
-                                  disabled={isCapturing}
-                                  onClick={() => this.startCapture(kb.name, null)}
-                                />
-                              </Stack.Item>
-                              <Stack.Item>
-                                <CsButton
-                                  icon="undo"
-                                  compact
-                                  disabled={isDefault}
-                                  onClick={() =>
-                                    act("resetKeybinding", {
-                                      binding: kb.name,
-                                    })
-                                  }
-                                />
-                              </Stack.Item>
-                            </Stack>
-                          </Stack.Item>
-                        </Stack>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
-          );
-        })}
+                                    )}
+                                  </>
+                                )}
+                                <Stack.Item ml={0.5}>
+                                  <CsButton
+                                    icon="plus"
+                                    compact
+                                    disabled={isCapturing}
+                                    onClick={() =>
+                                      this.startCapture(kb.name, null)
+                                    }
+                                  />
+                                </Stack.Item>
+                                <Stack.Item>
+                                  <CsButton
+                                    icon="undo"
+                                    compact
+                                    disabled={isDefault}
+                                    onClick={() =>
+                                      act("resetKeybinding", {
+                                        binding: kb.name,
+                                      })
+                                    }
+                                  />
+                                </Stack.Item>
+                              </Stack>
+                            </Stack.Item>
+                          </Stack>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Box>
+            );
+          })}
       </>
     );
   }

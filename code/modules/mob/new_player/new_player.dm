@@ -26,10 +26,6 @@
 		util_crash_with("Warning: [src]([type]) initialized multiple times!")
 	atom_flags |= ATOM_FLAG_INITIALIZED
 
-	verbs += /mob/proc/toggle_antag_pool
-	verbs += /mob/proc/join_as_actor
-	verbs += /mob/proc/join_response_team
-
 	return INITIALIZE_HINT_NORMAL
 
 /mob/new_player/Destroy()
@@ -105,23 +101,7 @@
 
 	if(href_list["ready"])
 		if(GAME_STATE <= RUNLEVEL_LOBBY) // Make sure we don't ready up after the round has started
-			if(jobban_isbanned(src, "MALE") && jobban_isbanned(src, "FEMALE"))
-				to_chat(src, "<span class='warning'>Only genderqueers allowed.</span>")
-				return
-
-			if(jobban_isbanned(src, "MALE") && client.prefs.gender == MALE)
-				to_chat(src, "<span class='warning'>Only traps allowed.</span>")
-				return
-
-			if(jobban_isbanned(src, "FEMALE") && client.prefs.gender == FEMALE)
-				to_chat(src, "<span class='warning'>No traps allowed.</span>")
-				return
-
-			var/value = text2num(href_list["ready"])
-			if (value && !SSeams.CheckForAccess(client))
-				return
-
-			ready = value
+			ready = 1
 		else
 			ready = 0
 
@@ -132,9 +112,6 @@
 	if(href_list["observe"])
 		if(GAME_STATE < RUNLEVEL_LOBBY)
 			to_chat(src, "<span class='warning'>Please wait for server initialization to complete...</span>")
-			return
-
-		if (!SSeams.CheckForAccess(client))
 			return
 
 		if(!config.misc.respawn_delay || client.holder || alert(src,"Are you sure you wish to observe? You will have to wait [config.misc.respawn_delay] minute\s before being able to respawn!","Player Setup","Yes","No") == "Yes")
@@ -185,21 +162,6 @@
 			to_chat(usr, "<span class='warning'>The round is either not ready, or has already finished...</span>")
 			return
 
-		if (!SSeams.CheckForAccess(client))
-			return
-
-		if(jobban_isbanned(src, "MALE") && jobban_isbanned(src, "FEMALE"))
-			to_chat(src, "<span class='warning'>Only genderqueers allowed.</span>")
-			return
-
-		if(jobban_isbanned(src, "MALE") && client.prefs.gender == MALE)
-			to_chat(src, "<span class='warning'>Only traps allowed.</span>")
-			return
-
-		if(jobban_isbanned(src, "FEMALE") && client.prefs.gender == FEMALE)
-			to_chat(src, "<span class='warning'>No traps allowed.</span>")
-			return
-
 		LateChoices() //show the latejoin job selection menu
 
 	if(href_list["manifest"])
@@ -215,9 +177,6 @@
 			to_chat(usr, "<span class='danger'>The job '[href_list["SelectedJob"]]' doesn't exist!</span>")
 			return
 
-		if (!SSeams.CheckForAccess(client))
-			return
-
 		//Prevents people rejoining as same character.
 		for (var/mob/living/carbon/human/C in SSmobs.mob_list)
 			var/char_name = client.prefs.real_name
@@ -227,9 +186,6 @@
 
 		if(!config.game.enter_allowed)
 			to_chat(usr, "<span class='notice'>There is an administrative lock on entering the game!</span>")
-			return
-		if(SSticker && SSticker.mode && SSticker.mode.explosion_in_progress)
-			to_chat(usr, "<span class='danger'>The [station_name()] is currently exploding. Joining would go poorly.</span>")
 			return
 
 		var/datum/species/S = all_species[client.prefs.species]
@@ -344,7 +300,6 @@
 /mob/new_player/proc/IsJobAvailable(datum/job/job)
 	if(!job)	return 0
 	if(!job.is_position_available()) return 0
-	if(jobban_isbanned(src, job.title))	return 0
 	if(!job.player_old_enough(src.client))	return 0
 
 	return 1
@@ -399,48 +354,17 @@
 		return 0
 
 	character = job_master.EquipRank(character, job.title, 1)					//equips the human
-	equip_custom_items(character)
 	character.apply_traits()
-	// AIs don't need a spawnpoint, they must spawn at an empty core
-	if(character.mind.assigned_role == "AI")
-
-		character = character.AIize(move=0) // AIize the character, but don't move them yet
-
-			// IsJobAvailable for AI checks that there is an empty core available in this list
-		var/obj/structure/AIcore/deactivated/C = empty_playable_ai_cores[1]
-		empty_playable_ai_cores -= C
-
-		character.forceMove(C.loc)
-		var/mob/living/silicon/ai/A = character
-		A.on_mob_init()
-
-		SSannounce.announce_arrival(character.real_name, job)
-		SSticker.mode.handle_latejoin(character)
-
-		qdel(C)
-		qdel(src)
-		return
 
 	SSticker.mode.handle_latejoin(character)
-	GLOB.universe.OnPlayerLatejoin(character)
 	if(job_master.ShouldCreateRecords(job.title))
 		if(character.mind.assigned_role != "Cyborg")
 			CreateModularRecord(character)
 			SSticker.minds += character.mind//Cyborgs and AIs handle this in the transform proc.	//TODO!!!!! ~Carn
 
-		SSannounce.announce_arrival(character.real_name, job, spawnpoint)
-
 		matchmaker.do_matchmaking()
 	log_and_message_admins("has joined the round as [character.mind.assigned_role].", character)
 	qdel(src)
-
-/mob/new_player/proc/AnnounceCyborg(mob/living/character, rank, join_message)
-	if (GAME_STATE == RUNLEVEL_GAME)
-		if(character.mind.role_alt_title)
-			rank = character.mind.role_alt_title
-		// can't use their name here, since cyborg namepicking is done post-spawn, so we'll just say "A new Cyborg has arrived"/"A new Android has arrived"/etc.
-		GLOB.global_announcer.autosay("A new[rank ? " [rank]" : " visitor" ] [join_message ? join_message : "has arrived"].", "Arrivals Announcement Computer")
-		log_and_message_admins("has joined the round as [character.mind.assigned_role].", character)
 
 /mob/new_player/proc/LateChoices()
 	var/name = client.prefs.be_random_name ? "friend" : client.prefs.real_name
@@ -449,22 +373,12 @@
 	dat += "<b>Welcome, [name].<br></b>"
 	dat += "Round Duration: [roundduration2text()]<br>"
 
-	if(evacuation_controller.has_evacuated())
-		dat += "<font color='red'><b>The [station_name()] has been evacuated.</b></font><br>"
-	else if(evacuation_controller.is_evacuating())
-		if(evacuation_controller.emergency_evacuation) // Emergency shuttle is past the point of no recall
-			dat += "<font color='red'>The [station_name()] is currently undergoing evacuation procedures.</font><br>"
-		else                                           // Crew transfer initiated
-			dat += "<font color='red'>The [station_name()] is currently undergoing crew transfer procedures.</font><br>"
-
 	dat += "Choose from the following open/valid positions:<br>"
 	dat += "<a href='byond://?src=\ref[src];invalid_jobs=1'>[show_invalid_jobs ? "Hide":"Show"] unavailable jobs.</a><br>"
 	dat += "<table>"
 	for(var/datum/job/job in job_master.occupations)
 		if(job && IsJobAvailable(job))
 			if(job.minimum_character_age && (client.prefs.age < job.minimum_character_age))
-				continue
-			if(job.faction_restricted && (client.prefs.background != GLOB.using_map.company_name || (client.prefs.nanotrasen_relation in COMPANY_OPPOSING)))
 				continue
 			if(job.no_latejoin)
 				continue
@@ -522,7 +436,7 @@
 		var/datum/language/chosen_language = all_languages[lang]
 		if(chosen_language)
 			var/is_species_lang = (chosen_language.name in new_character.species.secondary_langs)
-			if(is_species_lang || ((!(chosen_language.language_flags & RESTRICTED) || has_admin_rights()) && is_alien_whitelisted(src, chosen_language)))
+			if(is_species_lang || ((!(chosen_language.language_flags & RESTRICTED) || has_admin_rights())))
 				new_character.add_language(lang)
 
 	if(GLOB.random_players)
@@ -530,12 +444,6 @@
 		client.prefs.real_name = random_name(new_character.gender)
 		client.prefs.randomize_appearance_and_body_for(new_character)
 	else
-		if(jobban_isbanned(src, "NAME"))
-			client.prefs.real_name = random_name(new_character.gender)
-
-		if(jobban_isbanned(src, "APPEARANCE"))
-			client.prefs.randomize_appearance_and_body_for(new_character)
-
 		client.prefs.copy_to(new_character)
 
 	sound_to(src, sound(null, repeat = 0, wait = 0, volume = 85, channel = 1))// MAD JAMS cant last forever yo
@@ -574,13 +482,6 @@
 
 	new /atom/movable/screen/splash/fake(null, TRUE, new_character.client, SSlobby.current_lobby_art)
 
-	// Give them their cortical stack if we're using them.
-	if(config && config.revival.use_cortical_stacks && new_character.client && new_character.client.prefs.has_cortical_stack /*&& new_character.should_have_organ(BP_BRAIN)*/)
-		new_character.create_stack()
-
-	if(new_character.isSynthetic())
-		new_character.add_synth_emotes()
-
 	return new_character
 
 /mob/new_player/proc/ViewManifest()
@@ -616,14 +517,7 @@
 		if (show_alert)
 			alert(client, "Your current species, [client.prefs.species], is not available for play.")
 		return 0
-	if (!is_alien_whitelisted(src, S))
-		if (show_alert)
-			alert(client, "You are currently not whitelisted to play [client.prefs.species].")
-		return 0
-	if (jobban_isbanned(src, "SPECIES") && S.name != SPECIES_HUMAN)
-		if (show_alert)
-			alert(client, "You are currently banned to play species!")
-		return 0
+
 	return 1
 
 /mob/new_player/get_species()

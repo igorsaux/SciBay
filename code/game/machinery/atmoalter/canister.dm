@@ -248,17 +248,8 @@ update_flag
 		return GM.return_pressure()
 	return 0
 
-/obj/machinery/portable_atmospherics/canister/bullet_act(obj/item/projectile/Proj)
-	if(!(Proj.damage_type == BRUTE || Proj.damage_type == BURN))
-		return
-
-	if(Proj.damage)
-		src.health -= round(Proj.damage / 2)
-		healthcheck()
-	..()
-
 /obj/machinery/portable_atmospherics/canister/attackby(obj/item/W as obj, mob/user as mob)
-	if(!isWrench(W) && !istype(W, /obj/item/tank) && !istype(W, /obj/item/device/analyzer) && !istype(W, /obj/item/device/pda))
+	if(!isWrench(W) && !istype(W, /obj/item/tank))
 		user.visible_message(SPAN("danger", "\The [src] has been [pick(W.attack_verb)] with [W] by [user]!"))
 		src.health -= W.force
 		healthcheck()
@@ -283,10 +274,6 @@ update_flag
 	..()
 
 	SSnano.update_uis(src) // Update all NanoUIs attached to src
-
-/obj/machinery/portable_atmospherics/canister/attack_ai(mob/user)
-	if(isrobot(user))
-		ui_interact(user)
 
 /obj/machinery/portable_atmospherics/canister/attack_hand(mob/user as mob)
 	ui_interact(user)
@@ -381,8 +368,6 @@ update_flag
 /obj/machinery/portable_atmospherics/canister/CanUseTopic(mob/user)
 	if(destroyed)
 		return STATUS_CLOSE
-	if(isrobot(user) && !Adjacent(user))
-		return STATUS_DISABLED
 	return ..()
 
 /obj/machinery/portable_atmospherics/canister/plasma/New()

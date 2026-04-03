@@ -12,46 +12,14 @@
 	gear_detachable = FALSE
 	gear = /obj/item/weldingtool/linked
 	atom_flags = null
-	initial_capacity = 2 LITERS
-	initial_reagent_types = list(/datum/reagent/fuel = 1)
 	origin_tech = list(TECH_ENGINEERING = 3)
 	matter = list(MATERIAL_STEEL = 1500, MATERIAL_GLASS = 500)
-
-/obj/item/backwear/reagent/welding/afterattack(obj/O, mob/user, proximity)
-	if(!proximity)
-		return
-	if(istype(O, /obj/structure/reagent_dispensers/fueltank))
-		if(!O.reagents.total_volume)
-			to_chat(user, SPAN("notice", "\The [O] is empty."))
-			return
-		if(reagents.total_volume >= initial_capacity)
-			to_chat(user, SPAN("notice", "\The [src] is already full!"))
-			return
-		O.reagents.trans_to_obj(src, initial_capacity)
-		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it back up again from \the [O]."))
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
-		return
 
 /obj/item/backwear/reagent/welding/reattach_gear(mob/user)
 	..()
 	if(istype(gear, /obj/item/weldingtool/linked))
 		var/obj/item/weldingtool/W = gear
 		W.setWelding(0)
-
-/obj/item/backwear/reagent/welding/attackby(obj/item/W, mob/user)
-	if(W.get_temperature_as_from_ignitor())
-		if(!reagents.total_volume)
-			to_chat(user, SPAN("danger", "You put \the [W] to \the [src] and with a moment of lucidity you realize, this might not have been the smartest thing you've ever done. Luckily, \the [src] is empty."))
-			return
-		else
-			log_and_message_admins("triggered a welding kit explosion with [W].")
-			user.visible_message(SPAN("danger", "[user] puts [W] to [src]!"), SPAN("danger", "You put \the [W] to \the [src] and with a moment of lucidity you realize, this might not have been the smartest thing you've ever done."))
-			explosion(get_turf(src), 0, 2, 4)
-			if(src)
-				qdel(src)
-			return
-	return ..()
-
 
 /obj/item/weldingtool/linked
 	name = "welding tool"
@@ -89,9 +57,6 @@
 	if(base_unit)
 		base_unit.reattach_gear(user)
 
-/obj/item/weldingtool/linked/get_fuel()
-	return base_unit ? base_unit.reagents.get_reagent_amount(/datum/reagent/fuel) : 0
-
 /obj/item/weldingtool/linked/remove_fuel(amount = 1, mob/M = null)
 	if(!welding)
 		return 0
@@ -106,32 +71,8 @@
 			to_chat(M, "<span class='notice'>You need more welding fuel to complete this task.</span>")
 		return 0
 
-/obj/item/weldingtool/linked/burn_fuel(amount)
-	if(!base_unit)
-		return
-
-	var/mob/living/in_mob = null
-
-	if(isliving(src.loc))
-		var/mob/living/L = src.loc
-		if(!(L.l_hand == src || L.r_hand == src))
-			in_mob = L
-
-	if(in_mob)
-		amount = max(amount, 2)
-		base_unit.reagents.trans_type_to(in_mob, /datum/reagent/fuel, amount)
-		in_mob.IgniteMob()
-
-	else
-		base_unit.reagents.remove_reagent(/datum/reagent/fuel, amount)
-		var/turf/location = get_turf(src.loc)
-		if(location)
-			location.hotspot_expose(700, 5)
-
 /obj/item/weldingtool/linked/afterattack(obj/O, mob/user, proximity)
 	if(!proximity)
-		return
-	if((istype(O, /obj/structure/reagent_dispensers/fueltank) || istype(O, /obj/item/backwear)) && !welding)
 		return
 	..()
 

@@ -68,26 +68,6 @@
 	if(istype(D))
 		D.set_idscan(0)
 
-/datum/wifi/receiver/button/door/proc/enable_safeties()
-	var/obj/machinery/door/airlock/D = parent
-	if(istype(D))
-		D.set_safeties(1)
-
-/datum/wifi/receiver/button/door/proc/disable_safeties()
-	var/obj/machinery/door/airlock/D = parent
-	if(istype(D))
-		D.set_safeties(0)
-
-/datum/wifi/receiver/button/door/proc/electrify()
-	var/obj/machinery/door/airlock/D = parent
-	if(istype(D))
-		D.electrify(-1)
-
-/datum/wifi/receiver/button/door/proc/unelectrify()
-	var/obj/machinery/door/airlock/D = parent
-	if(istype(D))
-		D.electrify(0)
-
 //-------------------------------
 // Emitter
 // Activates/deactivates the parent emitter.
@@ -97,26 +77,8 @@
 /datum/wifi/sender/emitter/activate(command, mob/user)
 	var/datum/spawn_sync/S = new()
 
-	for(var/datum/wifi/receiver/button/emitter/D in connected_devices)
-		S.start_worker(D, command, user)
 	S.wait_until_done()
 	return
-
-// Receiver procs
-/datum/wifi/receiver/button/emitter/activate(mob/living/user)
-	..()
-	var/obj/machinery/power/emitter/E = parent
-	if(istype(E) && !E.active)
-		E.activate(user)	//if the emitter is not active, trigger the activate proc to toggle it
-		
-/datum/wifi/receiver/button/emitter/deactivate(mob/living/user)
-	var/obj/machinery/power/emitter/E = parent
-	if(istype(E) && E.active)
-		E.activate(user)	//if the emitter is active, trigger the activate proc to toggle it
-
-/datum/wifi/receiver/button/emitter/proc/toggle_lock(mob/living/user)
-	var/obj/machinery/power/emitter/E = parent
-	E.toggle_lock(user)
 
 //-------------------------------
 // Crematorium
@@ -179,36 +141,3 @@
 	var/obj/machinery/sparker/S = parent
 	if(istype(S))
 		S.ignite()
-
-//-------------------------------
-// Mass Driver
-//	Sender: carries out a sequence of first opening all connected doors, then activating all connected mass drivers, 
-//			then closes all connected doors. It will wait before continuing the sequence after opening/closing the doors.
-//	Receiver: Triggers the parent mass dirver to activate.
-//-------------------------------
-/datum/wifi/sender/mass_driver/activate()
-	var/datum/spawn_sync/S = new()
-
-	//tell all doors to open
-	for(var/datum/wifi/receiver/button/door/D in connected_devices)
-		S.start_worker(D, "open")
-	S.wait_until_done()
-	S.reset()
-	//tell all mass drivers to launch
-	for(var/datum/wifi/receiver/button/mass_driver/M in connected_devices)
-		spawn()
-			M.activate()
-	sleep(20)
-
-	//tell all doors to close
-	S.reset()
-	for(var/datum/wifi/receiver/button/door/D in connected_devices)
-		S.start_worker(D, "close")
-	S.wait_until_done()
-	return
-
-/datum/wifi/receiver/button/mass_driver/activate(mob/living/user)
-	..()
-	var/obj/machinery/mass_driver/M = parent
-	if(istype(M))
-		M.drive()

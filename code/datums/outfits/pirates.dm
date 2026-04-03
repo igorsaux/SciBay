@@ -5,7 +5,6 @@
 	shoes = /obj/item/clothing/shoes/jackboots
 	head = /obj/item/clothing/mask/bandana/red
 	glasses = /obj/item/clothing/glasses/eyepatch
-	l_hand = /obj/item/melee/energy/sword/pirate
 
 /decl/hierarchy/outfit/pirate/norm
 

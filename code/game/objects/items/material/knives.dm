@@ -247,9 +247,7 @@
 /obj/item/material/knife/butch/kitchen/syndie/proc/chopchop(mob/user, mob/living/carbon/human/victim)
 	user.visible_message(SPAN("danger", "<b>[user]</b> chops [victim] into pieces!"))
 
-	var/slab_name = victim.real_name
 	var/slab_count = 0
-	var/slab_type = victim.species.meat_type
 	var/robotic_slab_count = 0
 	var/robotic_slab_type = /obj/item/stack/material/steel
 	var/slab_nutrition = victim.nutrition / 15
@@ -259,30 +257,12 @@
 			continue
 		var/obj/item/organ/external/chest/C = O
 		if(istype(C))
-			if(BP_IS_ROBOTIC(O))
-				robotic_slab_count += C.butchering_capacity
-			else
-				slab_count += C.butchering_capacity
+			slab_count += C.butchering_capacity
 			continue
-		if(BP_IS_ROBOTIC(O))
-			robotic_slab_count++
-		else
-			slab_count++
+		slab_count++
 
 	if(slab_count > 0)
 		slab_nutrition /= slab_count
-
-		var/reagent_transfer_amt
-		if(victim.reagents)
-			reagent_transfer_amt = round(victim.reagents.total_volume / slab_count, 1)
-
-		for(var/i = 1 to slab_count)
-			var/obj/item/reagent_containers/food/meat/new_meat = new slab_type(victim.loc, rand(3, 8))
-			if(istype(new_meat))
-				new_meat.SetName("[slab_name] [new_meat.name]")
-				new_meat.reagents.add_reagent(/datum/reagent/nutriment, slab_nutrition * 10)
-				if(victim.reagents)
-					victim.reagents.trans_to_obj(new_meat, reagent_transfer_amt)
 
 	for(var/i = 1 to robotic_slab_count)
 		new robotic_slab_type(victim.loc, rand(3, 5))

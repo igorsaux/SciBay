@@ -76,13 +76,6 @@
 			to_chat(user, SPAN("notice", "You connect \the [bcell] to the wires on \the [src]."))
 			return
 
-/obj/item/clothing/gloves/stun/emp_act(severity)
-	if(bcell)
-		bcell.charge -= 100 / severity
-		if(bcell.charge < 0)
-			bcell.charge = 0
-	..()
-
 /obj/item/clothing/gloves/stun/Touch(atom/A, proximity)
 	if(!proximity || !bcell)
 		return FALSE

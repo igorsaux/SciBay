@@ -13,9 +13,6 @@
 	var/label_x
 	var/tag_x
 
-/obj/structure/bigDelivery/attack_robot(mob/user)
-	unwrap(user)
-
 /obj/structure/bigDelivery/attack_hand(mob/user)
 	unwrap(user)
 
@@ -189,9 +186,6 @@
 		wrapped.forceMove(get_turf(src))
 		qdel(src)
 	return
-
-/obj/item/smallDelivery/attack_robot(mob/user)
-	unwrap(user)
 
 /obj/item/smallDelivery/attack_self(mob/user)
 	unwrap(user)

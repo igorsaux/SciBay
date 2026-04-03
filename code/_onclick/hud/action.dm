@@ -187,10 +187,7 @@
 
 
 /atom/movable/screen/movable/action_button/hide_toggle/proc/InitialiseIcon(mob/living/user)
-	if(islarva(user))
-		icon_state = "bg_alien"
-	else
-		icon_state = "bg_default"
+	icon_state = "bg_default"
 	UpdateIcon()
 	return
 

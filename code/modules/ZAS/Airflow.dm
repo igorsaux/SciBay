@@ -22,12 +22,6 @@ Contains helper procs for airflow, handled in /connection_group.
 	Stun(2)
 	last_airflow_stun = world.time
 
-/mob/living/silicon/airflow_stun()
-	return
-
-mob/living/carbon/metroid/airflow_stun()
-	return
-
 /mob/living/carbon/human/airflow_stun()
 	if(!get_eva_slip_prob())
 		to_chat(src, SPAN("notice", "Air suddenly rushes past you!"))

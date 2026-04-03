@@ -35,19 +35,10 @@
 
 	if(!(language && (language.language_flags & INNATE))) // skip understanding checks for INNATE languages
 		if(!say_understands(speaker,language))
-			if(istype(speaker,/mob/living/simple_animal))
-				var/understand_animals = FALSE
-				if(istype(src, /mob/living/carbon))
-					var/mob/living/carbon/C = src
-					understand_animals = C.is_hallucinating() && prob(15)
-				if(!understand_animals)
-					var/mob/living/simple_animal/S = speaker
-					message = pick(S.speak)
+			if(language)
+				message = language.scramble(message)
 			else
-				if(language)
-					message = language.scramble(message)
-				else
-					message = stars(message)
+				message = stars(message)
 
 	var/speaker_name = "Unknown"
 	if(speaker)
@@ -106,8 +97,6 @@
 		else if(src.z > speaker.z)
 			verb += " from below"
 
-		if(istype(src,/mob/living) && src.mind && src.mind.syndicate_awareness == SYNDICATE_SUSPICIOUSLY_AWARE)
-			message = highlight_codewords(message, GLOB.code_phrase_highlight_rule)  //  Same can be done with code_response or any other list of words, using regex created by generate_code_regex(). You can also add the name of CSS class as argument to change highlight style.
 		if(language)
 			var/nverb = null
 			if(!say_understands(speaker,language) || language.name == LANGUAGE_GALCOM) //Check to see if we can understand what the speaker is saying. If so, add the name of the language after the verb. Don't do this for Galactic Common.
@@ -156,11 +145,7 @@
 	if(!(language?.language_flags & INNATE)) // skip understanding checks for INNATE languages
 		if(!say_understands(speaker, language))
 			if(istype(speaker,/mob/living/simple_animal))
-				var/mob/living/simple_animal/S = speaker
-				if(S.speak?.len)
-					message = pick(S.speak)
-				else
-					return
+				return
 			else
 				if(language)
 					message = language.scramble(message)
@@ -186,63 +171,11 @@
 	if(hard_to_hear)
 		speaker_name = "Unknown"
 
-	var/changed_voice = FALSE
-
-	if(isAI(src) && !hard_to_hear)
-		var/jobname // the mob's "job"
-		var/mob/living/carbon/human/impersonating //The crew member being impersonated, if any.
-
-		if(ishuman(speaker))
-			var/mob/living/carbon/human/H = speaker
-
-			if(H.wear_mask && istype(H.wear_mask, /obj/item/clothing/mask/chameleon/voice))
-				changed_voice = TRUE
-				var/list/impersonated = new()
-				var/mob/living/carbon/human/I = impersonated[speaker_name]
-
-				if(!I)
-					for(var/mob/living/carbon/human/M in SSmobs.mob_list)
-						if(M.real_name == speaker_name)
-							I = M
-							impersonated[speaker_name] = I
-							break
-
-				// If I's display name is currently different from the voice name and using an agent ID then don't impersonate
-				// as this would allow the AI to track I and realize the mismatch.
-				if(I && !(I.name != speaker_name && I.wear_id && istype(I.wear_id,/obj/item/card/id/syndicate)))
-					impersonating = I
-					jobname = impersonating.get_assignment()
-				else
-					jobname = "Unknown"
-			else
-				jobname = H.get_assignment()
-
-		else if (iscarbon(speaker)) // Nonhuman carbon mob
-			jobname = "No id"
-		else if (isAI(speaker))
-			jobname = "AI"
-		else if (isrobot(speaker))
-			jobname = "Cyborg"
-		else if (istype(speaker, /mob/living/silicon/pai))
-			jobname = "Personal AI"
-		else
-			jobname = "Unknown"
-
-		if(changed_voice)
-			if(impersonating)
-				track = "<a href='byond://?src=\ref[src];trackname=[html_encode(speaker_name)];track=\ref[impersonating]'>[speaker_name] ([jobname])</a>"
-			else
-				track = "[speaker_name] ([jobname])"
-		else
-			track = "<a href='byond://?src=\ref[src];trackname=[html_encode(speaker_name)];track=\ref[speaker]'>[speaker_name] ([jobname])</a>"
-
 	if(isghost(src))
-		if(speaker?.real_name && speaker_name != speaker.real_name && !isAI(speaker)) //Announce computer and various stuff that broadcasts doesn't use it's real name but AI's can't pretend to be other mobs.
+		if(speaker?.real_name && speaker_name != speaker.real_name) //Announce computer and various stuff that broadcasts doesn't use it's real name but AI's can't pretend to be other mobs.
 			speaker_name = "[speaker.real_name] ([speaker_name])"
 		track = "[speaker_name] ([ghost_follow_link(speaker, src)])"
 
-	if(istype(src,/mob/living) && src.mind && src.mind.syndicate_awareness == SYNDICATE_SUSPICIOUSLY_AWARE)
-		message = highlight_codewords(message, GLOB.code_phrase_highlight_rule) //  Same can be done with code_response or any other list of words, using regex created by generate_code_regex(). You can also add the name of CSS class as argument to change highlight style.
 	var/formatted
 	if(language)
 		if(!say_understands(speaker, language) || language.name == LANGUAGE_GALCOM) //Check if we understand the message. If so, add the language name after the verb. Don't do this for Galactic Common.
@@ -259,12 +192,8 @@
 			formatted = language.format_message_radio(message, nverb)
 	else
 		formatted = "[verb], <span class=\"body\">\"[message]\"</span>"
-	if(sdisabilities & DEAF || ear_deaf)
-		var/mob/living/carbon/human/H = src
-		if(istype(H) && H.has_headset_in_ears() && prob(20))
-			to_chat(src, SPAN("warning", "You feel your headset vibrate [loud ? "really hard " : ""]but can hear nothing from it!"))
-	else
-		on_hear_radio(part_a, speaker_name, track, part_b, part_c, formatted, loud, gender = speaker ? speaker.gender : null)
+
+	on_hear_radio(part_a, speaker_name, track, part_b, part_c, formatted, loud, gender = speaker ? speaker.gender : null)
 
 /proc/say_timestamp()
 	return SPAN("say_quote", "\[[stationtime2text()]\]")

@@ -21,38 +21,6 @@
 	if(owner)
 		update_colour()
 
-/obj/item/organ/internal/eyes/optics
-	status = ORGAN_ROBOTIC
-	organ_tag = BP_OPTICS
-
-/obj/item/organ/internal/eyes/optics/Initialize()
-	. = ..()
-	robotize()
-
-/obj/item/organ/internal/eyes/robotize()
-	..()
-	SetName("optical sensors")
-	icon_state = "eyes-prosthetic"
-	dead_icon = "eyes-prosthetic-br"
-	update_colour()
-
-/obj/item/organ/internal/eyes/robot
-	name = "optical sensor"
-
-/obj/item/organ/internal/eyes/robot/Initialize()
-	. = ..()
-	robotize()
-
-/obj/item/organ/internal/eyes/replaced(mob/living/carbon/human/target)
-
-	// Apply our eye colour to the target.
-	if(istype(target) && eye_colour)
-		target.r_eyes = eye_colour[1]
-		target.g_eyes = eye_colour[2]
-		target.b_eyes = eye_colour[3]
-		target.update_eyes()
-	..()
-
 /obj/item/organ/internal/eyes/proc/update_colour()
 	if(!owner)
 		return
@@ -84,15 +52,3 @@
 
 /obj/item/organ/internal/eyes/proc/additional_flash_effects(intensity)
 	return -1
-
-/obj/item/organ/internal/eyes/emp_act(severity)
-	. = ..()
-
-	if(!LAZYLEN(organ_modules))
-		return
-
-	var/damage = 2 * (4 - severity)
-	if(damage <= 0)
-		return
-
-	take_internal_damage(damage)

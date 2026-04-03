@@ -9,10 +9,6 @@
 		var/mob/living/carbon/human/H = A
 		H.handle_footsteps()
 		H.step_count++
-	else if(istype(A, /mob/living/silicon/robot))
-		var/mob/living/silicon/robot/R = A
-		R.handle_footsteps()
-		R.step_count++
 
 /mob/living/carbon/human/var/step_count
 
@@ -98,24 +94,3 @@
 
 		if(dist >= world.view && dist <= world.view * 3)
 			M.playsound_local(src.loc, SFX_DISTANT_MOVEMENT, 100)
-
-/mob/living/silicon/robot/var/step_count = 0
-
-/mob/living/silicon/robot/proc/handle_footsteps()
-	var/turf/T = get_turf(src)
-
-	if(!istype(T))
-		return
-
-	if(buckled || lying || throwing)
-		return // people flying, lying down or sitting do not step
-
-	if(m_intent == M_RUN)
-		if(step_count % 2) // every other turf makes a sound
-			return
-
-	if(!has_gravity(src))
-		if(step_count % 3) // don't need to step as often when you hop around
-			return
-
-	play_footstep_sound()

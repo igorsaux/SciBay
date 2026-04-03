@@ -61,19 +61,10 @@
 	return
 
 /obj/structure/bed/nest/user_buckle_mob(mob/living/M, mob/user)
-	if(!ismob(M) || !Adjacent(user) || (M.loc != loc) || user.restrained() || usr.stat || M.buckled || istype(user, /mob/living/silicon/pai))
+	if(!ismob(M) || !Adjacent(user) || (M.loc != loc) || user.restrained() || usr.stat || M.buckled)
 		return
 
 	unbuckle_mob()
-
-	var/mob/living/carbon/xenos = user
-	var/mob/living/carbon/victim = M
-
-	if(istype(victim) && (locate(/obj/item/organ/internal/xenos/hivenode) in victim.internal_organs))
-		return
-
-	if(istype(xenos) && !(locate(/obj/item/organ/internal/xenos/hivenode) in xenos.internal_organs))
-		return
 
 	if(M == usr)
 		return

@@ -241,9 +241,6 @@
 	if(!z || (z in GLOB.using_map.get_levels_with_trait(ZTRAIT_SEALED)))
 		return
 
-	if(!GLOB.universe.OnTouchMapEdge(src))
-		return
-
 	var/new_x
 	var/new_y
 	var/new_z = GLOB.using_map.get_transit_zlevel(z)

@@ -17,12 +17,6 @@
 	. = ..()
 	update_coagulation()
 
-/obj/item/organ/internal/liver/robotize()
-	. = ..()
-	SetName("hepatic filter")
-	icon_state = "liver-prosthetic"
-	dead_icon = "liver-prosthetic-br"
-
 /obj/item/organ/internal/liver/set_dna(datum/dna/new_dna)
 	..()
 	update_coagulation()
@@ -56,9 +50,6 @@
 	if(!owner)
 		return
 
-	if(isundead(owner))
-		return
-
 	update_coagulation()
 
 	// Update the filtering efficiency of the liver.
@@ -69,18 +60,9 @@
 	// That's where we're in trouble.
 	if(is_broken())
 		filtering_efficiency -= 1
-	// Robotic organs filter better but don't get benefits from dylovene for filtering.
-	if(BP_IS_ROBOTIC(src) || owner.chem_effects[CE_ANTITOX])
-		filtering_efficiency += 1
-	// Enough to get poisoned even w/ a healthy liver, unless it's robotic or dylovene-boosted.
-	if(owner.chem_effects[CE_ALCOHOL_TOXIC])
-		filtering_efficiency -= 2
-	// Not enough to get poisoned when your liver is fine, but it's better not to touch booze when it's bruised.
-	else if(owner.chem_effects[CE_ALCOHOL])
-		filtering_efficiency -= 1
 
 	// If the liver's not too busy, the body slowly regains its "anti-toxic shield".
-	if(filtering_efficiency >= 2 && !owner.chem_effects[CE_TOXIN])
+	if(filtering_efficiency >= 2)
 		stored_tox = max(damage, (stored_tox - filtering_efficiency * 0.1))
 
 /obj/item/organ/internal/liver/die()
@@ -92,14 +74,10 @@
 	if(!damage)
 		return
 
-	if(BP_IS_ROBOTIC(src))
-		return // Flesh is superior.
-
 	var/heal_value = autoheal_value * owner.coagulation
 
 	// Boost healing a bit if we're not busy. Livers regenerate well, after all.
-	if(!(owner.chem_effects[CE_ALCOHOL] || owner.chem_effects[CE_TOXIN] || owner.radiation > SAFE_RADIATION_DOSE))
-		heal_value *= 1.5
+	heal_value *= 1.5
 
 	if(damage >= min_bruised_damage)
 		damage = max(min_bruised_damage, damage - heal_value)

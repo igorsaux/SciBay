@@ -114,31 +114,3 @@
 	icon_state = "jetpack-black"
 	item_state =  "jetpack-black"
 	starting_pressure = list("carbon_dioxide" = 6*ONE_ATMOSPHERE)
-
-/obj/item/tank/jetpack/rig
-	name = "jetpack"
-	var/obj/item/rig/holder
-
-/obj/item/tank/jetpack/rig/examine(mob/user, infix)
-	. = ..()
-	. += "It's a jetpack. If you can see this, report it on the bug tracker."
-
-/obj/item/tank/jetpack/rig/allow_thrust(num, mob/living/user as mob)
-
-	if(!(src.on))
-		return 0
-
-	if(!istype(holder) || !holder.air_supply)
-		return 0
-
-	var/obj/item/tank/pressure_vessel = holder.air_supply
-
-	if((num < 0.005 || pressure_vessel.air_contents.total_moles < num))
-		src.ion_trail.stop()
-		return 0
-
-	var/datum/gas_mixture/G = pressure_vessel.air_contents.remove(num)
-
-	if(G.total_moles >= 0.005)
-		return 1
-	qdel(G)

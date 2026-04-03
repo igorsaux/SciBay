@@ -21,7 +21,6 @@
 	AddElement(/datum/element/simple_rotation)
 
 /obj/structure/secure_door_assembly/Destroy()
-	QDEL_NULL(signaler)
 	return ..()
 
 /obj/structure/secure_door_assembly/proc/make_just_dismantled()
@@ -55,15 +54,7 @@
 				remove_cable(user)
 				return
 
-			if(istype(W, /obj/item/device/assembly/signaler))
-				add_signaler(W, user)
-				return
-
 		if(STATE_SIGNALLER)
-			if(isCrowbar(W))
-				remove_signaler(user)
-				return
-
 			if(isScrewdriver(W))
 				finish_assembly(user)
 				return
@@ -112,35 +103,12 @@
 		state = STATE_EMPTY
 		update_icon()
 
-/obj/structure/secure_door_assembly/proc/add_signaler(obj/item/device/assembly/signaler/W, mob/user)
-	playsound(loc, 'sound/items/Screwdriver.ogg', 100, 1)
-	user.visible_message("[user] installs the signaller into \the [src].", "You start to install signaller into \the [src].")
-
-	if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
-		if(!user.drop(W, src))
-			return
-
-		to_chat(user, SPAN_NOTICE("You installed signaller into \the [src]!"))
-		signaler = W
-		state = STATE_SIGNALLER
-		update_icon()
-
-/obj/structure/secure_door_assembly/proc/remove_signaler(mob/user)
-	user.visible_message("\The [user] starts removing the signaller from \the [src].", "You start removing the signaller from \the [src].")
-
-	if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
-		to_chat(user, SPAN_NOTICE("You removed \the signaller!"))
-		state = STATE_WIRED
-		signaler.dropInto(loc)
-		signaler = null
-		update_icon()
-
 /obj/structure/secure_door_assembly/proc/finish_assembly(mob/user)
 	playsound(loc, 'sound/items/Screwdriver.ogg', 100, 1)
 	to_chat(user, SPAN_NOTICE("Now finishing \the shutters."))
 
 	if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
-		new door_path(loc, signaler?.code, signaler?.frequency, dir)
+		new door_path(loc, null, null, dir)
 		qdel(src)
 
 /obj/structure/secure_door_assembly/blast

@@ -10,7 +10,7 @@
 /obj/structure/sign/double/barsign/proc/get_valid_states(initial = FALSE, mob/living/user = null)
 	. = icon_states(icon)
 	. -= "on"
-	if(!user || !iscultist(user))
+	if(!user)
 		. -= "Nar-sie Bistro"
 	if(!emagged)
 		. -= "The Syndi Cat"
@@ -55,14 +55,3 @@
 			to_chat(user, SPAN("warning", "Access denied."))
 		return
 	return ..()
-
-/obj/structure/sign/double/barsign/emag_act(remaining_charges, mob/user)
-	if(!emagged)
-		emagged = TRUE
-		to_chat(user, SPAN("notice", "You overload the access verification system and open access to special propaganda."))
-		return 1
-	return
-
-/obj/structure/sign/double/barsign/emp_act(severity)
-	icon_state = "???"
-	..(severity)

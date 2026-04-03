@@ -5,8 +5,6 @@
 	icon_state = "off"
 	level = 1
 	density = 1
-	use_power = POWER_USE_OFF
-	idle_power_usage = 200 WATTS		//internal circuitry, friction losses and stuff
 	power_rating = 10000
 	obj_flags = OBJ_FLAG_ANCHOR_BLOCKS_ROTATION
 	var/target_pressure = 10*ONE_ATMOSPHERE
@@ -85,7 +83,7 @@
 			node2 = null
 
 /obj/machinery/atmospherics/binary/oxyregenerator/Process(delay)
-	if((stat & (NOPOWER|BROKEN)) || !use_power)
+	if((stat & (NOPOWER|BROKEN)))
 		return
 
 	var/power_draw = -1
@@ -98,7 +96,6 @@
 			power_draw = pump_gas(src, air1, inner_tank, transfer_moles, power_rating*power_setting) * intake_power_efficiency
 			if (power_draw >= 0)
 				last_power_draw = power_draw
-				use_power_oneoff(power_draw)
 				if(network1)
 					network1.update = 1
 		if (air1.return_pressure() < 0.1 * ONE_ATMOSPHERE || inner_tank.return_pressure() >= 10 * ONE_ATMOSPHERE)//if pipe is good as empty or tank is full
@@ -116,11 +113,8 @@
 			carbon_stored += co2_intake * carbon_efficiency
 			while (carbon_stored >= carbon_moles_per_piece)
 				carbon_stored -= carbon_moles_per_piece
-				var/atom/movable/product = new /obj/item/ore/coal
-				product.dropInto(loc)
 			power_draw = power_rating * co2_intake
 			last_power_draw = power_draw
-			use_power_oneoff(power_draw)
 		else
 			phase = "releasing"
 
@@ -132,7 +126,6 @@
 			power_draw = pump_gas(src, inner_tank, air2, transfer_moles, power_rating*power_setting)
 			if (power_draw >= 0)
 				last_power_draw = power_draw
-				use_power_oneoff(power_draw)
 				if(network2)
 					network2.update = 1
 		else//can't push outside harder than target pressure. Device is not intended to be used as a pump after all
@@ -141,20 +134,13 @@
 			phase = "filling"
 
 /obj/machinery/atmospherics/binary/oxyregenerator/on_update_icon()
-	if(!powered())
-		icon_state = "off"
-	else
-		icon_state = "[use_power ? "on" : "off"]"
-
-/obj/machinery/atmospherics/binary/oxyregenerator/attack_ai(mob/user as mob)
-	ui_interact(user)
+	icon_state = "on"
 
 /obj/machinery/atmospherics/binary/oxyregenerator/attack_hand(mob/user as mob)
 	ui_interact(user)
 
 /obj/machinery/atmospherics/binary/oxyregenerator/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	var/data[0]
-	data["on"] = use_power ? 1 : 0
 	data["powerSetting"] = power_setting
 	data["gasProcessed"] = last_flow_rate
 	data["air1Pressure"] = round(air1.return_pressure())
@@ -180,7 +166,6 @@
 	if(..())
 		return 1
 	if(href_list["toggleStatus"])
-		update_use_power(!use_power)
 		update_icon()
 		return 1
 	if(href_list["setPower"]) //setting power to 0 is redundant anyways

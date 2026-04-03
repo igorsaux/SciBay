@@ -115,10 +115,8 @@
 /obj/item/material/twohanded/chainsaw/think()
 	if(!active)
 		return
-	if(get_fuel() >= fuel_consumption)
-		tank.reagents.remove_reagent(/datum/reagent/fuel, fuel_consumption)
-	else
-		turnOff()
+
+	turnOff()
 	set_next_think(world.time + 1 SECOND)
 
 /obj/item/material/twohanded/chainsaw/attackby(obj/item/W, mob/user)
@@ -147,7 +145,7 @@
 	..()
 
 /obj/item/material/twohanded/chainsaw/proc/get_fuel()
-	return tank ? tank.reagents.get_reagent_amount(/datum/reagent/fuel) : 0
+	return 0
 
 /obj/item/material/twohanded/chainsaw/examine(mob/user, infix)
 	. = ..()
@@ -174,9 +172,6 @@
 	if(A && wielded && active)
 		if(istype(A,/obj/structure/grille))
 			qdel(A)
-		else if(istype(A,/obj/effect/vine))
-			var/obj/effect/vine/P = A
-			P.die_off()
 
 /obj/item/material/twohanded/chainsaw/proc/turnOn()
 	if(get_fuel() <= 0)
@@ -264,9 +259,6 @@
 			W.shatter()
 		else if(istype(A,/obj/structure/grille))
 			qdel(A)
-		else if(istype(A,/obj/effect/vine))
-			var/obj/effect/vine/P = A
-			P.die_off()
 
 //spears, bay edition
 /obj/item/material/twohanded/spear

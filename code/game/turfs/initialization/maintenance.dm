@@ -35,20 +35,6 @@
 	if(prob(oil_probability))
 		new /obj/effect/decal/cleanable/blood/oil(T)
 
-	if(prob(clutter_probability))
-		var/new_junk = get_random_junk_type()
-		new new_junk(T)
-
-	if(prob(vermin_probability))
-		var/verminprob = rand(1, 100)
-		switch(verminprob)
-			if(1 to 70)
-				new /mob/living/simple_animal/mouse(T)
-			if(71 to 90)
-				new /mob/living/simple_animal/lizard(T)
-			if(91 to 100)
-				new /mob/living/simple_animal/hamster(T)
-
 	if(prob(web_probability))	// Keep in mind that only "corners" get any sort of web
 		attempt_web(T, cardinal_turfs)
 
@@ -72,10 +58,6 @@
 				new /obj/effect/decal/cleanable/cobweb(T)
 			if(dir == EAST)
 				new /obj/effect/decal/cleanable/cobweb2(T)
-			if(prob(web_probability))
-				var/obj/structure/spider/spiderling/spiderling = new /obj/structure/spider/spiderling/mundane/dormant(T)
-				spiderling.pixel_y = spiderling.shift_range
-				spiderling.pixel_x = dir == WEST ? -spiderling.shift_range : spiderling.shift_range
 
 /decl/turf_initializer/maintenance/proc/get_dirt_amount()
 	return rand(10, 50) + rand(0, 50)

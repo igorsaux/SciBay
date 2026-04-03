@@ -8,14 +8,7 @@
 
 	layer = ABOVE_HUMAN_LAYER
 	explosion_resistance = 5
-	var/list/mobs_can_pass = list(
-		/mob/living/bot,
-		/mob/living/carbon/metroid,
-		/mob/living/simple_animal/mouse,
-		/mob/living/simple_animal/lizard,
-		/mob/living/simple_animal/hamster,
-		/mob/living/silicon/robot/drone
-		)
+	var/list/mobs_can_pass = list()
 
 /obj/structure/plasticflaps/CanPass(atom/A, turf/T)
 	if(istype(A) && A.pass_flags & PASS_FLAG_GLASS)

@@ -43,12 +43,6 @@
 			return
 		found = 1
 		processor_unit = H
-	else if(istype(H, /obj/item/computer_hardware/ai_slot))
-		if(ai_slot)
-			to_chat(user, "This computer's intellicard slot is already occupied by \the [ai_slot].")
-			return
-		found = 1
-		ai_slot = H
 	else if(istype(H, /obj/item/computer_hardware/tesla_link))
 		if(tesla_link)
 			to_chat(user, "This computer's tesla link slot is already occupied by \the [tesla_link].")
@@ -86,9 +80,6 @@
 		processor_unit = null
 		found = 1
 		critical = 1
-	if(ai_slot == H)
-		ai_slot = null
-		found = 1
 	if(tesla_link == H)
 		tesla_link = null
 		found = 1
@@ -121,8 +112,6 @@
 		return battery_module
 	if(processor_unit && (processor_unit.name == name))
 		return processor_unit
-	if(ai_slot && (ai_slot.name == name))
-		return ai_slot
 	if(tesla_link && (tesla_link.name == name))
 		return tesla_link
 	return null
@@ -144,8 +133,6 @@
 		all_components.Add(battery_module)
 	if(processor_unit)
 		all_components.Add(processor_unit)
-	if(ai_slot)
-		all_components.Add(ai_slot)
 	if(tesla_link)
 		all_components.Add(tesla_link)
 	return all_components

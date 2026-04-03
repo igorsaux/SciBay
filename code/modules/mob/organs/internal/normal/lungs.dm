@@ -43,12 +43,6 @@
 		return 100
 	return round((oxygen_deprivation/species.total_health)*100)
 
-/obj/item/organ/internal/lungs/robotize()
-	. = ..()
-	SetName("gas circulator")
-	icon_state = "lungs-prosthetic"
-	dead_icon = "lungs-prosthetic-br"
-
 /obj/item/organ/internal/lungs/set_dna(datum/dna/new_dna)
 	..()
 	sync_breath_types()
@@ -70,8 +64,6 @@
 	..()
 	if(!owner)
 		return
-	if(isundead(owner))
-		return
 
 	if(is_bruised() && !owner.is_asystole())
 		if(prob(2))
@@ -86,8 +78,6 @@
 				owner.visible_message(
 					"blood drips from <B>\the [owner]'s</B> [parent.name]!",
 				)
-
-			owner.drip(5)
 		if(prob(4))
 			if(active_breathing)
 				owner.visible_message(
@@ -114,7 +104,7 @@
 	if(breath_pressure < species.hazard_low_pressure || breath_pressure > species.hazard_high_pressure)
 		var/datum/gas_mixture/environment = loc.return_air_for_internal_lifeform()
 		var/env_pressure = environment? environment.return_pressure() : 0
-		var/lung_damage_prob = BP_IS_ROBOTIC(src) ? prob(2.5) : prob(5) //Robotic lungs are less likely to rupture.
+		var/lung_damage_prob = prob(5)
 		if(env_pressure < species.hazard_low_pressure || env_pressure > species.hazard_high_pressure)
 			if(lung_damage_prob)
 				take_internal_damage(5)
@@ -130,9 +120,6 @@
 	var/safe_pressure_min = min_breath_pressure // Minimum safe partial pressure of breathable gas in kPa
 	// Lung damage increases the minimum safe pressure.
 	safe_pressure_min *= 1 + rand(1, 4) * damage/max_damage
-
-	if(!forced && owner.chem_effects[CE_BREATHLOSS] && !owner.chem_effects[CE_STABLE]) //opiates are bad mmkay
-		safe_pressure_min *= 1 + rand(1, 4) * owner.chem_effects[CE_BREATHLOSS]
 
 	var/failed_inhale = 0
 	var/failed_exhale = 0
@@ -196,10 +183,6 @@
 
 	// Too much poison in the air.
 	if(toxins_pp > safe_toxins_max)
-		var/ratio = (poison/safe_toxins_max) * 10
-		if(BP_IS_ROBOTIC(src))
-			ratio /= 2 //Robolungs filter out some of the inhaled toxic air.
-		owner.reagents.add_reagent(/datum/reagent/toxin, Clamp(ratio, MIN_TOXIN_DAMAGE, MAX_TOXIN_DAMAGE))
 		breath.adjust_gas(poison_type, -poison/6, update = 0) //update after
 		owner.plasma_alert = 1
 	else
@@ -223,7 +206,7 @@
 	if(!failed_breath)
 		last_successful_breath = world.time
 		owner.adjustOxyLoss(-5 * inhale_efficiency)
-		if(!BP_IS_ROBOTIC(src) && species.breathing_sound && is_below_sound_pressure(get_turf(owner)))
+		if(species.breathing_sound && is_below_sound_pressure(get_turf(owner)))
 			if(breathing || owner.shock_stage >= 10)
 				sound_to(owner, sound(species.breathing_sound,0,0,0,5))
 				breathing = 0
@@ -247,7 +230,7 @@
 		else
 			owner.emote(pick("shiver","twitch"))
 
-	if(damage || owner.chem_effects[CE_BREATHLOSS] || owner.nervous_system_failure() || world.time > last_successful_breath + 2 MINUTES)
+	if(damage || owner.nervous_system_failure() || world.time > last_successful_breath + 2 MINUTES)
 		owner.adjustOxyLoss(HUMAN_MAX_OXYLOSS * breath_fail_ratio)
 
 	owner.oxygen_alert = max(owner.oxygen_alert, 2)
@@ -353,12 +336,6 @@
 /obj/item/organ/internal/lungs/listen()
 	if(owner.failed_last_breath || !active_breathing)
 		return "no respiration"
-
-	if(BP_IS_ROBOTIC(src))
-		if(is_bruised())
-			return "malfunctioning fans"
-		else
-			return "air flowing"
 
 	. = list()
 	if(is_bruised())

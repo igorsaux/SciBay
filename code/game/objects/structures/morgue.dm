@@ -88,11 +88,6 @@
 	update()
 	return
 
-/obj/structure/morgue/attack_robot(mob/user)
-	if(Adjacent(user))
-		return attack_hand(user)
-	else return ..()
-
 /obj/structure/morgue/attackby(P as obj, mob/user as mob)
 	if(istype(P, /obj/item/pen))
 		var/t = input(user, "What would you like the label to be?", text("[]", src.name), null)  as text
@@ -314,9 +309,6 @@
 		return
 
 	else
-		if(!isemptylist(src.search_contents_for(/obj/item/disk/nuclear)))
-			to_chat(loc, "The button's status indicator flashes yellow, indicating that something important is inside the crematorium, and must be removed.")
-			return
 		src.audible_message("<span class='warning'>You hear a roar as the [src] activates.</span>", 1, splash_override = "*roaring*")
 
 		cremating = 1
@@ -360,16 +352,10 @@
 								shake_animation(9)
 							else
 								shake_animation()
-			if(round_is_spooky())
-				if(prob(50))
-					playsound(src, 'sound/effects/ghost.ogg', 10, 5)
-				else
-					playsound(src, 'sound/effects/ghost2.ogg', 10, 5)
 
-			if(!M.isSynthetic())
-				admin_attack_log(M, A, "Cremated their victim.", "Was cremated.", "cremated alive")
-				M.audible_message("[M]'s screams cease, as does any movement within the [src]. All that remains is a dull, empty silence.")
-				M.dust()
+			admin_attack_log(M, A, "Cremated their victim.", "Was cremated.", "cremated alive")
+			M.audible_message("[M]'s screams cease, as does any movement within the [src]. All that remains is a dull, empty silence.")
+			M.dust()
 
 		for(var/obj/O in contents) //obj instead of obj/item so that bodybags and ashes get destroyed. We dont want tons and tons of ash piling up
 			qdel(O)

@@ -40,11 +40,6 @@
 /obj/machinery/computer/operating/tgui_data(mob/user)
 	var/list/data = list()
 
-	var/obj/machinery/optable/table = optable?.resolve()
-	var/mob/living/carbon/human/H = table?.victim_ref?.resolve()
-
-	data["medical_data"] = H?.get_medical_data_ui()
-
 	return data
 
 /obj/machinery/computer/operating/Destroy()

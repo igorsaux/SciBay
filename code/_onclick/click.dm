@@ -113,12 +113,6 @@
 	if(!canClick(I)) // in the year 2000...
 		return
 
-	if(istype(loc, /obj/mecha))
-		if(!locate(/turf) in list(A, A.loc)) // Prevents inventory from being drilled
-			return
-		var/obj/mecha/M = loc
-		return M.click_action(A, src)
-
 	if(restrained())
 		setClickCooldown(10)
 		RestrainedClickOn(A)
@@ -127,13 +121,11 @@
 	if(in_throw_mode)
 		if(isturf(A) || isturf(A.loc))
 			throw_item(A)
-			trigger_aiming(TARGET_CAN_CLICK)
 			return 1
 		throw_mode_off()
 
 	if(I == A) // Handle attack_self
 		I.attack_self(src)
-		trigger_aiming(TARGET_CAN_CLICK)
 		if(active_hand == ACTIVE_HAND_LEFT)
 			update_inv_l_hand(0)
 		else
@@ -153,7 +145,6 @@
 				setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 			UnarmedAttack(A, 1)
 
-		trigger_aiming(TARGET_CAN_CLICK)
 		return 1
 
 	if(!isturf(loc)) // This is going to stop you from telekinesing from inside a closet, but I don't shed many tears for that
@@ -180,7 +171,6 @@
 					else
 						setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 						UnarmedAttack(L, 1)
-					trigger_aiming(TARGET_CAN_CLICK)
 					return 1
 			return
 
@@ -201,7 +191,6 @@
 					setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 				UnarmedAttack(A, 1)
 
-			trigger_aiming(TARGET_CAN_CLICK)
 			return
 		else // non-adjacent click
 			if(I)
@@ -209,7 +198,6 @@
 			else
 				RangedAttack(A, params)
 
-			trigger_aiming(TARGET_CAN_CLICK)
 	return 1
 
 /mob/proc/setClickCooldown(timeout)
@@ -260,11 +248,7 @@
 */
 /mob/proc/RangedAttack(atom/A, params)
 	if(!mutations.len) return
-	if((MUTATION_LASER in mutations) && a_intent == I_HURT)
-		LaserEyes(A) // moved into a proc below
-	else if(MUTATION_TK in mutations)
-		setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-		A.attack_tk(src)
+
 /*
 	Restrained ClickOn
 
@@ -461,33 +445,6 @@
 /atom/proc/ShiftAltRightClick(mob/user)
 	return
 
-/*
-	Misc helpers
-
-	Laser Eyes: as the name implies, handles this since nothing else does currently
-	face_atom: turns the mob towards what you clicked on
-*/
-/mob/proc/LaserEyes(atom/A)
-	return
-
-/mob/living/LaserEyes(atom/A)
-	setClickCooldown(DEFAULT_QUICK_COOLDOWN)
-	var/turf/T = get_turf(src)
-
-	var/obj/item/projectile/beam/LE = new (T)
-	LE.icon = 'icons/effects/genetics.dmi'
-	LE.icon_state = "eyelasers"
-	playsound(usr.loc, 'sound/effects/weapons/energy/taser2.ogg', 75, 1)
-	LE.launch(A)
-
-/mob/living/carbon/human/LaserEyes()
-	if(nutrition>0)
-		..()
-		remove_nutrition(rand(1, 5))
-		handle_regular_hud_updates()
-	else
-		to_chat(src, "<span class='warning'>You're out of energy!  You need food!</span>")
-
 // Simple helper to face what you clicked on, in case it should be needed in more than one place
 /mob/proc/face_atom(atom/A)
 	if(!A || !x || !y || !A.x || !A.y) return
@@ -613,67 +570,6 @@ var/const/CLICK_HANDLER_ALL                  = (~0)
 
 /datum/click_handler/human/OnClick(atom/target)
 	return
-
-/////////////////
-//Changeling CH//
-/////////////////
-/datum/click_handler/changeling/mob_check(mob/living/carbon/human/user)
-	if(ishuman(user) && user.mind && user.mind.changeling)
-		return TRUE
-	return FALSE
-
-/datum/click_handler/changeling/sting
-	var/datum/changeling_power/toggled/sting/sting = null
-
-/datum/click_handler/changeling/sting/OnClick(atom/target)
-	if(!sting)
-		return
-	if(!user?.mind?.changeling)
-		return
-	if(!ishuman(target) || (target == user))
-		target.Click()
-		return
-	sting.sting_target(target)
-	return
-
-/datum/click_handler/changeling/infest
-	handler_name = "Infest"
-
-/datum/click_handler/changeling/infest/OnClick(atom/target)
-	var/mob/living/simple_animal/hostile/little_changeling/L = user
-	user.PopClickHandler() // Executing it earlier since user gets lost during successful infest()
-	L.infest(target)
-	return
-
-/datum/click_handler/changeling/little_paralyse
-	handler_name = "Paralyse"
-
-/datum/click_handler/changeling/little_paralyse/OnClick(atom/target)
-	var/mob/living/simple_animal/hostile/little_changeling/L = user
-	L.paralyse_sting(target)
-	user.PopClickHandler()
-	return
-
-/////////////////
-//  WIZARD CH  //
-/////////////////
-
-/datum/click_handler/wizard/mob_check(mob/living/carbon/human/user)
-	return 1
-/datum/click_handler/wizard/OnClick(atom/target)
-
-/datum/click_handler/wizard/fireball
-	handler_name = "Fireball"
-/datum/click_handler/wizard/fireball/mob_check(mob/living/carbon/human/user)
-	return 1
-/datum/click_handler/wizard/fireball/OnClick(atom/target)
-	if (!isliving(target) && !isturf(target))
-		return 0
-	for(var/datum/spell/spell_storage in user.mind.learned_spells)
-		if (src.handler_name == spell_storage.name)
-			return spell_storage.perform(user,0,target)
-	to_chat(user, "We cannot find it's power... call admins")
-	return 0
 
 /datum/click_handler/emotes/target_emote
 	handler_name = "Target emote"

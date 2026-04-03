@@ -122,11 +122,6 @@
 	if(istype(user.get_active_hand(), /obj/item/photo))
 		var/obj/item/photo/photo = user.get_active_hand()
 		return photo.img
-	if(istype(user, /mob/living/silicon))
-		var/mob/living/silicon/tempAI = usr
-		var/obj/item/photo/selection = tempAI.GetPicture()
-		if (selection)
-			return selection.img
 
 /datum/computer_file/program/card_mod/proc/get_access_by_rank(rank)
 	var/datum/job/jobdatum

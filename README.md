@@ -1,26 +1,8 @@
-# OnyxBay [![Discord Shield](https://discordapp.com/api/guilds/414832443384659968/widget.png?style=shield)](https://discord.gg/4JFNdbk)
+# SciBay [![Discord Shield](https://discordapp.com/api/guilds/414832443384659968/widget.png?style=shield)](https://discord.gg/4JFNdbk)
 
 [Наш сайт](https://ss13.ru/) - [Вики](https://wiki.ss13.ru/)
 
 ---
-
-## Полезная информация
-
-- **[Руководство по разработке OnyxBay](docs/contributing.md)** - обязательный гайд для всех контрибутеров о правилах написания кода и создания Пулл Реквестов.
-- **[Процесс работы с задачами](docs/issues_processing.md)** - информация о том, как мы работаем с задачами и подробное описание всех функциональных плашек, которые вешаются на иссуи.
-- **[Сигналы, компоненты и элементы](docs/ces.md)** - информация по используемым в билде сигналам, компонентам и элементам.
-- **[Новый процессинг](docs/thinking.md)** - информация по новой подсистеме для "процессинга".
-- **[База данных](docs/db.md)** - база данных и как её поднимать.
-- **[Профилирование](docs/profiling.md)** - профилирование кода.
-- **[WebSocket](docs/ws.md)** - справка по WebSocket.
-
-## Списки задач
-
-- [Задачи с денежными наградами](https://github.com/ChaoticOnyx/OnyxBay/issues?q=is%3Aopen+is%3Aissue+label%3A%F0%9F%92%B0%D0%BD%D0%B0%D0%B3%D1%80%D0%B0%D0%B4%D0%B0)
-- [Простые задачи для новичков](https://github.com/ChaoticOnyx/OnyxBay/issues?q=is%3Aopen+is%3Aissue+label%3A%22%3Agodmode%3A+%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%BE%22)
-- [Задачи с самым высоким приоритетом](https://github.com/ChaoticOnyx/OnyxBay/issues?q=is%3Aopen+is%3Aissue+label%3A%F0%9F%94%A5%D0%BF%D1%80%D0%B8%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82)
-- [Задачи с высоким приоритетом](https://github.com/ChaoticOnyx/OnyxBay/issues?q=is%3Aopen+is%3Aissue+label%3A%F0%9F%94%BA%D0%BF%D1%80%D0%B8%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82+)
-- [Задачи для спрайтеров](https://github.com/ChaoticOnyx/OnyxBay/issues?q=is%3Aopen+is%3Aissue+label%3A%22%F0%9F%8E%A8+%D1%81%D0%BF%D1%80%D0%B0%D0%B9%D1%82%D1%8B%22+)
 
 ## Лицензия
 

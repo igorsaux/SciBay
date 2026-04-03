@@ -59,8 +59,6 @@ GLOBAL_LIST_EMPTY(dept_data)
 					active = 1
 					break
 			isactive[name] = active ? "Active" : "Inactive"
-		else
-			isactive[name] = CR.get_status_physical()
 
 		var/found_place = FALSE
 		for(var/list/department in GLOB.dept_data)
@@ -75,13 +73,6 @@ GLOBAL_LIST_EMPTY(dept_data)
 	// Synthetics don't have actual records, so we will pull them from here.
 	for(var/mob/living/silicon/ai/ai in SSmobs.mob_list)
 		bot[ai.name] = "Artificial Intelligence"
-
-	for(var/mob/living/silicon/robot/robot in SSmobs.mob_list)
-		// No combat/syndicate cyborgs, no drones.
-		if(robot.module && robot.module.hide_on_manifest)
-			continue
-
-		bot[robot.name] = "[robot.modtype] [robot.braintype]"
 
 	for(var/list/department in GLOB.dept_data)
 		var/list/names = department["names"]
@@ -217,32 +208,12 @@ GLOBAL_LIST_EMPTY(dept_data)
 	dat = replacetext(dat, "\t", "")
 	return dat
 
-/proc/silicon_nano_crew_manifest(list/filter)
-	var/list/filtered_entries = list()
-
-	for(var/mob/living/silicon/ai/ai in SSmobs.mob_list)
-		filtered_entries.Add(list(list(
-			"name" = ai.name,
-			"rank" = "Artificial Intelligence",
-			"status" = ""
-		)))
-	for(var/mob/living/silicon/robot/robot in SSmobs.mob_list)
-		if(robot.module && robot.module.hide_on_manifest)
-			continue
-		filtered_entries.Add(list(list(
-			"name" = robot.name,
-			"rank" = "[robot.modtype] [robot.braintype]",
-			"status" = ""
-		)))
-	return filtered_entries
-
 /proc/filtered_nano_crew_manifest(list/filter, blacklist = FALSE)
 	var/list/filtered_entries = list()
 	for(var/datum/computer_file/crew_record/CR in department_crew_manifest(filter, blacklist))
 		filtered_entries.Add(list(list(
 			"name" = CR.get_name(),
 			"rank" = CR.get_job(),
-			"status" = CR.get_status_physical()
 		)))
 	return filtered_entries
 
@@ -257,7 +228,6 @@ GLOBAL_LIST_EMPTY(dept_data)
 		"sup" = filtered_nano_crew_manifest(GLOB.supply_positions),\
 		"exp" = filtered_nano_crew_manifest(GLOB.exploration_positions),\
 		"srv" = filtered_nano_crew_manifest(GLOB.service_positions),\
-		"bot" = silicon_nano_crew_manifest(GLOB.nonhuman_positions),\
 		"civ" = filtered_nano_crew_manifest(GLOB.civilian_positions),\
 		"misc" = filtered_nano_crew_manifest(GLOB.unsorted_positions)\
 		)

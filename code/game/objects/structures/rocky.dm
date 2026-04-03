@@ -48,19 +48,6 @@
 		user.visible_message(SPAN("danger", "[user] hits \the [src] with \the [W], but it bounces off!"))
 	return
 
-/obj/structure/rocky/bullet_act(obj/item/projectile/Proj)
-	if(Proj.original != src && !prob(50))
-		visible_message(SPAN("warning", "[src] dodges \the [Proj]!"))
-		return PROJECTILE_CONTINUE //pass through
-
-	var/damage = Proj.get_structure_damage()
-	if(!damage)
-		return
-
-	take_damage(damage)
-
-	return ..()
-
 /obj/structure/rocky/ex_act(severity)
 	switch(severity)
 		if(1.0)

@@ -301,18 +301,6 @@ var/const/enterloopsanity = 100
 
 //expects an atom containing the reagents used to clean the turf
 /turf/proc/clean(atom/source, mob/user = null)
-	var/volume_to_spend
-	if(source.reagents.has_reagent(/datum/reagent/space_cleaner, 5))
-		volume_to_spend = 5
-	else if(source.reagents.has_reagent(/datum/reagent/water, 30))
-		volume_to_spend = 30
-
-	if(volume_to_spend)
-		clean_blood()
-		remove_cleanables()
-		source.reagents.trans_to_turf(src, volume_to_spend, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
-		return TRUE
-
 	if(user)
 		to_chat(user, SPAN("warning", "\The [source] is too dry to wash that."))
 	return FALSE
@@ -320,7 +308,7 @@ var/const/enterloopsanity = 100
 
 /turf/proc/remove_cleanables()
 	for(var/obj/effect/O in src)
-		if(istype(O,/obj/effect/rune) || istype(O,/obj/effect/decal/cleanable) || istype(O,/obj/effect/overlay))
+		if(istype(O,/obj/effect/decal/cleanable) || istype(O,/obj/effect/overlay))
 			qdel(O)
 
 /turf/proc/update_blood_overlays()

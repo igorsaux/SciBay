@@ -45,7 +45,6 @@
 	// Prevents people from being spammed about multikeying every time their mob changes.
 	var/warned_about_multikeying = 0
 
-	var/datum/eams_info/eams_info = new
 	var/list/topiclimiter
 
 	// * Database related things *

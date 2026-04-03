@@ -168,10 +168,6 @@
 
 	return
 
-//Allows AIs to use door_timer, see human attack_hand function below
-/obj/machinery/door_timer/attack_ai(mob/user as mob)
-	return src.attack_hand(user)
-
 /obj/machinery/door_timer/attack_hand(mob/user as mob)
 	tgui_interact(user)
 

@@ -43,12 +43,6 @@
 
 	client?.spellcheck(message)
 
-	if(usr.ckey in config.indigo_bot.ignored_ckeys)
-		return
-
-	var/ckeyname = "[usr.ckey]/[usr.name]"
-	GLOB.indigo_bot.chat_webhook(config.indigo_bot.emote_webhook, "**[ckeyname]:** [message]")
-
 /mob/verb/me_verb_fake()
 	set name = "Me Verb"
 	set category = "IC"
@@ -74,8 +68,6 @@
 		if(!other)
 			return TRUE
 		if(other.universal_speak)
-			return TRUE
-		if(isAI(src) && ispAI(other))
 			return TRUE
 		if(istype(other, src.type) || istype(src, other.type))
 			return TRUE
@@ -126,10 +118,6 @@
 /mob/proc/parse_message_mode(message, standard_mode="headset")
 	if(length_char(message) >= 1 && copytext_char(message,1,2) == get_prefix_key(/decl/prefix/radio_main_channel))
 		return standard_mode
-
-	if(length_char(message) >= 2)
-		var/channel_prefix = copytext_char(message, 1 ,3)
-		return department_radio_keys[channel_prefix]
 
 	return null
 

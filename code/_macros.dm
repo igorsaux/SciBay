@@ -10,12 +10,6 @@
 
 #define get_turf(A) get_step(A,0)
 
-#define isAI(A) istype(A, /mob/living/silicon/ai)
-
-#define islarva(A) istype(A, /mob/living/carbon/larva)
-
-#define isanimal(A) istype(A, /mob/living/simple_animal)
-
 #define isairlock(A) istype(A, /obj/machinery/door/airlock)
 
 #define isatom(A) istype(A, /atom)
@@ -28,16 +22,10 @@
 
 #define isclient(A) istype(A, /client)
 
-#define iscorgi(A) istype(A, /mob/living/simple_animal/corgi)
-
-#define is_drone(A) istype(A, /mob/living/silicon/robot/drone)
-
 #define isEye(A) istype(A, /mob/observer/eye)
 
 #define ishuman(A) istype(A, /mob/living/carbon/human)
 
-#define ispromethean(A) (is_species(A, /datum/species/promethean))
-#define isgolem(A) (is_species(A, /datum/species/golem))
 #define isitem(A) istype(A, /obj/item)
 
 #define islist(A) istype(A, /list)
@@ -45,10 +33,6 @@
 #define isliving(A) istype(A, /mob/living)
 
 #define isstructure(A) istype(A, /obj/structure)
-
-#define isbot(A) istype(A, /mob/living/bot)
-
-#define ismouse(A) istype(A, /mob/living/simple_animal/mouse)
 
 #define ismovable(A) istype(A, /atom/movable)
 
@@ -68,16 +52,6 @@
 
 #define isspace(A) istype(A, /area/space)
 
-#define ispAI(A) istype(A, /mob/living/silicon/pai)
-
-#define isrobot(A) istype(A, /mob/living/silicon/robot)
-
-#define issilicon(A) istype(A, /mob/living/silicon)
-
-#define ismetroid(A) istype(A, /mob/living/carbon/metroid)
-
-#define ischestburster(A) istype(A, /mob/living/carbon/larva/xenomorph)
-
 #define isunderwear(A) istype(A, /obj/item/underwear)
 
 #define isvirtualmob(A) istype(A, /mob/observer/virtual)
@@ -88,7 +62,7 @@
 
 #define isopenspace(A) istype(A, /turf/simulated/open)
 
-#define isWrench(A) ((istype(A, /obj/item) && A.tool_behaviour == TOOL_WRENCH) || (istype(A, /obj/item/rpd) && A:interaction_mode == "wrench"))
+#define isWrench(A) ((istype(A, /obj/item) && A.tool_behaviour == TOOL_WRENCH))
 
 #define isWelder(A) (istype(A, /obj/item) && A.tool_behaviour == TOOL_WELDER)
 

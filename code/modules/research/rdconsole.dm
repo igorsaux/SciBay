@@ -51,10 +51,6 @@
 	var/sync = 1		// If sync = 0, it doesn't show up on Server Control Console
 	var/selected_device = "destructor"
 
-/obj/machinery/computer/rdconsole/proc/CallReagentName(reagent_type)
-	var/datum/reagent/R = reagent_type
-	return ispath(reagent_type, /datum/reagent) ? initial(R.name) : "Unknown"
-
 /obj/machinery/computer/rdconsole/proc/SyncRDevices() // Makes sure it is properly sync'ed up with the devices attached to it (if any).
 	for(var/obj/machinery/r_n_d/D in range(4, src))
 		if(D.linked_console != null || D.panel_open)
@@ -160,8 +156,6 @@
 			if(!(I in linked_destroy.component_parts))
 				qdel(I)
 				linked_destroy.icon_state = "d_analyzer"
-
-	use_power_oneoff(linked_destroy.active_power_usage)
 
 	if(user)
 		attack_hand(user)
@@ -332,11 +326,6 @@
 				"maximum" = device:max_material_storage,
 				"materials" = list()
 			),
-			"chemical" = list(
-				"total" = device:reagents.total_volume,
-				"maximum" = device:reagents.maximum_volume,
-				"chemicals" = list()
-			)
 		),
 		"filters" = list(),
 		"designs" = list(),
@@ -352,13 +341,6 @@
 			"amount" = amount,
 			"icon" = icon2base64html(get_icon_for_material(M)),
 			"per_sheet" = SHEET_MATERIAL_AMOUNT
-		))
-
-	for(var/datum/reagent/R in device:reagents.reagent_list)
-		data["storage"]["chemical"]["chemicals"] += list(list(
-			"ref" = "\ref[R]",
-			"name" = R.name,
-			"units" = R.volume
 		))
 
 	for(var/type in device:item_type)
@@ -420,12 +402,6 @@
 		data["materials"] += list(list(
 			"name" = M,
 			"required" = design.materials[M] * mat_efficiency
-		))
-
-	for(var/C in design.chemicals)
-		data["chemicals"] += list(list(
-			"name" = CallReagentName(C),
-			"required" = design.chemicals[C] * mat_efficiency
 		))
 
 	return data
@@ -501,31 +477,11 @@
 
 	CRASH("Invalid from [from]")
 
-/obj/machinery/computer/rdconsole/proc/dispose_imprinter(thing)
-	if(thing == "all")
-		linked_imprinter.reagents.clear_reagents()
-		return
-
-	var/datum/reagent/R = locate(thing) in linked_imprinter.reagents.reagent_list
-	if(R)
-		linked_imprinter.reagents.del_reagent(R.type)
-
-/obj/machinery/computer/rdconsole/proc/dispose_protolathe(thing)
-	if(thing == "all")
-		linked_lathe.reagents.clear_reagents()
-		return
-
-	var/datum/reagent/R = locate(thing) in linked_lathe.reagents.reagent_list
-	if(R)
-		linked_lathe.reagents.del_reagent(R.type)
-
 /obj/machinery/computer/rdconsole/proc/dispose(from, thing)
 	switch(from)
 		if("imprinter")
-			dispose_imprinter(thing)
 			return
 		if("protolathe")
-			dispose_protolathe(thing)
 			return
 
 	CRASH("Invalid from [from]")

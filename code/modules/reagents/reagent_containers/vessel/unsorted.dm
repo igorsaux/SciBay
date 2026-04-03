@@ -43,9 +43,6 @@
 	drop_sound = SFX_DROP_METALPOT
 	pickup_sound = SFX_PICKUP_METALPOT
 
-/obj/item/reagent_containers/vessel/bucket/full
-	startswith = list(/datum/reagent/water)
-
 /obj/item/reagent_containers/vessel/bucket/watercan
 	name = "watercan"
 	desc = "Medium-sized vessel made specifically for watering plants the most efficent way possible. Or not..."
@@ -59,29 +56,15 @@
 	base_icon = "watercan"
 
 /obj/item/reagent_containers/vessel/bucket/attackby(obj/D, mob/user)
-	if(isprox(D))
-		to_chat(user, "You add [D] to [src].")
-		qdel(D)
-		user.pick_or_drop(new /obj/item/bucket_sensor)
-		qdel(src)
-		return
-
-	else if(istype(D, /obj/item/pipe))
+	if(istype(D, /obj/item/pipe))
 		to_chat(user, "You put \the [D] into \the [src].")
-		new /obj/item/hookah_construction(get_turf(src))
 		qdel(D)
 		qdel_self()
 		return
 
 	else if(istype(D, /obj/item/mop) && (atom_flags & ATOM_FLAG_OPEN_CONTAINER))
-		if(reagents.total_volume < 1)
-			show_splash_text(user, "no water!", SPAN("warning", "\The [src] is empty!"))
-		else
-			reagents.trans_to_obj(D, 50)
-			show_splash_text(user, "you wet the mop!", SPAN("notice", "You wet \the [D] in \the [src]."))
-			playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
+		show_splash_text(user, "no water!", SPAN("warning", "\The [src] is empty!"))
 		return
-
 	else if(istype(D, /obj/item/grab))
 		var/obj/item/grab/G = D
 
@@ -92,14 +75,9 @@
 			to_chat(user, SPAN_NOTICE("You need a tighter grip!"))
 			return
 
-		if(reagents.total_volume < 1)
-			show_splash_text(user, "no water!", SPAN("warning", "\The [src] is empty!"))
-			return
-
 		user.visible_message(SPAN_DANGER("[user] starts to put [G.affecting.name]'s head into \the [src]!"), \
 						SPAN_DANGER("You start to put [G.affecting.name]'s head into \the [src]!"))
 		playsound(get_turf(src), GET_SFX(SFX_FOOTSTEP_WATER), 100, TRUE)
-		reagents.trans_to(G.affecting, min(reagents.total_volume, 10))
 
 		if(!do_after(user, 3 SECONDS, src, TRUE))
 			return
@@ -110,9 +88,8 @@
 
 		user.visible_message(SPAN_DANGER("[user] finally raises [G.affecting.name]'s head out of \the [src]!"), \
 								SPAN_DANGER("You raise [G.affecting.name]'s head out of \the [src]!"))
-		reagents.trans_to(G.affecting, min(reagents.total_volume, 5))
 		playsound(get_turf(src), GET_SFX(SFX_FOOTSTEP_WATER), 100, TRUE)
-		if(!G?.affecting?.internal && !G.affecting.isSynthetic())
+		if(!G?.affecting?.internal)
 			G.affecting.adjustOxyLoss(OXYLOS_PER_HEAD_DIP)
 			G.affecting.emote("gasp")
 		return
@@ -133,7 +110,6 @@
 	possible_transfer_amounts = "25;30;50;100;150;200"
 
 	center_of_mass = "x=15;y=10"
-	startswith = list(/datum/reagent/caffeine/coffee = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -189,7 +165,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;100;150;200"
 
-	startswith = list(/datum/reagent/drink/tea = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -204,7 +179,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;100;150;200"
 
-	startswith = list(/datum/reagent/drink/ice = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -219,7 +193,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;100;150;200"
 
-	startswith = list(/datum/reagent/drink/hot_coco = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -235,7 +208,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;100;150;200;300"
 
-	startswith = list(/datum/reagent/drink/dry_ramen = 50)
 	lid_type = /datum/vessel_lid/paper
 	unacidable = FALSE
 
@@ -250,7 +222,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;100;150;200;350"
 
-	startswith = list(/datum/reagent/drink/chicken_powder = 50)
 	lid_type = /datum/vessel_lid/paper
 	unacidable = FALSE
 
@@ -317,10 +288,6 @@
 		return ..()
 
 /obj/item/reagent_containers/vessel/shaker/proc/shake(mob/user)
-	if(!reagents?.total_volume)
-		to_chat(user, SPAN_WARNING("You won't shake an empty shaker now, will you?"))
-		return
-
 	if(lid?.state != LID_CLOSED)
 		to_chat(user, SPAN_WARNING("On second thought shaking it with an open lid is not a good idea..."))
 		return
@@ -345,7 +312,6 @@
 		playsound(loc, 'sound/effects/shaker.ogg', 50, 1)
 		if(do_after(user, 30, src))
 			atom_flags ^= ATOM_FLAG_NO_REACT
-			reagents?.process_reactions()
 			atom_flags |= ATOM_FLAG_NO_REACT
 			shaking = FALSE
 		icon_state = base_icon
@@ -475,10 +441,3 @@
 
 /obj/item/reagent_containers/vessel/fitnessflask/proteinshake
 	name = "protein shake"
-
-/obj/item/reagent_containers/vessel/fitnessflask/proteinshake/Initialize()
-	. = ..()
-	reagents.add_reagent(/datum/reagent/nutriment, 200)
-	reagents.add_reagent(/datum/reagent/iron, 50)
-	reagents.add_reagent(/datum/reagent/nutriment/protein, 150)
-	reagents.add_reagent(/datum/reagent/water, 150)

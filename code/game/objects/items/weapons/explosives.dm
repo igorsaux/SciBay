@@ -15,21 +15,13 @@
 	var/image_overlay = null
 
 /obj/item/plastique/New()
-	wires = new(src)
 	image_overlay = image('icons/obj/assemblies.dmi', "plastic-explosive2")
 	..()
-
-/obj/item/plastique/Destroy()
-	qdel(wires)
-	wires = null
-	return ..()
 
 /obj/item/plastique/attackby(obj/item/I, mob/user)
 	if(isScrewdriver(I))
 		open_panel = !open_panel
 		to_chat(user, "<span class='notice'>You [open_panel ? "open" : "close"] the wire panel.</span>")
-	else if(isWirecutter(I) || isMultitool(I) || istype(I, /obj/item/device/assembly/signaler ))
-		wires.Interact(user)
 	else
 		..()
 

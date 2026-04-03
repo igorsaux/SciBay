@@ -6,9 +6,6 @@
 
 	var/atom/movable/screen/using
 
-	using = new /atom/movable/screen/ghost/spawners_menu()
-	static_inventory += using
-
 	using = new /atom/movable/screen/ghost/reenter_corpse()
 	static_inventory += using
 
@@ -49,23 +46,10 @@
 	ClearOverlays()
 	LAZYADD(overlays, image('icons/hud/screen_ghost.dmi', icon_state = ghost_icon_state))
 
-/atom/movable/screen/ghost/spawners_menu
-	name = "Spawners Menu"
-	ghost_icon_state = "spawners"
-	screen_loc = ui_ghost_spawners_menu
-
-/atom/movable/screen/ghost/spawners_menu/Click(location, control, params)
-	var/mob/observer/ghost/G = usr
-	G.open_spawners_menu()
-
 /atom/movable/screen/ghost/follow
 	name = "Follow"
 	ghost_icon_state = "follow"
 	screen_loc = ui_ghost_follow
-
-/atom/movable/screen/ghost/follow/Click(location, control, params)
-	var/mob/observer/ghost/G = usr
-	G.follow()
 
 /atom/movable/screen/ghost/reenter_corpse
 	name = "Re-enter corpse"

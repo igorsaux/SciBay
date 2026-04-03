@@ -7,8 +7,6 @@
 	layer = BELOW_OBJ_LAYER
 	anchored = TRUE
 	density = TRUE
-	idle_power_usage = 25 WATTS
-	active_power_usage = 200 WATTS
 	clicksound = SFX_USE_BUTTON
 	clickvol = 20
 	interact_offline = TRUE

@@ -27,9 +27,6 @@
 	attacher = null
 	return ..()
 
-/obj/item/device/transfer_valve/IsAssemblyHolder()
-	return 1
-
 /obj/item/device/transfer_valve/attackby(obj/item/item, mob/user)
 	// Interdict assembly in storages
 	if (!isturf(loc) && !ismob(loc))
@@ -64,28 +61,7 @@
 		update_icon()
 
 		SSnano.update_uis(src) // update all UIs attached to src
-//TODO: Have this take an assemblyholder
-	else if(isassembly(item))
-		var/obj/item/device/assembly/A = item
-		if(A.secured)
-			to_chat(user, "<span class='notice'>The device is secured.</span>")
-			return
-		if(attached_device)
-			to_chat(user, "<span class='warning'>There is already an device attached to the valve, remove it first.</span>")
-			return
-		if(A.proximity_monitor)
-			A.proximity_monitor.set_host(src, A)
-		user.drop(item, src)
-		attached_device = A
-		to_chat(user, "<span class='notice'>You attach the [item] to the valve controls and secure it.</span>")
-		A.holder = src
-		A.toggle_secure()	//this calls update_icon(), which calls update_icon() on the holder (i.e. the bomb).
 
-		GLOB.bombers += "[key_name(user)] attached a [item] to a transfer valve."
-		message_admins("[key_name_admin(user)] attached a [item] to a transfer valve. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[location.x];Y=[location.y];Z=[location.z]'>JMP</a>)")
-		log_game("[key_name_admin(user)] attached a [item] to a transfer valve.")
-		attacher = user
-		SSnano.update_uis(src) // update all UIs attached to src
 	return
 
 /obj/item/device/transfer_valve/attack_self(mob/user as mob)
@@ -129,9 +105,6 @@
 		if(href_list["rem_device"])
 			if(attached_device.proximity_monitor)
 				attached_device.proximity_monitor.set_host(attached_device, attached_device)
-			if(istype(attached_device, /obj/item/device/assembly))
-				var/obj/item/device/assembly/A = attached_device
-				A.holder = null
 			attached_device.dropInto(get_turf(src))
 			attached_device = null
 			update_icon()

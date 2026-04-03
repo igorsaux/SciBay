@@ -80,24 +80,6 @@
 		if(active)
 			AddOverlays("active")
 
-/obj/item/device/suit_sensor_jammer/emp_act(severity)
-	..()
-	if(bcell)
-		bcell.emp_act(severity)
-
-	if(prob(70/severity))
-		enable()
-	else
-		disable()
-
-	if(prob(90/severity))
-		set_method(suit_sensor_jammer_methods_by_type[/suit_sensor_jammer_method/random])
-	else
-		set_method(pick(suit_sensor_jammer_methods))
-
-	var/new_range = range + (rand(0,6) / severity) - (rand(0,3) / severity)
-	set_range(new_range)
-
 /obj/item/device/suit_sensor_jammer/examine(mob/user, infix)
 	. = ..()
 

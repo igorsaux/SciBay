@@ -5,9 +5,6 @@
 	var/insert_anim = "bigscanner1"
 	anchored = 1
 	density = 1
-	idle_power_usage = 30 WATTS
-	active_power_usage = 200 WATTS
-	power_channel = STATIC_EQUIP
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	obj_flags = OBJ_FLAG_ANCHORABLE
 	turf_height_offset = 15
@@ -21,9 +18,6 @@
 /obj/machinery/photocopier/Destroy()
 	QDEL_NULL(copyitem)
 	return ..()
-
-/obj/machinery/photocopier/attack_ai(mob/user)
-	return attack_hand(user)
 
 /obj/machinery/photocopier/attack_hand(mob/user)
 	user.set_machine(src)
@@ -68,14 +62,9 @@
 				break
 			if(stat & (BROKEN|NOPOWER))
 				break
-			use_power_oneoff(active_power_usage)
 			if (istype(copyitem, /obj/item/paper))
 				playsound(src.loc, 'sound/signals/processing20.ogg', 25)
 				copy(copyitem)
-				sleep(15)
-			else if(istype(copyitem, /obj/item/canvas))
-				playsound(src.loc, 'sound/signals/processing20.ogg', 25)
-				canvascopy(copyitem)
 				sleep(15)
 			else if (istype(copyitem, /obj/item/photo))
 				playsound(src.loc, 'sound/signals/processing20.ogg', 25)
@@ -85,10 +74,6 @@
 				playsound(src.loc, 'sound/signals/processing20.ogg', 25)
 				var/obj/item/paper_bundle/B = bundlecopy(copyitem)
 				sleep(15*B.pages.len)
-			else if (istype(copyitem, /obj/item/complaint_folder))
-				playsound(src.loc, 'sound/signals/processing20.ogg', 25)
-				var/obj/item/complaint_folder/CF = complaintcopy(copyitem)
-				sleep(15 * CF.contents.len)
 			else
 				to_chat(usr, SPAN("warning", "\The [copyitem] can't be copied by \the [src]."))
 				break
@@ -111,31 +96,9 @@
 		if(copies < maxcopies)
 			copies++
 			updateUsrDialog()
-	else if(href_list["aipic"])
-		if(!istype(usr,/mob/living/silicon)) return
-		if(stat & (BROKEN|NOPOWER)) return
-
-		if(toner >= 5)
-			var/mob/living/silicon/tempAI = usr
-			var/obj/item/device/camera/siliconcam/camera = tempAI.silicon_camera
-
-			if(!camera)
-				return
-			var/obj/item/photo/selection = camera.selectpicture()
-			if (!selection)
-				return
-
-			var/obj/item/photo/p = photocopy(selection)
-			if (p.desc == "")
-				p.desc += "Copied by [tempAI.name]"
-			else
-				p.desc += " - Copied by [tempAI.name]"
-			toner -= 5
-			sleep(15)
-		updateUsrDialog()
 
 /obj/machinery/photocopier/attackby(obj/item/O as obj, mob/user as mob)
-	if(istype(O, /obj/item/paper) || istype(O, /obj/item/photo) || istype(O, /obj/item/paper_bundle) || istype(O, /obj/item/complaint_folder) || istype(O, /obj/item/canvas))
+	if(istype(O, /obj/item/paper) || istype(O, /obj/item/photo) || istype(O, /obj/item/paper_bundle))
 		if(!copyitem)
 			if(!user.drop(O, src))
 				return
@@ -190,31 +153,6 @@
 	c.update_icon()
 	c.photocopied = TRUE
 	return c
-
-/obj/machinery/photocopier/proc/complaintcopy(obj/item/complaint_folder/copy, need_toner=1)
-	var/obj/item/complaint_folder/CF = copy.copy(loc, generate_stamps = !need_toner)
-	if (need_toner)
-		var/toner_left = toner
-		toner_left = CF.recolorize(saturation = Clamp(toner / 30.0, 0.5, 0.94), grayscale = src.grayscale, amount = toner_left)
-		if (toner_left <= 0)
-			visible_message(SPAN_NOTICE("A red light on \the [src] flashes, indicating that it is out of toner."))
-			toner_left = 0
-		toner = toner_left
-	return CF
-
-/obj/machinery/photocopier/proc/canvascopy(obj/item/canvas/canvas, need_toner = TRUE)
-	if(canvas.no_save)
-		visible_message(SPAN("notice", "A yellow light on \the [src] flashes, indicating that DRM on canvas is active and can't be copied."))
-		return
-	if(need_toner && toner > 0)
-		// photos use a lot of ink!
-		toner -= 5
-		var/obj/item/canvas/canvas_copy = canvas.copy()
-		canvas_copy.forceMove(get_turf(src))
-		return canvas_copy
-	if(toner < 0)
-		toner = 0
-		visible_message(SPAN("notice", "A red light on \the [src] flashes, indicating that it is out of toner."))
 
 /obj/machinery/photocopier/proc/photocopy(obj/item/photo/photocopy, need_toner=1)
 	var/obj/item/photo/p = photocopy.copy()

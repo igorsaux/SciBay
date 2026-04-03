@@ -79,11 +79,6 @@ GLOBAL_LIST_INIT(standing_objects, list(/obj/item/stool, /obj/structure/toilet, 
 		return
 	return ..()
 
-/obj/structure/noose/bullet_act(obj/item/projectile/P)
-	if(prob(40))
-		visible_message(SPAN_NOTICE("\The [src] gets split by \the [P]!"))
-		untie()
-
 /obj/structure/noose/proc/untie()
 	if(buckled_mob)
 		buckled_mob.visible_message(\

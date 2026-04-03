@@ -60,10 +60,3 @@
 /obj/machinery/power/debug_items/infinite_apc_powersink
 	name = "APC Dummy Load"
 	desc = "A dummy load that connects to an APC, used for load testing purposes."
-	use_power = POWER_USE_ACTIVE
-	active_power_usage = 0 WATTS
-
-/obj/machinery/power/debug_items/infinite_apc_powersink/show_info(mob/user)
-	. = ..()
-	. += "\nDummy load is using [num2text(active_power_usage, 20)] W"
-	. += "\nPowered: [powered() ? "YES" : "NO"]"

@@ -110,8 +110,6 @@
 				var/picked = pick(check)
 				var/obj/item/organ/external/affecting = H.get_organ(picked)
 				if(affecting)
-					if(BP_IS_ROBOTIC(affecting))
-						return
 					affecting.take_pierce_damage(min(5 * amount, 15))
 					H.update_health()
 					if(affecting.can_feel_pain())
@@ -143,8 +141,6 @@
 	if(istype(user,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = user
 		if(H.species.siemens_coefficient < 0.5 || (H.species.species_flags & SPECIES_FLAG_NO_MINOR_CUT)) //Thick skin.
-			return
-		if(H.isSynthetic())
 			return
 		var/obj/item/organ/external/E = H.get_hand_organ()
 		if(istype(E))

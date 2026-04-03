@@ -10,7 +10,6 @@
 	icon_state = "sauna"
 	base_icon_state = "sauna"
 	obj_flags = OBJ_FLAG_ANCHORABLE
-	use_power = POWER_USE_IDLE
 	density = TRUE
 	anchored = TRUE
 	stat = POWEROFF // Disabled at roundstart
@@ -65,9 +64,6 @@
 /obj/machinery/sauna/attack_hand(mob/user)
 	. = ..()
 
-	if(issilicon(user))
-		return
-
 	if(!anchored)
 		show_splash_text(user, "anchor it first!", "\The [src] must be anchored to the floor!")
 		return
@@ -93,7 +89,7 @@
 	if(length(options) == 1)
 		choice = options[1]
 	else
-		choice = show_radial_menu(user, src, options, require_near = !issilicon(user))
+		choice = show_radial_menu(user, src, options, require_near = TRUE)
 
 	switch(choice)
 		if("Detach container")
@@ -163,41 +159,18 @@
 		return
 
 	var/heat_transfer = removed.get_thermal_energy_change(target_temperature)
-	var/power_draw
 	if(heat_transfer < 0) // Sauna can't act as a freezer
 		return
 
 	heat_transfer = min(heat_transfer, heating_power)
 	removed.add_thermal_energy(heat_transfer)
-	power_draw = heat_transfer
-	use_power_oneoff(power_draw)
 	env.merge(removed)
 
-	if(container?.reagents.get_reagent_amount(/datum/reagent/water))
-		last_tick_with_water = world.time
-	else
-		update_icon()
+	update_icon()
 
 	if(world.time >= last_tick_with_water + TIME_WITHOUT_WATER_UNTIL_FIRE)
 		catch_fire()
 		return
-
-	if(istype(steam) && !QDELETED(steam))
-		container?.reagents.trans_to_holder(steam.reagents, 15)
-		steam_effect()
-
-	else
-		if(env.temperature <= 40 CELSIUS)
-			return
-
-		var/turf/simulated/T = get_turf(src)
-		var/total_water_required = T?.zone?.contents?.len * WATER_UNIT_PER_TILE
-		if(container?.reagents?.total_volume <= total_water_required)
-			return
-
-		steam = new /atom/movable/steam_controller(get_turf(src), src)
-		steam_effect()
-		container.reagents.trans_to_holder(steam.reagents, container.reagents.total_volume)
 
 /obj/machinery/sauna/proc/steam_effect()
 	if(currently_steaming)
@@ -266,12 +239,8 @@
 	CutOverlays(on_bad)
 	CutOverlays(on_good)
 	if(!(stat & (BROKEN | NOPOWER | POWEROFF)))
-		if(istype(container) && container?.reagents.get_reagent_amount(/datum/reagent/water))
-			AddOverlays(on_good)
-			set_light(0.15, 0.1, 1, 2, "#82ff4c" )
-		else
-			AddOverlays(on_bad)
-			set_light(0.15, 0.1, 1, 2, "#f86060")
+		AddOverlays(on_bad)
+		set_light(0.15, 0.1, 1, 2, "#f86060")
 
 	CutOverlays(emissive)
 	var/should_glow = update_glow()
@@ -283,20 +252,14 @@
 		set_light(0)
 		return FALSE
 
-	if(istype(container) && container?.reagents.get_reagent_amount(/datum/reagent/water))
-		set_light(0.15, 1, 2, 3.5, "#82ff4c")
-	else
-		set_light(0.15, 1, 2, 3.5, "#f86060")
+	set_light(0.15, 1, 2, 3.5, "#f86060")
 	return TRUE
 
 /obj/machinery/sauna/examine(mob/user, infix)
 	. = ..()
 
 	if(container)
-		if(container.reagents && container.reagents.total_volume)
-			. += SPAN_NOTICE("\The [src] has \a [container] loaded. It contains [container.reagents.total_volume]u of reagents.")
-		else
-			. += SPAN_NOTICE("\The [src] has \a [container] loaded. It is empty.")
+		. += SPAN_NOTICE("\The [src] has \a [container] loaded. It is empty.")
 
 	. += SPAN_NOTICE("Its temperature is set at [CONV_KELVIN_CELSIUS(target_temperature)] celsius.")
 
@@ -313,8 +276,6 @@
 	. = ..()
 	if(istype(sauna))
 		sauna_ref = weakref(sauna)
-
-	create_reagents(10 LITERS)
 
 	overlay = new overlay()
 
@@ -348,37 +309,11 @@
 		condense(turfs)
 		return
 
-	if(turfs?.len * WATER_UNIT_PER_TILE > reagents?.get_reagent_amount(/datum/reagent/water))
-		disappear()
-		return
-
-	if(turfs?.len * WATER_UNIT_PER_TILE < reagents?.get_reagent_amount(/datum/reagent/water))
-		reagents?.remove_reagent(/datum/reagent/water, turfs?.len * WATER_UNIT_PER_TILE)
-		thicken()
-
 	set_next_think(world.time + 30 SECONDS)
 
 /// Checks all affected turfs, adds visual effects and transfers reagents to atoms and mobs.
 /atom/movable/steam_controller/proc/handle_turfs()
-	var/turf/simulated/T = get_turf(src)
-	var/list/turfs = T?.zone?.contents
-	for(var/turf/simulated/floor/turf in turfs)
-		LAZYDISTINCTADD(turf.vis_contents, overlay)
-
-		if(!reagents.reagent_list.len)
-			continue
-
-		reagents.touch_turf(turf)
-		for(var/atom/A in turf.contents)
-			if(isliving(A))
-				var/mob/living/affected = A
-				if(affected.wear_mask && (affected.wear_mask.item_flags & ITEM_FLAG_BLOCK_GAS_SMOKE_EFFECT))
-					continue
-
-				reagents.trans_to_mob(affected, 5, CHEM_INGEST)
-				reagents.trans_to_mob(affected, 5, CHEM_BLOOD)
-			else if(isobj(A) && !A.simulated)
-				reagents.touch_obj(A)
+	return
 
 /atom/movable/steam_controller/proc/condense(list/turfs)
 	for(var/turf/simulated/T in turfs)

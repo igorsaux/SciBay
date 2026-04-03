@@ -3,7 +3,6 @@
 
 	name = "Embedded Controller"
 	anchored = 1
-	idle_power_usage = 10 WATTS
 
 	var/on = 1
 
@@ -27,9 +26,6 @@
 
 	update_icon()
 
-/obj/machinery/embedded_controller/attack_ai(mob/user as mob)
-	src.ui_interact(user)
-
 /obj/machinery/embedded_controller/attack_hand(mob/user as mob)
 
 	if(!user.IsAdvancedToolUser())
@@ -43,7 +39,6 @@
 /obj/machinery/embedded_controller/radio
 	icon = 'icons/obj/airlock_machines.dmi'
 	icon_state = "airlock_control_standby"
-	power_channel = STATIC_ENVIRON
 	density = 0
 
 	var/id_tag

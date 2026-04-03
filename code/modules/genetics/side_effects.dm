@@ -37,10 +37,6 @@
 /datum/genetics/side_effect/genetic_burn/start(mob/living/carbon/human/H)
 	H.visible_message("<B>\The [H]</B> starts turning very red...")
 
-/datum/genetics/side_effect/genetic_burn/finish(mob/living/carbon/human/H)
-	if(!H.reagents.has_reagent(/datum/reagent/dexalin))
-		H.take_overall_damage(0, 5, spread_damage = FALSE)
-
 /datum/genetics/side_effect/bone_snap
 	name = "Bone Snap"
 	symptom = "Subject's limbs tremble notably."
@@ -50,12 +46,6 @@
 
 /datum/genetics/side_effect/bone_snap/start(mob/living/carbon/human/H)
 	H.visible_message("<B>\The [H]</B>'s limbs start shivering uncontrollably.")
-/datum/genetics/side_effect/bone_snap/finish(mob/living/carbon/human/H)
-	if(!H.reagents.has_reagent(/datum/reagent/bicaridine))
-		var/organ_name = pick(BP_ALL_LIMBS)
-		var/obj/item/organ/external/E = H.get_organ(organ_name)
-		E.take_blunt_damage(20, "abnormal muscle contractions")
-		E.fracture()
 
 /datum/genetics/side_effect/confuse
 	name = "Confuse"
@@ -66,7 +56,3 @@
 
 	start(mob/living/carbon/human/H)
 		H.visible_message("<B>\The [H]</B> drools.")
-
-	finish(mob/living/carbon/human/H)
-		if(!H.reagents.has_reagent(/datum/reagent/dylovene))
-			H.confused += 100

@@ -17,7 +17,7 @@
 	intact_closet = FALSE
 
 /obj/structure/closet/statue/New(loc, mob/living/L)
-	if(L && (ishuman(L) || iscorgi(L)))
+	if(L && (ishuman(L)))
 		if(L.buckled)
 			L.buckled = 0
 			L.anchored = 0
@@ -36,13 +36,6 @@
 			name = "statue of [L.name]"
 			if(L.gender == "female")
 				icon_state = "human_female"
-		else if(isMonkey(L))
-			name = "statue of a monkey"
-			icon_state = "monkey"
-		else if(iscorgi(L))
-			name = "statue of a corgi"
-			icon_state = "corgi"
-			desc = "If it takes forever, I will wait for you..."
 
 	if(health == 0) //meaning if the statue didn't find a valid target
 		qdel(src)
@@ -92,12 +85,6 @@
 	if(health <= 0)
 		for(var/mob/M in src)
 			shatter(M)
-
-/obj/structure/closet/statue/bullet_act(obj/item/projectile/Proj)
-	health -= Proj.get_structure_damage()
-	check_health()
-
-	return
 
 /obj/structure/closet/statue/attack_generic(mob/user, damage, attacktext, environment_smash)
 	if(damage && environment_smash)

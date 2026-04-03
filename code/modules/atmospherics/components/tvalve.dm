@@ -168,9 +168,6 @@
 
 	return 1
 
-/obj/machinery/atmospherics/tvalve/attack_ai(mob/user as mob)
-	return
-
 /obj/machinery/atmospherics/tvalve/attack_hand(mob/user as mob)
 	src.add_fingerprint(usr)
 	update_icon(1)
@@ -290,17 +287,7 @@
 	icon_state = "map_tvalve1"
 	state = 1
 
-/obj/machinery/atmospherics/tvalve/digital/on_update_icon()
-	..()
-	if(!powered())
-		icon_state = "tvalvenopower"
-
-/obj/machinery/atmospherics/tvalve/digital/attack_ai(mob/user as mob)
-	return src.attack_hand(user)
-
 /obj/machinery/atmospherics/tvalve/digital/attack_hand(mob/user as mob)
-	if(!powered())
-		return
 	if(!src.allowed(user))
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 		return
@@ -425,17 +412,7 @@
 	icon_state = "map_tvalvem1"
 	state = 1
 
-/obj/machinery/atmospherics/tvalve/mirrored/digital/on_update_icon()
-	..()
-	if(!powered())
-		icon_state = "tvalvemnopower"
-
-/obj/machinery/atmospherics/tvalve/mirrored/digital/attack_ai(mob/user as mob)
-	return src.attack_hand(user)
-
 /obj/machinery/atmospherics/tvalve/mirrored/digital/attack_hand(mob/user as mob)
-	if(!powered())
-		return
 	if(!src.allowed(user))
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 		return

@@ -9,28 +9,8 @@
 	gear_detachable = FALSE
 	gear = /obj/item/extinguisher/linked
 	atom_flags = null
-	initial_capacity = 30 LITERS
-	initial_reagent_types = list(/datum/reagent/water/firefoam = 1)
 	origin_tech = list(TECH_ENGINEERING = 2)
 	matter = list(MATERIAL_STEEL = 1500, MATERIAL_GLASS = 500)
-
-/obj/item/backwear/reagent/extinguisher/afterattack(obj/O, mob/user, proximity)
-	if(!proximity)
-		return
-	if(istype(O, /obj/structure/reagent_dispensers/watertank))
-		var/amount = min((initial_capacity - reagents.total_volume), O.reagents.total_volume)
-		if(!O.reagents.total_volume)
-			to_chat(user, SPAN("warning", "\The [O] is empty."))
-			return
-		if(!amount)
-			to_chat(user, SPAN("notice", "\The [src] is already full."))
-			return
-		O.reagents.remove_any(amount)
-		reagents.add_reagent(/datum/reagent/water/firefoam, amount)
-		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it with [amount] ml of the contents of \the [O]."))
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
-		return
-
 
 /obj/item/extinguisher/linked
 	name = "fire hose"
@@ -74,56 +54,6 @@
 	if(base_unit)
 		base_unit.reattach_gear(user)
 
-/obj/item/extinguisher/linked/attack(mob/living/M, mob/user)
-	if(user.a_intent == I_HELP)
-		if(!base_unit)
-			return
-		if(world.time < last_use + spray_cooldown) // We still catch help intent to not randomly attack people
-			return
-		if(!base_unit.reagents.total_volume)
-			to_chat(user, SPAN("notice", "\The [base_unit] is empty."))
-			return
-		last_use = world.time
-		base_unit.reagents.splash(M, min(base_unit.reagents.total_volume, spray_amount))
-		user.visible_message(SPAN("notice", "\The [user] sprays \the [M] with \the [src]."))
-		playsound(src.loc, 'sound/effects/extinguish.ogg', 75, 1, -3)
-		return 1
-	return ..()
 
 /obj/item/extinguisher/linked/afterattack(atom/target, mob/user, flag)
-	if(!base_unit)
-		return
-	if(target == base_unit)
-		return
-	if(!base_unit.reagents.total_volume)
-		to_chat(usr, SPAN("notice", "\The [src] is empty."))
-		return
-	if(world.time < last_use + 1 SECOND)
-		return
-	last_use = world.time
-	playsound(src.loc, 'sound/effects/extinguish.ogg', 75, 1, -3)
-	if(istype(target, /obj/item/clothing/mask/smokable))
-		var/obj/item/clothing/mask/smokable/cig = target
-		cig.die()
-
-	var/direction = get_dir(src,target)
-	if(user.buckled && isobj(user.buckled))
-		spawn(0)
-			propel_object(user.buckled, user, turn(direction,180))
-
-	var/turf/T = get_turf(target)
-	var/per_particle = min(spray_amount, base_unit.reagents.total_volume)/spray_particles
-	for(var/a = 1 to spray_particles)
-		spawn(0)
-			if(!src || !base_unit.reagents.total_volume)
-				return
-			var/obj/effect/effect/water/W = new /obj/effect/effect/water(get_turf(src))
-			W.create_reagents(per_particle)
-			base_unit.reagents.trans_to_obj(W, per_particle)
-			W.set_color()
-			W.set_up(T)
-
-	if((istype(usr.loc, /turf/space)) || (usr.lastarea.has_gravity == 0))
-		user.inertia_dir = get_dir(target, user)
-		step(user, user.inertia_dir)
-	return ..()
+	return

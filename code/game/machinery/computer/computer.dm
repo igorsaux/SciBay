@@ -4,8 +4,6 @@
 	icon_state = "computer"
 	density = 1
 	anchored = 1.0
-	idle_power_usage = 300 WATTS
-	active_power_usage = 300 WATTS
 
 	/// Typepath of the circuit board. If `null` computer can't be disassembled.
 	var/circuit = null
@@ -25,17 +23,12 @@
 /obj/machinery/computer/Initialize()
 	. = ..()
 	GLOB.computer_list += src
-	power_change()
 	update_icon()
 
 /obj/machinery/computer/Destroy()
 	GLOB.computer_list -= src
 
 	return ..()
-
-/obj/machinery/computer/emp_act(severity)
-	if(prob(20/severity)) set_broken(TRUE)
-	..()
 
 /obj/machinery/computer/ex_act(severity)
 	playsound(src, SFX_BREAK_CONSOLE, 75, FALSE)
@@ -57,18 +50,6 @@
 				for(var/x in verbs)
 					verbs -= x
 				set_broken(TRUE)
-
-/obj/machinery/computer/blob_act(damage)
-	if(stat & BROKEN)
-		return
-
-	playsound(src, SFX_BREAK_CONSOLE, 75, FALSE)
-	set_broken(TRUE)
-
-/obj/machinery/computer/bullet_act(obj/item/projectile/Proj)
-	if(prob(Proj.get_structure_damage()))
-		set_broken(TRUE)
-	..()
 
 /obj/machinery/computer/on_update_icon()
 	ClearOverlays()

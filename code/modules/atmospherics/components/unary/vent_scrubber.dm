@@ -5,8 +5,6 @@
 
 	name = "Air Scrubber"
 	desc = "Has a valve and pump attached to it."
-	use_power = POWER_USE_OFF
-	idle_power_usage = 150 WATTS //internal circuitry, friction losses and stuff
 	power_rating = 7500			//7500 W ~ 10 HP
 
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_SCRUBBER //connects to regular and scrubber pipes
@@ -32,7 +30,6 @@
 	var/broken = VENT_UNDAMAGED
 
 /obj/machinery/atmospherics/unary/vent_scrubber/on
-	use_power = POWER_USE_IDLE
 	icon_state = "map_scrubber_on"
 
 /obj/machinery/atmospherics/unary/vent_scrubber/Initialize()
@@ -43,8 +40,6 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/Destroy()
 	SSradio.remove_object(src, frequency)
 	if(initial_loc)
-		initial_loc.air_scrub_info -= id_tag
-		initial_loc.air_scrub_names -= id_tag
 		initial_loc = null
 	return ..()
 
@@ -76,10 +71,8 @@
 				scrubber_icon += "broken"
 	else if(welded)
 		scrubber_icon += "weld"
-	else if(!powered())
-		scrubber_icon += "off"
 	else
-		scrubber_icon += "[use_power ? "[scrubbing ? "on" : "in"]" : "off"]"
+		scrubber_icon += "[scrubbing ? "on" : "in"]"
 
 	AddOverlays(icon_manager.get_atmos_icon("device", , , scrubber_icon))
 
@@ -111,7 +104,6 @@
 			"tag" = id_tag,
 			"device" = "AScr",
 			"timestamp" = world.time,
-			"power" = use_power,
 			"scrubbing" = scrubbing,
 			"panic" = panic,
 			"filter_o2" = ("oxygen" in scrubbing_gas),
@@ -121,13 +113,6 @@
 			"filter_n2o" = ("sleeping_agent" in scrubbing_gas),
 			"sigtype" = "status"
 		)
-
-	if(!initial_loc.air_scrub_names[id_tag])
-		var/new_name = "[initial_loc.name] Air Scrubber #[initial_loc.air_scrub_names.len+1]"
-		initial_loc.air_scrub_names[id_tag] = new_name
-		src.SetName(new_name)
-
-	initial_loc.air_scrub_info[id_tag] = data
 
 	var/datum/signal/signal = new(data)
 	radio_connection.post_signal(src, signal, radio_filter_out)
@@ -158,10 +143,8 @@
 	if (hibernate > world.time)
 		return 1
 
-	if (!node)
-		update_use_power(POWER_USE_OFF)
 	//broadcast_status()
-	if(!use_power || (stat & (NOPOWER|BROKEN)))
+	if((stat & (NOPOWER|BROKEN)))
 		return 0
 	if(welded)
 		return 0
@@ -188,7 +171,6 @@
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 
 	if(network)
 		network.update = 1
@@ -205,22 +187,15 @@
 	if(!signal.data["tag"] || (signal.data["tag"] != id_tag) || (signal.data["sigtype"]!="command"))
 		return 0
 
-	if(signal.data["power"] != null)
-		update_use_power(sanitize_integer(text2num(signal.data["power"]), POWER_USE_OFF, POWER_USE_ACTIVE, use_power))
-	if(signal.data["power_toggle"] != null)
-		update_use_power(!use_power)
-
 	if(signal.data["panic_siphon"]) //must be before if("scrubbing" thing
 		panic = text2num(signal.data["panic_siphon"])
 		if(panic)
-			update_use_power(POWER_USE_IDLE)
 			scrubbing = 0
 		else
 			scrubbing = 1
 	if(signal.data["toggle_panic_siphon"] != null)
 		panic = !panic
 		if(panic)
-			update_use_power(POWER_USE_IDLE)
 			scrubbing = 0
 		else
 			scrubbing = 1
@@ -280,7 +255,7 @@
 
 /obj/machinery/atmospherics/unary/vent_scrubber/attackby(obj/item/W as obj, mob/user as mob)
 	if(isWrench(W))
-		if (!(stat & NOPOWER) && use_power)
+		if (!(stat & NOPOWER))
 			to_chat(user, "<span class='warning'>You cannot unwrench \the [src], turn it off first.</span>")
 			return 1
 		var/turf/T = src.loc

@@ -62,8 +62,6 @@ avoid code duplication. This includes items that may sometimes act as a standard
 
 	set_cooldown()
 	user.do_attack_animation(M)
-	if(!user.aura_check(AURA_TYPE_WEAPON, src, user))
-		return 0
 
 	var/hit_zone = M.resolve_item_attack(src, user, target_zone)
 	if(user.a_intent != I_GRAB)
@@ -152,8 +150,5 @@ avoid code duplication. This includes items that may sometimes act as a standard
 			return 1
 		else if(devour(I))
 			return 1
-
-	if(I.do_surgery(src, user))
-		return TRUE
 
 	return ..()

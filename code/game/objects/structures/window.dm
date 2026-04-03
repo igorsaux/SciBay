@@ -63,9 +63,6 @@
 /obj/structure/window/GetExplosionBlock()
 	return reinf && (state == 5) ? real_explosion_block : 0
 
-/obj/structure/window/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_GLASS, -10, 5)
-
 /obj/structure/window/proc/take_damage(damage = 0,  sound_effect = 1)
 	var/initialhealth = health
 
@@ -117,19 +114,6 @@
 
 	qdel(src)
 	return
-
-/obj/structure/window/blob_act(damage)
-	take_damage(damage)
-
-/obj/structure/window/bullet_act(obj/item/projectile/Proj)
-
-	var/proj_damage = Proj.get_structure_damage()
-	if(!proj_damage) return
-
-	..()
-	take_damage(proj_damage)
-	return
-
 
 /obj/structure/window/ex_act(severity)
 	switch(severity)
@@ -203,10 +187,6 @@
 		set_anchored(FALSE)
 		step(src, get_dir(AM, src))
 	take_damage(tforce, FALSE)
-
-/obj/structure/window/attack_tk(mob/user as mob)
-	user.visible_message("<span class='notice'>Something knocks on [src].</span>")
-	playsound(loc, GET_SFX(SFX_GLASS_KNOCK), 50, 1)
 
 /obj/structure/window/attack_hand(mob/user as mob)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
@@ -412,19 +392,6 @@
 		hit(damage_per_fire_tick, 0)
 	..()
 
-/obj/structure/window/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 2 SECONDS, "cost" = 5)
-
-	return FALSE
-
-/obj/structure/window/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
-		qdel_self()
-		return TRUE
-
-	return FALSE
-
 /obj/structure/window/basic
 	name = "glass panel"
 	desc = "It looks thin and flimsy. A few knocks with... anything, really should shatter it."
@@ -488,7 +455,6 @@
 	update_nearby_icons()
 
 	AddElement(/datum/element/simple_rotation)
-	add_debris_element()
 
 /obj/structure/window/reinforced/full
 	dir = 5
@@ -646,8 +612,6 @@
 		return
 
 /obj/machinery/button/windowtint/proc/toggle_tint()
-	use_power_oneoff(5)
-
 	active = !active
 	queue_icon_update()
 
@@ -656,11 +620,6 @@
 			spawn(0)
 				W.toggle()
 				return
-
-/obj/machinery/button/windowtint/power_change()
-	. = ..()
-	if(active && !powered(power_channel))
-		toggle_tint()
 
 /obj/machinery/button/windowtint/on_update_icon()
 	icon_state = "light[active]"

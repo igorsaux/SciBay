@@ -14,13 +14,6 @@
 		return ..()
 	return STATUS_CLOSE
 
-/mob/living/silicon/CanUseObjTopic(obj/O)
-	var/id = src.get_id_card()
-	if(id && O.check_access(id))
-		return TRUE
-	to_chat(src, "<span class='danger'>\icon[src]Access Denied!</span>")
-	return FALSE
-
 /mob/proc/CanUseObjTopic()
 	return TRUE
 

@@ -12,7 +12,6 @@
 	maxhealth = 150 //If you change this, consiter changing ../door/window/brigdoor/ health at the bottom of this .dm file
 	health = 150
 	visible = 0.0
-	use_power = POWER_USE_OFF
 	atom_flags = ATOM_FLAG_CHECKS_BORDER
 	opacity = 0
 	var/obj/item/airlock_electronics/electronics = null
@@ -29,16 +28,12 @@
 	update_nearby_tiles()
 	update_icon()
 	hitsound = pick(SFX_GLASS_HIT)
-	add_debris_element()
 	add_think_ctx("hack_context", CALLBACK(src, nameof(.proc/on_hacked)), 0)
 
 /obj/machinery/door/window/examine(mob/user, infix)
 	. = ..()
 	if(Adjacent(user) && operating == DOOR_FAILURE)
 		. += SPAN("warning", "It appears to be jammed, and its lock looks cooked.")
-
-/obj/machinery/door/window/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_GLASS, -10, 5)
 
 /obj/machinery/door/window/on_update_icon()
 	ClearOverlays()
@@ -96,23 +91,7 @@
 	if(operating)
 		return FALSE
 
-	if(isbot(AM))
-		var/mob/living/bot/bot = AM
-		if(check_access(bot.botcard))
-			if(density)
-				INVOKE_ASYNC(src, nameof(.proc/open))
-			else
-				INVOKE_ASYNC(src, nameof(.proc/close))
-
-	else if(istype(AM, /obj/mecha))
-		var/obj/mecha/mech = AM
-		if(mech.occupant && allowed(mech.occupant))
-			if(density)
-				INVOKE_ASYNC(src, nameof(.proc/open))
-			else
-				INVOKE_ASYNC(src, nameof(.proc/close))
-
-	else if(ismob(AM))
+	if(ismob(AM))
 		var/mob/M = AM
 		if(allowed(M))
 			if(density)
@@ -204,9 +183,6 @@
 	if(health <= 0)
 		shatter()
 
-/obj/machinery/door/window/attack_ai(mob/user)
-	return attack_hand(user)
-
 /obj/machinery/door/window/attack_hand(mob/user)
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
@@ -219,12 +195,6 @@
 			return
 	return Bumped(user)
 
-/obj/machinery/door/window/emag_act(remaining_charges, mob/user)
-	if(density && operable())
-		flick("[base_state]spark", src)
-		set_next_think_ctx("hack_context", world.time + 1 SECONDS)
-		return 1
-
 /obj/machinery/door/window/think()
 	INVOKE_ASYNC(src, nameof(.proc/open), FALSE, TRUE)
 
@@ -236,23 +206,9 @@
 	operating = DOOR_FAILURE
 	return
 
-/obj/machinery/door/emp_act(severity)
-	if(prob(60 / severity))
-		INVOKE_ASYNC(src, nameof(.proc/open), FALSE, TRUE)
-
 /obj/machinery/door/window/attackby(obj/item/I, mob/user)
 	if(operating > 0)
 		return
-
-	if(istype(I, /obj/item/melee/energy/blade))
-		if(emag_act(10, user))
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, loc)
-			spark_system.start()
-			playsound(loc, SFX_SPARK, 50, 1)
-			playsound(loc, 'sound/weapons/blade1.ogg', 50, 1)
-			visible_message("<span class='warning'>The glass door was sliced open by [user]!</span>")
-		return 1
 
 	//If it's emagged, crowbar can pry electronics out.
 	if(isCrowbar(I) || istype(I, /obj/item/material/twohanded/fireaxe))
@@ -307,7 +263,7 @@
 			return
 
 	//If it's a weapon, smash windoor. Unless it's an id card, agent card, ect.. then ignore it (Cards really shouldnt damage a door anyway)
-	if(density && user.a_intent == I_HURT && !(istype(I, /obj/item/card) || istype(I, /obj/item/device/pda)))
+	if(density && user.a_intent == I_HURT && !(istype(I, /obj/item/card)))
 		var/aforce = I.force
 		playsound(loc, GET_SFX(SFX_GLASS_HIT), 75, 1)
 		visible_message("<span class='danger'>[src] was hit by [I].</span>")
@@ -331,20 +287,6 @@
 		flick(text("[]deny", base_state), src)
 
 	return ..()
-
-/obj/machinery/door/window/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	switch(the_rcd.mode)
-		if(RCD_DECONSTRUCT)
-			return list("delay" = 5 SECONDS, "cost" = 32)
-
-	return FALSE
-
-/obj/machinery/door/window/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
-		qdel_self()
-		return TRUE
-
-	return FALSE
 
 /obj/machinery/door/window/brigdoor
 	name = "secure door"

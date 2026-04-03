@@ -3,7 +3,6 @@
 	desc = "It controls objects, remotely."
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "doorctrl"
-	power_channel = STATIC_ENVIRON
 	var/desiredstate = 0
 	var/exposedwires = 0
 	var/wires = 3
@@ -13,24 +12,9 @@
 	*/
 
 	anchored = 1.0
-	idle_power_usage = 2 WATTS
-	active_power_usage = 4 WATTS
-
-/obj/machinery/button/remote/attack_ai(mob/user as mob)
-	if(wires & 2)
-		return src.attack_hand(user)
-	else
-		to_chat(user, "Error, no route to host.")
 
 /obj/machinery/button/remote/attackby(obj/item/W, mob/user as mob)
 	return src.attack_hand(user)
-
-/obj/machinery/button/remote/emag_act(remaining_charges, mob/user)
-	if(req_access.len || req_one_access.len)
-		req_access = list()
-		req_one_access = list()
-		playsound(src.loc, SFX_SPARK, 100, 1)
-		return 1
 
 /obj/machinery/button/remote/attack_hand(mob/user as mob)
 	if(..())
@@ -44,7 +28,6 @@
 		flick("[initial(icon_state)]-denied",src)
 		return
 
-	use_power_oneoff(5)
 	icon_state = "[initial(icon_state)]1"
 	desiredstate = !desiredstate
 	trigger(user)
@@ -103,19 +86,11 @@
 					D.set_idscan(0)
 				if(specialfunctions & BOLTS)
 					D.lock()
-				if(specialfunctions & SHOCK)
-					D.electrify(-1)
-				if(specialfunctions & SAFE)
-					D.set_safeties(0)
 			else
 				if(specialfunctions & IDSCAN)
 					D.set_idscan(1)
 				if(specialfunctions & BOLTS)
 					D.unlock()
-				if(specialfunctions & SHOCK)
-					D.electrify(0)
-				if(specialfunctions & SAFE)
-					D.set_safeties(1)
 
 #undef OPEN
 #undef IDSCAN
@@ -153,13 +128,6 @@
 	name = "remote emitter control"
 	desc = "It controls emitters, remotely."
 
-/obj/machinery/button/remote/emitter/trigger(mob/user)
-	for(var/obj/machinery/power/emitter/E in world)
-		if(E.id == src.id)
-			spawn(0)
-				E.activate(user)
-				return
-
 /*
 	Mass driver remote control
 */
@@ -181,12 +149,6 @@
 				return
 
 	sleep(20)
-
-	for(var/obj/machinery/mass_driver/M in SSmachines.machinery)
-		if(M.id == src.id)
-			M.drive()
-
-	sleep(50)
 
 	for(var/obj/machinery/door/blast/M in GLOB.all_doors)
 		if (M.id == src.id)

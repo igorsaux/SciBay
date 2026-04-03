@@ -8,7 +8,6 @@
 	icon_state = "box_0"
 	density = TRUE
 	anchored = TRUE
-	use_power = POWER_USE_OFF
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	var/obj/item/circuitboard/circuit
 	var/list/components = list()

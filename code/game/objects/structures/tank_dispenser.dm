@@ -37,11 +37,6 @@
 		if(1 to 4)	AddOverlays("plasma-[plasmatanks]")
 		if(5 to INFINITY) AddOverlays("plasma-5")
 
-/obj/structure/dispenser/attack_ai(mob/user)
-	if(user.Adjacent(src))
-		return attack_hand(user)
-	..()
-
 /obj/structure/dispenser/attack_hand(mob/user)
 	user.set_machine(src)
 	add_fingerprint(user)
@@ -62,7 +57,7 @@
 		complete_options.Remove("dispence oxygen")
 		ai_complete_options.Remove("dispence oxygen")
 
-	var/choice = show_radial_menu(user, src, isAI(user) ? ai_complete_options : complete_options, require_near = !issilicon(user))
+	var/choice = show_radial_menu(user, src,complete_options, require_near = TRUE)
 
 	switch(choice)
 		if("dispence oxygen")

@@ -65,7 +65,6 @@
 		return
 	if(!operating)
 		return
-	use_power_oneoff(100)
 
 	affecting = loc.contents - src		// moved items will be all in loc
 	spawn(1)	// slight delay to prevent infinite propagation due to map order	//TODO: please no spawn() in process(). It's a very bad idea
@@ -88,13 +87,7 @@
 		to_chat(user, "<span class='notice'>You remove the conveyor belt.</span>")
 		qdel(src)
 		return
-	if(istype(I, /obj/item/gripper))
-		var/obj/item/gripper/G = I
-		var/obj/item/wrapped = G.wrapped
-		if(wrapped)
-			G.drop_item()
-			wrapped.forceMove(get_turf(src))
-		return
+
 	user.drop(I, get_turf(src))
 	return
 

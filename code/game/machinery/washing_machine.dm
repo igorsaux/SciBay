@@ -27,8 +27,6 @@
 	clickvol = 40
 
 	// Power
-	idle_power_usage = 10 WATTS
-	active_power_usage = 150 WATTS
 
 /obj/machinery/washing_machine/Destroy()
 	qdel(crayon)
@@ -51,7 +49,6 @@
 		state = 8
 	else
 		state = 5
-	update_use_power(POWER_USE_ACTIVE)
 	update_icon()
 	sleep(200)
 	for(var/atom/A in contents)
@@ -69,7 +66,6 @@
 		WL.amount = HH.amount
 		qdel(HH)
 
-	update_use_power(POWER_USE_IDLE)
 	if( locate(/mob,contents) )
 		state = 7
 		gibs_ready = 1
@@ -101,14 +97,7 @@
 		else
 			..()
 	else if(istype(W,/obj/item/grab))
-		if( (state == 1) && hacked)
-			var/obj/item/grab/G = W
-			if(ishuman(G.assailant) && iscorgi(G.affecting))
-				G.affecting.forceMove(src)
-				qdel(G)
-				state = 3
-		else
-			..()
+		..()
 	else if(istype(W,/obj/item/stack/material/hairlesshide) || \
 		istype(W,/obj/item/clothing/under) || \
 		istype(W,/obj/item/clothing/mask) || \

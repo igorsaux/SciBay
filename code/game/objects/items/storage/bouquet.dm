@@ -17,9 +17,7 @@
 	desc = "A great gift for your girlfriend. Now with a shotgun!"
 	icon_state = "mixedbouquet"
 
-	startswith = list(
-		/obj/item/gun/projectile/shotgun/doublebarrel/sawn
-		)
+	startswith = list()
 
 /obj/item/storage/bouquet/Initialize()
 	. = ..()

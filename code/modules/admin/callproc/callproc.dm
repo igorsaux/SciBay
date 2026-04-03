@@ -258,7 +258,6 @@
 		returnval = call(procname)(arglist(arguments))
 
 	to_chat(usr, SPAN_NOTICE("[procname]() returned: [json_encode(returnval)]"))
-	feedback_add_details("admin_verb","APC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	return returnval
 
 #undef CANCEL

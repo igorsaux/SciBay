@@ -25,9 +25,6 @@
 	override_open = !override_open
 	to_chat(user, "You [override_open ? "disable" : "enable"] the automatic shutoff circuit.")
 
-/obj/machinery/atmospherics/valve/shutoff/attack_ai(mob/user as mob)
-	attack_hand(user)
-
 /obj/machinery/atmospherics/valve/shutoff/hide(do_hide)
 	if(do_hide)
 		if(level == 1)

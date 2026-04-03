@@ -23,9 +23,6 @@
 	// human/handle_regular_status_updates() needs a cleanup, as blindness should be handled in handle_disabilities()
 	handle_regular_status_updates() // Status & health update, are we dead or alive etc.
 
-	if(!is_ic_dead())
-		aura_check(AURA_TYPE_LIFE)
-
 	//Check if we're on fire
 	handle_fire()
 
@@ -41,10 +38,6 @@
 
 	handle_regular_hud_updates()
 
-	if(mind)
-		for(var/datum/objective/O in mind.objectives)
-			O.update()
-
 	return 1
 
 /mob/living/proc/do_check_environment()
@@ -54,9 +47,6 @@
 	return
 
 /mob/living/proc/handle_mutations_and_radiation()
-	return
-
-/mob/living/proc/handle_chemicals_in_body()
 	return
 
 /mob/living/proc/handle_random_events()

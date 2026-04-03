@@ -432,13 +432,6 @@
 		else
 			. += "It has [gel_amt] doses of gel left."
 
-/obj/item/organfixer/emag_act(remaining_charges, mob/user)
-	if(emagged)
-		return
-	emagged = 1
-	to_chat(user, "<span class='danger'>You overload \the [src]'s circuits.</span>")
-	return 1
-
 /obj/item/organfixer/proc/refill(amt = 1)
 	if(gel_amt >= gel_amt_max)
 		return 0

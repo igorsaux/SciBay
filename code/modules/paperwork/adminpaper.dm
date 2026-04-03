@@ -120,7 +120,6 @@
 					info_links += footer_with_links
 
 				close_browser(usr, "window=[name]")
-				admindatum.faxCallback(src, destination)
 		return
 
 	if(href_list["penmode"])

@@ -61,13 +61,3 @@
 			explode()
 		if(2.0)
 			take_damage(25)
-
-/obj/structure/energybarrier/bullet_act(obj/item/projectile/Proj)
-	var/proj_damage = Proj.get_structure_damage()
-	if(!proj_damage)
-		return
-	..()
-	take_damage(proj_damage)
-
-/obj/structure/energybarrier/emp_act(severity)
-	take_damage(50 / severity)

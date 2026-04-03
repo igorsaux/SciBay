@@ -66,7 +66,7 @@
 		to_chat(user, SPAN("warning", "\The [src] cannot be applied to [M]!"))
 		return TRUE
 
-	if(!ishuman(user) && !issilicon(user))
+	if(!ishuman(user))
 		to_chat(user, FEEDBACK_YOU_LACK_DEXTERITY)
 		return TRUE
 
@@ -98,10 +98,6 @@
 	return TRUE
 
 /obj/item/stack/medical/proc/apply_on_human(mob/living/carbon/human/H, obj/item/organ/external/affecting, mob/user)
-	if(BP_IS_ROBOTIC(affecting))
-		to_chat(user, SPAN("warning", "This isn't useful at all on a robotic limb."))
-		return 0
-
 	var/blocked_by_clothes = null
 	if(affecting.organ_tag == BP_HEAD)
 		var/obj/item/clothing/C = H.head

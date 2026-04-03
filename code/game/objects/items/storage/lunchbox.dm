@@ -10,21 +10,6 @@
 	var/filled = FALSE
 	attack_verb = list("lunched")
 
-/obj/item/storage/lunchbox/New()
-	..()
-	if(filled)
-		var/list/lunches = lunchables_lunches()
-		var/lunch = lunches[pick(lunches)]
-		new lunch(src)
-
-		var/list/snacks = lunchables_snacks()
-		var/snack = snacks[pick(snacks)]
-		new snack(src)
-
-		var/list/drinks = lunchables_drinks()
-		var/drink = drinks[pick(drinks)]
-		new drink(src)
-
 /obj/item/storage/lunchbox/filled
 	filled = TRUE
 
@@ -99,4 +84,3 @@
 
 /obj/item/storage/lunchbox/syndicate/filled
 	filled = TRUE
-

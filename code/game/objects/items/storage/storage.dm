@@ -78,8 +78,16 @@
 	QDEL_NULL(storage_ui)
 	. = ..()
 
+/obj/item/storage/Value(base)
+	. = ..(base)
+	
+	for(var/atom/A in contents)
+		. += get_base_value(A)
+
+	. = ceil(.)
+
 /obj/item/storage/MouseDrop(atom/over)
-	if(((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !ischestburster(usr))) && !usr.incapacitated())
+	if((ishuman(usr) || issmall(usr)) && !usr.incapacitated())
 		if(over == usr && Adjacent(usr)) // this must come before the screen objects only block
 			add_fingerprint(usr)
 			open(usr)
@@ -90,7 +98,7 @@
 	if(!canremove)
 		return
 
-	if((((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !ischestburster(usr))) && !usr.incapacitated() && Adjacent(usr)))
+	if(((ishuman(usr) || issmall(usr)) && !usr.incapacitated() && Adjacent(usr)))
 		add_fingerprint(usr)
 		if(usr.s_active == src)
 			close(usr)
@@ -122,10 +130,6 @@
 /obj/item/storage/proc/open(mob/user)
 	if(src.use_sound)
 		playsound(src.loc, src.use_sound, 50, 1, -5)
-	if(isrobot(user) && user.hud_used)
-		var/mob/living/silicon/robot/robot = user
-		if(robot.shown_robot_modules) //The robot's inventory is open, need to close it first.
-			robot.hud_used.toggle_show_robot_modules()
 
 	prepare_ui()
 	if(storage_ui) // I guess we can afford performing double checks for such procs. Better this than hundreds of runtimes.
@@ -190,14 +194,6 @@
 	//If attempting to lable the storage item, silently fail to allow it
 	if(istype(W, /obj/item/hand_labeler) || istype(W, /obj/item/forensics) && user.a_intent != I_HELP)
 		return FALSE
-
-	// Don't allow insertion of unsafed compressed matter implants
-	// Since they are sucking something up now, their afterattack will delete the storage
-	if(istype(W, /obj/item/implanter/compressed))
-		var/obj/item/implanter/compressed/impr = W
-		if(!impr.safe)
-			stop_messages = 1
-			return 0
 
 	if(cant_hold.len && is_type_in_list(W, cant_hold))
 		if(!stop_messages)
@@ -313,9 +309,6 @@
 	if(.)
 		return
 
-	if(isrobot(user) && W == user.get_active_hand())
-		return //Robots can't store their modules.
-
 	if(istype(W, /obj/item/device/lightreplacer))
 		var/obj/item/device/lightreplacer/LP = W
 		var/amt_inserted = 0
@@ -420,12 +413,6 @@
 	for(var/obj/item/I in contents)
 		remove_from_storage(I, T, 1)
 	finish_bulk_removal()
-
-/obj/item/storage/emp_act(severity)
-	if(!istype(src.loc, /mob/living))
-		for(var/obj/O in contents)
-			O.emp_act(severity)
-	..()
 
 /obj/item/storage/attack_self(mob/user)
 	//Clicking on itself will empty it, if it has the verb to do that.

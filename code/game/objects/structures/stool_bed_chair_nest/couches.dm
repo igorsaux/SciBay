@@ -60,11 +60,6 @@
 		else
 			user.visible_message(SPAN("danger", "[user] hits \the [src] with \the [W], but it bounces off!"))
 
-/obj/structure/bed/couch/attack_tk(mob/user as mob)
-	if(buckled_mob)
-		..()
-	return
-
 /obj/structure/bed/couch/post_buckle_mob()
 	update_icon()
 	return ..()

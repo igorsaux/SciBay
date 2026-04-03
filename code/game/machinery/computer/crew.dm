@@ -4,8 +4,6 @@
 	icon_keyboard = "med_key"
 	icon_screen = "crew"
 	light_color = "#315ab4"
-	idle_power_usage = 250 WATTS
-	active_power_usage = 500 WATTS
 	circuit = /obj/item/circuitboard/crew
 	var/datum/nano_module/crew_monitor/crew_monitor
 
@@ -18,9 +16,6 @@
 	crew_monitor = null
 
 	return ..()
-
-/obj/machinery/computer/crew/attack_ai(mob/user)
-	ui_interact(user)
 
 /obj/machinery/computer/crew/attack_hand(mob/user)
 	..()

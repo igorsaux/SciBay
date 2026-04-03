@@ -151,22 +151,6 @@
 			pulling = null
 		return
 
-/obj/structure/bed/chair/wheelchair/MouseDrop_T(atom/movable/dropping, mob/living/user)
-	if(istype(dropping, /obj/structure/disposalconstruct) && !buckled_mob)
-		show_splash_text(user, "attaching...", "You start attaching \the [dropping] to \the [src]...")
-		if(!do_after(user, 10 SECONDS, src, TRUE, luck_check_type = LUCK_CHECK_COMBAT))
-			return
-
-		if(QDELETED(src) || QDELETED(dropping) || QDELETED(user) || buckled_mob)
-			return
-
-		new /obj/structure/bed/chair/wheelchair/wheelcannon(get_turf(src))
-		qdel_self()
-		qdel(dropping)
-		return
-
-	return ..()
-
 /obj/structure/bed/chair/wheelchair/Bump(atom/A)
 	..()
 	if(!buckled_mob)	return
@@ -214,11 +198,6 @@
 			newdir = 4
 		B.set_dir(newdir)
 	bloodiness--
-
-/obj/structure/bed/chair/wheelchair/bullet_act(obj/item/projectile/Proj, def_zone)
-	if(buckled_mob)
-		return buckled_mob.bullet_act(Proj, def_zone)
-	return ..()
 
 /obj/structure/bed/chair/wheelchair/buckle_mob(mob/M as mob, mob/user as mob)
 	if(M == pulling)

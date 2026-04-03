@@ -8,12 +8,6 @@
 	relative_size = 10
 	max_damage = 45
 
-/obj/item/organ/internal/tongue/robotize()
-	..()
-	SetName("lingual implant")
-	icon_state = "voicebox"
-	dead_icon = "voicebox"
-
 /obj/item/organ/internal/tongue/take_internal_damage(amount, silent = FALSE, is_traumatic = FALSE)
 	var/oldbroken = is_broken()
 	var/oldbruised = is_bruised()

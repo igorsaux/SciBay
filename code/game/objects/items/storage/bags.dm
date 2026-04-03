@@ -88,16 +88,3 @@
 	quick_empty()
 	to_chat(user, "You turned everything out of [src]!")
 	user.replace_item(src, new /obj/item/clothing/mask/plasticbag, TRUE, TRUE)
-
-// -----------------------------
-//           Cash Bag
-// -----------------------------
-
-/obj/item/storage/bag/cash
-	name = "cash bag"
-	icon_state = "cashbag"
-	desc = "A bag for carrying lots of cash. It's got a big dollar sign printed on the front."
-	max_storage_space = 100
-	max_w_class = ITEM_SIZE_HUGE
-	w_class = ITEM_SIZE_SMALL
-	can_hold = list(/obj/item/material/coin, /obj/item/spacecash)

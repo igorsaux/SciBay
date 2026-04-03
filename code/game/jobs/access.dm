@@ -5,8 +5,6 @@
 
 //returns 1 if this mob has sufficient access to use this object
 /obj/proc/allowed(mob/M)
-	if(isanimal(M))
-		return FALSE
 	//check if it doesn't require any access at all
 	if(src.check_access(null))
 		return TRUE
@@ -175,7 +173,6 @@
 /proc/get_all_jobs()
 	var/list/all_jobs = list()
 	var/list/all_datums = typesof(/datum/job)
-	all_datums -= exclude_jobs
 	var/datum/job/jobdatum
 	for(var/jobtype in all_datums)
 		jobdatum = new jobtype
@@ -206,9 +203,6 @@
 		ghost_all_access = new()
 	return ghost_all_access
 
-/mob/living/bot/get_id_card()
-	return botcard
-
 #define HUMAN_ID_CARDS list(get_active_hand(), wear_id, get_inactive_hand(), internal_organs_by_name[BP_HEART])
 /mob/living/carbon/human/get_id_card()
 	for(var/item_slot in HUMAN_ID_CARDS)
@@ -224,11 +218,6 @@
 		if(I)
 			. |= I.GetAccess()
 #undef HUMAN_ID_CARDS
-
-/mob/living/silicon/get_id_card()
-	if(stat || (ckey && !client))
-		return // Unconscious, dead or once possessed but now client-less silicons are not considered to have id access.
-	return idcard
 
 /proc/FindNameFromID(mob/M, missing_id_name = "Unknown")
 	var/obj/item/card/id/C = M.get_id_card()

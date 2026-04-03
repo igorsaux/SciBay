@@ -45,9 +45,6 @@
 	/// Holder for a spawners menu.
 	var/datum/spawners_menu/spawners_menu = null
 
-	/// Holder for a follow-orbit panel.
-	var/datum/follow_panel/follow_panel = new()
-
 /mob/observer/ghost/Initialize()
 	. = ..()
 	see_in_dark = 100
@@ -80,16 +77,9 @@
 		name = capitalize(pick(gender == MALE ? GLOB.first_names_male : GLOB.first_names_female)) + " " + capitalize(pick(GLOB.last_names))
 	real_name = name
 
-	if(GLOB.cult)
-		GLOB.cult.add_ghost_magic(src)
-
 	ghost_multitool = new(src)
 
 	GLOB.ghost_mob_list |= src
-
-	verbs += /mob/proc/toggle_antag_pool
-	verbs += /mob/proc/join_as_actor
-	verbs += /mob/proc/join_response_team
 
 /mob/observer/ghost/Destroy()
 	GLOB.ghost_mob_list.Remove(src)
@@ -121,16 +111,11 @@
 			try_to_occupy(target)
 
 /mob/observer/ghost/proc/try_to_occupy(mob/living/L)
-	if(jobban_isbanned(src, "Animal"))
-		to_chat(src, SPAN_WARNING("You're banned from occupying mobs!"))
-		return
 	if(!L.controllable)
 		to_chat(src, SPAN_WARNING("[L] can't be occupied!"))
 		return
 	if(L.client || (L.ckey && copytext(L.ckey, 1, 2) == "@"))
 		to_chat(src, SPAN_WARNING("[L] is already occupied!"))
-		return
-	if(!MayRespawn(TRUE, isanimal(mind?.current) || isbot(mind?.current) ? DEAD_ANIMAL_DELAY : ANIMAL_SPAWN_DELAY))
 		return
 
 	log_and_message_admins("occupied clientless mob - ([L.type]) ([L]).", src, get_turf(L), L)
@@ -183,8 +168,6 @@ Works together with spawning an observer, noted above.
 
 /mob/observer/ghost/proc/assess_targets(list/target_list, mob/observer/ghost/U)
 	for(var/mob/living/carbon/human/target in target_list)
-		U.add_client_image(target.hud_list[SPECIALROLE_HUD])
-	for(var/mob/living/silicon/target in target_list)
 		U.add_client_image(target.hud_list[SPECIALROLE_HUD])
 	return 1
 
@@ -251,35 +234,14 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		var/obj/item/organ/internal/cerebrum/brain/brain = internal_organs_by_name[BP_BRAIN]
 		if(brain.is_broken() && stat == UNCONSCIOUS)
 			return TRUE
-	if(internal_organs_by_name[BP_CELL])
-		var/obj/item/organ/internal/cell/C = internal_organs_by_name[BP_CELL]
-		if(!C.cell || C.cell.charge <= 1)
-			return TRUE
-	return FALSE
 
-/mob/living/silicon/robot/may_ghost()
-	if(istype(loc, /obj/machinery/cryopod/robot))
-		return TRUE
-	else if(!cell || cell.charge <= 1 || !is_component_functioning("power cell"))
-		return TRUE
 	return FALSE
-
-/mob/living/silicon/robot/drone/may_ghost()
-	return TRUE
 
 /mob/observer/ghost/can_use_hands()
 	return 0
 
 /mob/observer/ghost/is_active()
 	return 0
-
-/mob/observer/ghost/Stat()
-	. = ..()
-	if(statpanel("Status"))
-		if(evacuation_controller)
-			var/eta_status = evacuation_controller.get_status_panel_eta()
-			if(eta_status)
-				stat(null, eta_status)
 
 /mob/observer/ghost/verb/reenter_corpse()
 	set category = "Ghost"
@@ -328,10 +290,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		to_chat(src, SPAN_WARNING("Admins have disabled this for this round."))
 		return
 
-	if(jobban_isbanned(src, "AntagHUD"))
-		to_chat(src, SPAN_DANGER("You have been banned from using this feature"))
-		return
-
 	if(config.ghost.antag_hud_restricted && !has_enabled_antagHUD && (!client.holder || mentor))
 		var/response = tgui_alert(src, "If you turn this on, you will not be able to take any part in the round.", "Toggle Antag HUD", list("Yes", "No"))
 		if(isnull(response) || response == "No")
@@ -344,16 +302,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	antagHUD = !antagHUD
 
 	to_chat(src, SPAN_NOTICE("Antag HUD has been [antagHUD ? "enabled" : "disabled"]"))
-
-/mob/observer/ghost/verb/open_spawners_menu()
-	set category = "Ghost"
-	set name = "Spawners Menu"
-	set desc = "See all currently available spawners"
-
-	if(isnull(spawners_menu))
-		spawners_menu = new(src)
-
-	spawners_menu.tgui_interact(src)
 
 /mob/observer/ghost/verb/dead_tele()
 	set category = "Ghost"
@@ -405,16 +353,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	else
 		to_chat(src, SPAN_WARNING("Invalid coordinates."))
 
-/mob/observer/ghost/verb/follow()
-	set category = "Ghost"
-	set name = "Follow"
-	set desc = "Follow and haunt a mob."
-
-	if(!client)
-		return
-
-	follow_panel.tgui_interact(usr)
-
 /mob/observer/ghost/proc/ghost_to_turf(turf/target_turf)
 	if(check_is_holy_turf(target_turf))
 		to_chat(src, SPAN_WARNING("The target location is holy grounds!"))
@@ -454,12 +392,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 /mob/observer/ghost/add_memory()
 	set hidden = TRUE
 	to_chat(src, SPAN_WARNING("You are dead! You have no mind to store memory!"))
-
-/mob/observer/ghost/verb/analyse_health(mob/living/carbon/human/H in GLOB.human_mob_list)
-	set category = null
-	set name = "Analyse Health"
-
-	show_browser(usr, medical_scan_results(H, TRUE), "window=scanconsole;size=430x350")
 
 /mob/observer/ghost/verb/toggle_inquisition()
 	set category = "Ghost"
@@ -526,9 +458,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 			return
 		// Otherwise, see if we can possess the target.
 		if(usr == src && try_possession(M))
-			return
-	if(istype(over, /obj/machinery/drone_fabricator))
-		if(try_drone_spawn(src, over))
 			return
 
 	return ..()
@@ -689,10 +618,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		icon = ghost_icon
 		icon_state = null
 		ClearOverlays()
-
-	else if(istype(target, /mob/living/simple_animal))
-		var/mob/living/simple_animal/SA = target
-		icon_state = SA.icon_living
 
 /mob/observer/ghost/verb/respawn()
 	set name = "Respawn"

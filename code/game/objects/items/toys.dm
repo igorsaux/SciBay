@@ -52,60 +52,6 @@
 	item_state = "water_balloon-empty"
 	w_class = ITEM_SIZE_TINY
 
-/obj/item/toy/water_balloon/New()
-	create_reagents(100)
-	..()
-
-/obj/item/toy/water_balloon/attack(mob/living/carbon/human/M, mob/user)
-	return
-
-/obj/item/toy/water_balloon/afterattack(atom/A, mob/user, proximity)
-	if(!proximity) return
-	if(istype(A, /obj/structure/reagent_dispensers) && Adjacent(A))
-		A.reagents.trans_to_obj(src, 100)
-		to_chat(user, "<span class='notice'>You fill the balloon with the contents of [A].</span>")
-		src.desc = "A translucent balloon with some form of liquid sloshing around in it."
-		src.update_icon()
-		w_class = ITEM_SIZE_SMALL
-	return
-
-/obj/item/toy/water_balloon/attackby(obj/O, mob/user)
-	if(istype(O, /obj/item/reagent_containers/vessel))
-		if(O.reagents)
-			if(O.reagents.total_volume < 1)
-				to_chat(user, "The [O] is empty.")
-			else if(O.reagents.total_volume >= 1)
-				if(O.reagents.has_reagent(/datum/reagent/acid/polyacid, 1))
-					to_chat(user, "The acid chews through the balloon!")
-					O.reagents.splash(user, reagents.total_volume)
-					qdel(src)
-				else
-					src.desc = "A translucent balloon with some form of liquid sloshing around in it."
-					to_chat(user, "<span class='notice'>You fill the balloon with the contents of [O].</span>")
-					O.reagents.trans_to_obj(src, 100)
-					w_class = ITEM_SIZE_SMALL
-	src.update_icon()
-	return
-
-/obj/item/toy/water_balloon/throw_impact(atom/hit_atom, datum/thrownthing/TT)
-	..()
-	if(src.reagents.total_volume >= 1)
-		src.visible_message("<span class='warning'>\The [src] bursts!</span>","You hear a pop and a splash.")
-		src.reagents.touch_turf(get_turf(hit_atom))
-		for(var/atom/A in get_turf(hit_atom))
-			src.reagents.touch(A)
-		if(!QDELETED(src))
-			icon_state = "burst"
-			QDEL_IN(src, 5)
-
-/obj/item/toy/water_balloon/on_update_icon()
-	if(src.reagents.total_volume >= 1)
-		icon_state = "waterballoon"
-		item_state = "water_balloon"
-	else
-		icon_state = "waterballoon-e"
-		item_state = "water_balloon-empty"
-
 /obj/item/toy/balloon
 	name = "\improper 'criminal' balloon"
 	desc = "FUK NT!11!"

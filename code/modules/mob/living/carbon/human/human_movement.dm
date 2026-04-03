@@ -16,11 +16,6 @@
 	if(istype(back, /obj/item/tank/jetpack))
 		return back
 
-	if(istype(back, /obj/item/rig))
-		var/obj/item/rig/rig = back
-		for(var/obj/item/rig_module/maneuvering_jets/module in rig.installed_modules)
-			return module.jets
-
 	return null
 
 /mob/living/carbon/human/get_eva_slip_prob(prob_slip = 10)

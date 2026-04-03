@@ -4,5 +4,3 @@ GLOBAL_LIST_INIT(contract_categories, list(CONTRACT_CATEGORY_STEAL,
 	CONTRACT_CATEGORY_DUMP,
 	CONTRACT_CATEGORY_RECON
 ))
-
-GLOBAL_LIST_INIT(uplink_items, subtypesof(/datum/uplink_item))

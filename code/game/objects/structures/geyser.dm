@@ -8,7 +8,6 @@
 	var/erupting_state = null
 	/// Whether we are active and generating chems
 	var/activated = FALSE
-	var/reagent_id = /datum/reagent/fuel
 	/// How much reagents we add every think() (5 seconds wait)
 	var/potency = 2
 	var/max_volume = 5 LITERS
@@ -16,7 +15,6 @@
 
 /obj/structure/geyser/proc/start_chemming()
 	activated = TRUE
-	reagents.add_reagent(reagent_id, start_volume)
 	set_next_think(world.time + 5 SECONDS)
 	if(erupting_state)
 		icon_state = erupting_state
@@ -24,12 +22,6 @@
 		var/mutable_appearance/I = mutable_appearance(icon, "[icon_state]_soup")
 		//I.color = mix_color_from_reagents(reagents.reagent_list)
 		AddOverlays(I)
-
-/obj/structure/geyser/think()
- 	//this is also evaluated in add_reagent, but from my understanding proc calls are expensive
-	if(activated && reagents.total_volume <= reagents.maximum_volume)
-		reagents.add_reagent(reagent_id, potency)
-		set_next_think(world.time + 5 SECONDS)
 
 /obj/structure/geyser/attack_hand(mob/user)
 	if(activated)
@@ -46,11 +38,3 @@
 	start_chemming()
 
 	return ..()
-
-/obj/structure/geyser/random
-	erupting_state = null
-	var/list/options = list(/datum/reagent/toxin/plasma = 100, /datum/reagent/water = 100, /datum/reagent/toxin/chlorine = 60)
-
-/obj/structure/geyser/random/Initialize()
-	. = ..()
-	reagent_id = util_pick_weight(options)

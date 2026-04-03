@@ -191,10 +191,7 @@
 	var/obj/structure/secure_door_assembly/A =  new assembly_path(T)
 	A.dir = dir
 	A.make_just_dismantled()
-	var/obj/item/device/assembly/signaler/S = new /obj/item/device/assembly/signaler(T)
-	if(code && frequency)
-		S.code = code
-		S.set_frequency(frequency)
+
 	qdel(src)
 	return
 
@@ -252,9 +249,6 @@
 /obj/machinery/door/blast/regular/open
 	begins_closed = FALSE
 	icon_state = "pdoor0"
-
-/obj/machinery/door/blast/regular/singulo/emp_act()
-	return
 
 /obj/machinery/door/blast/regular/retro
 	desc = "That looks like it doesn't open easily. However, it's probably not as durable as the modern ones."

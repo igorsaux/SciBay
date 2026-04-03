@@ -13,14 +13,6 @@
 	var/list/hiss_letters = null
 	var/list/autohiss_exempt = null
 
-/datum/species/unathi
-	hiss_letters = list("s", "с", "ш", "щ")
-	autohiss_exempt = list(LANGUAGE_UNATHI)
-
-/datum/species/tajaran
-	hiss_letters = list("r", "р")
-	autohiss_exempt = list(LANGUAGE_SIIK_MAAS)
-
 /datum/species/proc/handle_autohiss(message, datum/language/lang)
 	if(!hiss_letters)
 		return message

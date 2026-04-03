@@ -4,9 +4,6 @@
 	icon = 'icons/obj/power.dmi'
 	icon_state = "ccharger0"
 	anchored = 1
-	idle_power_usage = 5 WATTS
-	active_power_usage = 60 KILO WATTS	// This is the power drawn when charging
-	power_channel = STATIC_EQUIP
 	var/obj/item/cell/charging = null
 	var/chargelevel = -1
 
@@ -49,18 +46,10 @@
 		if(charging)
 			to_chat(user, "<span class='warning'>There is already a cell in the charger.</span>")
 			return
-		else if(istype(W, /obj/item/cell/ammo))
-			to_chat(user, SPAN("warning", "You can't seem to find a way to charge \the [W] using \the [src]."))
-			return
 		else
-			var/area/a = get_area(loc)
-			if(a.power_equip == 0) // There's no APC in this area, don't try to cheat power!
-				to_chat(user, "<span class='warning'>The [name] blinks red as you try to insert the cell!</span>")
-				return
 			if(!user.drop(W, src))
 				return
 			charging = W
-			set_power()
 			START_PROCESSING(SSmachines, src)
 			user.visible_message("[user] inserts a cell into the charger.", "You insert a cell into the charger.")
 			chargelevel = -1
@@ -76,7 +65,6 @@
 			return
 		if(isWrench(W))
 			anchored = !anchored
-			set_power()
 			to_chat(user, "You [anchored ? "attach" : "detach"] the cell charger [anchored ? "to" : "from"] the ground")
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
 	if(default_part_replacement(user, W))
@@ -93,48 +81,9 @@
 		chargelevel = -1
 		update_icon()
 
-/obj/machinery/cell_charger/attack_ai(mob/user)
-	if(istype(user, /mob/living/silicon/robot) && Adjacent(user)) // Borgs can remove the cell if they are near enough
-		if(!charging)
-			return
-
-		charging.forceMove(loc)
-		charging.update_icon()
-		charging = null
-		user.visible_message("[user] removes the cell from the charger.", "You remove the cell from the charger.")
-		chargelevel = -1
-		set_power()
-		STOP_PROCESSING(SSmachines, src)
-
-/obj/machinery/cell_charger/attack_robot(mob/user)
-	if(Adjacent(user)) // Borgs can remove the cell if they are near enough
-		attack_hand(user)
-
-/obj/machinery/cell_charger/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		return
-	if(charging)
-		charging.emp_act(severity)
-	..(severity)
-
-/obj/machinery/cell_charger/power_change()
-	if(..())
-		set_power()
-
-/obj/machinery/cell_charger/proc/set_power()
-	if((stat & (BROKEN|NOPOWER)) || !anchored)
-		update_use_power(POWER_USE_OFF)
-		return
-	if (charging && !charging.fully_charged())
-		update_use_power(POWER_USE_ACTIVE)
-	else
-		update_use_power(POWER_USE_IDLE)
-	queue_icon_update()
-
 /obj/machinery/cell_charger/Process()
 	if(!charging)
 		return PROCESS_KILL
 	if(stat & NOPOWER)
 		return
-	charging.give(active_power_usage*CELLRATE)
 	update_icon()

@@ -13,7 +13,7 @@
 	desc = "A sterile voidsuit with minor radiation shielding and a suite of self-cleaning technology. Standard issue in NanoTrasen medical facilities."
 	icon_state = "medical_voidsuit"
 	item_state = "medical_voidsuit"
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/firstaid,/obj/item/device/healthanalyzer,/obj/item/stack/medical,/obj/item/device/antibody_scanner)
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/firstaid,/obj/item/stack/medical)
 	armor = list(melee = 40, bullet = 20, laser = 40, energy = 15, bomb = 0, bio = 100)
 	rad_resist_type = /datum/rad_resist/void_med
 
@@ -40,7 +40,7 @@
 	desc = "A more recent model of Vey-Med voidsuit, featuring the latest in radiation shielding technology, without sacrificing comfort or style."
 	icon_state = "medicalalt_voidsuit"
 	item_state = "medicalalt_voidsuit"
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/firstaid,/obj/item/device/healthanalyzer,/obj/item/stack/medical,/obj/item/device/antibody_scanner)
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/firstaid,/obj/item/stack/medical)
 	armor = list(melee = 45, bullet = 20, laser = 40, energy = 15, bomb = 0, bio = 100)
 
 /obj/item/clothing/suit/space/void/medical/alt/New()

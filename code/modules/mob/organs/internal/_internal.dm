@@ -2,7 +2,6 @@
 				INTERNAL ORGANS DEFINES
 ****************************************************/
 /obj/item/organ/internal
-	food_organ_type = /obj/item/reagent_containers/food/organ
 	throwforce = 0.1                // Enough to upset you, not enough to crack your ribcage open
 	var/dead_icon                   // Icon to use when the organ has died.
 	var/surface_accessible = FALSE
@@ -57,9 +56,6 @@
 	if(!owner)
 		return
 
-	if(isundead(owner))
-		return
-
 	if(damage)
 		autoheal()
 
@@ -74,7 +70,6 @@
 	var/obj/item/organ/external/parent = owner.get_organ(parent_organ)
 	if(istype(parent)) //TODO ensure that we don't have to check this.
 		removed(user, 0)
-		parent.implants += src
 
 /obj/item/organ/internal/removed(mob/living/user, drop_organ = TRUE, detach = TRUE)
 	if(owner)
@@ -97,7 +92,7 @@
 		return FALSE //organs don't work very well in the body when they aren't properly attached
 
 	// robotic organs emulate behavior of the equivalent flesh organ of the species
-	if(BP_IS_ROBOTIC(src) || !species)
+	if(!species)
 		species = target.species
 
 	. = ..()
@@ -131,23 +126,7 @@
 /obj/item/organ/internal/is_usable()
 	return ..() && !is_broken()
 
-/obj/item/organ/internal/robotize()
-	. = ..()
-	if(!.)
-		return FALSE
-
-	min_bruised_damage += 5
-	min_broken_damage += 10
-
-	override_species_icon = TRUE
-
-	if(override_organic_icon)
-		icon = 'icons/mob/human_races/organs/cyber.dmi'
-	return TRUE
-
 /obj/item/organ/internal/proc/getToxLoss()
-	if(BP_IS_ROBOTIC(src))
-		return damage * 0.5
 	return damage
 
 /obj/item/organ/internal/proc/bruise()
@@ -168,29 +147,23 @@
 	if(is_traumatic)
 		amount *= traumatic_damage_multiplier
 
-	if(BP_IS_ROBOTIC(src))
-		damage = between(0, src.damage + (amount * 0.8), max_damage)
-	else
-		damage = between(0, src.damage + amount, max_damage)
+	damage = between(0, src.damage + amount, max_damage)
 
-		//only show this if the organ is not robotic
-		if(owner && can_feel_pain() && parent_organ && (amount > 5 || prob(10)))
-			var/obj/item/organ/external/parent = owner.get_organ(parent_organ)
-			if(parent && !silent)
-				var/degree = ""
-				if(is_bruised())
-					degree = " a lot"
-				if(damage < 5)
-					degree = " a bit"
-				owner.custom_pain("Something inside your [parent.name] hurts[degree].", amount, affecting = parent)
+	//only show this if the organ is not robotic
+	if(owner && can_feel_pain() && parent_organ && (amount > 5 || prob(10)))
+		var/obj/item/organ/external/parent = owner.get_organ(parent_organ)
+		if(parent && !silent)
+			var/degree = ""
+			if(is_bruised())
+				degree = " a lot"
+			if(damage < 5)
+				degree = " a bit"
+			owner.custom_pain("Something inside your [parent.name] hurts[degree].", amount, affecting = parent)
 
 // Slowly heals towards 0 damage if not bruised, or towards min_bruised_damage if already bruised.
 /obj/item/organ/internal/proc/autoheal()
 	if(!damage)
 		return
-
-	if(BP_IS_ROBOTIC(src))
-		return // Flesh is superior.
 
 	if(status & ORGAN_DEAD)
 		return
@@ -208,19 +181,6 @@
 		damage = max(0, damage - heal_value)
 
 	return
-
-/obj/item/organ/internal/emp_act(severity)
-	if(owner?.status_flags & GODMODE)
-		return 0
-	if(!BP_IS_ROBOTIC(src))
-		return
-	switch(severity)
-		if(1)
-			take_internal_damage(9)
-		if(2)
-			take_internal_damage(3)
-		if(3)
-			take_internal_damage(1)
 
 // Things we should do if we are a foreign organ. Used only by lings' biostructures for now.
 /obj/item/organ/internal/proc/handle_foreign()

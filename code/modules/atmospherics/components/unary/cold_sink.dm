@@ -8,8 +8,6 @@
 	icon_state = "freezer_0"
 	density = 1
 	anchored = 1
-	use_power = POWER_USE_OFF
-	idle_power_usage = 5 WATTS			  // 5 Watts for thermostat related circuitry
 
 	var/heatsink_temperature = 20 CELSIUS // The constant temperature reservoir into which the freezer pumps heat. Probably the hull of the station or something.
 	var/internal_volume = 600		 // L
@@ -55,16 +53,10 @@
 
 /obj/machinery/atmospherics/unary/freezer/on_update_icon()
 	if(node)
-		if(use_power && cooling)
-			icon_state = "freezer_1"
-		else
-			icon_state = "freezer"
+		icon_state = "freezer"
 	else
 		icon_state = "freezer_0"
 	return
-
-/obj/machinery/atmospherics/unary/freezer/attack_ai(mob/user as mob)
-	ui_interact(user)
 
 /obj/machinery/atmospherics/unary/freezer/attack_hand(mob/user as mob)
 	ui_interact(user)
@@ -72,7 +64,6 @@
 /obj/machinery/atmospherics/unary/freezer/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	// this is the data which will be sent to the ui
 	var/data[0]
-	data["on"] = use_power ? 1 : 0
 	data["gasPressure"] = round(air_contents.return_pressure())
 	data["gasTemperature"] = round(air_contents.temperature)
 	data["minGasTemperature"] = 0
@@ -104,7 +95,6 @@
 	if(..())
 		return 1
 	if(href_list["toggleStatus"])
-		update_use_power(!use_power)
 		update_icon()
 	if(href_list["temp"])
 		var/amount = text2num(href_list["temp"])
@@ -122,7 +112,7 @@
 /obj/machinery/atmospherics/unary/freezer/Process()
 	..()
 
-	if(stat & (NOPOWER|BROKEN) || !use_power)
+	if(stat & (NOPOWER|BROKEN))
 		cooling = 0
 		update_icon()
 		return
@@ -140,8 +130,6 @@
 		var/removed = -air_contents.add_thermal_energy(-heat_transfer)		//remove the heat
 		if(debug)
 			visible_message("[src]: Removing [removed] W.")
-
-		use_power_oneoff(power_rating)
 
 		network.update = 1
 	else

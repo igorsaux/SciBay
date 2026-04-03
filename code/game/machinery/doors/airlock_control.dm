@@ -20,9 +20,8 @@
 	cur_command = new_command
 
 	//if there's no power, recieve the signal but just don't do anything. This allows airlocks to continue to work normally once power is restored
-	if(arePowerSystemsOn())
-		spawn()
-			execute_current_command()
+	spawn()
+		execute_current_command()
 
 /obj/machinery/door/airlock/proc/execute_current_command()
 	if(operating)
@@ -112,15 +111,6 @@
 	. = ..()
 	if(!surpress_send) send_status()
 
-
-/obj/machinery/door/airlock/Bumped(atom/AM)
-	..(AM)
-	if(istype(AM, /obj/mecha))
-		var/obj/mecha/mecha = AM
-		if(density && radio_connection && mecha.occupant && (src.allowed(mecha.occupant) || src.check_access_list(mecha.operation_req_access)))
-			send_status(1)
-	return
-
 /obj/machinery/door/airlock/proc/set_frequency(new_frequency)
 	SSradio.remove_object(src, frequency)
 	if(new_frequency)
@@ -155,7 +145,6 @@
 	name = "airlock sensor"
 
 	anchored = 1
-	power_channel = STATIC_ENVIRON
 	layer = ABOVE_WINDOW_LAYER
 
 	var/id_tag
@@ -234,7 +223,6 @@
 	name = "access button"
 
 	anchored = 1
-	power_channel = STATIC_ENVIRON
 	layer = ABOVE_WINDOW_LAYER
 	atom_flags = ATOM_FLAG_ADJACENT_EXCEPTION
 
@@ -255,7 +243,7 @@
 
 /obj/machinery/access_button/attackby(obj/item/I, mob/user)
 	//Swiping ID on the access button
-	if (istype(I, /obj/item/card/id) || istype(I, /obj/item/device/pda))
+	if (istype(I, /obj/item/card/id))
 		attack_hand(user)
 		return
 	..()

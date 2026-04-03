@@ -16,7 +16,6 @@
 
 	storage_types = CLOSET_STORAGE_ITEMS
 
-	var/points_per_crate = 5
 	var/rigged = 0
 
 	var/has_overlay = TRUE
@@ -46,28 +45,11 @@
 	if(.)
 		if(opened_turf_height_offset)
 			set_turf_height_offset(opened_turf_height_offset)
-		if(rigged)
-			visible_message(SPAN_DANGER("There are wires attached to the lid of [src]..."))
-			for(var/obj/item/device/assembly_holder/H in src)
-				H.process_activation(usr)
-			for(var/obj/item/device/assembly/A in src)
-				A.activate()
 
 /obj/structure/closet/crate/close()
 	. = ..()
 	if(. && closed_turf_height_offset)
 		set_turf_height_offset(closed_turf_height_offset)
-
-/obj/structure/closet/crate/examine(mob/user, infix)
-	. = ..()
-
-	if(rigged && opened)
-		var/list/devices = list()
-		for(var/obj/item/device/assembly_holder/H in src)
-			devices += H
-		for(var/obj/item/device/assembly/A in src)
-			devices += A
-		. += "There are some wires attached to the lid, connected to [english_list(devices)]."
 
 /obj/structure/closet/crate/attackby(obj/item/W, mob/user)
 	if(opened)
@@ -82,16 +64,6 @@
 		if (C.use(1))
 			to_chat(user, SPAN_NOTICE("You rig [src]."))
 			rigged = TRUE
-			return
-	else if(istype(W, /obj/item/device/assembly_holder) || istype(W, /obj/item/device/assembly))
-		if(rigged)
-			if(istype(W.loc, /obj/item/gripper)) // Snowflaaaaakeeeeey
-				var/obj/item/gripper/G = W.loc
-				G.wrapped.forceMove(src)
-				G.wrapped = null
-			else if(!user.drop(W, src))
-				return
-			to_chat(user, SPAN_NOTICE("You attach [W] to [src]."))
 			return
 	else if(isWirecutter(W))
 		if(rigged)
@@ -132,7 +104,6 @@
 	icon_state = "plasticcrate"
 	icon_opened = "plasticcrateopen"
 	icon_closed = "plasticcrate"
-	points_per_crate = 1
 	material = /obj/item/stack/material/plastic
 
 /obj/structure/closet/crate/handmade
@@ -181,29 +152,6 @@
 	icon_opened = "crateopen"
 	icon_closed = "crate"
 
-/obj/structure/closet/crate/rcd/WillContain()
-	return list(
-		/obj/item/rcd_ammo = 3,
-		/obj/item/construction/rcd
-	)
-
-/obj/structure/closet/crate/solar
-	name = "solar pack crate"
-
-/obj/structure/closet/crate/solar/WillContain()
-	return list(
-		/obj/item/solar_assembly = 14,
-		/obj/item/circuitboard/solar_control,
-		/obj/item/tracker_electronics,
-		/obj/item/paper/solar
-	)
-
-/obj/structure/closet/crate/solar_assembly
-	name = "solar assembly crate"
-
-/obj/structure/closet/crate/solar_assembly/WillContain()
-	return list(/obj/item/solar_assembly = 16)
-
 /obj/structure/closet/crate/freezer
 	name = "freezer"
 	desc = "A freezer."
@@ -230,10 +178,6 @@
 /obj/structure/closet/crate/freezer/rations //Fpr use in the escape shuttle
 	name = "emergency rations"
 	desc = "A crate of emergency rations."
-
-
-/obj/structure/closet/crate/freezer/rations/WillContain()
-	return list(/obj/item/reagent_containers/food/liquidfood = 4)
 
 /obj/structure/closet/crate/bin
 	name = "large bin"
@@ -398,9 +342,6 @@
 	name = "unstable supermatter crate"
 	desc = "A crate with an experimental supermatter crystal inside."
 
-/obj/structure/closet/crate/secure/large/plasma/supermatter/random/WillContain()
-	return list(/obj/machinery/power/supermatter/random)
-
 //fluff variant
 /obj/structure/closet/crate/secure/large/reinforced
 	desc = "A hefty, reinforced metal crate with an electronic locking system."
@@ -420,10 +361,7 @@
 		/obj/item/reagent_containers/vessel/bucket/watercan = 2,
 		/obj/item/reagent_containers/spray/plantbgone = 2,
 		/obj/item/material/minihoe = 2,
-		/obj/item/storage/plants = 2,
 		/obj/item/material/hatchet = 2,
-		/obj/item/wirecutters/clippers = 2,
-		/obj/item/device/analyzer/plant_analyzer = 2
 	)
 
 /obj/structure/closet/crate/secure/biohazard

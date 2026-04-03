@@ -34,16 +34,6 @@
 	user.view_tickets()
 	return TRUE
 
-/datum/keybinding/admin/banpanel
-	hotkey_keys = list("F8")
-	name = "banpanel"
-	full_name = "Banning Panel"
-	description = "Banning Panel for badmins."
-
-/datum/keybinding/admin/banpanel/down(client/user)
-	user.DB_ban_panel()
-	return TRUE
-
 /datum/keybinding/admin/asay
 	hotkey_keys = list("F9")
 	name = "asay"

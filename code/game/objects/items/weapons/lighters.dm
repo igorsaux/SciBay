@@ -96,12 +96,6 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 	var/requires_hold = TRUE
 	var/base_icon
 
-/obj/item/flame/lighter/Initialize()
-	. = ..()
-	create_reagents(max_fuel)
-	reagents.add_reagent(/datum/reagent/fuel, max_fuel)
-	update_icon()
-
 /obj/item/flame/lighter/proc/light(mob/user)
 	lit = 1
 	update_icon()
@@ -118,12 +112,6 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 	playsound(src.loc, SFX_USE_LIGHTER, 100, 1, -4)
 
 /obj/item/flame/lighter/proc/try_burn(mob/living/carbon/user, burned_limb, damage_amount)
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(BP_IS_ROBOTIC(H.get_organ(burned_limb)))
-			user.visible_message(SPAN("notice", "After a few attempts, [user] manages to light the [src]."))
-			return
-
 	user.apply_damage(damage_amount, BURN, burned_limb)
 	to_chat(user, SPAN("warning", "You burn yourself[damage_amount > 5 ? " badly " : " "]while lighting the lighter."))
 	user.visible_message(SPAN("notice", "After a few attempts, [user] manages to light the [src], they however burn their finger[damage_amount > 5 ? " badly " : " "]in the process."))
@@ -146,21 +134,6 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 	if(lit)
 		return 1500
 	return 0
-
-/obj/item/flame/lighter/attack_self(mob/living/user)
-	if(spam_flag)
-		return
-	spam_flag = 1
-	if(!lit)
-		if(reagents.has_reagent(/datum/reagent/fuel))
-			light(user)
-		else
-			to_chat(user, SPAN("warning", "[src] won't ignite - out of fuel."))
-	else
-		shutoff(user)
-	add_fingerprint(user)
-	spawn(5)
-		spam_flag = 0
 
 /obj/item/flame/lighter/on_update_icon()
 	ClearOverlays()
@@ -189,28 +162,9 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 					visible_message(SPAN("rose", "[user] whips the [name] out and holds it for [M]."))
 				else
 					visible_message(SPAN("notice", "[user] holds the [name] out for [M], and lights the [cig.name]."))
-				cig.light(src, user)
 			return
 
 	..()
-
-/obj/item/flame/lighter/think()
-	if(reagents.has_reagent(/datum/reagent/fuel))
-		if(ismob(loc) && prob(10) && reagents.get_reagent_amount(/datum/reagent/fuel) < 1)
-			to_chat(loc, SPAN("warning", "[src]'s flame flickers."))
-			set_light(0)
-			spawn(4)
-				set_light(0.3, 0.5, 2, 2, "#e38f46")
-		reagents.remove_reagent(/datum/reagent/fuel, 0.1)
-	else
-		shutoff()
-		return
-
-	var/turf/location = get_turf(src)
-	if(location)
-		location.hotspot_expose(700, 5)
-
-	set_next_think(world.time + 1 SECOND)
 
 /obj/item/flame/lighter/dropped()
 	if(requires_hold)
@@ -250,11 +204,6 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 
 /obj/item/flame/lighter/zippo/afterattack(obj/O, mob/user, proximity)
 	if(!proximity)
-		return
-	if(istype(O, /obj/structure/reagent_dispensers/fueltank) && !lit)
-		O.reagents.trans_to_obj(src, max_fuel)
-		to_chat(user, SPAN("notice", "You refuel [src] from \the [O]."))
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 		return
 	return ..()
 
@@ -398,23 +347,17 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 	icon_state = "zippo-syndie"
 
 /obj/item/flame/lighter/zippo/syndie/light_effects(mob/living/carbon/user)
-	if(user.mind?.syndicate_awareness == SYNDICATE_SUSPICIOUSLY_AWARE)
-		user.visible_message(SPAN("rose", "Without even breaking stride, [user] flips open and lights [src] in one smooth movement."))
-	else
-		try_burn(user, (user.l_hand == src ? BP_L_HAND : BP_R_HAND), 15)
+	try_burn(user, (user.l_hand == src ? BP_L_HAND : BP_R_HAND), 15)
 
 	playsound(src.loc, 'sound/items/zippo_open.ogg', 100, 1, -4)
 
 /obj/item/flame/lighter/zippo/syndie/shutoff_effects(mob/living/carbon/user)
-	if(user.mind && user.mind.syndicate_awareness == SYNDICATE_SUSPICIOUSLY_AWARE)
-		user.visible_message(SPAN("rose", "You hear a quiet click, as [user] shuts off [src] without even looking at what they're doing."))
+	to_chat(user, SPAN("warning", "You badly pich your hand while shutting off [src]!"))
+	if(user.l_hand == src)
+		user.apply_damage(7.5, BRUTE, BP_L_HAND)
 	else
-		to_chat(user, SPAN("warning", "You badly pich your hand while shutting off [src]!"))
-		if(user.l_hand == src)
-			user.apply_damage(7.5, BRUTE, BP_L_HAND)
-		else
-			user.apply_damage(7.5, BRUTE, BP_R_HAND)
-		user.visible_message(SPAN("notice", "You hear a nasty snap, as [user] shuts off [src], badly pinching their hand in the process."))
+		user.apply_damage(7.5, BRUTE, BP_R_HAND)
+	user.visible_message(SPAN("notice", "You hear a nasty snap, as [user] shuts off [src], badly pinching their hand in the process."))
 	playsound(src.loc, 'sound/items/zippo_close.ogg', 100, 1, -4)
 
 
@@ -436,10 +379,5 @@ CIGARETTES AND STUFF ARE IN 'SMOKABLES' FOLDER
 
 /obj/item/flame/lighter/aug/afterattack(obj/O, mob/user, proximity)
 	if(!proximity)
-		return
-	if(istype(O, /obj/structure/reagent_dispensers/fueltank) && !lit)
-		O.reagents.trans_to_obj(src, max_fuel)
-		to_chat(user, SPAN("notice", "You refuel [src] from \the [O]."))
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 		return
 	return ..()

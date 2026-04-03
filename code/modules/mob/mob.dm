@@ -18,7 +18,6 @@
 	QDEL_NULL(skybox)
 	QDEL_NULL(ability_master)
 	QDEL_NULL(shadow)
-	QDEL_NULL(bugreporter)
 	QDEL_NULL(language_menu)
 
 	LAssailant = null
@@ -48,7 +47,6 @@
 
 	ghostize()
 	if(mind?.current == src)
-		spellremove(src)
 		mind.set_current(null)
 	return ..()
 
@@ -79,10 +77,6 @@
 	bowels_icon = null
 	pressure = null
 	pain = null
-	item_use_icon = null
-	gun_move_icon = null
-	radio_use_icon = null
-	gun_setting_icon = null
 	ability_master = null
 	zone_sel = null
 	poise_icon = null
@@ -362,9 +356,6 @@
 	return
 
 /mob/proc/use_attack_self(is_active_hand = TRUE)
-	if(istype(loc, /obj/mecha))
-		return
-
 	if(active_hand == ACTIVE_HAND_LEFT)
 		var/obj/item/I = is_active_hand ? l_hand : r_hand
 		if(I)
@@ -912,12 +903,6 @@
 			var/mob/living/carbon/human/human_user = U
 			human_user.bloody_hands(H)
 
-	else if(issilicon(src))
-		var/mob/living/silicon/robot/R = src
-		R.embedded -= selection
-		R.adjustBruteLoss(5)
-		R.adjustFireLoss(10)
-
 	selection.forceMove(get_turf(src))
 	if(!(U.l_hand && U.r_hand))
 		U.pick_or_drop(selection)
@@ -933,15 +918,6 @@
 		src.verbs -= /mob/proc/yank_out_object
 
 	return 1
-
-//Check for brain worms in head.
-/mob/proc/has_brain_worms()
-
-	for(var/I in contents)
-		if(istype(I,/mob/living/simple_animal/borer))
-			return I
-
-	return 0
 
 /mob/on_update_icon()
 	return update_icons()
@@ -1023,22 +999,6 @@
 	if(src.throw_icon)
 		src.throw_icon.icon_state = "act_throw_on"
 
-/mob/proc/toggle_antag_pool()
-	set name = "Toggle Add-Antag Candidacy"
-	set desc = "Toggles whether or not you will be considered a candidate by an add-antag vote."
-	set category = "OOC"
-	if(isghostmind(src.mind) || isnewplayer(src))
-		if(SSticker.looking_for_antags)
-			if(src.mind in SSticker.antag_pool)
-				SSticker.antag_pool -= src.mind
-				to_chat(usr, "You have left the antag pool.")
-			else
-				SSticker.antag_pool += src.mind
-				to_chat(usr, "You have joined the antag pool. Make sure you have the needed role set to high!")
-		else
-			to_chat(usr, "The game is not currently looking for antags.")
-	else
-		to_chat(usr, "You must be observing or in the lobby to join the antag pool.")
 /mob/proc/is_invisible_to(mob/viewer)
 	return (!alpha || !mouse_opacity || viewer.see_invisible < invisibility)
 
@@ -1220,4 +1180,3 @@
 /mob/proc/has_magnetised_footing()
 	var/obj/item/shoes = get_equipped_item(slot_shoes)
 	return istype(shoes) && (shoes.item_flags & ITEM_FLAG_MAGNETISED)
-

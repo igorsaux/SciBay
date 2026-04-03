@@ -5,13 +5,7 @@ var/list/ventcrawl_machinery = list(
 
 // Vent crawling whitelisted items, whoo
 /mob/living/var/list/can_enter_vent_with = list(
-	/obj/item/implant,
-	/obj/item/device/radio/borg,
 	/obj/item/holder,
-	/obj/machinery/camera,
-	/mob/living/simple_animal/borer,
-	/obj/item/organ/internal/biostructure,
-	/obj/item/organ/internal/adamantine_resonator
 	)
 
 /mob/living/var/list/icon/pipes_shown = list()
@@ -37,18 +31,6 @@ var/list/ventcrawl_machinery = list(
 		remove_ventcrawl()
 		add_ventcrawl(loc)
 
-/mob/living/simple_animal/borer/can_ventcrawl()
-	if(host)
-		to_chat(src, SPAN("warning", "You can't ventcrawl being inside a host!"))
-		return FALSE
-	return ..()
-
-/mob/living/carbon/metroid/can_ventcrawl()
-	if(Victim)
-		to_chat(src, "<span class='warning'>You cannot ventcrawl while feeding.</span>")
-		return FALSE
-	. = ..()
-
 /mob/living/carbon/human/can_ventcrawl()
 	if(handcuffed)
 		to_chat(src, "<span class='warning'>You can't vent crawl while you're restrained!</span>")
@@ -56,10 +38,6 @@ var/list/ventcrawl_machinery = list(
 	if(incapacitated())
 		to_chat(src, "<span class='warning'>You cannot ventcrawl in your current state!</span>")
 		return FALSE
-	if(isMonkey(src))
-		return TRUE
-	if(istype(species, /datum/species/xenos))
-		return TRUE
 	return ventcrawl_carry()
 
 /mob/living/carbon/human/ventcrawl_carry()
@@ -72,7 +50,7 @@ var/list/ventcrawl_machinery = list(
 		return !get_inventory_slot(carried_item)
 
 /mob/living/carbon/is_allowed_vent_crawl_item(obj/item/carried_item)
-	if((carried_item in internal_organs) || (carried_item in stomach_contents))
+	if((carried_item in internal_organs))
 		return 1
 	return ..()
 
@@ -83,21 +61,6 @@ var/list/ventcrawl_machinery = list(
 		return 1
 	if(carried_item in list(l_hand,r_hand))
 		return carried_item.w_class <= ITEM_SIZE_NORMAL
-	return ..()
-
-/mob/living/simple_animal/mouse/is_allowed_vent_crawl_item(obj/item/carried_item)
-	if(carried_item == holding_item)
-		return TRUE
-	return ..()
-
-/mob/living/simple_animal/hamster/is_allowed_vent_crawl_item(obj/item/carried_item)
-	if(carried_item == holding_item)
-		return TRUE
-	return ..()
-
-/mob/living/simple_animal/spiderbot/is_allowed_vent_crawl_item(obj/item/carried_item)
-	if(carried_item in list(held_item, radio, connected_ai, cell, camera, mmi))
-		return 1
 	return ..()
 
 /mob/living/proc/ventcrawl_carry()
@@ -129,15 +92,6 @@ var/list/ventcrawl_machinery = list(
 	if(!is_physically_disabled() && pipe)
 		return pipe
 
-/mob/living/carbon/larva/ventcrawl_carry()
-	return 1
-
-/mob/living/simple_animal/borer/ventcrawl_carry()
-	return 1
-
-/mob/living/simple_animal/hostile/giant_spider/viper/wizard/ventcrawl_carry()
-	return 1
-
 /mob/living/proc/handle_ventcrawl(atom/clicked_on)
 	if(!can_ventcrawl())
 		return
@@ -163,7 +117,7 @@ var/list/ventcrawl_machinery = list(
 		if(vent_found.network && (vent_found.network.normal_members.len || vent_found.network.line_members.len))
 
 			to_chat(src, "You begin climbing into the ventilation system...")
-			if(vent_found.air_contents && !issilicon(src))
+			if(vent_found.air_contents)
 
 				switch(vent_found.air_contents.temperature)
 					if(0 to BODYTEMP_COLD_DAMAGE_LIMIT)

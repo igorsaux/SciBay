@@ -6,15 +6,11 @@ SUBSYSTEM_DEF(ticker)
 	flags = SS_NO_TICK_CHECK | SS_KEEP_TIMING
 	runlevels = RUNLEVEL_LOBBY | RUNLEVELS_DEFAULT
 
-	var/list/gamemode_vote_results  //Will be a list, in order of preference, of form list(config_tag = number of votes).
-	var/bypass_gamemode_vote = TRUE //Intended for use with admin tools. Will avoid voting and ignore any results.
-
-	var/master_mode = "secret"    //The underlying game mode (so "secret" or the voted mode). Saved to default back to previous round's mode in case the vote failed. This is a config_tag.
+	var/master_mode = "extended"    //The underlying game mode (so "secret" or the voted mode). Saved to default back to previous round's mode in case the vote failed. This is a config_tag.
 	var/datum/game_mode/mode        //The actual gamemode, if selected.
 	var/round_progressing = 1       //Whether the lobby clock is ticking down.
 
 	var/list/bad_modes = list()     //Holds modes we tried to start and failed to.
-	var/revotes_allowed = 0         //How many times a game mode revote might be attempted before giving up.
 
 	var/end_game_state = END_GAME_NOT_OVER
 	var/delay_end = 0               //Can be set true to postpone restart.
@@ -24,8 +20,6 @@ SUBSYSTEM_DEF(ticker)
 	var/force_end = FALSE
 
 	var/list/minds = list()         //Minds of everyone in the game.
-	var/list/antag_pool = list()
-	var/looking_for_antags = 0
 
 	var/pregame_timeleft
 	var/restart_timeout
@@ -69,30 +63,20 @@ SUBSYSTEM_DEF(ticker)
 			bad_modes = list()
 			to_world("<B>Unable to choose playable game mode.</B> Reverting to pre-game lobby to try again.")
 			return
-		if(CHOOSE_GAMEMODE_REVOTE)
-			revotes_allowed--
-			pregame_timeleft = initial(pregame_timeleft)
-			gamemode_vote_results = null
-			Master.SetRunLevel(RUNLEVEL_LOBBY)
-			to_world("<B>Unable to choose playable game mode.</B> Reverting to pre-game lobby for a revote.")
-			return
 		if(CHOOSE_GAMEMODE_RESTART)
 			to_world("<B>Unable to choose playable game mode.</B> Restarting world.")
 			world.Reboot("Failure to select gamemode. Tried [english_list(bad_modes)].")
 			return
 	// This means we succeeded in picking a game mode.
-	GLOB.using_map.setup_economy()
 	Master.SetRunLevel(RUNLEVEL_GAME)
 
 	create_characters() //Create player characters and transfer them
 	collect_minds()
 	equip_characters()
 	for(var/mob/living/carbon/human/H in GLOB.player_list)
-		if(!H.mind || player_is_antag(H.mind, only_offstation_roles = 1) || !job_master.ShouldCreateRecords(H.mind.assigned_role))
+		if(!H.mind || !job_master.ShouldCreateRecords(H.mind.assigned_role))
 			continue
 		CreateModularRecord(H)
-
-	SSstoryteller.setup()
 
 	callHook("roundstart")
 	SEND_GLOBAL_SIGNAL(SIGNAL_ROUNDSTART)
@@ -107,9 +91,6 @@ SUBSYSTEM_DEF(ticker)
 				var/mob/new_player/player = M
 				player.new_player_panel()
 
-		//Holiday Round-start stuff	~Carn
-		Holiday_Game_Start()
-
 	if(config.game.disable_ooc_at_roundstart)
 		disable_ooc()
 
@@ -117,20 +98,17 @@ SUBSYSTEM_DEF(ticker)
 		disable_looc()
 
 /datum/controller/subsystem/ticker/proc/playing_tick()
-	mode.process()
 	var/mode_finished = mode_finished()
 
 	if((mode_finished && game_finished()) || force_end)
 		Master.SetRunLevel(RUNLEVEL_POSTGAME)
 		end_game_state = END_GAME_READY_TO_END
 		INVOKE_ASYNC(src, nameof(.proc/declare_completion))
-		INVOKE_ASYNC(src, nameof(.proc/update_clients_luck))
 
 	else if(mode_finished && (end_game_state <= END_GAME_NOT_OVER))
 		end_game_state = END_GAME_MODE_FINISH_DONE
 		mode.cleanup()
 		log_and_message_admins(": All antagonists are deceased or the gamemode has ended.") //Outputs as "Event: All antagonists are deceased or the gamemode has ended."
-		SSvote.initiate_vote(/datum/vote/transfer, forced = 1)
 
 /datum/controller/subsystem/ticker/proc/post_game_tick()
 	switch(end_game_state)
@@ -139,21 +117,11 @@ SUBSYSTEM_DEF(ticker)
 		if(END_GAME_READY_TO_END)
 			end_game_state = END_GAME_ENDING
 			callHook("roundend")
-			if (universe_has_ended)
-				if(mode.station_was_nuked)
-					feedback_set_details("end_proper","nuke")
-				else
-					feedback_set_details("end_proper","universe destroyed")
-				if(!delay_end)
-					to_world("<span class='notice'><b>Rebooting due to destruction of [station_name()] in [restart_timeout/10] seconds</b></span>")
 
-			else
-				feedback_set_details("end_proper","proper completion")
-				if(!delay_end)
-					to_world("<span class='notice'><b>Restarting in [restart_timeout/10] seconds</b></span>")
+			if(!delay_end)
+				to_world("<span class='notice'><b>Restarting in [restart_timeout/10] seconds</b></span>")
 
 			handle_tickets()
-			SSstoryteller.collect_statistics()
 
 		if(END_GAME_ENDING)
 			restart_timeout -= (world.time - last_fire)
@@ -199,8 +167,6 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/Recover()
 	pregame_timeleft = SSticker.pregame_timeleft
-	gamemode_vote_results = SSticker.gamemode_vote_results
-	bypass_gamemode_vote = SSticker.bypass_gamemode_vote
 
 	master_mode = SSticker.master_mode
 	mode = SSticker.mode
@@ -217,19 +183,10 @@ Helpers
 */
 
 /datum/controller/subsystem/ticker/proc/choose_gamemode()
-	. = (revotes_allowed && !bypass_gamemode_vote) ? CHOOSE_GAMEMODE_REVOTE : CHOOSE_GAMEMODE_RETRY
+	. = CHOOSE_GAMEMODE_RETRY
 
 	var/mode_to_try = master_mode //This is the config tag
 	var/datum/game_mode/mode_datum
-
-	//Decide on the mode to try.
-	if(!bypass_gamemode_vote && gamemode_vote_results)
-		gamemode_vote_results -= bad_modes
-		if(length(gamemode_vote_results))
-			mode_to_try = gamemode_vote_results[1]
-			. = CHOOSE_GAMEMODE_RETRY //Worth it to try again at least once.
-		else
-			mode_to_try = "extended"
 
 	if(!mode_to_try)
 		return
@@ -261,7 +218,6 @@ Helpers
 
 	//Deal with jobs and antags, check that we can actually run the mode.
 	job_master.ResetOccupations()
-	mode_datum.create_antagonists()
 	mode_datum.pre_setup()
 	job_master.DivideOccupations(mode_datum) // Apparently important for new antagonist system to register specific job antags properly.
 
@@ -275,17 +231,12 @@ Helpers
 	. = CHOOSE_GAMEMODE_SUCCESS
 	mode = mode_datum
 	master_mode = mode_to_try
-	if(mode_to_try == "secret")
-		to_world("<B>The current game mode is - Secret!</B>")
-	else
-		mode.announce()
 
 /datum/controller/subsystem/ticker/proc/create_characters()
 	for(var/mob/new_player/player in GLOB.player_list)
 		if(player && player.ready && player.mind)
 			if(player.mind.assigned_role=="AI")
 				player.close_spawn_windows()
-				player.AIize()
 			else if(!player.mind.assigned_role)
 				continue
 			else
@@ -303,66 +254,16 @@ Helpers
 	var/captainless = TRUE
 	for(var/mob/living/carbon/human/player in GLOB.player_list)
 		if(player && player.mind && player.mind.assigned_role)
-			if(player.mind.assigned_role == "Captain")
+			if(player.mind.assigned_role == JOB_ID_CEO)
 				captainless = FALSE
-			if(!player_is_antag(player.mind, only_offstation_roles = 1))
-				job_master.EquipRank(player, player.mind.assigned_role, 0)
-				equip_custom_items(player)
+			job_master.EquipRank(player, player.mind.assigned_role, 0)
 	if(captainless)
 		for(var/mob/M in GLOB.player_list)
 			if(!istype(M, /mob/new_player))
 				to_chat(M, "Captainship not forced on anyone.")
 
-/datum/controller/subsystem/ticker/proc/attempt_late_antag_spawn(list/antag_choices)
-	var/datum/antagonist/antag = antag_choices[1]
-	while(antag_choices.len && antag)
-		var/needs_ghost = antag.flags & (ANTAG_OVERRIDE_JOB | ANTAG_OVERRIDE_MOB)
-		if (needs_ghost)
-			looking_for_antags = 1
-			antag_pool.Cut()
-			to_world("<b>A ghost is needed to spawn \a [antag.role_text].</b>\nGhosts may enter the antag pool by making sure their [antag.role_text] preference is set to high, then using the toggle-add-antag-candidacy verb. You have 3 minutes to enter the pool.")
-
-			sleep(3 MINUTES)
-			looking_for_antags = 0
-			antag.update_current_antag_max(mode)
-			antag.build_candidate_list(mode, needs_ghost)
-			for(var/datum/mind/candidate in antag.candidates)
-				if(!(candidate in antag_pool))
-					antag.candidates -= candidate
-					log_debug("[candidate.key] was not in the antag pool and could not be selected.")
-		else
-			antag.update_current_antag_max(mode)
-			antag.build_candidate_list(mode, needs_ghost)
-			for(var/datum/mind/candidate in antag.candidates)
-				if(isghostmind(candidate))
-					antag.candidates -= candidate
-					log_debug("[candidate.key] is a ghost and can not be selected.")
-		if(length(antag.candidates) >= antag.initial_spawn_req)
-			antag.attempt_spawn()
-			antag.finalize_spawn()
-			additional_antag_types.Add(antag.id)
-			return 1
-		else
-			if(antag.initial_spawn_req > 1)
-				to_world("Failed to find enough [antag.role_text_plural].")
-
-			else
-				to_world("Failed to find a [antag.role_text].")
-
-			antag_choices -= antag
-			if(length(antag_choices))
-				antag = antag_choices[1]
-				if(antag)
-					to_world("Attempting to spawn [antag.role_text_plural].")
-	return 0
-
 /datum/controller/subsystem/ticker/proc/game_finished()
-	if(mode.explosion_in_progress)
-		return 0
-	if(config.game.continuous_rounds)
-		return evacuation_controller.round_over() || mode.station_was_nuked
-	else
-		return mode.check_finished() || (evacuation_controller.round_over() && evacuation_controller.emergency_evacuation) || universe_has_ended
+	return mode.check_finished()
 
 /datum/controller/subsystem/ticker/proc/mode_finished()
 	if(config.game.continuous_rounds)
@@ -386,13 +287,6 @@ Helpers
 	message_staff("<span class='warning'><b>No active tickets remaining, restarting in [restart_timeout/10] seconds if an admin has not delayed the round end.</b></span>")
 	end_game_state = END_GAME_ENDING
 
-/datum/controller/subsystem/ticker/proc/update_clients_luck()
-	for(var/client/C in GLOB.clients)
-		if(isnewplayer(C.mob))
-			continue
-
-		C.update_luck()
-
 /datum/controller/subsystem/ticker/proc/declare_completion()
 	to_world("<br><br><br><H1>A round of [mode.name] has ended!</H1>")
 	for(var/client/C in GLOB.clients)
@@ -400,13 +294,6 @@ Helpers
 			C.RollCredits()
 
 	display_report()
-	GLOB.indigo_bot.round_end_webhook(
-		config.indigo_bot.round_end_webhook,
-		game_id,
-		"[mode.name] *([SSstoryteller.character.name])*",
-		length(GLOB.clients),
-		roundduration2text()
-	)
 
 	//Print a list of antagonists to the server log
 	var/list/total_antagonists = list()

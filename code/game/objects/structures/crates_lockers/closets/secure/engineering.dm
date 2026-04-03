@@ -13,9 +13,6 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack/industrial, /obj/item/storage/backpack/satchel/eng)),
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag/eng, 50),
 		/obj/item/storage/garment/chief_engineer,
-		/obj/item/blueprints,
-		/obj/item/cartridge/ce,
-		/obj/item/device/radio/headset/heads/ce,
 		/obj/item/storage/toolbox/mechanical,
 		/obj/item/combotool/advtool,
 		/obj/item/device/flash,
@@ -74,11 +71,9 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack/industrial, /obj/item/storage/backpack/satchel/eng)),
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag/eng, 50),
 		/obj/item/storage/toolbox/mechanical,
-		/obj/item/device/radio/headset/headset_eng,
 		/obj/item/clothing/suit/storage/hazardvest,
 		/obj/item/clothing/mask/gas,
 		/obj/item/clothing/glasses/hud/standard/meson,
-		/obj/item/cartridge/engineering,
 		/obj/item/taperoll/engineering
 	)
 
@@ -99,9 +94,7 @@
 		/obj/item/clothing/suit/fire/firefighter,
 		/obj/item/device/flashlight,
 		/obj/item/extinguisher,
-		/obj/item/device/radio/headset/headset_eng,
 		/obj/item/clothing/suit/storage/hazardvest,
 		/obj/item/clothing/mask/gas,
-		/obj/item/cartridge/atmos,
 		/obj/item/taperoll/atmos
 	)

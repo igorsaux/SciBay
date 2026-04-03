@@ -12,13 +12,6 @@
 	var/material/reinf_material
 	var/reinforcing = 0
 
-/obj/structure/girder/Initialize()
-	. = ..()
-	add_debris_element()
-
-/obj/structure/girder/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_SPARKS, -15, 8, 1)
-
 /obj/structure/girder/displaced
 	icon_state = "displaced"
 	anchored = 0
@@ -38,25 +31,6 @@
 	visible_message(SPAN("danger", "[user] [attack_message] the [src]!"))
 	spawn(1) dismantle()
 	return 1
-
-/obj/structure/girder/bullet_act(obj/item/projectile/Proj)
-	//Girders only provide partial cover. There's a chance that the projectiles will just pass through. (unless you are trying to shoot the girder)
-	if(Proj.original != src && !prob(cover))
-		return PROJECTILE_CONTINUE //pass through
-
-	var/damage = Proj.get_structure_damage()
-	if(!damage)
-		return
-
-	if(!istype(Proj, /obj/item/projectile/beam))
-		damage *= 0.5 //non beams do reduced damage
-
-	health -= damage
-	..()
-	if(health <= 0)
-		dismantle()
-
-	return
 
 /obj/structure/girder/proc/reset_girder()
 	anchored = 1
@@ -91,24 +65,6 @@
 				reset_girder()
 				shove_everything(shove_objects = FALSE, shove_items = FALSE)
 			return
-
-	else if((istype(W, /obj/item/gun/energy/plasmacutter) || (istype(W, /obj/item/melee/energy) && W.force > 20)) && user.a_intent == I_HELP)
-		user.visible_message(SPAN("notice", "[user] is slicing apart \the [src]..."), \
-				             SPAN("notice", "Now slicing apart \the [src]..."))
-		if(do_after(user,30, src, luck_check_type = LUCK_CHECK_ENG))
-			if(QDELETED(src))
-				return
-
-			user.visible_message(SPAN("notice", "[user] slices apart \the [src]!"), \
-				             	 SPAN("notice", "You slice apart \the [src]!"))
-			dismantle()
-		return
-
-	else if(istype(W, /obj/item/pickaxe/drill/diamonddrill))
-		user.visible_message(SPAN("notice", "[user] drills through \the [src]!"), \
-				             SPAN("notice", "You drill through \the [src]!"))
-		dismantle()
-		return
 
 	else if(isScrewdriver(W))
 		if(state == 2)
@@ -323,45 +279,3 @@
 			user.visible_message(SPAN("notice", "[user] dissasembled \the [src]!"), \
 				        	     SPAN("notice", "You dissasembled \the [src]!"))
 			dismantle()
-
-	else if((istype(W, /obj/item/gun/energy/plasmacutter) || (istype(W, /obj/item/melee/energy) && W.force > 20)) && user.a_intent == I_HELP)
-		user.visible_message(SPAN("notice", "[user] is slicing apart \the [src]..."), \
-				             SPAN("notice", "Now slicing apart \the [src]..."))
-		if(do_after(user,30, src, luck_check_type = LUCK_CHECK_ENG))
-			if(!src) return
-			user.visible_message(SPAN("notice", "[user] slices apart \the [src]!"), \
-				             	 SPAN("notice", "You slice apart \the [src]!"))
-		dismantle()
-
-	else if(istype(W, /obj/item/pickaxe/drill/diamonddrill))
-		user.visible_message(SPAN("notice", "[user] drills through \the [src]!"), \
-				             SPAN("notice", "You drill through \the [src]!"))
-		new /obj/item/remains/human(get_turf(src))
-		dismantle()
-
-/obj/structure/girder/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	switch(the_rcd.mode)
-		if(RCD_TURF)
-			return rcd_result_with_memory(
-				list("delay" = 2 SECONDS, "cost" = 8),
-				get_turf(src), RCD_MEMORY_WALL,
-			)
-
-		if(RCD_DECONSTRUCT)
-			return list("delay" = 2 SECONDS, "cost" = 13)
-
-	return FALSE
-
-/obj/structure/girder/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	switch(rcd_data["[RCD_DESIGN_MODE]"])
-		if(RCD_TURF)
-			var/turf/T = get_turf(src)
-			T.ChangeTurf(/turf/simulated/wall)
-			qdel_self()
-			return TRUE
-
-		if(RCD_DECONSTRUCT)
-			qdel_self()
-			return TRUE
-
-	return FALSE

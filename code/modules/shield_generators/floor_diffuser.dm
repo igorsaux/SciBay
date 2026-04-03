@@ -4,9 +4,6 @@
 	description_info = "This device disrupts shields on directly adjacent tiles (in a + shaped pattern). They are commonly installed around exterior airlocks to prevent shields from blocking EVA access."
 	icon = 'icons/obj/machines/shielding.dmi'
 	icon_state = "fdiffuser_on"
-	use_power = POWER_USE_ACTIVE
-	idle_power_usage = 100 WATTS
-	active_power_usage = 2 KILO WATTS
 	anchored = 1
 	density = 0
 	level = 1
@@ -51,7 +48,6 @@
 		update_icon()
 		return
 	enabled = !enabled
-	update_use_power(enabled + 1)
 	update_icon()
 	to_chat(usr, "You turn \the [src] [enabled ? "on" : "off"].")
 

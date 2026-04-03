@@ -51,11 +51,6 @@
 												/datum/species/human/gravworlder = 10,
 												/datum/species/human/spacer      = 10,
 												/datum/species/human/vatgrown    = 10, //now lore-friendly,
-												/datum/species/skrell            = 12,
-												/datum/species/tajaran           = 7,
-												/datum/species/unathi            = 7,
-												/datum/species/swine             = 5,
-												/datum/species/diona             = 5
 											)
 
 //---- The following corporations are friendly with NanoTrasen and loosely enable trade and travel:

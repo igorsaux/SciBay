@@ -36,10 +36,6 @@ var/global/list/image/splatter_cache=list()
 /obj/effect/decal/cleanable/blood/hide()
 	return
 
-/obj/effect/decal/cleanable/blood/Destroy()
-	virus2 = null
-	return ..()
-
 /obj/effect/decal/cleanable/blood/Initialize()
 	. = ..()
 	update_icon()
@@ -60,7 +56,6 @@ var/global/list/image/splatter_cache=list()
 	desc = drydesc
 	color = adjust_brightness(color, -50)
 	amount = 0
-	virus2.Cut()
 
 /obj/effect/decal/cleanable/blood/on_update_icon()
 	if(basecolor == "rainbow") basecolor = get_random_colour(1)
@@ -233,15 +228,10 @@ var/global/list/image/splatter_cache=list()
 	. = ..()
 	update_stats()
 
-/obj/effect/decal/cleanable/mucus/Destroy()
-	virus2 = null
-	return ..()
-
 /obj/effect/decal/cleanable/mucus/proc/dry()
 	name = "dried mucus"
 	desc = "Disguisting nonetheless."
 	dried = TRUE
-	virus2.Cut()
 	color = "#2c991a"
 
 /obj/effect/decal/cleanable/mucus/proc/update_stats(list/viruses = list())
@@ -258,7 +248,6 @@ var/global/list/image/splatter_cache=list()
 
 	set_next_think(world.time + drytime)
 	thinking = TRUE
-	virus2 |= viruses
 
 /obj/effect/decal/cleanable/mucus/think()
 	thinking = FALSE

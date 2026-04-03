@@ -56,9 +56,6 @@
 	density = FALSE
 	intact_closet = FALSE
 
-/obj/structure/closet/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_SPARKS, -10, 5)
-
 /obj/item/shield/closet
 	name = "closet door"
 	desc = "An essential part of a closet. Could it be used as a tower shield?.."
@@ -132,7 +129,6 @@
 
 	if(intact_closet && (z in GLOB.using_map.get_levels_with_trait(ZTRAIT_STATION)))
 		GLOB.intact_station_closets.Add(src)
-	add_debris_element()
 
 	return INITIALIZE_HINT_LATELOAD
 
@@ -290,12 +286,6 @@
 /obj/structure/closet/proc/store_items(stored_units)
 	. = 0
 
-	for(var/obj/effect/dummy/chameleon/AD in loc)
-		if(CLOSET_CHECK_TOO_BIG(1))
-			break
-		.++
-		AD.forceMove(src)
-
 	for(var/obj/item/I in loc)
 		if(QDELETED(I))
 			continue
@@ -409,33 +399,11 @@
 			A.forceMove(src.loc)
 		qdel(src)
 
-/obj/structure/closet/bullet_act(obj/item/projectile/Proj)
-	var/proj_damage = Proj.get_structure_damage()
-	if(proj_damage)
-		..()
-		damage(proj_damage)
-
-	if(Proj.penetrating)
-		var/distance = get_dist(Proj.starting, get_turf(loc))
-		for(var/mob/living/L in contents)
-			Proj.attack_mob(L, distance)
-			if(!(--Proj.penetrating))
-				break
-
-/obj/structure/closet/blob_act()
-	if(opened)
-		remove_door()
-		qdel(src)
-	else
-		break_open()
-
 /obj/structure/closet/attackby(obj/item/W, mob/user)
 	if(src.opened)
 		if(istype(W, /obj/item/grab))
 			var/obj/item/grab/G = W
 			src.MouseDrop_T(G.affecting, user)      //act like they were dragged onto the closet
-			return FALSE
-		if(istype(W,/obj/item/tk_grab))
 			return FALSE
 
 		if(isWelder(W))
@@ -473,26 +441,10 @@
 				return FALSE
 			if(cdoor)
 				return FALSE
-			if(istype(C.loc, /obj/item/gripper)) // Snowflaaaaakeeeeey
-				var/obj/item/gripper/G = C.loc
-				G.wrapped.forceMove(get_turf(src))
-				G.wrapped = null
-			else if(!user.drop(C))
+			if(!user.drop(C))
 				return
 			user.visible_message(SPAN_NOTICE("[user] connected [C] to [src]."))
 			attach_door(C)
-			return
-
-		if(istype(W.loc, /obj/item/gripper)) // It's kinda tricky, see drone_items.dm L#313 for grippers' resolve_attackby().
-			var/obj/item/gripper/G = W.loc
-			if(!G.wrapped)
-				return
-			G.wrapped.forceMove(loc)
-			G.wrapped.pixel_x = 0
-			G.wrapped.pixel_y = 0
-			G.wrapped.pixel_z = 0
-			G.wrapped.pixel_w = 0
-			G.wrapped = null
 			return
 
 		if(usr.drop(W, loc))
@@ -502,16 +454,6 @@
 			W.pixel_w = 0
 		return
 
-	else if(istype(W, /obj/item/melee/energy))
-		var/obj/item/melee/energy/WS = W
-		if(WS.active)
-			emag_act(INFINITY, user, SPAN_DANGER("The locker has been sliced open by [user] with \an [W]!"), SPAN_DANGER("You hear metal being sliced and sparks flying."))
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, src.loc)
-			spark_system.start()
-			playsound(src.loc, 'sound/weapons/blade1.ogg', 50, 1)
-			playsound(src.loc, SFX_SPARK, 50, 1)
-			open()
 	else if(istype(W, /obj/item/packageWrap))
 		return
 	else if(isWelder(W) && (setup & CLOSET_CAN_BE_WELDED))
@@ -581,10 +523,6 @@
 	src.add_fingerprint(user)
 	return
 
-/obj/structure/closet/attack_ai(mob/user)
-	if(istype(user, /mob/living/silicon/robot) && Adjacent(user)) // Robots can open/close it, but not the AI.
-		attack_hand(user)
-
 /obj/structure/closet/relaymove(mob/user)
 	if(user.stat || !isturf(src.loc))
 		return
@@ -604,12 +542,6 @@
 		return
 	toggle(user)
 	in_use = FALSE
-
-// tk grab then use on self
-/obj/structure/closet/attack_self_tk(mob/user)
-	src.add_fingerprint(user)
-	if(!src.toggle())
-		to_chat(usr, SPAN_NOTICE("It won't budge!"))
 
 /obj/structure/closet/verb/verb_toggleopen()
 	set src in oview(1)
@@ -787,35 +719,6 @@
 
 /obj/structure/closet/CtrlAltClick(mob/user)
 	verb_toggleopen()
-
-/obj/structure/closet/emp_act(severity)
-	for(var/obj/O in src)
-		O.emp_act(severity)
-	if(!broken && (setup & CLOSET_HAS_LOCK))
-		if(prob(50/severity))
-			locked = !locked
-			src.update_icon()
-		if(prob(20/severity) && !opened)
-			if(!locked)
-				open()
-			else
-				src.req_access = list()
-				src.req_access += pick(get_all_station_access())
-	..()
-
-/obj/structure/closet/emag_act(remaining_charges, mob/user, obj/item/emag_source, visual_feedback = "", audible_feedback = "")
-	if(make_broken())
-		update_icon()
-		if(visual_feedback)
-			visible_message(visual_feedback, audible_feedback)
-		else if(user && emag_source)
-			visible_message(SPAN_WARNING("\The [src] has been broken by \the [user] with \an [emag_source]!"), "You hear a faint electrical spark.")
-		else
-			visible_message(SPAN_WARNING("\The [src] sparks and breaks open!"), "You hear a faint electrical spark.")
-		on_hack_behavior()
-		return TRUE
-	else
-		. = ..()
 
 /obj/structure/closet/proc/make_broken()
 	if(broken)

@@ -2,7 +2,6 @@
 /obj/item/reagent_containers/vessel/bottle/chemical/big/compost
 	name = "compost bottle"
 	start_label = "compost"
-	startswith = list(/datum/reagent/toxin/fertilizer/compost)
 
 /obj/item/reagent_containers/vessel/plastic/eznutrient
 	name = "\improper EZ NUtrient bottle"
@@ -12,7 +11,6 @@
 	mod_weight = 0.65
 	mod_reach = 0.5
 	mod_handy = 0.65
-	startswith = list(/datum/reagent/toxin/fertilizer/eznutrient)
 
 /obj/item/reagent_containers/vessel/plastic/left4zed
 	name = "\improper Left-4-Zed bottle"
@@ -22,7 +20,6 @@
 	mod_weight = 0.65
 	mod_reach = 0.5
 	mod_handy = 0.65
-	startswith = list(/datum/reagent/toxin/fertilizer/left4zed)
 
 /obj/item/reagent_containers/vessel/plastic/robustharvest
 	name = "\improper Robust Harvest"
@@ -32,7 +29,6 @@
 	mod_weight = 0.65
 	mod_reach = 0.5
 	mod_handy = 0.65
-	startswith = list(/datum/reagent/toxin/fertilizer/robustharvest)
 
 /obj/item/reagent_containers/vessel/plastic/mutogrow
 	name = "\improper Mut'o'Grow"
@@ -43,4 +39,3 @@
 	mod_reach = 0.5
 	mod_handy = 0.65
 	matter = list(MATERIAL_STEEL = 2000) // Well plastic but actually steel
-	startswith = list(/datum/reagent/mutagen/industrial)

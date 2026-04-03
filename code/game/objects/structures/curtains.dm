@@ -12,13 +12,6 @@
 
 	opacity = 0
 
-/obj/structure/curtain/bullet_act(obj/item/projectile/P, def_zone)
-	if(!P.nodamage)
-		visible_message("<span class='warning'>[P] tears [src] down!</span>")
-		qdel(src)
-	else
-		..(P, def_zone)
-
 /obj/structure/curtain/attack_hand(mob/user)
 	playsound(loc, SFX_SEARCH_CLOTHES, 15, 1, -5)
 	toggle()

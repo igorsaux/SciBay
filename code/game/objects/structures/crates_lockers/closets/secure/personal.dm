@@ -7,7 +7,6 @@
 /obj/structure/closet/secure_closet/personal/WillContain()
 	return list(
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack, /obj/item/storage/backpack/satchel/grey)),
-		/obj/item/device/radio/headset
 	)
 
 /obj/structure/closet/secure_closet/personal/empty/WillContain()
@@ -27,7 +26,7 @@
 	icon_off = "cabinetdetective_broken"
 
 /obj/structure/closet/secure_closet/personal/cabinet/WillContain()
-	return list(/obj/item/storage/backpack/satchel/grey/withwallet, /obj/item/device/radio/headset)
+	return list()
 
 /obj/structure/closet/secure_closet/personal/attackby(obj/item/W, mob/user)
 	if (src.opened)

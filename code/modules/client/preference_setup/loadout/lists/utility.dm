@@ -30,11 +30,6 @@
 	folders["yellow folder"] = /obj/item/folder/yellow
 	gear_tweaks += new /datum/gear_tweak/path(folders)
 
-/datum/gear/utility/paicard
-	display_name = "personal AI device"
-	path = /obj/item/device/paicard
-	cost = 2
-
 /datum/gear/utility/camera
 	display_name = "camera"
 	path = /obj/item/device/camera

@@ -107,8 +107,6 @@
 	stop_ambient_sound()
 	GLOB.smes_list -= src
 	ClearOverlays()
-	for(var/datum/nano_module/rcon/R in world)
-		R.FindDevices()
 	return ..()
 
 /obj/machinery/power/smes/proc/start_ambient_sound()
@@ -319,11 +317,6 @@
 		drained += term.powernet.draw_power(amount - drained)
 	return drained
 
-
-/obj/machinery/power/smes/attack_ai(mob/user)
-	add_hiddenprint(user)
-	ui_interact(user)
-
 /obj/machinery/power/smes/attack_hand(mob/user)
 	add_fingerprint(user)
 	ui_interact(user)
@@ -517,32 +510,6 @@
 				explosion(get_turf(src), 0, 1, 2)
 		qdel(src) // Either way we want to ensure the SMES is deleted.
 
-/obj/machinery/power/smes/emp_act(severity)
-	if(prob(50))
-		inputting(rand(0,1))
-		outputting(rand(0,1))
-	if(prob(50))
-		output_level = rand(0, output_level_max)
-		input_level = rand(0, input_level_max)
-	if(prob(50))
-		charge -= 1e6/severity
-		if (charge < 0)
-			charge = 0
-	if(prob(50))
-		energy_fail(rand(0 + (severity * 30),30 + (severity * 30)))
-	update_icon()
-	..()
-
-
-/obj/machinery/power/smes/bullet_act(obj/item/projectile/Proj)
-	if(Proj.damage_type == BRUTE || Proj.damage_type == BURN)
-		take_damage(Proj.damage)
-
-/obj/machinery/power/smes/blob_act(damage)
-	..()
-
-	take_damage(damage * 2)
-
 /obj/machinery/power/smes/ex_act(severity)
 	switch(severity)
 		if(1)
@@ -637,6 +604,3 @@
 
 /obj/machinery/power/smes/magical/remove_charge(amount)
 	charge = capacity
-
-/obj/machinery/power/smes/magical/emp_act(severity)
-	return FALSE

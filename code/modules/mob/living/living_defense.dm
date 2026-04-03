@@ -56,72 +56,6 @@
 /mob/living/proc/get_layered_armor(def_zone, type)
 	return null
 
-/mob/living/bullet_act(obj/item/projectile/P, def_zone)
-
-	//Being hit while using a deadman switch
-	var/obj/item/device/assembly/signaler/signaler = get_active_hand()
-	if(!istype(signaler))
-		signaler = get_inactive_hand()
-	if(istype(signaler) && signaler.deadman)
-		log_and_message_admins("has triggered a signaler deadman's switch")
-		src.visible_message("<span class='warning'>[src] triggers their deadman's switch!</span>")
-		signaler.signal()
-
-	//Armor
-	var/damage = P.damage
-	var/flags = P.damage_flags()
-	var/absorb = run_armor_check(def_zone, P.check_armour, P.armor_penetration)
-
-	// Turning bullets blunt and dissipating lasers
-	// Having any positive absorb means the armor's actually workedm one way or another, no need to check for value
-	if(absorb)
-		if(flags & DAM_LASER)
-			//the armour causes the heat energy to spread out, which reduces the damage (and the blood loss)
-			//this is mostly so that armour doesn't cause people to lose MORE fluid from lasers than they would otherwise
-			damage *= FLUIDLOSS_CONC_BURN/FLUIDLOSS_WIDE_BURN
-		flags &= ~(DAM_SHARP|DAM_EDGE)
-
-	// Species-specific bullet_act aka The Platinum Snowflake; seriously what the fuck
-	if(iscarbon(src))
-		var/mob/living/carbon/C = src
-		if(!C.species?.bullet_act(P, C))
-			return
-
-	// Applying damage
-	if(!P.nodamage)
-		apply_damage(damage, P.damage_type, def_zone, absorb, flags, P)
-
-	// Applying projectile-specific stuff
-	P.on_hit(src, absorb, def_zone)
-
-	return absorb
-
-/mob/living/blob_act(damage)
-	apply_damage(damage, BRUTE, BP_CHEST, 0, 0)
-
-/mob/living/proc/aura_check(type)
-	if(!auras)
-		return TRUE
-	. = TRUE
-	var/list/newargs = args - args[1]
-	for(var/a in auras)
-		var/obj/aura/aura = a
-		var/result = 0
-		switch(type)
-			if(AURA_TYPE_WEAPON)
-				result = aura.attackby(arglist(newargs))
-			if(AURA_TYPE_BULLET)
-				result = aura.bullet_act(arglist(newargs))
-			if(AURA_TYPE_THROWN)
-				result = aura.hitby(arglist(newargs))
-			if(AURA_TYPE_LIFE)
-				result = aura.life_tick()
-		if(result & AURA_FALSE)
-			. = FALSE
-		if(result & AURA_CANCEL)
-			break
-
-
 //Handles the effects of "stun" weapons
 /mob/living/proc/stun_effect_act(stun_amount, agony_amount, def_zone, used_weapon = null)
 	flash_pain()
@@ -140,12 +74,6 @@
 /mob/living/proc/electrocute_act(shock_damage, obj/source, siemens_coeff = 1.0)
 	  return 0 //only carbon liveforms have this proc
 
-/mob/living/emp_act(severity)
-	var/list/L = src.get_contents()
-	for(var/obj/O in L)
-		O.emp_act(severity)
-	..()
-
 /mob/living/proc/resolve_item_attack(obj/item/I, mob/living/user, target_zone)
 	return target_zone
 
@@ -155,10 +83,6 @@
 
 	var/blocked = run_armor_check(hit_zone, "melee")
 	standard_weapon_hit_effects(I, user, effective_force, blocked, hit_zone)
-
-	if(I.damtype == BRUTE && prob(33)) // Added blood for whacking non-humans too
-		var/turf/simulated/location = get_turf(src)
-		if(istype(location)) location.add_blood_floor(src)
 
 	return blocked
 
@@ -196,9 +120,6 @@
 
 	if(ishuman(src))
 		return // Humans are snowflakes
-
-	if(!aura_check(AURA_TYPE_THROWN, AM, TT.speed))
-		return
 
 	if(!isobj(AM))
 		return

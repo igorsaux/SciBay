@@ -1,7 +1,5 @@
 
 /obj/structure/table/CanPass(atom/movable/mover, turf/target)
-	if(istype(mover,/obj/item/projectile))
-		return (check_cover(mover,target))
 	if(flipped == 1)
 		if(get_dir(loc, target) == dir)
 			return !density
@@ -12,44 +10,6 @@
 	var/obj/structure/table/T = (locate() in get_turf(mover))
 	return (T && !T.flipped) 	//If we are moving from a table, check if it is flipped.
 								//If the table we are standing on is not flipped, then we can move freely to another table.
-
-//checks if projectile 'P' from turf 'from' can hit whatever is behind the table. Returns 1 if it can, 0 if bullet stops.
-/obj/structure/table/proc/check_cover(obj/item/projectile/P, turf/from)
-	var/turf/cover
-	if(flipped)
-		cover = get_turf(src)
-	else
-		cover = get_step(loc, get_dir(from, loc))
-	if(!cover)
-		return 1
-	if (get_dist(P.starting, loc) <= 1) //Tables won't help you if people are THIS close
-		return 1
-
-	var/chance = 20
-	if(ismob(P.original) && get_turf(P.original) == cover)
-		var/mob/M = P.original
-		if(M.lying)
-			chance += 20				//Lying down lets you catch less bullets
-	if(flipped)
-		if(get_dir(loc, from) == dir)	//Flipped tables catch mroe bullets
-			chance += 30
-		else
-			return 1					//But only from one side
-
-	if(prob(chance))
-		return 0 //blocked
-	return 1
-
-/obj/structure/table/bullet_act(obj/item/projectile/P)
-	if(!(P.damage_type == BRUTE || P.damage_type == BURN))
-		return 0
-
-	if(take_damage(P.damage/2))
-		//prevent tables with 1 health left from stopping bullets outright
-		return PROJECTILE_CONTINUE //the projectile destroyed the table, so it gets to keep going
-
-	visible_message("<span class='warning'>\The [P] hits [src]!</span>")
-	return 0
 
 /obj/structure/table/CheckExit(atom/movable/O as mob|obj, target as turf)
 	if(istype(O) && O.pass_flags & PASS_FLAG_TABLE)
@@ -130,21 +90,7 @@
 				to_chat(user, "<span class='danger'>You need a better grip to do that!</span>")
 			return
 
-	// Handle dismantling or placing things on the table from here on.
-	if(isrobot(user))
-		return
-
 	if(W.loc != user) // This should stop mounted modules ending up outside the module.
-		return
-
-	if(istype(W, /obj/item/melee/energy) && user.a_intent == I_HURT && W.force > 20)
-		var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-		spark_system.set_up(5, 0, src.loc)
-		spark_system.start()
-		playsound(src.loc, 'sound/weapons/blade1.ogg', 50, 1)
-		playsound(src.loc, SFX_SPARK, 50, 1)
-		user.visible_message("<span class='danger'>\The [src] was sliced apart by [user]!</span>")
-		break_to_parts()
 		return
 
 	if(can_plate && !material)
@@ -230,19 +176,3 @@ Note: This proc can be overwritten to allow for different types of auto-alignmen
 		I.pixel_x = max(3-i*3, -3) + 1 // There's a sprite layering bug for 0/0 pixelshift, so we avoid it.
 		I.pixel_y = max(4-i*4, -4) + 1
 		I.pixel_z = 0
-
-/obj/structure/table/attack_tk() // no telehulk sorry
-	return
-
-/obj/structure/table/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 2.4 SECONDS, "cost" = 16)
-
-	return FALSE
-
-/obj/structure/table/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
-		qdel_self()
-		return TRUE
-
-	return FALSE

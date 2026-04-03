@@ -50,5 +50,4 @@
 		return
 
 	dogtag.stored_name = H.real_name
-	dogtag.religion = H.religion
 	dogtag.stored_blood_type = H.b_type

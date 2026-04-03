@@ -75,7 +75,6 @@ var/list/global/tank_gauge_cache = list()
 	gauge_overlay = null
 
 	QDEL_NULL(air_contents)
-	QDEL_NULL(assembly)
 
 	if(istype(loc, /obj/item/device/transfer_valve))
 		var/obj/item/device/transfer_valve/TTV = loc
@@ -113,18 +112,11 @@ var/list/global/tank_gauge_cache = list()
 				descriptive = "bitterly cold"
 	. += SPAN_NOTICE("\The [src] feels [descriptive].")
 
-	if(istype(assembly) || wired)
-		. += SPAN_WARNING("It seems to have [wired? "some wires ": ""][wired && istype(assembly) ? "and ":""][assembly ? "some sort of assembly ":""]attached to it.")
 	if(valve_welded)
 		. += SPAN_WARNING("\The [src] emergency relief valve has been welded shut!")
 
 /obj/item/tank/attackby(obj/item/W as obj, mob/user as mob)
 	..()
-	if (istype(loc, /obj/item/assembly))
-		icon = loc
-
-	if (istype(W, /obj/item/device/analyzer))
-		return
 
 	if (istype(W,/obj/item/latexballon))
 		var/obj/item/latexballon/LB = W
@@ -139,23 +131,7 @@ var/list/global/tank_gauge_cache = list()
 			update_icon(TRUE)
 
 	if(isWirecutter(W))
-		if(wired && istype(assembly))
-
-			to_chat(user, "<span class='notice'>You carefully begin clipping the wires that attach to the tank.</span>")
-			if(do_after(user, 100, src, luck_check_type = LUCK_CHECK_ENG))
-				wired = FALSE
-				to_chat(user, "<span class='notice'>You cut the wire and remove the device.</span>")
-				assembly.master = null
-				assembly.dropInto(get_turf(usr))
-				assembly = null
-				update_icon()
-
-			else
-				to_chat(user, "<span class='danger'>You slip and bump the igniter!</span>")
-				if(prob(85))
-					assembly.process_activation(src)
-
-		else if(wired)
+		if(wired)
 			if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 
@@ -168,19 +144,6 @@ var/list/global/tank_gauge_cache = list()
 
 		else
 			to_chat(user, "<span class='notice'>There are no wires to cut!</span>")
-
-	if(istype(W, /obj/item/device/assembly_holder))
-		if(wired)
-			to_chat(user, "<span class='notice'>You begin attaching the assembly to \the [src].</span>")
-			if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
-				to_chat(user, "<span class='notice'>You finish attaching the assembly to \the [src].</span>")
-				GLOB.bombers += "[key_name(user)] attached an assembly to a wired [src]. Temp: [CONV_KELVIN_CELSIUS(air_contents.temperature)]"
-				message_admins("[key_name_admin(user)] attached an assembly to a wired [src]. Temp: [CONV_KELVIN_CELSIUS(air_contents.temperature)]")
-				assemble_bomb(W,user)
-			else
-				to_chat(user, "<span class='notice'>You stop attaching the assembly.</span>")
-		else
-			to_chat(user, "<span class='notice'>You need to wire the device up first.</span>")
 
 	if(isWelder(W))
 		var/obj/item/weldingtool/WT = W
@@ -231,16 +194,10 @@ var/list/global/tank_gauge_cache = list()
 		return
 	ui_interact(user)
 
-	// There's GOT to be a better way to do this
-	assembly?.attack_self(user)
-
 /obj/item/tank/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	var/mob/living/carbon/location = null
 
-	if(istype(loc, /obj/item/rig))		// check for tanks in rigs
-		if(istype(loc.loc, /mob/living/carbon))
-			location = loc.loc
-	else if(istype(loc, /mob/living/carbon))
+	if(istype(loc, /mob/living/carbon))
 		location = loc
 
 	var/using_internal
@@ -263,9 +220,6 @@ var/list/global/tank_gauge_cache = list()
 		if(location.internal == src)	// if tank is current internal
 			mask_check = 1
 		else if(src in location)		// or if tank is in the mobs possession
-			if(!location.internal)		// and they do not have any active internals
-				mask_check = 1
-		else if(istype(loc, /obj/item/rig) && (loc in location))	// or the rig is in the mobs possession
 			if(!location.internal)		// and they do not have any active internals
 				mask_check = 1
 
@@ -408,12 +362,6 @@ var/list/global/tank_gauge_cache = list()
 
 	if(wired)
 		AddOverlays(bomb_assembly)
-		if(istype(assembly))
-			assembly_overlay = image(assembly.icon, assembly.icon_state)
-			assembly_overlay.CopyOverlays(assembly)
-			assembly_overlay.pixel_y = -1
-			assembly_overlay.pixel_x = -3
-			AddOverlays(assembly_overlay)
 
 /// Handle exploding, leaking, and rupturing of the tank.
 /// Returns `TRUE` if it should continue thinking.
@@ -451,9 +399,6 @@ var/list/global/tank_gauge_cache = list()
 				round(min(BOMBCAP_FLASH_RADIUS, ((mult)*strength)*1.20)),
 				)
 
-			var/num_fragments = round(rand(8,10) * sqrt(strength * mult))
-			fragmentate(T, num_fragments, 7, list(/obj/item/projectile/bullet/pellet/fragment/tank/small = 7,/obj/item/projectile/bullet/pellet/fragment/tank = 2,/obj/item/projectile/bullet/pellet/fragment/strong = 1))
-
 			qdel(src)
 
 			return FALSE
@@ -472,13 +417,6 @@ var/list/global/tank_gauge_cache = list()
 			playsound(src, 'sound/effects/weapons/gun/fire_shotgun.ogg', 20, 1)
 			visible_message("\icon[src] <span class='danger'>\The [src] flies apart!</span>", "<span class='warning'>You hear a bang!</span>")
 			T.hotspot_expose(air_contents.temperature, 70, 1)
-
-			var/strength = 1+((pressure-TANK_LEAK_PRESSURE)/TANK_FRAGMENT_SCALE)
-
-			var/mult = (air_contents.total_moles**2/3)/((29*0.64) **2/3) //tanks appear to be experiencing a reduction on scale of about 0.64 total moles
-
-			var/num_fragments = round(rand(6,8) * sqrt(strength * mult)) //Less chunks, but bigger
-			fragmentate(T, num_fragments, 7, list(/obj/item/projectile/bullet/pellet/fragment/tank/small = 1,/obj/item/projectile/bullet/pellet/fragment/tank = 5,/obj/item/projectile/bullet/pellet/fragment/strong = 4))
 
 			qdel(src)
 
@@ -554,22 +492,6 @@ var/list/global/tank_gauge_cache = list()
 	. = ..()
 	onetankbomb()
 
-/// This turns assembly + tank into a bomb.
-/obj/item/tank/proc/assemble_bomb(obj/item/device/assembly_holder/S, mob/user)
-	ASSERT(S && user)
-	if(!S.secured)
-		return
-
-	user.drop_active_hand()
-	S.forceMove(src)
-	assembly = S
-	assembly.master = src
-
-	if(!user.has_in_hands(src) && Adjacent(user, src))
-		user.pick_or_drop(src)  // Equips the bomb if possible, or puts it on the floor.
-
-	update_icon()
-
 /obj/item/tank/proc/ignite()	//This happens when a bomb is told to explode
 	if(!air_contents)
 		return
@@ -587,59 +509,12 @@ var/list/global/tank_gauge_cache = list()
 	air_contents.temperature = new_temperature
 	set_next_think(world.time)
 
-/obj/item/tank/HasProximity(atom/movable/AM)
-	assembly?.a_left?.HasProximity(AM)
-	assembly?.a_right?.HasProximity(AM)
-	assembly?.special_assembly?.HasProximity(AM)
-
-/obj/item/tank/Crossed(atom/movable/AM)
-	assembly?.a_left?.Crossed(AM)
-	assembly?.a_right?.Crossed(AM)
-	assembly?.special_assembly?.Crossed(AM)
-
-/obj/item/tank/on_found(mob/finder)
-	assembly?.a_left?.on_found(finder)
-	assembly?.a_right?.on_found(finder)
-	if(isitem(assembly?.special_assembly))
-		var/obj/item/S = assembly.special_assembly
-		S.on_found(finder)
-
 /obj/item/tank/forceMove(atom/new_loc)
 	if(istype(loc, /atom/movable))
-		if(istype(loc, /obj/item/gripper) && isrobot(loc.loc))
-			unregister_signal(loc.loc, SIGNAL_MOVED)
-		else
-			unregister_signal(loc, SIGNAL_MOVED)
+		unregister_signal(loc, SIGNAL_MOVED)
 	if(istype(new_loc, /atom/movable))
-		if(istype(new_loc, /obj/item/gripper) && isrobot(new_loc.loc))
-			register_signal(new_loc.loc, SIGNAL_MOVED, nameof(.proc/retransmit_moved))
-		else
-			register_signal(new_loc, SIGNAL_MOVED, nameof(.proc/retransmit_moved))
+		register_signal(new_loc, SIGNAL_MOVED, nameof(.proc/retransmit_moved))
 	return ..()
 
 /obj/item/tank/proc/retransmit_moved(mover, old_loc, new_loc)
 	SEND_SIGNAL(src, SIGNAL_MOVED, src, old_loc, new_loc)
-
-//Fragmentation projectiles
-
-/obj/item/projectile/bullet/pellet/fragment/tank
-	name = "metal fragment"
-	damage = 9  //Big chunks flying off.
-	range_step = 1 //controls damage falloff with distance. projectiles lose a "pellet" each time they travel this distance. Can be a non-integer.
-
-	base_spread = 0 //causes it to be treated as a shrapnel explosion instead of cone
-	spread_step = 20
-
-	silenced = 1
-	fire_sound = null
-	no_attack_log = 1
-	muzzle_type = null
-	pellets = 1
-
-/obj/item/projectile/bullet/pellet/fragment/tank/small
-	name = "small metal fragment"
-	damage = 6
-
-/obj/item/projectile/bullet/pellet/fragment/tank/big
-	name = "large metal fragment"
-	damage = 17

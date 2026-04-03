@@ -18,9 +18,6 @@
 	icon = 'icons/obj/power.dmi'
 	anchored = 1.0
 	var/datum/powernet/powernet = null
-	use_power = POWER_USE_OFF
-	idle_power_usage = 0 WATTS
-	active_power_usage = 0 WATTS
 
 /obj/machinery/power/Initialize()
 	. = ..()
@@ -32,12 +29,6 @@
 ///////////////////////////////
 // General procedures
 //////////////////////////////
-
-
-/obj/machinery/power/powered()
-	if(use_power)
-		return ..()
-	return 1 //doesn't require an external power source
 
 // common helper procs for all power machines
 /obj/machinery/power/drain_power(drain_check, surge, amount = 0)
@@ -273,8 +264,6 @@
 //source is an object caused electrocuting (airlock, grille, etc)
 //No animations will be performed by this proc.
 /proc/electrocute_mob(mob/living/carbon/M as mob, power_source, obj/source, siemens_coeff = 1.0)
-	if(istype(M.loc,/obj/mecha))
-		return 0	//feckin mechs are dumb
 	var/area/source_area
 	if(istype(power_source,/area))
 		source_area = power_source
@@ -336,17 +325,9 @@
 	var/drained_hp = M.electrocute_act(shock_damage, source, siemens_coeff) //zzzzzzap!
 	var/drained_energy = drained_hp*20
 
-	if (source_area)
-		source_area.use_power_oneoff(drained_energy/CELLRATE)
-	else if (istype(power_source,/datum/powernet))
+	if (istype(power_source,/datum/powernet))
 		var/drained_power = drained_energy/CELLRATE
 		drained_power = PN.draw_power(drained_power)
 	else if (istype(power_source, /obj/item/cell))
 		cell.use(drained_energy)
 	return drained_energy
-
-/obj/machinery/power/blob_act(damage)
-	if(stat & BROKEN)
-		return
-
-	set_broken(TRUE)

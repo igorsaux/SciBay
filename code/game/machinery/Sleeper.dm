@@ -8,10 +8,6 @@
 	clicksound = 'sound/machines/buttonbeep.ogg'
 	clickvol = 30
 	var/mob/living/carbon/human/occupant = null
-	var/list/possible_chemicals = list(list("Inaprovaline" = /datum/reagent/inaprovaline, "Soporific" = /datum/reagent/soporific, "Paracetamol" = /datum/reagent/painkiller/paracetamol, "Dylovene" = /datum/reagent/dylovene, "Dexalin" = /datum/reagent/dexalin),
-										list("Inaprovaline" = /datum/reagent/inaprovaline, "Soporific" = /datum/reagent/soporific, "Tramadol" = /datum/reagent/painkiller/tramadol, "Dylovene" = /datum/reagent/dylovene, "Dexalin" = /datum/reagent/dexalin, "Kelotane" = /datum/reagent/kelotane),
-										list("Inaprovaline" = /datum/reagent/inaprovaline, "Soporific" = /datum/reagent/soporific, "Tramadol" = /datum/reagent/painkiller/tramadol, "Dylovene" = /datum/reagent/dylovene, "Hyronalin" = /datum/reagent/hyronalin, "Dexalin Plus" = /datum/reagent/dexalinp, "Kelotane" = /datum/reagent/kelotane, "Bicaridine" = /datum/reagent/bicaridine),
-										list("Inaprovaline" = /datum/reagent/inaprovaline, "Soporific" = /datum/reagent/soporific, "Tramadol" = /datum/reagent/painkiller/tramadol, "Dylovene" = /datum/reagent/dylovene, "Arithrazine" = /datum/reagent/arithrazine, "Dexalin Plus" = /datum/reagent/dexalinp, "Dermaline" = /datum/reagent/dermaline, "Bicaridine" = /datum/reagent/bicaridine, "Peridaxon" = /datum/reagent/peridaxon))
 	var/available_chemicals = list()
 	var/obj/item/reagent_containers/vessel/beaker = null
 	var/filtering = 0
@@ -27,9 +23,6 @@
 	var/freeze // Statis-upgrade
 
 	var/locked = 0
-
-	idle_power_usage = 15 WATTS
-	active_power_usage = 200 WATTS //builtin health analyzer, dialysis machine, injectors.
 
 	beepsounds = SFX_BEEP_MEDICAL
 
@@ -78,43 +71,6 @@
 
 	play_beep()
 
-	if(filtering > 0)
-		if(beaker)
-			if(beaker.reagents.total_volume < beaker.reagents.maximum_volume)
-				var/pumped = 0
-				// Trying to filter out the actual reagents first
-				for(var/datum/reagent/x in occupant.reagents.reagent_list)
-					occupant.reagents.trans_to_obj(beaker, filtering_strength)
-					pumped++
-				// If there are no reagents left, trying to filter out toxins
-				if(!pumped)
-					var/tox_loss = occupant.getToxLoss()
-					pumped = min(tox_loss, filtering_strength)
-					occupant.adjustToxLoss(pumped * -1)
-					beaker.reagents.add_reagent(/datum/reagent/toxin, pumped * 0.2)
-				if(ishuman(occupant))
-					occupant.vessel.trans_to_obj(beaker, pumped + 1)
-		else
-			toggle_filter()
-	if(pump > 0)
-		if(beaker && istype(occupant))
-			if(beaker.reagents.total_volume < beaker.reagents.maximum_volume)
-				var/stomach_pumped = FALSE
-				var/datum/reagents/ingested = occupant.get_ingested_reagents()
-				// Pumping from the stomach first
-				if(ingested)
-					for(var/datum/reagent/x in ingested.reagent_list)
-						ingested.trans_to_obj(beaker, 15)
-						stomach_pumped = TRUE
-				if(!stomach_pumped)
-					// ...and from the intestines if the stomach's empty
-					var/datum/reagents/digested = occupant.get_digested_reagents()
-					if(digested)
-						for(var/datum/reagent/x in digested.reagent_list)
-							digested.trans_to_obj(beaker, 15)
-		else
-			toggle_pump()
-
 	if(iscarbon(occupant) && stasis > 1)
 		occupant.SetStasis(stasis)
 
@@ -138,10 +94,6 @@
 			scanning += P.rating
 		else if(iscapacitor(P))
 			freeze += P.rating
-
-	available_chemicals = possible_chemicals[round((drugs + scanning) / 2)]
-	if(emagged)
-		available_chemicals += list("Lexorin" = /datum/reagent/lexorin)
 
 	stasis_settings = possible_stasis[freeze]
 
@@ -167,23 +119,11 @@
 	for(var/T in available_chemicals)
 		var/list/reagent = list()
 		reagent["name"] = T
-		if(occupant && occupant.reagents)
-			reagent["amount"] = occupant.reagents.get_reagent_amount(T)
 		reagents += list(reagent)
 	data["reagents"] = reagents.Copy()
 
-	if(occupant)
-		var/scan = medical_scan_results(occupant)
-		scan = replacetext(scan,"'notice'","'white'")
-		scan = replacetext(scan,"'warning'","'average'")
-		scan = replacetext(scan,"'danger'","'bad'")
-		data["occupant"] =scan
-	else
-		data["occupant"] = 0
-	if(beaker)
-		data["beaker"] = beaker.reagents.get_free_space()
-	else
-		data["beaker"] = -1
+	data["occupant"] = 0
+	data["beaker"] = -1
 	data["filtering"] = filtering
 	data["pump"] = pump
 	data["emagged"] = emagged
@@ -243,9 +183,6 @@
 		for(var/obj/item/reagent_containers/vessel/beaker/A in component_parts)
 			component_parts -= A
 
-/obj/machinery/sleeper/attack_ai(mob/user)
-	return attack_hand(user)
-
 /obj/machinery/sleeper/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/reagent_containers/vessel))
 		add_fingerprint(user)
@@ -261,7 +198,6 @@
 	if(occupant && panel_open && isCrowbar(I))
 		occupant.forceMove(get_turf(src))
 		occupant = null
-		update_use_power(1)
 		update_icon()
 		toggle_filter()
 	if(default_deconstruction_screwdriver(user, I))
@@ -286,7 +222,6 @@
 				I:affecting.client.perspective = EYE_PERSPECTIVE
 				I:affecting.client.eye = src
 			I:affecting.forceMove(src)
-			update_use_power(POWER_USE_IDLE)
 			occupant = I:affecting
 			update_icon()
 			qdel(I)
@@ -309,10 +244,7 @@
 	if(target.buckled)
 		to_chat(user, "<span class='warning'>Unbuckle the subject before attempting to move them.</span>")
 		return FALSE
-	for(var/mob/living/carbon/metroid/M in range(1,target))
-		if(M.Victim == target)
-			to_chat(user, "[target.name] will not fit into the sleeper because they have a metroid latched onto their head.")
-			return FALSE
+
 	return TRUE
 
 /obj/machinery/sleeper/MouseDrop_T(mob/target, mob/user)
@@ -330,42 +262,6 @@
 /obj/machinery/sleeper/relaymove(mob/user)
 	..()
 	go_out()
-
-/obj/machinery/sleeper/emp_act(severity)
-	if(filtering)
-		toggle_filter()
-
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-
-	if(occupant)
-		go_out()
-
-	if(!emagged && prob(10))
-		emag_act()
-
-	..(severity)
-
-/obj/machinery/sleeper/emag_act(remaining_charges, mob/user)
-
-	var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-	spark_system.set_up(5, 0, src.loc)
-
-	if(!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		to_chat(user, "<span class='danger'>You short out safety system turning it off.</span>")
-		emagged = 1
-		available_chemicals += list("Lexorin" = /datum/reagent/lexorin)
-		spark_system.start()
-		playsound(src.loc, SFX_SPARK, 50, 1)
-		return 1
-	if(locked)
-		to_chat(user, "<span class='danger'>You short out locking system.</span>")
-		toggle_lock()
-		spark_system.start()
-		playsound(src.loc, SFX_SPARK, 50, 1)
-		return 1
 
 /obj/machinery/sleeper/proc/toggle_filter()
 	if(!occupant || !beaker)
@@ -415,7 +311,6 @@
 			M.client.perspective = EYE_PERSPECTIVE
 			M.client.eye = src
 		M.forceMove(src)
-		update_use_power(POWER_USE_ACTIVE)
 		occupant = M
 		update_icon()
 
@@ -437,7 +332,6 @@
 			continue
 
 		A.dropInto(loc)
-	update_use_power(POWER_USE_IDLE)
 	update_icon()
 	toggle_filter()
 
@@ -454,16 +348,7 @@
 	if(stat & (BROKEN|NOPOWER))
 		return
 
-	var/chemical_type = available_chemicals[chemical_name]
-	if(occupant && occupant.reagents)
-		if(occupant.reagents.get_reagent_amount(chemical_type) + amount <= 20)
-			use_power_oneoff(amount * CHEM_SYNTH_ENERGY)
-			occupant.reagents.add_reagent(chemical_type, amount)
-			to_chat(user, "Occupant now has [occupant.reagents.get_reagent_amount(chemical_type)] ml of [chemical_name] in their bloodstream.")
-		else
-			to_chat(user, "The subject has too many chemicals.")
-	else
-		to_chat(user, "There's no suitable occupant in \the [src].")
+	to_chat(user, "There's no suitable occupant in \the [src].")
 
 /obj/machinery/sleeper/Destroy()
 	go_out()

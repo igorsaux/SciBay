@@ -136,10 +136,6 @@ var/list/possible_cable_coil_colours
 /obj/structure/cable/proc/get_powernet()			//TODO: remove this as it is obsolete
 	return powernet
 
-//Telekinesis has no effect on a cable
-/obj/structure/cable/attack_tk(mob/user)
-	return
-
 // Items usable on a cable :
 //   - Wirecutters : cut it duh !
 //   - Cable coil : merge cables
@@ -522,16 +518,8 @@ var/list/possible_cable_coil_colours
 		var/obj/item/organ/external/S = H.external_organs_by_name[user.zone_sel.selecting]
 
 		if (!S) return
-		if(!BP_IS_ROBOTIC(S) || user.a_intent != I_HELP)
-			return ..()
 
-		var/use_amt = min(src.amount, ceil(S.burn_dam/3), 5)
-		if(can_use(use_amt))
-			if(S.robo_repair(3*use_amt, BURN, "some damaged wiring", src, user))
-				src.use(use_amt)
-		return
-	return ..()
-
+		return ..()
 
 /obj/item/stack/cable_coil/on_update_icon()
 	if (!color)

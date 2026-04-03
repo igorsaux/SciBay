@@ -132,9 +132,6 @@
 	return ..()
 
 /obj/item/melee/baton/apply_hit_effect(mob/living/target, mob/living/user, hit_zone)
-	if(isrobot(target))
-		return ..()
-
 	var/agony = agonyforce
 	var/stun = stunforce
 	var/obj/item/organ/external/affecting = null
@@ -196,80 +193,3 @@
 		L.stun_effect_act(stun_amount = rand(2,5), agony_amount = rand(10, 90), def_zone = ran_zone(TT.target_zone, 30), used_weapon = src)
 		playsound(L.loc, SFX_STUNSTICK_HIT, 70, FALSE, -1)
 		deductcharge(hitcost)
-
-/obj/item/melee/baton/emp_act(severity)
-	if(bcell)
-		bcell.emp_act(severity)	//let's not duplicate code everywhere if we don't have to please.
-	..()
-
-// Stunbaton module for Security synthetics
-/obj/item/melee/baton/robot
-	name = "mounted baton"
-	bcell = null
-	hitcost = 20
-	icon_state = "mounted baton"
-
-// Addition made by Techhead0, thanks for fullfilling the todo!
-/obj/item/melee/baton/robot/examine_cell(mob/user, prefix)
-	. += "\n<span class='notice'>The baton is running off an external power supply.</span>"
-
-// Override proc for the stun baton module, found in PC Security synthetics
-// Refactored to fix #14470 - old proc defination increased the hitcost beyond
-// usability without proper checks.
-// Also hard-coded to be unuseable outside their righteous synthetic owners.
-/obj/item/melee/baton/robot/attack_self(mob/user)
-	var/mob/living/silicon/robot/R = isrobot(user) ? user : null // null if the user is NOT a robot
-	update_cell(R) // takes both robots and null
-	if (R)
-		return ..()
-	else	// Stop pretending and get out of your cardborg suit, human.
-		to_chat(user, "<span class='warning'>You don't seem to be able interacting with this by yourself..</span>")
-		add_fingerprint(user)
-	return 0
-
-/obj/item/melee/baton/robot/attackby(obj/item/W, mob/user)
-	return
-
-/obj/item/melee/baton/robot/apply_hit_effect(mob/living/target, mob/living/user, hit_zone)
-	update_cell(isrobot(user) ? user : null) // update the status before we apply the effects
-	return ..()
-
-// Updates the baton's cell to use user's own cell
-// Otherwise, if null (when the user isn't a robot), render it unuseable
-/obj/item/melee/baton/robot/proc/update_cell(mob/living/silicon/robot/user)
-	if (!user)
-		bcell = null
-		set_status(0)
-	else if (!bcell || bcell != user.cell)
-		bcell = user.cell // if it is null, nullify it anyway
-
-// Traitor variant for Engineering synthetics.
-/obj/item/melee/baton/robot/electrified_arm
-	name = "electrified arm"
-	icon = 'icons/obj/device.dmi'
-	icon_state = "electrified_arm"
-
-/obj/item/melee/baton/robot/electrified_arm/on_update_icon()
-	if(status)
-		icon_state = "electrified_arm_active"
-		set_light(0.4, 0.1, 1, 2, "#006aff")
-	else
-		icon_state = "electrified_arm"
-		set_light(0)
-
-//Makeshift stun baton. Replacement for stun gloves.
-/obj/item/melee/baton/cattleprod
-	name = "stunprod"
-	desc = "An improvised stun baton."
-	icon_state = "stunprod_nocell"
-	item_state = "prod"
-	force = 3
-	mod_weight = 1.25
-	mod_reach = 1.25
-	mod_handy = 1.0
-	throwforce = 5
-	stunforce = 4
-	agonyforce = 60	//same force as a stunbaton, but uses way more charge.
-	hitcost = 25
-	attack_verb = list("poked")
-	slot_flags = null

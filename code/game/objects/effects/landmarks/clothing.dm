@@ -20,18 +20,6 @@
 
 		new typepath(loc)
 
-/obj/effect/landmark/costume/chameleon
-	spawn_paths = list(
-		/obj/item/clothing/mask/chameleon,
-		/obj/item/clothing/under/chameleon,
-		/obj/item/clothing/glasses/chameleon,
-		/obj/item/clothing/shoes/chameleon,
-		/obj/item/clothing/gloves/chameleon,
-		/obj/item/clothing/suit/chameleon,
-		/obj/item/clothing/head/chameleon,
-		/obj/item/storage/backpack/chameleon,
-	)
-
 /obj/effect/landmark/costume/gladiator
 	spawn_paths = list(
 		/obj/item/clothing/under/gladiator,
@@ -141,8 +129,6 @@
 
 /obj/effect/landmark/costume/marisawizard/fake
 	spawn_paths = list(
-		/obj/item/clothing/head/wizard/marisa/fake,
-		/obj/item/clothing/suit/wizrobe/marisa/fake,
 	)
 
 /obj/effect/landmark/costume/cutewitch
@@ -154,8 +140,6 @@
 
 /obj/effect/landmark/costume/fakewizard
 	spawn_paths = list(
-		/obj/item/clothing/suit/wizrobe/fake,
-		/obj/item/clothing/head/wizard/fake,
 		/obj/item/staff,
 	)
 

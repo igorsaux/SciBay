@@ -10,21 +10,6 @@
 	origin_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 2)
 	req_components = list(/obj/item/stock_parts/capacitor = 1)
 
-/obj/item/circuitboard/recharger
-	name = T_BOARD("recharger")
-	icon_state = "id_mod_orange"
-	build_path = /obj/machinery/recharger
-	board_type = "machine"
-	origin_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 2)
-	req_components = list(/obj/item/stock_parts/capacitor = 1)
-
-/obj/item/circuitboard/honey_extractor
-	name = T_BOARD("honey extractor")
-	build_path = /obj/machinery/honey_extractor
-	board_type = "machine"
-	origin_tech = list(TECH_ENGINEERING = 1)
-	req_components = list(/obj/item/stock_parts/manipulator = 3)
-
 /obj/item/circuitboard/sleeper
 	name = T_BOARD("sleeper")
 	icon_state = "id_mod_cyan"
@@ -37,16 +22,6 @@
 							/obj/item/stock_parts/scanning_module = 1,
 							/obj/item/stock_parts/console_screen = 1,
 							/obj/item/reagent_containers/vessel/beaker/large = 1)
-
-/obj/item/circuitboard/microwave
-	name = T_BOARD("microwave")
-	icon_state = "id_mod_yellow"
-	build_path = /obj/machinery/microwave
-	board_type = "machine"
-	origin_tech = list(TECH_ENGINEERING = 1)
-	req_components = list(
-							/obj/item/stock_parts/micro_laser = 3,
-							/obj/item/stock_parts/manipulator = 1)
 
 /obj/item/circuitboard/sauna
 	name = T_BOARD("sauna")

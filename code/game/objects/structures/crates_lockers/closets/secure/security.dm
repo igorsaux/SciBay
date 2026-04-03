@@ -12,10 +12,6 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack/captain, /obj/item/storage/backpack/satchel/cap)),
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag/captain, 50),
 		/obj/item/storage/garment/captain,
-		/obj/item/device/radio/headset/heads/captain,
-		/obj/item/gun/energy/egun/elite,
-		/obj/item/melee/telebaton,
-		/obj/item/cartridge/captain,
 	)
 
 /obj/structure/closet/secure_closet/hop
@@ -32,9 +28,6 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack = 75,  /obj/item/storage/backpack/satchel/grey = 25)),
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag, 25),
 		/obj/item/storage/garment/head_of_provisioning,
-		/obj/item/melee/telebaton,
-		/obj/item/device/radio/headset/heads/hop,
-		/obj/item/cartridge/hop,
 		/obj/item/device/flash,
 		/obj/item/tank/emergency/oxygen,
 		/obj/item/material/coin/silver = 2
@@ -54,17 +47,9 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack/security, /obj/item/storage/backpack/satchel/sec)),
 		/obj/item/storage/garment/hos,
 		/obj/item/device/flash,
-		/obj/item/shield/riot,
-		/obj/item/gun/energy/egun/elite,
-		/obj/item/melee/telebaton,
 		/obj/item/melee/baton/loaded,
-		/obj/item/storage/box/flashbangs,
 		/obj/item/storage/belt/security,
 		/obj/item/taperoll/police,
-		/obj/item/device/holowarrant,
-		/obj/item/cartridge/hos,
-		/obj/item/device/radio/headset/heads/hos,
-		/obj/item/device/radio/headset/tactical/hos
 	)
 
 /obj/structure/closet/secure_closet/warden
@@ -81,18 +66,11 @@
 		new /datum/atom_creator/weighted(list(/obj/item/storage/backpack/security, /obj/item/storage/backpack/satchel/sec)),
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag/sec, 50),
 		/obj/item/storage/garment/warden,
-		/obj/item/storage/box/flashbangs,
-		/obj/item/storage/box/teargas,
 		/obj/item/storage/belt/security,
 		/obj/item/storage/box/chalk,
 		/obj/item/storage/box/holobadge,
 		/obj/item/taperoll/police,
-		/obj/item/device/holowarrant,
-		/obj/item/cartridge/security,
-		/obj/item/storage/secure/guncase/security,
 		/obj/item/reagent_containers/spray/pepper,
-		/obj/item/device/radio/headset/headset_sec,
-		/obj/item/device/radio/headset/tactical/sec
 	)
 
 /obj/structure/closet/secure_closet/security
@@ -114,35 +92,25 @@
 		/obj/item/clothing/under/rank/security,
 		/obj/item/clothing/glasses/hud/aviators/security,
 		/obj/item/storage/belt/security,
-		/obj/item/device/radio/headset/headset_sec,
 		/obj/item/device/flash,
 		/obj/item/reagent_containers/spray/pepper,
-		/obj/item/grenade/chem_grenade/teargas,
 		/obj/item/taperoll/police,
 		/obj/item/device/hailer,
-		/obj/item/device/holowarrant,
-		/obj/item/storage/secure/guncase/security
 	)
 
 /obj/structure/closet/secure_closet/security/cargo/WillContain()
 	return MERGE_ASSOCS_WITH_NUM_VALUES(..(), list(
 		/obj/item/clothing/accessory/armband/cargo,
-		/obj/item/device/encryptionkey/headset_cargo
 	))
 
 /obj/structure/closet/secure_closet/security/engine/WillContain()
 	return MERGE_ASSOCS_WITH_NUM_VALUES(..(), list(
 			/obj/item/clothing/accessory/armband/engine,
-			/obj/item/device/encryptionkey/headset_eng
 		))
-
-/obj/structure/closet/secure_closet/security/science/WillContain()
-	return MERGE_ASSOCS_WITH_NUM_VALUES(..(), list(/obj/item/device/encryptionkey/headset_sci))
 
 /obj/structure/closet/secure_closet/security/med/WillContain()
 	return MERGE_ASSOCS_WITH_NUM_VALUES(..(), list(
 			/obj/item/clothing/accessory/armband/medgreen,
-			/obj/item/device/encryptionkey/headset_med
 		))
 
 /obj/structure/closet/secure_closet/detective
@@ -161,21 +129,15 @@
 		/obj/item/storage/garment/detective,
 		/obj/item/storage/box/evidence,
 		/obj/item/storage/box/chalk,
-		/obj/item/device/radio/headset/headset_sec,
 		/obj/item/taperoll/police,
 		/obj/item/reagent_containers/vessel/flask/detflask,
 		/obj/item/storage/briefcase/crimekit,
-		/obj/item/device/holowarrant,
-		/obj/item/storage/secure/guncase/detective,
 		/obj/item/storage/csmarkers
 	)
 
 /obj/structure/closet/secure_closet/injection
 	name = "lethal injections locker"
 	req_access = list(access_captain)
-
-/obj/structure/closet/secure_closet/injection/WillContain()
-	return list(/obj/item/reagent_containers/syringe/ld50_syringe/potassium_chlorophoride = 2)
 
 /obj/structure/closet/secure_closet/brig
 	name = "brig locker"

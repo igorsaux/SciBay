@@ -5,9 +5,6 @@
 
 	layer = BELOW_OBJ_LAYER
 
-	idle_power_usage = 30 WATTS
-	active_power_usage = 5 KILO WATTS
-
 	var/max_material_storage = 100000
 
 	var/list/datum/design/queue = list()
@@ -61,11 +58,7 @@
 /obj/machinery/r_n_d/protolathe/RefreshParts()
 	var/T = 0
 	for(var/obj/item/reagent_containers/vessel/G in component_parts)
-		T += G.reagents.maximum_volume
-	if(reagents)
-		reagents.maximum_volume = T
-	else
-		create_reagents(T)
+		T += G.volume
 	max_material_storage = 0
 	for(var/obj/item/stock_parts/matter_bin/M in component_parts)
 		max_material_storage += M.rating * 75000
@@ -105,8 +98,6 @@
 	if(!linked_console)
 		to_chat(user, "<span class='notice'>\The [src] must be linked to an R&D console first!</span>")
 		return 1
-	if(is_robot_module(O))
-		return 0
 	if(!istype(O, /obj/item/stack/material))
 		to_chat(user, "<span class='notice'>You cannot insert this item into \the [src]!</span>")
 		return 0
@@ -126,7 +117,6 @@
 		CutOverlays("protolathe_[t]")
 
 	busy = 1
-	use_power_oneoff(max(1000, (SHEET_MATERIAL_AMOUNT * amount / 10)))
 	if(t)
 		if(do_after(user, 16,src, luck_check_type = LUCK_CHECK_RND))
 			if(stack.use(amount))
@@ -152,21 +142,11 @@
 	for(var/M in D.materials)
 		if(materials[M] < D.materials[M] * mat_efficiency * amount_build)
 			return 0
-	for(var/C in D.chemicals)
-		if(!reagents.has_reagent(C, D.chemicals[C] * mat_efficiency * amount_build))
-			return 0
 	return 1
 
 /obj/machinery/r_n_d/protolathe/proc/build(datum/design/D)
-	var/power = active_power_usage
-	for(var/M in D.materials)
-		power += round(D.materials[M] / 5)
-	power = max(active_power_usage, power)
-	use_power_oneoff(power)
 	for(var/M in D.materials)
 		materials[M] = max(0, materials[M] - D.materials[M] * mat_efficiency)
-	for(var/C in D.chemicals)
-		reagents.remove_reagent(C, D.chemicals[C] * mat_efficiency)
 
 	if(D.build_path)
 		var/obj/new_item = D.Fabricate(loc, src)

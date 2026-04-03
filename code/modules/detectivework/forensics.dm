@@ -32,7 +32,6 @@ var/const/FINGERPRINT_COMPLETE = 6
 
 /atom/proc/add_fingerprint(mob/M, ignoregloves, obj/item/tool)
 	if(QDELETED(M)) return
-	if(isAI(M)) return
 	if(!M || !M.key)
 		return
 	if(istype(tool) && (tool.item_flags & ITEM_FLAG_NO_PRINT))

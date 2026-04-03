@@ -102,9 +102,6 @@ var/global/datum/controller/occupations/job_master
 		if(!config.game.enter_allowed)
 			to_chat(joining, "<span class='warning'>There is an administrative lock on entering the game!</span>")
 			return FALSE
-		if(SSticker.mode && SSticker.mode.explosion_in_progress)
-			to_chat(joining, "<span class='warning'>The [station_name()] is currently exploding. Joining would go poorly.</span>")
-			return FALSE
 		return TRUE
 
 	proc/CheckLatejoinBlockers(mob/new_player/joining, datum/job/job)
@@ -112,9 +109,6 @@ var/global/datum/controller/occupations/job_master
 			return FALSE
 		if(job.minimum_character_age && (joining.client.prefs.age < job.minimum_character_age))
 			to_chat(joining, SPAN_WARNING("Your character's in-game age is too low for this job."))
-			return FALSE
-		if(job.faction_restricted && (joining.client.prefs.background != GLOB.using_map.company_name || (joining.client.prefs.nanotrasen_relation in COMPANY_OPPOSING)))
-			to_chat(joining, SPAN_WARNING("Your characte must be loyal to [GLOB.using_map.company_name]."))
 			return FALSE
 		if(!job.player_old_enough(joining.client))
 			to_chat(joining, SPAN_WARNING("Your player age (days since first seen on the server) is too low for this job."))
@@ -145,10 +139,6 @@ var/global/datum/controller/occupations/job_master
 			if(!job)
 				return FALSE
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
-				return FALSE
-			if(job.faction_restricted && (player.client.prefs.background != GLOB.using_map.company_name || (player.client.prefs.nanotrasen_relation in COMPANY_OPPOSING)))
-				return FALSE
-			if(jobban_isbanned(player, rank))
 				return FALSE
 			if(!job.player_old_enough(player.client))
 				return FALSE
@@ -181,20 +171,11 @@ var/global/datum/controller/occupations/job_master
 		Debug("Running FOC, Job: [job], Level: [level], Flag: [flag]")
 		var/list/candidates = list()
 		for(var/mob/new_player/player in unassigned)
-			if(jobban_isbanned(player, job.title))
-				Debug("FOC isbanned failed, Player: [player]")
-				continue
 			if(!job.player_old_enough(player.client))
 				Debug("FOC player not old enough, Player: [player]")
 				continue
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
 				Debug("FOC character not old enough, Player: [player]")
-				continue
-			if(job.faction_restricted && (player.client.prefs.background != GLOB.using_map.company_name || (player.client.prefs.nanotrasen_relation in COMPANY_OPPOSING)))
-				Debug("FOC character is not loyal to [GLOB.using_map.company_name]")
-				continue
-			if(flag && !(flag in player.client.prefs.be_special_role))
-				Debug("FOC flag failed, Player: [player], Flag: [flag], ")
 				continue
 			if(player.client.prefs.IsJobPriority(job,level))
 				Debug("FOC pass, Player: [player], Level:[level]")
@@ -210,9 +191,6 @@ var/global/datum/controller/occupations/job_master
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
 				continue
 
-			if(job.faction_restricted && (player.client.prefs.background != GLOB.using_map.company_name || (player.client.prefs.nanotrasen_relation in COMPANY_OPPOSING)))
-				continue
-
 			if(istype(job, GetJob("Assistant"))) // We don't want to give him assistant, that's boring!
 				continue
 
@@ -220,10 +198,6 @@ var/global/datum/controller/occupations/job_master
 				continue
 
 			if(job.title in GLOB.command_positions) //If you want a command position, select it!
-				continue
-
-			if(jobban_isbanned(player, job.title))
-				Debug("GRJ isbanned failed, Player: [player], Job: [job.title]")
 				continue
 
 			if(!job.player_old_enough(player.client))
@@ -348,10 +322,6 @@ var/global/datum/controller/occupations/job_master
 					if(!job || mode.disabled_jobs.Find(job.title) )
 						continue
 
-					if(jobban_isbanned(player, job.title))
-						Debug("DO isbanned failed, Player: [player], Job:[job.title]")
-						continue
-
 					if(!job.player_old_enough(player.client))
 						Debug("DO player not old enough, Player: [player], Job:[job.title]")
 						continue
@@ -404,7 +374,6 @@ var/global/datum/controller/occupations/job_master
 				H.revive() // Disabled monkeys are bad
 				QDEL_LIST(H.worn_underwear)
 			// Equip job items.
-			job.setup_account(H)
 			job.equip(H, H.mind ? H.mind.role_alt_title : "")
 			job.apply_fingerprints(H)
 
@@ -439,27 +408,6 @@ var/global/datum/controller/occupations/job_master
 							spawn_in_storage.Add(G)
 						else
 							loadout_taken_slots.Add(G.slot)
-
-			// Remove augmentations that are not allowed for this job (loadout-like behavior).
-			var/list/organs = list()
-			for(var/organ_tag in H.external_organs_by_name)
-				var/obj/item/organ/O = H.external_organs_by_name[organ_tag]
-				if(O)
-					organs += O
-			for(var/organ_tag in H.internal_organs_by_name)
-				var/obj/item/organ/O = H.internal_organs_by_name[organ_tag]
-				if(O)
-					organs += O
-
-			for(var/obj/item/organ/O in organs)
-				if(!LAZYLEN(O.organ_modules))
-					continue
-				for(var/obj/item/organ_module/module in O.organ_modules.Copy())
-					if(!module.is_allowed_for_job(job))
-						to_chat(H, SPAN_WARNING("Your current species, job, whitelist status or loadout configuration does not permit you to spawn with [module.name]!"))
-						module.remove(O)
-						if(!QDELETED(module))
-							qdel(module)
 		else
 			to_chat(H, "Your job is [rank] and the game just can't handle it! Please report this bug to an administrator.")
 
@@ -479,30 +427,10 @@ var/global/datum/controller/occupations/job_master
 				H.buckled.forceMove(H.loc)
 				H.buckled.set_dir(H.dir)
 
-		if(H.mind)
-			var/remembered_info = ""
-			var/datum/money_account/department_account = department_accounts[job.department]
-
-			if(department_account)
-				remembered_info += "<b>Your [job.department] department account:</b><br>"
-				remembered_info += "<b>Number:</b> #[department_account.account_number]<br>"
-			// And if they're head, give them the pin and funds info for their department
-			if(job.head_position || job.title == "Quartermaster" || job.title ==  "Internal Affairs Agent")
-				remembered_info += "<b>Pin:</b> [department_account.remote_access_pin]<br>"
-				remembered_info += "<b>Funds:</b> [department_account.money]cr.<br>"
-
-			H.mind.store_memory(remembered_info)
-
 		var/alt_title = null
 		if(H.mind)
 			H.mind.assigned_role = rank
 			alt_title = H.mind.role_alt_title
-
-			switch(rank)
-				if("Cyborg")
-					return H.Robotize()
-				if("AI")
-					return H
 
 		// put any loadout items that couldn't spawn into storage or on the ground
 		for(var/datum/gear/G in spawn_in_storage)
@@ -520,15 +448,6 @@ var/global/datum/controller/occupations/job_master
 				W.add_fingerprint(H)
 
 		to_chat(H, "<B>You are [job.total_positions == 1 ? "the" : "a"] [alt_title ? alt_title : rank].</B>")
-
-		if(job.supervisors)
-			to_chat(H, "<b>As the [alt_title ? alt_title : rank] you answer directly to [job.supervisors]. Special circumstances may change this.</b>")
-
-		to_chat(H, "<b>To speak on your department's radio channel use :h. For the use of other channels, examine your headset.</b>")
-
-		if(rank == "Merchant" && GLOB.merchant_illegalness)
-			to_chat(H, SPAN_DANGER("<b>Your trading license is a forgery. Trading on [station_name()] is illegal!</b>"))
-			H.mind.store_memory("Your trading license is a forgery. Trading on [station_name()] is illegal.")
 
 		if(job.req_admin_notify)
 			to_chat(H, "<b>You are playing a job that is important for Game Progression. If you have to disconnect, please notify the admins via adminhelp.</b>")
@@ -563,15 +482,9 @@ var/global/datum/controller/occupations/job_master
 				G.prescription = 7
 
 		// give pinpointer to new players
-		var/wayfinding_pref = H.get_preference_value(/datum/client_preference/give_wayfinding)
 		var/player_age = H?.client?.player_age
 		if(istext(player_age)) // database not initialized
 			player_age = 0
-		if((player_age <= NEW_PLAYER_WAYFINDING_TRACKER && wayfinding_pref == GLOB.PREF_BASIC) || wayfinding_pref == GLOB.PREF_YES)
-			var/obj/item/pinpointer/wayfinding/W = new(H)
-			var/equipped = H.equip_to_slot_or_store_or_drop(W, slot_l_store)
-			if(equipped)
-				to_chat(H, SPAN("notice", "You can use [W.name] to obtain location of most popular places."))
 
 		BITSET(H.hud_updateflag, ID_HUD)
 		BITSET(H.hud_updateflag, IMPLOYAL_HUD)
@@ -608,9 +521,6 @@ var/global/datum/controller/occupations/job_master
 			for(var/mob/new_player/player in GLOB.player_list)
 				if(!(player.ready && player.mind && !player.mind.assigned_role))
 					continue //This player is not ready
-				if(jobban_isbanned(player, job.title))
-					level5++
-					continue
 				if(!job.player_old_enough(player.client))
 					level6++
 					continue
@@ -623,8 +533,6 @@ var/global/datum/controller/occupations/job_master
 				else level4++ //not selected
 
 			tmp_str += "HIGH=[level1]|MEDIUM=[level2]|LOW=[level3]|NEVER=[level4]|BANNED=[level5]|YOUNG=[level6]|-"
-			feedback_add_details("job_preferences",tmp_str)
-
 
 /**
  *  Return appropriate /datum/spawnpoint for given client and rank
@@ -703,8 +611,7 @@ var/global/datum/controller/occupations/job_master
 	if(J.no_latejoin)
 		return FALSE
 
-	var/datum/storyteller_character/ST = SSstoryteller.character
-	var/available_vacancies = ST ? ST.get_available_vacancies() : job_master.get_available_vacancies()
+	var/available_vacancies = job_master.get_available_vacancies()
 	if(length(GLOB.vacancies) >= available_vacancies)
 		return FALSE
 	++J.open_vacancies

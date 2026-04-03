@@ -1,9 +1,6 @@
 /atom/movable/proc/get_mob()
 	return
 
-/obj/mecha/get_mob()
-	return occupant
-
 /obj/vehicle/train/get_mob()
 	return buckled_mob
 
@@ -17,11 +14,6 @@
 	return get_inactive_hand()
 
 /mob/get_mob()
-	return src
-
-/mob/living/bot/mulebot/get_mob()
-	if(load && istype(load, /mob/living))
-		return list(src, load)
 	return src
 
 //helper for inverting armor blocked values into a multiplier
@@ -121,13 +113,6 @@
 			return icon_state
 	return icon_states[icon_states.len] // If we had no match, return the last element
 
-//checks whether this item is a module of the robot it is located in.
-/proc/is_robot_module(obj/item/thing)
-	if (!thing || !istype(thing.loc, /mob/living/silicon/robot))
-		return 0
-	var/mob/living/silicon/robot/R = thing.loc
-	return (thing in R.module.modules)
-
 /proc/get_exposed_defense_zone(atom/movable/target)
 	return pick(BP_HEAD, BP_L_HAND, BP_R_HAND, BP_L_FOOT, BP_R_FOOT, BP_L_ARM, BP_R_ARM, BP_L_LEG, BP_R_LEG, BP_CHEST, BP_GROIN)
 
@@ -221,12 +206,6 @@
 /proc/do_after(mob/user, delay, atom/target = null, needhand = TRUE, progress = TRUE, incapacitation_flags = INCAPACITATION_DEFAULT, same_direction = FALSE, can_move = FALSE, luck_check_type = LUCK_CHECK_GENERAL, can_multitask = FALSE, datum/callback/extra_checks)
 	if(!user)
 		return FALSE
-
-	if(luck_check_type)
-		var/user_luck = user.client?.get_luck_for_type(luck_check_type)
-		if(user_luck != 100 && !prob(user_luck))
-			target?.show_splash_text(user, "You fail!", SPAN_DANGER("You fail, miserably!"))
-			return
 
 	var/uniqueid
 	if(!can_multitask)

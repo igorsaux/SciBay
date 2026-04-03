@@ -1,7 +1,5 @@
 /obj/item/modular_computer/proc/update_verbs()
 	verbs.Cut()
-	if(ai_slot)
-		verbs |= /obj/item/modular_computer/verb/eject_ai
 	if(portable_drive)
 		verbs |= /obj/item/modular_computer/verb/eject_usb
 	if(card_slot)
@@ -64,21 +62,6 @@
 
 	proc_eject_usb(usr)
 
-/obj/item/modular_computer/verb/eject_ai()
-	set name = "Eject AI"
-	set category = "Object"
-	set src in view(1)
-
-	if(usr.incapacitated() || !istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
-		return
-
-	if(!Adjacent(usr))
-		to_chat(usr, "<span class='warning'>You can't reach it.</span>")
-		return
-
-	proc_eject_ai(usr)
-
 /obj/item/modular_computer/proc/proc_eject_id(mob/user)
 	if(!user)
 		user = usr
@@ -98,12 +81,10 @@
 		P.event_idremoved(1)
 
 	card_slot.stored_card.forceMove(get_turf(src))
-	if(!issilicon(user))
-		user.pick_or_drop(card_slot.stored_card)
+	user.pick_or_drop(card_slot.stored_card)
 	card_slot.stored_card = null
 	update_uis()
 	to_chat(user, "You remove the card from \the [src]")
-
 
 /obj/item/modular_computer/proc/proc_eject_usb(mob/user)
 	if(!user)
@@ -116,19 +97,6 @@
 	uninstall_component(user, portable_drive)
 	update_uis()
 
-/obj/item/modular_computer/proc/proc_eject_ai(mob/user)
-	if(!user)
-		user = usr
-
-	if(!ai_slot || !ai_slot.stored_card)
-		to_chat(user, "There is no intellicard connected to \the [src].")
-		return
-
-	ai_slot.stored_card.forceMove(get_turf(src))
-	ai_slot.stored_card = null
-	ai_slot.update_power_usage()
-	update_uis()
-
 /obj/item/modular_computer/attack_ghost(mob/observer/ghost/user)
 	if(enabled)
 		ui_interact(user)
@@ -136,9 +104,6 @@
 		var/response = alert(user, "This computer is turned off. Would you like to turn it on?", "Admin Override", "Yes", "No")
 		if(response == "Yes")
 			turn_on(user)
-
-/obj/item/modular_computer/attack_ai(mob/user)
-	return attack_self(user)
 
 /obj/item/modular_computer/attack_hand(mob/user)
 	if(anchored)
@@ -175,10 +140,6 @@
 		if(!nano_printer)
 			return
 		nano_printer.attackby(W, user)
-	if(istype(W, /obj/item/aicard))
-		if(!ai_slot)
-			return
-		ai_slot.attackby(W, user)
 	if(istype(W, /obj/item/computer_hardware))
 		var/obj/item/computer_hardware/C = W
 		if(C.hardware_size <= max_hardware_size)

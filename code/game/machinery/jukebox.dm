@@ -23,9 +23,6 @@
 	var/state_base = "jukebox3"
 	anchored = 1
 	density = 1
-	power_channel = STATIC_EQUIP
-	idle_power_usage = 10 WATTS
-	active_power_usage = 100 WATTS
 	clicksound = 'sound/machines/buttonbeep.ogg'
 	req_access = list(access_bar)
 	var/locked = 0
@@ -57,14 +54,6 @@
 	current_track = null
 	QDEL_NULL(tape)
 	. = ..()
-
-/obj/machinery/media/jukebox/powered()
-	return anchored && ..()
-
-/obj/machinery/media/jukebox/power_change()
-	. = ..()
-	if(stat & (NOPOWER|BROKEN) && playing)
-		StopPlaying()
 
 /obj/machinery/media/jukebox/on_update_icon()
 	ClearOverlays()
@@ -175,9 +164,6 @@
 	spawn(15)
 		explode()
 
-/obj/machinery/media/jukebox/attack_ai(mob/user)
-	return src.attack_hand(user)
-
 /obj/machinery/media/jukebox/attack_hand(mob/user)
 	interact(user)
 
@@ -198,9 +184,8 @@
 	if(isWrench(W))
 		add_fingerprint(user)
 		wrench_floor_bolts(user, 0)
-		power_change()
 		return
-	else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
+	else if(istype(W, /obj/item/card/id))
 		if(allowed(user))
 			locked = !locked
 			to_chat(user, "The tape holder is now [locked ? "locked." : "unlocked."]")
@@ -229,18 +214,8 @@
 		return
 	return ..()
 
-/obj/machinery/media/jukebox/emag_act(remaining_charges, mob/user)
-	if(!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		emagged = 1
-		StopPlaying()
-		visible_message(SPAN_DANGER("\The [src] makes a fizzling sound."))
-		update_icon()
-		return 1
-
 /obj/machinery/media/jukebox/proc/StopPlaying()
 	playing = 0
-	update_use_power(POWER_USE_IDLE)
 	update_icon()
 	QDEL_NULL(sound_token)
 
@@ -256,7 +231,6 @@
 	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, current_track.GetTrack(), volume = volume, range = 7, falloff = 3, prefer_mute = TRUE, preference = /datum/client_preference/play_jukeboxes, streaming = TRUE, is_spatial = FALSE)
 
 	playing = 1
-	update_use_power(POWER_USE_ACTIVE)
 	update_icon()
 
 /obj/machinery/media/jukebox/proc/AdjustVolume(new_volume)

@@ -83,8 +83,6 @@ var/list/holder_mob_icon_cache = list()
 	// Devour on click on self with holder
 	if(target == user && istype(user,/mob/living/carbon))
 		var/mob/living/carbon/M = user
-		if(M.isSynthetic())
-			return
 		var/obj/item/blocked = M.check_mouth_coverage()
 		if(blocked)
 			to_chat(user, SPAN_WARNING("\The [blocked] is in the way!"))
@@ -212,12 +210,6 @@ var/list/holder_mob_icon_cache = list()
 		qdel(G) // All the checks have been done above, it's safe to murder one (or even two, who knows) of grabber's grab objects
 
 	forceMove(H)
-
-	if(isanimal(src))
-		var/mob/living/simple_animal/SA = src
-		SA.panic_target = null
-		SA.stop_automated_movement = 0
-		SA.turns_since_scan = 5
 
 	grabber.status_flags |= PASSEMOTES
 	H.sync()

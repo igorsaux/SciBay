@@ -14,20 +14,10 @@ var/const/CHARACTER_PREFERENCE_INPUT_TITLE = "Character Preference"
 	sort_order = 1
 	category_item_type = /datum/category_item/player_setup_item/general
 
-/datum/category_group/player_setup_category/augmentation_preferences
-	name = "Augmentations"
-	sort_order = 2
-	category_item_type = /datum/category_item/player_setup_item/augmentation
-
 /datum/category_group/player_setup_category/occupation_preferences
 	name = "Jobs"
 	sort_order = 3
 	category_item_type = /datum/category_item/player_setup_item/occupation
-
-/datum/category_group/player_setup_category/appearance_preferences
-	name = "Roles"
-	sort_order = 4
-	category_item_type = /datum/category_item/player_setup_item/antagonism
 
 /datum/category_group/player_setup_category/loadout_preferences
 	name = "Loadout"
@@ -97,8 +87,6 @@ var/const/CHARACTER_PREFERENCE_INPUT_TITLE = "Character Preference"
 /datum/category_collection/player_setup_collection/proc/get_lp_cost()
 	var/total_cost = 0
 	for(var/datum/category_group/player_setup_category/PS in categories)
-		if(PS.category_item_type == /datum/category_item/player_setup_item/augmentation)
-			continue
 		total_cost += PS.get_lp_cost()
 	return total_cost
 
@@ -287,23 +275,3 @@ var/const/CHARACTER_PREFERENCE_INPUT_TITLE = "Character Preference"
 
 /datum/category_item/player_setup_item/proc/preference_species()
 	return all_species[pref.species] || all_species[SPECIES_HUMAN]
-
-// Checks in a really hacky way if a character's preferences say they are an FBP or not.
-/datum/category_item/player_setup_item/proc/is_FBP()
-	if(pref.organ_data && pref.organ_data[BP_CHEST] != "cyborg")
-		return 0
-	return 1
-
-// Returns what kind of FBP the player's prefs are.  Returns 0 if they're not an FBP.
-/datum/category_item/player_setup_item/proc/get_FBP_type()
-	if(!is_FBP())
-		return 0 // Not a robot.
-	if(BP_BRAIN in pref.organ_data)
-		switch(pref.organ_data[BP_BRAIN])
-			if("assisted")
-				return PREF_FBP_CYBORG
-			if("mechanical")
-				return PREF_FBP_POSI
-			if("digital")
-				return PREF_FBP_SOFTWARE
-	return 0 //Something went wrong!

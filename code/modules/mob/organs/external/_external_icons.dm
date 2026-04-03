@@ -16,10 +16,7 @@ var/list/limb_icon_cache = list()
 	s_base = ""
 	h_col = list(human.r_hair, human.g_hair, human.b_hair)
 	h_s_col = list(human.r_s_hair, human.g_s_hair, human.b_s_hair)
-	if(BP_IS_ROBOTIC(src))
-		var/datum/robolimb/franchise = GLOB.all_robolimbs[model]
-		if(!(franchise && franchise.skintone))
-			return
+
 	if(species && human.species && species.name != human.species.name)
 		return
 	if(!isnull(human.s_tone) && (human.species.species_appearance_flags & HAS_A_SKIN_TONE))
@@ -37,10 +34,7 @@ var/list/limb_icon_cache = list()
 	s_base = dna.s_base
 	h_col = list(dna.GetUIValue(DNA_UI_HAIR_R),dna.GetUIValue(DNA_UI_HAIR_G),dna.GetUIValue(DNA_UI_HAIR_B))
 	h_s_col = list(dna.GetUIValue(DNA_UI_S_HAIR_R),dna.GetUIValue(DNA_UI_S_HAIR_G),dna.GetUIValue(DNA_UI_S_HAIR_B))
-	if(BP_IS_ROBOTIC(src))
-		var/datum/robolimb/franchise = GLOB.all_robolimbs[model]
-		if(!(franchise && franchise.skintone))
-			return
+
 	if(!isnull(dna.GetUIValue(DNA_UI_SKIN_TONE)) && (species.species_appearance_flags & HAS_A_SKIN_TONE))
 		s_tone = dna.GetUIValue(DNA_UI_SKIN_TONE)
 		if(species.species_appearance_flags & SECONDARY_HAIR_IS_SKIN)
@@ -80,10 +74,7 @@ var/list/limb_icon_cache = list()
 
 	var/bb = ""
 	if(owner)
-		if(!BP_IS_ROBOTIC(src))
-			bb = owner.body_build.index
-		else
-			bb = owner.body_build.roboindex
+		bb = owner.body_build.index
 
 	. += "[organ_tag]"
 	. += "[gender]"
@@ -95,8 +86,6 @@ var/list/limb_icon_cache = list()
 
 	if(force_icon)
 		. += "[force_icon]"
-	else if(BP_IS_ROBOTIC(src))
-		. += "robot"
 	else if(owner && (MUTATION_SKELETON in owner.mutations))
 		. += "skeleton"
 	else if(owner && (MUTATION_HUSK in owner.mutations))
@@ -144,10 +133,7 @@ var/list/limb_icon_cache = list()
 		gender = "_f"
 
 	if(owner)
-		if(!BP_IS_ROBOTIC(src))
-			body_build = owner.body_build.index
-		else
-			body_build = owner.body_build.roboindex
+		body_build = owner.body_build.index
 
 	var/chosen_icon = ""
 	var/chosen_icon_state = ""
@@ -157,8 +143,6 @@ var/list/limb_icon_cache = list()
 	/////
 	if(force_icon)
 		chosen_icon = force_icon
-	else if(BP_IS_ROBOTIC(src))
-		chosen_icon = 'icons/mob/human_races/cyberlimbs/unbranded/unbranded_main.dmi'
 	else if(!dna)
 		chosen_icon = 'icons/mob/human_races/r_human.dmi'
 	else if(owner && (MUTATION_SKELETON in owner.mutations))
@@ -259,7 +243,6 @@ var/list/limb_icon_cache = list()
 
 // Global scope, used in code below.
 var/list/flesh_hud_colours = list("#00ff00","#aaff00","#ffff00","#ffaa00","#ff0000","#aa0000","#660000")
-var/list/robot_hud_colours = list("#ffffff","#cccccc","#aaaaaa","#888888","#666666","#444444","#222222","#000000")
 
 /obj/item/organ/external/proc/get_damage_hud_image(painkiller_mult = 0)
 
@@ -283,7 +266,7 @@ var/list/robot_hud_colours = list("#ffffff","#cccccc","#aaaaaa","#888888","#6666
 	if(min_dam_state && dam_state < min_dam_state)
 		dam_state = min_dam_state
 	// Apply colour and return product.
-	var/list/hud_colours = !BP_IS_ROBOTIC(src) ? flesh_hud_colours : robot_hud_colours
+	var/list/hud_colours = flesh_hud_colours
 	var/final_color = hud_colours[max(1, min(ceil(dam_state * hud_colours.len), hud_colours.len))]
 	if(painkiller_mult)
 		final_color = gradient(final_color, "#bfbfbf", min(painkiller_mult, 0.9))

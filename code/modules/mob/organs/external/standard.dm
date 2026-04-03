@@ -25,13 +25,6 @@
 	internal_organs_size = 12 // Liver = 2, stomach = 2, heart = 2, lungs = 6
 	max_module_size = 4
 
-/obj/item/organ/external/chest/robotize(company, skip_prosthetics = FALSE, keep_organs = FALSE, just_printed = FALSE)
-	if(..())
-		// Give them a new cell.
-		var/obj/item/organ/internal/cell/C = owner.internal_organs_by_name[BP_CELL]
-		if(!istype(C))
-			owner.internal_organs_by_name[BP_CELL] = new /obj/item/organ/internal/cell(owner)
-
 /obj/item/organ/external/chest/get_scan_results()
 	. = ..()
 	var/obj/item/organ/internal/lungs/L = locate() in src

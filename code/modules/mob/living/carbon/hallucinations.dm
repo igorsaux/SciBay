@@ -21,47 +21,6 @@
 	H.holder = src
 	H.activate()
 
-/mob/living/carbon/proc/handle_hallucinations()
-	//Tick down the duration
-	hallucination_duration = max(0, hallucination_duration - 1)
-	if(chem_effects[CE_MIND] > 0)
-		hallucination_duration = max(0, hallucination_duration - 1)
-
-	//Adjust power if we have some chems that affect it
-	if(chem_effects[CE_MIND] < 0)
-		hallucination_power = min(hallucination_power++, 50)
-	if(chem_effects[CE_MIND] < -1)
-		hallucination_power = hallucination_power++
-	if(chem_effects[CE_MIND] > 0)
-		hallucination_power = max(hallucination_power - chem_effects[CE_MIND], 0)
-
-	//See if hallucination is gone
-	if(!hallucination_power)
-		hallucination_duration = 0
-		return
-	if(!hallucination_duration)
-		hallucination_power = 0
-		return
-
-	if(!client || stat || world.time < next_hallucination)
-		return
-	if(chem_effects[CE_MIND] > 0 && prob(chem_effects[CE_MIND]*40)) //antipsychotics help
-		return
-	var/hall_delay = rand(10,20) SECONDS
-
-	if(hallucination_power < 50)
-		hall_delay *= 2
-	next_hallucination = world.time + hall_delay
-	var/list/candidates = list()
-	for(var/T in subtypesof(/datum/hallucination/))
-		var/datum/hallucination/H = new T
-		if(H.can_affect(src))
-			candidates += H
-	if(candidates.len)
-		var/datum/hallucination/H = pick(candidates)
-		H.holder = src
-		H.activate()
-
 /mob/living/carbon/proc/is_hallucinating()
 	return hallucination_power && hallucination_duration
 
@@ -731,9 +690,6 @@
 		to_chat(usr, "<span class = 'warning'>You're not in any state to use your powers right now!'</span>")
 		return
 
-	if(chem_effects[CE_MIND] > 0)
-		to_chat(usr, "<span class = 'warning'>Chemicals in your blood prevent you from using your power!'</span>")
-
 	var/list/creatures = list()
 	for(var/mob/living/carbon/C in SSmobs.mob_list)
 		creatures += C
@@ -798,9 +754,6 @@
 	origin = pick(origin_candidates)
 
 	var/list/targets = new()
-	for(var/datum/objective/objective in holder.mind.objectives)
-		if(objective.target && objective.target.current)
-			targets |= objective.target.current
 	var/fake_type = pick(
 		targets.len               * 550; "target",
 		GLOB.human_mob_list.len   * 45;  "human",
@@ -821,16 +774,6 @@
 			for(var/mob/living/F in GLOB.human_mob_list)
 				if((holder.z == F.z) == look_for_same_z)
 					fake_candidates += F
-		if("cyborg")
-			fake_candidates = GLOB.silicon_mob_list
-		if("animal")
-			fake_candidates = get_living_sublist(list(/mob/living/simple_animal), list(/mob/living/simple_animal/mouse))
-		if("xenomorph")
-			fake_candidates = get_living_sublist(list(/mob/living/carbon/larva, /mob/living/carbon/metroid, /mob/living/deity))
-		if("bot")
-			fake_candidates = get_living_sublist(list(/mob/living/bot))
-		if("mouse")
-			fake_candidates = get_living_sublist(list(/mob/living/simple_animal/mouse))
 		if("ghost")
 			fake_candidates = GLOB.ghost_mob_list
 	if(!fake_candidates)

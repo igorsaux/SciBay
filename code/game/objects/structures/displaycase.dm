@@ -27,13 +27,6 @@
 				src.health -= 5
 				src.healthcheck()
 
-
-/obj/structure/displaycase/bullet_act(obj/item/projectile/Proj)
-	health -= Proj.get_structure_damage()
-	..()
-	src.healthcheck()
-	return
-
 /obj/structure/displaycase/proc/healthcheck()
 	if (src.health <= 0)
 		if (!( src.destroyed ))

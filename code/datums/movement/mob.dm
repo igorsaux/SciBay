@@ -124,9 +124,6 @@
 		return MOVEMENT_HANDLED
 
 	if(mob.pulledby || mob.buckled) // Wheelchair driving!
-		if(istype(mob.buckled, /obj/effect/dummy/immaterial_form))
-			mob.buckled.relaymove(mob, direction)
-			return MOVEMENT_HANDLED
 		if(istype(mob.loc, /turf/space))
 			return // No wheelchair driving in space
 		if(istype(mob.buckled, /obj/structure/bed/chair/pedalgen))

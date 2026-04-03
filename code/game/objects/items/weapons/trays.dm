@@ -141,15 +141,6 @@
 				return
 			return
 
-/obj/item/tray/attackby(obj/item/W as obj, mob/user as mob)
-	if(istype(W, /obj/item/material/kitchen/rollingpin))
-		THROTTLE(cooldown, 25)
-		if(cooldown)
-			user.visible_message("<span class='warning'>[user] bashes [src] with [W]!</span>")
-			playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, 1)
-	else
-		..()
-
 /*
 ===============~~~~~================================~~~~~====================
 =																			=

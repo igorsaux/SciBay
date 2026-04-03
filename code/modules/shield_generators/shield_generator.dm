@@ -47,7 +47,6 @@
 	component_parts += new /obj/item/stock_parts/console_screen(src)
 	RefreshParts()
 	connect_to_network()
-	wires = new(src)
 
 	mode_list = list()
 	for(var/st in subtypesof(/datum/shield_mode/))
@@ -60,7 +59,6 @@
 	field_segments = null
 	damaged_segments = null
 	mode_list = null
-	QDEL_NULL(wires)
 	. = ..()
 
 
@@ -239,14 +237,6 @@
 
 /obj/machinery/power/shield_generator/attack_hand(mob/user)
 	ui_interact(user)
-	if(panel_open)
-		wires.Interact(user)
-
-
-/obj/machinery/power/shield_generator/CanUseTopic(mob/user)
-	if(issilicon(user) && !Adjacent(user) && ai_control_disabled)
-		return STATUS_UPDATE
-	return ..()
 
 /obj/machinery/power/shield_generator/OnTopic(user, href_list)
 	if(href_list["begin_shutdown"])
@@ -279,12 +269,8 @@
 
 		// If the shield would take 5 minutes to disperse and shut down using regular methods, it will take x1.5 (7 minutes and 30 seconds) of this time to cool down after emergency shutdown
 		offline_for = round(current_energy / (SHIELD_SHUTDOWN_DISPERSION_RATE / 1.5))
-		var/old_energy = current_energy
 		shutdown_field()
 		log_and_message_admins("has triggered \the [src]'s emergency shutdown!", user)
-		spawn()
-			empulse(src, old_energy / 60000000, old_energy / 32000000, 1) // If shields are charged at 450 MJ, the EMP will be 7.5, 14.0625. 90 MJ, 1.5, 2.8125
-		old_energy = 0
 
 		return TOPIC_REFRESH
 

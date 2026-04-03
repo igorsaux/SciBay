@@ -143,11 +143,6 @@
 
 /mob/living/carbon/update_chem_slowdown(ce_effect)
 	switch(ce_effect)
-		if(CE_SPEEDBOOST)
-			var/calculated_slowdown = max((cached_slowdown - chem_effects[CE_SPEEDBOOST]), (config.movement.run_speed/2))
-			add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/hyperzine_boost, slowdown = calculated_slowdown)
-		if(CE_SLOWDOWN)
-			add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/chem_slowdown, slowdown = chem_effects[CE_SLOWDOWN])
 		if(null)
 			remove_movespeed_modifier(/datum/movespeed_modifier/hyperzine_boost)
 			remove_movespeed_modifier(/datum/movespeed_modifier/chem_slowdown)

@@ -18,9 +18,6 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 
 	var/list/item_type = list("Machine Boards", "Console Boards", "Mecha Boards", "Module Boards", "Engineering Boards", "Device", "Microelectronics")
 
-	idle_power_usage = 30 WATTS
-	active_power_usage = 2.500 KILO WATTS
-
 /obj/machinery/r_n_d/circuit_imprinter/Initialize()
 	materials = default_material_composition.Copy()
 
@@ -61,12 +58,6 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 
 /obj/machinery/r_n_d/circuit_imprinter/RefreshParts()
 	var/T = 0
-	for(var/obj/item/reagent_containers/vessel/G in component_parts)
-		T += G.reagents.maximum_volume
-	if(reagents)
-		reagents.maximum_volume = T
-	else
-		create_reagents(T)
 	max_material_storage = 0
 	for(var/obj/item/stock_parts/matter_bin/M in component_parts)
 		max_material_storage += M.rating * 75000
@@ -106,8 +97,6 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 		return 1
 	if(O.is_open_container())
 		return 0
-	if(is_robot_module(O))
-		return 0
 	if(!istype(O, /obj/item/stack/material))
 		to_chat(user, "<span class='notice'>You cannot insert this item into \the [src]!</span>")
 		return 0
@@ -122,7 +111,6 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	var/amount = min(stack.get_amount(), round((max_material_storage - TotalMaterials()) / SHEET_MATERIAL_AMOUNT))
 
 	busy = 1
-	use_power_oneoff(max(1000, (SHEET_MATERIAL_AMOUNT * amount / 10)))
 
 	var/t = stack.material.name
 	if(t)
@@ -149,21 +137,11 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	for(var/M in D.materials)
 		if(materials[M] <= D.materials[M] * mat_efficiency)
 			return 0
-	for(var/C in D.chemicals)
-		if(!reagents.has_reagent(C, D.chemicals[C]))
-			return 0
 	return 1
 
 /obj/machinery/r_n_d/circuit_imprinter/proc/build(datum/design/D)
-	var/power = active_power_usage
-	for(var/M in D.materials)
-		power += round(D.materials[M] / 5)
-	power = max(active_power_usage, power)
-	use_power_oneoff(power)
 	for(var/M in D.materials)
 		materials[M] = max(0, materials[M] - D.materials[M] * mat_efficiency)
-	for(var/C in D.chemicals)
-		reagents.remove_reagent(C, D.chemicals[C] * mat_efficiency)
 
 	if(D.build_path)
 		var/obj/new_item = D.Fabricate(src, src)

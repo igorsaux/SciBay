@@ -1,7 +1,7 @@
 
 /obj/item/reagent_containers/vessel/beaker
 	name = "beaker"
-	desc = "A beaker."
+	desc = "A 250 ml beaker."
 	icon = 'icons/obj/reagent_containers/chemical.dmi'
 	icon_state = "beaker"
 	item_state = null
@@ -14,7 +14,8 @@
 	brittle = TRUE
 	precise_measurement = TRUE
 
-	volume = 0.3 LITERS
+	volume = 0.25 LITERS
+	bottom_area = 0.00282
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250;300" // Quite precise, but still requires syringes/droppers/vials for precise transfer.
 
@@ -34,7 +35,7 @@
 
 /obj/item/reagent_containers/vessel/beaker/large
 	name = "large beaker"
-	desc = "A large beaker."
+	desc = "A 500 ml beaker."
 	icon_state = "beakerlarge"
 	center_of_mass = "x=17;y=10"
 	force = 6.5
@@ -43,7 +44,8 @@
 	mod_handy = 0.45
 	matter = list(MATERIAL_GLASS = 5000)
 
-	volume = 0.6 LITER
+	volume = 0.5 LITER
+	bottom_area = 0.00441
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250;300;600"
 
@@ -52,51 +54,9 @@
 /obj/item/reagent_containers/vessel/beaker/large/get_storage_cost()
 	return ..() * 1.5
 
-/obj/item/reagent_containers/vessel/beaker/plass
-	name = "plass beaker"
-	desc = "A beaker made of plass, it doesn't allow radiation to pass through."
-	icon_state = "plass_beaker"
-	matter = list(MATERIAL_PLASS = 2500)
-	brittle = FALSE // Plass be strong
-	rad_resist_type = /datum/rad_resist/beaker_plass
-
-/datum/rad_resist/beaker_plass
-	alpha_particle_resist = 48 MEGA ELECTRONVOLT
-	beta_particle_resist = 22.2 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
-/obj/item/reagent_containers/vessel/beaker/noreact
-	name = "cryostasis beaker"
-	desc = "A cryostasis beaker that allows for chemical storage without reactions."
-	icon_state = "beakernoreact"
-	center_of_mass = "x=17;y=10"
-	matter = list(MATERIAL_GLASS = 2500)
-	brittle = FALSE
-	atom_flags = ATOM_FLAG_NO_REACT
-	override_lid_state = LID_OPEN
-
-
-/obj/item/reagent_containers/vessel/beaker/bluespace
-	name = "bluespace beaker"
-	desc = "A bluespace beaker, powered by experimental bluespace technology."
-	icon_state = "beakerbluespace"
-	center_of_mass = "x=17;y=10"
-	force = 6.5
-	mod_weight = 0.65
-	mod_reach = 0.3
-	mod_handy = 0.45
-	matter = list(MATERIAL_STEEL = 1000, MATERIAL_GLASS = 5000)
-	brittle = FALSE
-
-	volume = 1.5 LITERS
-	amount_per_transfer_from_this = 25
-	possible_transfer_amounts = "10;25;30;50;60;100;150;200;300;600;1000;1500"
-
-	override_lid_state = LID_OPEN
-
 /obj/item/reagent_containers/vessel/beaker/vial
 	name = "vial"
-	desc = "A small glass vial."
+	desc = "A small 2 ml glass vial."
 	icon_state = "vial"
 	center_of_mass = "x=16;y=10"
 	force = 2.5
@@ -105,7 +65,8 @@
 	mod_handy = 0.4
 	matter = list(MATERIAL_GLASS = 1250)
 
-	volume = 50
+	volume = 0.002 LITER
+	bottom_area = 0.00011
 	w_class = ITEM_SIZE_TINY
 	amount_per_transfer_from_this = 5
 	possible_transfer_amounts = "5;10;15;25;30;50"

@@ -5,18 +5,12 @@
 			return global.BSACooldown;
 		if("BUMP_TELEPORTERS")
 			return global.BUMP_TELEPORTERS;
-		if("Banlist")
-			return global.Banlist;
-		if("CMinutes")
-			return global.CMinutes;
 		if("Debug2")
 			return global.Debug2;
 		if("Failsafe")
 			return global.Failsafe;
 		if("GLOB")
 			return global.GLOB;
-		if("Holiday")
-			return global.Holiday;
 		if("IClog")
 			return global.IClog;
 		if("LIGHTING_CORNER_DIAGONAL")
@@ -25,28 +19,16 @@
 			return global.Master;
 		if("OOClog")
 			return global.OOClog;
-		if("PDAs")
-			return global.PDAs;
 		if("SSair")
 			return global.SSair;
 		if("SSairflow")
 			return global.SSairflow;
 		if("SSalarm")
 			return global.SSalarm;
-		if("SSantags")
-			return global.SSantags;
 		if("SSatoms")
 			return global.SSatoms;
 		if("SScharacter_setup")
 			return global.SScharacter_setup;
-		if("SScircuit")
-			return global.SScircuit;
-		if("SSvirus")
-			return global.SSvirus;
-		if("SScircuit_components")
-			return global.SScircuit_components;
-		if("SSevac")
-			return global.SSevac;
 		if("SSgarbage")
 			return global.SSgarbage;
 		if("SSicon_update")
@@ -67,40 +49,18 @@
 			return global.SSnano;
 		if("SSopen_space")
 			return global.SSopen_space;
-		if("SSplants")
-			return global.SSplants;
 		if("SSradiation")
 			return global.SSradiation;
-		if("SSshuttle")
-			return global.SSshuttle;
 		if("SSskybox")
 			return global.SSskybox;
-		if("SSsun")
-			return global.SSsun;
 		if("SSsupply")
 			return global.SSsupply;
 		if("SStgui")
 			return global.SStgui;
 		if("SSticker")
 			return global.SSticker;
-		if("SStrade")
-			return global.SStrade;
-		if("SSvines")
-			return global.SSvines;
-		if("SSvote")
-			return global.SSvote;
 		if("SSwireless")
 			return global.SSwireless;
-		if("SSxenoarch")
-			return global.SSxenoarch;
-		if("Tier1Runes")
-			return global.Tier1Runes;
-		if("Tier2Runes")
-			return global.Tier2Runes;
-		if("Tier3Runes")
-			return global.Tier3Runes;
-		if("Tier4Runes")
-			return global.Tier4Runes;
 		if("WALLITEMS")
 			return global.WALLITEMS;
 		if("_all_globals")
@@ -117,8 +77,6 @@
 			return global.admin_secrets;
 		if("admin_verbs_admin")
 			return global.admin_verbs_admin;
-		if("admin_verbs_ban")
-			return global.admin_verbs_ban;
 		if("admin_verbs_debug")
 			return global.admin_verbs_debug;
 		if("admin_verbs_default")
@@ -145,26 +103,10 @@
 			return global.admin_verbs_sounds;
 		if("admin_verbs_spawn")
 			return global.admin_verbs_spawn;
-		if("adminhelp_ignored_words")
-			return global.adminhelp_ignored_words;
 		if("adminlog")
 			return global.adminlog;
-		if("ai_list")
-			return global.ai_list;
-		if("ai_status_emotions")
-			return global.ai_status_emotions;
-		if("ai_verbs_default")
-			return global.ai_verbs_default;
-		if("air_alarm_topic")
-			return global.air_alarm_topic;
 		if("air_blocked")
 			return global.air_blocked;
-		if("alien_whitelist")
-			return global.alien_whitelist;
-		if("allCasters")
-			return global.allCasters;
-		if("allConsoles")
-			return global.allConsoles;
 		if("all_grabobjects")
 			return global.all_grabobjects;
 		if("all_grabstates")
@@ -173,20 +115,14 @@
 			return global.all_languages;
 		if("all_money_accounts")
 			return global.all_money_accounts;
-		if("all_objectives")
-			return global.all_objectives;
 		if("all_species")
 			return global.all_species;
-		if("announced_news_types")
-			return global.announced_news_types;
 		if("antag_add_finished")
 			return global.antag_add_finished;
 		if("appearance_manager")
 			return global.appearance_manager;
 		if("area_repository")
 			return global.area_repository;
-		if("artefact_feedback")
-			return global.artefact_feedback;
 		if("asset_datums")
 			return global.asset_datums;
 		if("assigned")
@@ -201,52 +137,32 @@
 			return global.autolathe_recipes;
 		if("base_miss_chance")
 			return global.base_miss_chance;
-		if("basic_robolimb")
-			return global.basic_robolimb;
-		if("blackbox")
-			return global.blackbox;
 		if("blocked")
 			return global.blocked;
 		if("body_heights")
 			return global.body_heights;
-		if("bomb_set")
-			return global.bomb_set;
 		if("cable_list")
 			return global.cable_list;
 		if("camera_alarm")
 			return global.camera_alarm;
 		if("camera_range_display_status")
 			return global.camera_range_display_status;
-		if("camera_repository")
-			return global.camera_repository;
-		if("cameranet")
-			return global.cameranet;
-		if("can_call_ert")
-			return global.can_call_ert;
 		if("cargo_supply_pack_root")
 			return global.cargo_supply_pack_root;
 		if("cargo_supply_packs")
 			return global.cargo_supply_packs;
 		if("changelog_hash")
 			return global.changelog_hash;
-		if("channel_to_radio_key")
-			return global.channel_to_radio_key;
 		if("checked_for_inactives")
 			return global.checked_for_inactives;
-		if("chemical_reaction_logs")
-			return global.chemical_reaction_logs;
 		if("chemical_reactions_list")
 			return global.chemical_reactions_list;
-		if("church_name")
-			return global.church_name;
 		if("client_preference_stats_")
 			return global.client_preference_stats_;
 		if("client_repository")
 			return global.client_repository;
 		if("combatlog")
 			return global.combatlog;
-		if("comm_message_listeners")
-			return global.comm_message_listeners;
 		if("command_name")
 			return global.command_name;
 		if("common_tools")
@@ -285,36 +201,16 @@
 			return global.default_material_composition;
 		if("default_onmob_icons")
 			return global.default_onmob_icons;
-		if("default_pai_software")
-			return global.default_pai_software;
 		if("defer_powernet_rebuild")
 			return global.defer_powernet_rebuild;
 		if("delta_index")
 			return global.delta_index;
-		if("department_accounts")
-			return global.department_accounts;
-		if("department_radio_keys")
-			return global.department_radio_keys;
 		if("dreams")
 			return global.dreams;
 		if("dummy_lighting_corner")
 			return global.dummy_lighting_corner;
 		if("economic_species_modifier")
 			return global.economic_species_modifier;
-		if("empty_playable_ai_cores")
-			return global.empty_playable_ai_cores;
-		if("ert_base_chance")
-			return global.ert_base_chance;
-		if("escape_pods")
-			return global.escape_pods;
-		if("escape_pods_by_name")
-			return global.escape_pods_by_name;
-		if("evacuation_controller")
-			return global.evacuation_controller;
-		if("eventchance")
-			return global.eventchance;
-		if("exclude_jobs")
-			return global.exclude_jobs;
 		if("explosion_in_progress")
 			return global.explosion_in_progress;
 		if("explosion_turfs")
@@ -327,8 +223,6 @@
 			return global.file_uid;
 		if("fileaccess_timer")
 			return global.fileaccess_timer;
-		if("finds_as_strings")
-			return global.finds_as_strings;
 		if("fire_alarm")
 			return global.fire_alarm;
 		if("flesh_hud_colours")
@@ -345,14 +239,6 @@
 			return global.fluidtrack_cache;
 		if("forced_ambiance_list")
 			return global.forced_ambiance_list;
-		if("fruit_icon_cache")
-			return global.fruit_icon_cache;
-		if("fuel_injectors")
-			return global.fuel_injectors;
-		if("fusion_cores")
-			return global.fusion_cores;
-		if("fusion_reactions")
-			return global.fusion_reactions;
 		if("game_id")
 			return global.game_id;
 		if("game_version")
@@ -371,20 +257,10 @@
 			return global.gear_tweak_free_color_choice_;
 		if("gender_datums")
 			return global.gender_datums;
-		if("ghost_traps")
-			return global.ghost_traps;
-		if("global_message_listener")
-			return global.global_message_listener;
 		if("global_vars_")
 			return global.global_vars_;
-		if("gyrotrons")
-			return global.gyrotrons;
-		if("hadevent")
-			return global.hadevent;
 		if("hazard_overlays")
 			return global.hazard_overlays;
-		if("hivemind_bank")
-			return global.hivemind_bank;
 		if("holder_mob_icon_cache")
 			return global.holder_mob_icon_cache;
 		if("host")
@@ -409,10 +285,6 @@
 			return global.jobMax;
 		if("job_master")
 			return global.job_master;
-		if("jobban_keylist")
-			return global.jobban_keylist;
-		if("jobban_runonce")
-			return global.jobban_runonce;
 		if("joblist")
 			return global.joblist;
 		if("join_motd")
@@ -423,8 +295,6 @@
 			return global.language_keys;
 		if("last_chew")
 			return global.last_chew;
-		if("last_message_id")
-			return global.last_message_id;
 		if("last_round_duration")
 			return global.last_round_duration;
 		if("license_to_url")
@@ -439,70 +309,18 @@
 			return global.loadout_categories;
 		if("log_end")
 			return global.log_end;
-		if("lunchables_drink_reagents_")
-			return global.lunchables_drink_reagents_;
-		if("lunchables_drinks_")
-			return global.lunchables_drinks_;
-		if("lunchables_ethanol_reagents_")
-			return global.lunchables_ethanol_reagents_;
-		if("lunchables_lunches_")
-			return global.lunchables_lunches_;
-		if("lunchables_snacks_")
-			return global.lunchables_snacks_;
-		if("magazine_icondata_keys")
-			return global.magazine_icondata_keys;
-		if("magazine_icondata_states")
-			return global.magazine_icondata_states;
-		if("maint_all_access")
-			return global.maint_all_access;
 		if("mannequins_")
 			return global.mannequins_;
-		if("map_count")
-			return global.map_count;
 		if("maploader")
 			return global.maploader;
 		if("mark")
 			return global.mark;
 		if("matchmaker")
 			return global.matchmaker;
-		if("maze_cell_count")
-			return global.maze_cell_count;
 		if("mechas_list")
 			return global.mechas_list;
 		if("merged")
 			return global.merged;
-		if("message_delay")
-			return global.message_delay;
-		if("message_servers")
-			return global.message_servers;
-		if("meteors_armageddon")
-			return global.meteors_armageddon;
-		if("meteors_cataclysm")
-			return global.meteors_cataclysm;
-		if("meteors_catastrophic")
-			return global.meteors_catastrophic;
-		if("meteors_dust")
-			return global.meteors_dust;
-		if("meteors_major")
-			return global.meteors_major;
-		if("meteors_minor")
-			return global.meteors_minor;
-		if("meteors_moderate")
-			return global.meteors_moderate;
-		if("meteors_normal")
-			return global.meteors_normal;
-		if("meteors_threatening")
-			return global.meteors_threatening;
-		if("minevendor_list")
-			return global.minevendor_list;
-		if("mining_floors")
-			return global.mining_floors;
-		if("mining_walls")
-			return global.mining_walls;
-		if("minor_air_alarms")
-			return global.minor_air_alarms;
-		if("mob_hat_cache")
-			return global.mob_hat_cache;
 		if("mob_repository")
 			return global.mob_repository;
 		if("motion_alarm")
@@ -511,14 +329,6 @@
 			return global.multi_point_spawns;
 		if("name_to_material")
 			return global.name_to_material;
-		if("narsie_list")
-			return global.narsie_list;
-		if("navbeacons")
-			return global.navbeacons;
-		if("news_network")
-			return global.news_network;
-		if("newscaster_standard_feeds")
-			return global.newscaster_standard_feeds;
 		if("next_account_number")
 			return global.next_account_number;
 		if("next_duration_update")
@@ -531,8 +341,6 @@
 			return global.ntnrc_uid;
 		if("nttransfer_uid")
 			return global.nttransfer_uid;
-		if("nuke_disks")
-			return global.nuke_disks;
 		if("num_financial_terminals")
 			return global.num_financial_terminals;
 		if("organ_cache")
@@ -545,40 +353,20 @@
 			return global.outfits_decls_by_type_;
 		if("outfits_decls_root_")
 			return global.outfits_decls_root_;
-		if("paiController")
-			return global.paiController;
-		if("pai_emotions")
-			return global.pai_emotions;
-		if("pai_software_by_key")
-			return global.pai_software_by_key;
 		if("paramslist_cache")
 			return global.paramslist_cache;
 		if("photo_count")
 			return global.photo_count;
 		if("pipe_colors")
 			return global.pipe_colors;
-		if("plant_seed_sprites")
-			return global.plant_seed_sprites;
 		if("playable_species")
 			return global.playable_species;
 		if("possible_cable_coil_colours")
 			return global.possible_cable_coil_colours;
-		if("possible_changeling_IDs")
-			return global.possible_changeling_IDs;
 		if("poster_designs")
 			return global.poster_designs;
 		if("power_alarm")
 			return global.power_alarm;
-		if("powerinstances")
-			return global.powerinstances;
-		if("powers")
-			return global.powers;
-		if("vampirepower_types")
-			return global.vampirepower_types
-		if("vampirepowers")
-			return global.vampirepowers
-		if("priority_air_alarms")
-			return global.priority_air_alarms;
 		if("priv_all_access")
 			return global.priv_all_access;
 		if("priv_all_access_datums")
@@ -595,38 +383,12 @@
 			return global.priv_station_access;
 		if("priv_syndicate_access")
 			return global.priv_syndicate_access;
-		if("protected_objects")
-			return global.protected_objects;
-		if("rad_collectors")
-			return global.rad_collectors;
-		if("random_junk_")
-			return global.random_junk_;
-		if("random_maps")
-			return global.random_maps;
-		if("random_useful_")
-			return global.random_useful_;
-		if("recentmessages")
-			return global.recentmessages;
 		if("registered_macros_by_ckey_")
 			return global.registered_macros_by_ckey_;
-		if("religion_name")
-			return global.religion_name;
-		if("req_console_assistance")
-			return global.req_console_assistance;
-		if("req_console_information")
-			return global.req_console_information;
-		if("req_console_supplies")
-			return global.req_console_supplies;
-		if("responsive_carriers")
-			return global.responsive_carriers;
 		if("restricted_camera_networks")
 			return global.restricted_camera_networks;
 		if("revdata")
 			return global.revdata;
-		if("robot_hud_colours")
-			return global.robot_hud_colours;
-		if("robot_inventory")
-			return global.robot_inventory;
 		if("round_start_time")
 			return global.round_start_time;
 		if("roundstart_hour")
@@ -635,12 +397,8 @@
 			return global.rune_list;
 		if("rus_unicode_conversion")
 			return global.rus_unicode_conversion;
-		if("same_wires")
-			return global.same_wires;
 		if("secret_force_mode")
 			return global.secret_force_mode;
-		if("send_emergency_team")
-			return global.send_emergency_team;
 		if("server_name")
 			return global.server_name;
 		if("side_effects")
@@ -651,18 +409,12 @@
 			return global.slot_equipment_priority;
 		if("slot_flags_enumeration")
 			return global.slot_flags_enumeration;
-		if("solar_gen_rate")
-			return global.solar_gen_rate;
-		if("solars_list")
-			return global.solars_list;
 		if("sounds_cache")
 			return global.sounds_cache;
 		if("sparring_attack_cache")
 			return global.sparring_attack_cache;
 		if("splatter_cache")
 			return global.splatter_cache;
-		if("station_account")
-			return global.station_account;
 		if("station_date")
 			return global.station_date;
 		if("stool_cache")
@@ -673,8 +425,6 @@
 			return global.string_part_flags;
 		if("string_slot_flags")
 			return global.string_slot_flags;
-		if("supply_drop")
-			return global.supply_drop;
 		if("supply_methods_")
 			return global.supply_methods_;
 		if("swapmaps_byname")
@@ -707,8 +457,6 @@
 			return global.tank_gauge_cache;
 		if("tape_roll_applications")
 			return global.tape_roll_applications;
-		if("telecomms_list")
-			return global.telecomms_list;
 		if("ticket_panels")
 			return global.ticket_panels;
 		if("tickets")
@@ -725,46 +473,20 @@
 			return global.trait_datums;
 		if("trait_type_to_ref")
 			return global.trait_type_to_ref;
-		if("transfer_controller")
-			return global.transfer_controller;
 		if("uniqueness_repository")
 			return global.uniqueness_repository;
-		if("universe_has_ended")
-			return global.universe_has_ended;
-		if("uplink")
-			return global.uplink;
-		if("uplink_purchase_repository")
-			return global.uplink_purchase_repository;
-		if("uplink_random_selections_")
-			return global.uplink_random_selections_;
 		if("valid_bloodtypes")
 			return global.valid_bloodtypes;
-		if("vendor_account")
-			return global.vendor_account;
 		if("ventcrawl_machinery")
 			return global.ventcrawl_machinery;
 		if("view_variables_dont_expand")
 			return global.view_variables_dont_expand;
 		if("view_variables_no_assoc")
 			return global.view_variables_no_assoc;
-		if("virusDB")
-			return global.virusDB;
 		if("visual_nets")
 			return global.visual_nets;
 		if("vsc")
 			return global.vsc;
-		if("watchlist")
-			return global.watchlist;
-		if("wax_recipes")
-			return global.wax_recipes;
-		if("weighted_mundaneevent_locations")
-			return global.weighted_mundaneevent_locations;
-		if("weighted_randomevent_locations")
-			return global.weighted_randomevent_locations;
-		if("whitelisted_species")
-			return global.whitelisted_species;
-		if("wireColours")
-			return global.wireColours;
 		if("world_topic_spam_protect_time")
 			return global.world_topic_spam_protect_time;
 		if("worths")
@@ -782,18 +504,12 @@
 			global.BSACooldown=newval;
 		if("BUMP_TELEPORTERS")
 			global.BUMP_TELEPORTERS=newval;
-		if("Banlist")
-			global.Banlist=newval;
-		if("CMinutes")
-			global.CMinutes=newval;
 		if("Debug2")
 			global.Debug2=newval;
 		if("Failsafe")
 			global.Failsafe=newval;
 		if("GLOB")
 			global.GLOB=newval;
-		if("Holiday")
-			global.Holiday=newval;
 		if("IClog")
 			global.IClog=newval;
 		if("LIGHTING_CORNER_DIAGONAL")
@@ -802,28 +518,16 @@
 			global.Master=newval;
 		if("OOClog")
 			global.OOClog=newval;
-		if("PDAs")
-			global.PDAs=newval;
 		if("SSair")
 			global.SSair=newval;
 		if("SSairflow")
 			global.SSairflow=newval;
 		if("SSalarm")
 			global.SSalarm=newval;
-		if("SSantags")
-			global.SSantags=newval;
 		if("SSatoms")
 			global.SSatoms=newval;
 		if("SScharacter_setup")
 			global.SScharacter_setup=newval;
-		if("SScircuit")
-			global.SScircuit=newval;
-		if("SSvirus")
-			global.SSvirus=newval;
-		if("SScircuit_components")
-			global.SScircuit_components=newval;
-		if("SSevac")
-			global.SSevac=newval;
 		if("SSgarbage")
 			global.SSgarbage=newval;
 		if("SSicon_update")
@@ -844,40 +548,18 @@
 			global.SSnano=newval;
 		if("SSopen_space")
 			global.SSopen_space=newval;
-		if("SSplants")
-			global.SSplants=newval;
 		if("SSradiation")
 			global.SSradiation=newval;
-		if("SSshuttle")
-			global.SSshuttle=newval;
 		if("SSskybox")
 			global.SSskybox=newval;
-		if("SSsun")
-			global.SSsun=newval;
 		if("SSsupply")
 			global.SSsupply=newval;
 		if("SStgui")
 			global.SStgui=newval;
 		if("SSticker")
 			global.SSticker=newval;
-		if("SStrade")
-			global.SStrade=newval;
-		if("SSvines")
-			global.SSvines=newval;
-		if("SSvote")
-			global.SSvote=newval;
 		if("SSwireless")
 			global.SSwireless=newval;
-		if("SSxenoarch")
-			global.SSxenoarch=newval;
-		if("Tier1Runes")
-			global.Tier1Runes=newval;
-		if("Tier2Runes")
-			global.Tier2Runes=newval;
-		if("Tier3Runes")
-			global.Tier3Runes=newval;
-		if("Tier4Runes")
-			global.Tier4Runes=newval;
 		if("WALLITEMS")
 			global.WALLITEMS=newval;
 		if("_all_globals")
@@ -894,8 +576,6 @@
 			global.admin_secrets=newval;
 		if("admin_verbs_admin")
 			global.admin_verbs_admin=newval;
-		if("admin_verbs_ban")
-			global.admin_verbs_ban=newval;
 		if("admin_verbs_debug")
 			global.admin_verbs_debug=newval;
 		if("admin_verbs_default")
@@ -922,26 +602,10 @@
 			global.admin_verbs_sounds=newval;
 		if("admin_verbs_spawn")
 			global.admin_verbs_spawn=newval;
-		if("adminhelp_ignored_words")
-			global.adminhelp_ignored_words=newval;
 		if("adminlog")
 			global.adminlog=newval;
-		if("ai_list")
-			global.ai_list=newval;
-		if("ai_status_emotions")
-			global.ai_status_emotions=newval;
-		if("ai_verbs_default")
-			global.ai_verbs_default=newval;
-		if("air_alarm_topic")
-			global.air_alarm_topic=newval;
 		if("air_blocked")
 			global.air_blocked=newval;
-		if("alien_whitelist")
-			global.alien_whitelist=newval;
-		if("allCasters")
-			global.allCasters=newval;
-		if("allConsoles")
-			global.allConsoles=newval;
 		if("all_grabobjects")
 			global.all_grabobjects=newval;
 		if("all_grabstates")
@@ -950,22 +614,16 @@
 			global.all_languages=newval;
 		if("all_money_accounts")
 			global.all_money_accounts=newval;
-		if("all_objectives")
-			global.all_objectives=newval;
 		if("all_species")
 			global.all_species=newval;
 		if("all_virtual_listeners")
 			global.all_virtual_listeners=newval;
-		if("announced_news_types")
-			global.announced_news_types=newval;
 		if("antag_add_finished")
 			global.antag_add_finished=newval;
 		if("appearance_manager")
 			global.appearance_manager=newval;
 		if("area_repository")
 			global.area_repository=newval;
-		if("artefact_feedback")
-			global.artefact_feedback=newval;
 		if("asset_cache")
 			global.asset_cache=newval;
 		if("asset_datums")
@@ -982,52 +640,32 @@
 			global.autolathe_recipes=newval;
 		if("base_miss_chance")
 			global.base_miss_chance=newval;
-		if("basic_robolimb")
-			global.basic_robolimb=newval;
-		if("blackbox")
-			global.blackbox=newval;
 		if("blocked")
 			global.blocked=newval;
 		if("body_heights")
 			global.body_heights=newval;
-		if("bomb_set")
-			global.bomb_set=newval;
 		if("cable_list")
 			global.cable_list=newval;
 		if("camera_alarm")
 			global.camera_alarm=newval;
 		if("camera_range_display_status")
 			global.camera_range_display_status=newval;
-		if("camera_repository")
-			global.camera_repository=newval;
-		if("cameranet")
-			global.cameranet=newval;
-		if("can_call_ert")
-			global.can_call_ert=newval;
 		if("cargo_supply_pack_root")
 			global.cargo_supply_pack_root=newval;
 		if("cargo_supply_packs")
 			global.cargo_supply_packs=newval;
 		if("changelog_hash")
 			global.changelog_hash=newval;
-		if("channel_to_radio_key")
-			global.channel_to_radio_key=newval;
 		if("checked_for_inactives")
 			global.checked_for_inactives=newval;
-		if("chemical_reaction_logs")
-			global.chemical_reaction_logs=newval;
 		if("chemical_reactions_list")
 			global.chemical_reactions_list=newval;
-		if("church_name")
-			global.church_name=newval;
 		if("client_preference_stats_")
 			global.client_preference_stats_=newval;
 		if("client_repository")
 			global.client_repository=newval;
 		if("combatlog")
 			global.combatlog=newval;
-		if("comm_message_listeners")
-			global.comm_message_listeners=newval;
 		if("command_name")
 			global.command_name=newval;
 		if("common_tools")
@@ -1066,36 +704,16 @@
 			global.default_material_composition=newval;
 		if("default_onmob_icons")
 			global.default_onmob_icons=newval;
-		if("default_pai_software")
-			global.default_pai_software=newval;
 		if("defer_powernet_rebuild")
 			global.defer_powernet_rebuild=newval;
 		if("delta_index")
 			global.delta_index=newval;
-		if("department_accounts")
-			global.department_accounts=newval;
-		if("department_radio_keys")
-			global.department_radio_keys=newval;
 		if("dreams")
 			global.dreams=newval;
 		if("dummy_lighting_corner")
 			global.dummy_lighting_corner=newval;
 		if("economic_species_modifier")
 			global.economic_species_modifier=newval;
-		if("empty_playable_ai_cores")
-			global.empty_playable_ai_cores=newval;
-		if("ert_base_chance")
-			global.ert_base_chance=newval;
-		if("escape_pods")
-			global.escape_pods=newval;
-		if("escape_pods_by_name")
-			global.escape_pods_by_name=newval;
-		if("evacuation_controller")
-			global.evacuation_controller=newval;
-		if("eventchance")
-			global.eventchance=newval;
-		if("exclude_jobs")
-			global.exclude_jobs=newval;
 		if("explosion_in_progress")
 			global.explosion_in_progress=newval;
 		if("explosion_turfs")
@@ -1108,8 +726,6 @@
 			global.file_uid=newval;
 		if("fileaccess_timer")
 			global.fileaccess_timer=newval;
-		if("finds_as_strings")
-			global.finds_as_strings=newval;
 		if("fire_alarm")
 			global.fire_alarm=newval;
 		if("flesh_hud_colours")
@@ -1126,14 +742,6 @@
 			global.fluidtrack_cache=newval;
 		if("forced_ambiance_list")
 			global.forced_ambiance_list=newval;
-		if("fruit_icon_cache")
-			global.fruit_icon_cache=newval;
-		if("fuel_injectors")
-			global.fuel_injectors=newval;
-		if("fusion_cores")
-			global.fusion_cores=newval;
-		if("fusion_reactions")
-			global.fusion_reactions=newval;
 		if("game_id")
 			global.game_id=newval;
 		if("game_version")
@@ -1152,20 +760,10 @@
 			global.gear_tweak_free_color_choice_=newval;
 		if("gender_datums")
 			global.gender_datums=newval;
-		if("ghost_traps")
-			global.ghost_traps=newval;
-		if("global_message_listener")
-			global.global_message_listener=newval;
 		if("global_vars_")
 			global.global_vars_=newval;
-		if("gyrotrons")
-			global.gyrotrons=newval;
-		if("hadevent")
-			global.hadevent=newval;
 		if("hazard_overlays")
 			global.hazard_overlays=newval;
-		if("hivemind_bank")
-			global.hivemind_bank=newval;
 		if("holder_mob_icon_cache")
 			global.holder_mob_icon_cache=newval;
 		if("host")
@@ -1190,10 +788,6 @@
 			global.jobMax=newval;
 		if("job_master")
 			global.job_master=newval;
-		if("jobban_keylist")
-			global.jobban_keylist=newval;
-		if("jobban_runonce")
-			global.jobban_runonce=newval;
 		if("joblist")
 			global.joblist=newval;
 		if("join_motd")
@@ -1204,8 +798,6 @@
 			global.language_keys=newval;
 		if("last_chew")
 			global.last_chew=newval;
-		if("last_message_id")
-			global.last_message_id=newval;
 		if("last_round_duration")
 			global.last_round_duration=newval;
 		if("license_to_url")
@@ -1220,70 +812,18 @@
 			global.loadout_categories=newval;
 		if("log_end")
 			global.log_end=newval;
-		if("lunchables_drink_reagents_")
-			global.lunchables_drink_reagents_=newval;
-		if("lunchables_drinks_")
-			global.lunchables_drinks_=newval;
-		if("lunchables_ethanol_reagents_")
-			global.lunchables_ethanol_reagents_=newval;
-		if("lunchables_lunches_")
-			global.lunchables_lunches_=newval;
-		if("lunchables_snacks_")
-			global.lunchables_snacks_=newval;
-		if("magazine_icondata_keys")
-			global.magazine_icondata_keys=newval;
-		if("magazine_icondata_states")
-			global.magazine_icondata_states=newval;
-		if("maint_all_access")
-			global.maint_all_access=newval;
 		if("mannequins_")
 			global.mannequins_=newval;
-		if("map_count")
-			global.map_count=newval;
 		if("maploader")
 			global.maploader=newval;
 		if("mark")
 			global.mark=newval;
 		if("matchmaker")
 			global.matchmaker=newval;
-		if("maze_cell_count")
-			global.maze_cell_count=newval;
 		if("mechas_list")
 			global.mechas_list=newval;
 		if("merged")
 			global.merged=newval;
-		if("message_delay")
-			global.message_delay=newval;
-		if("message_servers")
-			global.message_servers=newval;
-		if("meteors_armageddon")
-			global.meteors_armageddon=newval;
-		if("meteors_cataclysm")
-			global.meteors_cataclysm=newval;
-		if("meteors_catastrophic")
-			global.meteors_catastrophic=newval;
-		if("meteors_dust")
-			global.meteors_dust=newval;
-		if("meteors_major")
-			global.meteors_major=newval;
-		if("meteors_minor")
-			global.meteors_minor=newval;
-		if("meteors_moderate")
-			global.meteors_moderate=newval;
-		if("meteors_normal")
-			global.meteors_normal=newval;
-		if("meteors_threatening")
-			global.meteors_threatening=newval;
-		if("minevendor_list")
-			global.minevendor_list=newval;
-		if("mining_floors")
-			global.mining_floors=newval;
-		if("mining_walls")
-			global.mining_walls=newval;
-		if("minor_air_alarms")
-			global.minor_air_alarms=newval;
-		if("mob_hat_cache")
-			global.mob_hat_cache=newval;
 		if("mob_repository")
 			global.mob_repository=newval;
 		if("motion_alarm")
@@ -1292,14 +832,6 @@
 			global.multi_point_spawns=newval;
 		if("name_to_material")
 			global.name_to_material=newval;
-		if("narsie_list")
-			global.narsie_list=newval;
-		if("navbeacons")
-			global.navbeacons=newval;
-		if("news_network")
-			global.news_network=newval;
-		if("newscaster_standard_feeds")
-			global.newscaster_standard_feeds=newval;
 		if("next_account_number")
 			global.next_account_number=newval;
 		if("next_duration_update")
@@ -1312,8 +844,6 @@
 			global.ntnrc_uid=newval;
 		if("nttransfer_uid")
 			global.nttransfer_uid=newval;
-		if("nuke_disks")
-			global.nuke_disks=newval;
 		if("num_financial_terminals")
 			global.num_financial_terminals=newval;
 		if("organ_cache")
@@ -1326,40 +856,20 @@
 			global.outfits_decls_by_type_=newval;
 		if("outfits_decls_root_")
 			global.outfits_decls_root_=newval;
-		if("paiController")
-			global.paiController=newval;
-		if("pai_emotions")
-			global.pai_emotions=newval;
-		if("pai_software_by_key")
-			global.pai_software_by_key=newval;
 		if("paramslist_cache")
 			global.paramslist_cache=newval;
 		if("photo_count")
 			global.photo_count=newval;
 		if("pipe_colors")
 			global.pipe_colors=newval;
-		if("plant_seed_sprites")
-			global.plant_seed_sprites=newval;
 		if("playable_species")
 			global.playable_species=newval;
 		if("possible_cable_coil_colours")
 			global.possible_cable_coil_colours=newval;
-		if("possible_changeling_IDs")
-			global.possible_changeling_IDs=newval;
 		if("poster_designs")
 			global.poster_designs=newval;
 		if("power_alarm")
 			global.power_alarm=newval;
-		if("powerinstances")
-			global.powerinstances=newval;
-		if("powers")
-			global.powers=newval;
-		if("vampirepower_types")
-			global.vampirepower_types=newval;
-		if("vampirepowers")
-			global.vampirepowers=newval;
-		if("priority_air_alarms")
-			global.priority_air_alarms=newval;
 		if("priv_all_access")
 			global.priv_all_access=newval;
 		if("priv_all_access_datums")
@@ -1376,38 +886,12 @@
 			global.priv_station_access=newval;
 		if("priv_syndicate_access")
 			global.priv_syndicate_access=newval;
-		if("protected_objects")
-			global.protected_objects=newval;
-		if("rad_collectors")
-			global.rad_collectors=newval;
-		if("random_junk_")
-			global.random_junk_=newval;
-		if("random_maps")
-			global.random_maps=newval;
-		if("random_useful_")
-			global.random_useful_=newval;
-		if("recentmessages")
-			global.recentmessages=newval;
 		if("registered_macros_by_ckey_")
 			global.registered_macros_by_ckey_=newval;
-		if("religion_name")
-			global.religion_name=newval;
-		if("req_console_assistance")
-			global.req_console_assistance=newval;
-		if("req_console_information")
-			global.req_console_information=newval;
-		if("req_console_supplies")
-			global.req_console_supplies=newval;
-		if("responsive_carriers")
-			global.responsive_carriers=newval;
 		if("restricted_camera_networks")
 			global.restricted_camera_networks=newval;
 		if("revdata")
 			global.revdata=newval;
-		if("robot_hud_colours")
-			global.robot_hud_colours=newval;
-		if("robot_inventory")
-			global.robot_inventory=newval;
 		if("round_start_time")
 			global.round_start_time=newval;
 		if("roundstart_hour")
@@ -1416,12 +900,8 @@
 			global.rune_list=newval;
 		if("rus_unicode_conversion")
 			global.rus_unicode_conversion=newval;
-		if("same_wires")
-			global.same_wires=newval;
 		if("secret_force_mode")
 			global.secret_force_mode=newval;
-		if("send_emergency_team")
-			global.send_emergency_team=newval;
 		if("server_name")
 			global.server_name=newval;
 		if("side_effects")
@@ -1432,18 +912,12 @@
 			global.slot_equipment_priority=newval;
 		if("slot_flags_enumeration")
 			global.slot_flags_enumeration=newval;
-		if("solar_gen_rate")
-			global.solar_gen_rate=newval;
-		if("solars_list")
-			global.solars_list=newval;
 		if("sounds_cache")
 			global.sounds_cache=newval;
 		if("sparring_attack_cache")
 			global.sparring_attack_cache=newval;
 		if("splatter_cache")
 			global.splatter_cache=newval;
-		if("station_account")
-			global.station_account=newval;
 		if("station_date")
 			global.station_date=newval;
 		if("stool_cache")
@@ -1454,8 +928,6 @@
 			global.string_part_flags=newval;
 		if("string_slot_flags")
 			global.string_slot_flags=newval;
-		if("supply_drop")
-			global.supply_drop=newval;
 		if("supply_methods_")
 			global.supply_methods_=newval;
 		if("swapmaps_byname")
@@ -1488,8 +960,6 @@
 			global.tank_gauge_cache=newval;
 		if("tape_roll_applications")
 			global.tape_roll_applications=newval;
-		if("telecomms_list")
-			global.telecomms_list=newval;
 		if("ticket_panels")
 			global.ticket_panels=newval;
 		if("tickets")
@@ -1506,44 +976,18 @@
 			global.trait_datums=newval;
 		if("trait_type_to_ref")
 			global.trait_type_to_ref=newval;
-		if("transfer_controller")
-			global.transfer_controller=newval;
-		if("universe_has_ended")
-			global.universe_has_ended=newval;
-		if("uplink")
-			global.uplink=newval;
-		if("uplink_purchase_repository")
-			global.uplink_purchase_repository=newval;
-		if("uplink_random_selections_")
-			global.uplink_random_selections_=newval;
 		if("valid_bloodtypes")
 			global.valid_bloodtypes=newval;
-		if("vendor_account")
-			global.vendor_account=newval;
 		if("ventcrawl_machinery")
 			global.ventcrawl_machinery=newval;
 		if("view_variables_dont_expand")
 			global.view_variables_dont_expand=newval;
 		if("view_variables_no_assoc")
 			global.view_variables_no_assoc=newval;
-		if("virusDB")
-			global.virusDB=newval;
 		if("visual_nets")
 			global.visual_nets=newval;
 		if("vsc")
 			global.vsc=newval;
-		if("watchlist")
-			global.watchlist=newval;
-		if("wax_recipes")
-			global.wax_recipes=newval;
-		if("weighted_mundaneevent_locations")
-			global.weighted_mundaneevent_locations=newval;
-		if("weighted_randomevent_locations")
-			global.weighted_randomevent_locations=newval;
-		if("whitelisted_species")
-			global.whitelisted_species=newval;
-		if("wireColours")
-			global.wireColours=newval;
 		if("world_topic_spam_protect_time")
 			global.world_topic_spam_protect_time=newval;
 		if("worths")
@@ -1900,7 +1344,6 @@
 	"random_useful_",
 	"recentmessages",
 	"registered_macros_by_ckey_",
-	"religion_name",
 	"req_console_assistance",
 	"req_console_information",
 	"req_console_supplies",
@@ -2011,7 +1454,6 @@
 	"weighted_mundaneevent_locations",
 	"weighted_randomevent_locations",
 	"whitelist",
-	"whitelisted_species",
 	"wireColours",
 	"world_topic_spam_protect_time",
 	"worths",

@@ -121,21 +121,6 @@
 			bumpopen(M)
 		return
 
-	if(istype(AM, /mob/living/bot))
-		var/mob/living/bot/bot = AM
-		if(src.check_access(bot.botcard))
-			if(density)
-				INVOKE_ASYNC(src, nameof(.proc/open))
-		return
-
-	if(istype(AM, /obj/mecha))
-		var/obj/mecha/mecha = AM
-		if(density)
-			if(mecha.occupant && (src.allowed(mecha.occupant) || src.check_access_list(mecha.operation_req_access)))
-				INVOKE_ASYNC(src, nameof(.proc/open))
-			else
-				do_animate("deny")
-		return
 	if(istype(AM, /obj/structure/bed/chair/wheelchair))
 		var/obj/structure/bed/chair/wheelchair/wheel = AM
 		if(density)
@@ -171,34 +156,6 @@
 			do_animate("deny")
 	return
 
-/obj/machinery/door/bullet_act(obj/item/projectile/Proj)
-	..()
-
-	var/damage = Proj.get_structure_damage()
-	var/is_breaching = istype(Proj, /obj/item/projectile/bullet/shotgun/breaching)
-
-	// Emitter Blasts - these will eventually completely destroy the door, given enough time.
-	// Breaching shells don't trigger this - they just deal direct damage
-	if(damage > 90 && !is_breaching)
-		destroy_hits--
-		if(destroy_hits <= 0)
-			visible_message("<span class='danger'>\The [src.name] disintegrates!</span>")
-			switch (Proj.damage_type)
-				if(BRUTE)
-					new /obj/item/stack/material/steel(src.loc, 2)
-					new /obj/item/stack/rods(src.loc, 3)
-				if(BURN)
-					new /obj/effect/decal/cleanable/ash(src.loc) // Turn it to ashes!
-			qdel(src)
-
-	if(damage)
-		//cap projectile damage so that there's still a minimum number of hits required to break the door
-		if(is_breaching)
-			take_damage(damage)
-		else
-			take_damage(min(damage, 100))
-
-
 /obj/machinery/door/hitby(atom/movable/AM, datum/thrownthing/TT)
 	..()
 	var/tforce = 0
@@ -209,16 +166,8 @@
 	take_damage(tforce)
 	return
 
-/obj/machinery/door/attack_ai(mob/user)
-	return src.attack_hand(user)
-
 /obj/machinery/door/attack_hand(mob/user)
 	return src.attackby(user, user)
-
-/obj/machinery/door/attack_tk(mob/user)
-	if(requiresID() && !allowed(null))
-		return
-	..()
 
 /obj/machinery/door/attackby(obj/item/I, mob/user)
 	src.add_fingerprint(user, 0, I)
@@ -285,7 +234,7 @@
 		return
 
 	//psa to whoever coded this, there are plenty of objects that need to call attack() on doors without bludgeoning them.
-	if(isobj(I) && density && user.a_intent == I_HURT && !(istype(I, /obj/item/card) || istype(I, /obj/item/device/pda)))
+	if(isobj(I) && density && user.a_intent == I_HURT && !(istype(I, /obj/item/card)))
 		if(I.damtype == BRUTE || I.damtype == BURN)
 			user.do_attack_animation(src)
 			I.set_cooldown()
@@ -302,7 +251,7 @@
 				shake_animation(3, 3)
 		return
 
-	if(src.operating > 0 || isrobot(user))	return //borgs can't attack doors open because it conflicts with their AI-like interaction with them.
+	if(src.operating > 0)	return //borgs can't attack doors open because it conflicts with their AI-like interaction with them.
 
 	if(src.operating) return
 
@@ -316,14 +265,6 @@
 	if(src.density)
 		do_animate("deny")
 	return
-
-/obj/machinery/door/emag_act(remaining_charges)
-	if(density && operable())
-		do_animate("spark")
-		sleep(6)
-		INVOKE_ASYNC(src, nameof(.proc/open))
-		operating = DOOR_FAILURE
-		return 1
 
 /obj/machinery/door/proc/take_damage(damage)
 	var/initialhealth = src.health

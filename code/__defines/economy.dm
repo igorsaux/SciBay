@@ -1,0 +1,1 @@
+GLOBAL_VAR_INIT(credits, 150000)

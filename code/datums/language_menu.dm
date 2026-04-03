@@ -26,7 +26,6 @@
 	var/admin = check_rights(R_ADMIN, FALSE, user)
 
 	data["isAdmin"] = admin
-	data["isSilicon"] = issilicon(owner)
 
 	data["languagePrefix"] = owner.get_language_prefix()
 	data["currentLanguage"] = owner.default_language?.name
@@ -51,10 +50,6 @@
 			"canSpeak" = owner.can_speak(language_entry),
 			"isKnown" = avaliable,
 		)
-
-		if(issilicon(owner))
-			var/mob/living/silicon/silicon = owner
-			language_data["isSynthesized"] = (language_entry in silicon.speech_synthesizer_langs)
 
 		data["languages"] += list(language_data)
 

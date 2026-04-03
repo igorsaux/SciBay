@@ -1,3 +1,18 @@
+/obj/item/nullspace_container
+	name = "Nullspace Container"
+
+/obj/item/nullspace_container/Initialize()
+	. = ..()
+	
+	ASSERT(Z_CHEM_CREATE(src))
+
+/obj/item/nullspace_container/Destroy()
+	ASSERT(Z_CHEM_DESTROY(src))
+
+	. = ..()
+
+var/obj/item/nullspace_container/nullspace_container = new()
+
 /obj/item/reagent_containers
 	name = "Container"
 	desc = "..."
@@ -7,9 +22,62 @@
 	var/amount_per_transfer_from_this = 50
 	var/possible_transfer_amounts = "50;100;150;250;300"
 	var/volume = 0.3 LITERS
+	/// Area of the bottom of the cylinder in m^2
+	var/bottom_area = 0.006
+	/// Area of the neck opening for gas exchange. If null, bottom_area is used.
+	var/neck_area = null
+	/// Baseline heat capacity of the container itself (e.g., a glass beaker) in J/K.
+	var/heat_capacity = 180
+	// Pa
+	var/max_pressure = 34473
 	var/label_text
 	var/can_be_splashed = FALSE
-	var/list/startswith // List of reagents to start with
+	var/alist/startswith // List of reagents to start with
+
+	var/__last_integrate = 0
+	var/__stirring = 0.0
+
+	var/__cached_height = 0
+	var/__cached_area = 0
+
+/obj/item/reagent_containers/Initialize(mapload, spawn_empty = FALSE)
+	. = ..(mapload)
+
+	if(!possible_transfer_amounts)
+		src.verbs -= /obj/item/reagent_containers/verb/set_APTFT
+
+	ASSERT(Z_CHEM_CREATE(src))
+	update_geometry()
+	ASSERT(Z_CHEM_SET_HEAT_CAPACITY(src, heat_capacity))
+
+	if(length(startswith) && !spawn_empty)
+		for(var/molecule in startswith)
+			if(islist(startswith[molecule]))
+				var/list/data = startswith[molecule]
+				var/target_volume = data[1]
+				var/particle_diameter = data[2]
+				
+				ASSERT(Z_CHEM_ADD_VOLUME(src, molecule, target_volume, particle_diameter))
+			else
+				var/target_volume = startswith[molecule]
+
+				ASSERT(Z_CHEM_ADD_VOLUME(src, molecule,target_volume, 0))
+
+		startswith = null // Unnecessary lists bad
+		update_icon()
+
+	ASSERT(Z_CHEM_ENSURE_HEADSPACE(src, volume, nullspace_container) != null)
+	ASSERT(Z_CHEM_CLEAR(nullspace_container))
+	ASSERT(Z_CHEM_RESET_GAS(src, volume))
+	ASSERT(Z_CHEM_SET_TEMPERATURE(src, 20 CELSIUS, volume))
+
+	__last_integrate = world.time
+	set_next_think(world.time + world.tick_lag)
+
+/obj/item/reagent_containers/Destroy()
+	ASSERT(Z_CHEM_DESTROY(src))
+
+	. = ..()
 
 /obj/item/reagent_containers/verb/set_APTFT() //set amount_per_transfer_from_this
 	set name = "Set transfer amount"
@@ -20,45 +88,164 @@
 	if(N)
 		amount_per_transfer_from_this = N
 
-/obj/item/reagent_containers/Initialize(mapload, spawn_empty = FALSE)
-	. = ..(mapload)
-	if(!possible_transfer_amounts)
-		src.verbs -= /obj/item/reagent_containers/verb/set_APTFT
-	create_reagents(volume)
-	if(startswith && !spawn_empty)
-		for(var/thing in startswith)
-			reagents.add_reagent(thing, startswith[thing] ? startswith[thing] : volume)
-		startswith = null // Unnecessary lists bad
-		update_icon()
+/obj/item/reagent_containers/proc/update_geometry()
+	// Volume in m^3 (Liters * 0.001)
+	var/vol_m3 = volume * 0.001
+	__cached_height = vol_m3 / bottom_area
+	
+	// Total surface area of a cylinder: 2*base + circumference*height
+	var/circumference = 2 * sqrt(M_PI * bottom_area)
+	__cached_area = (2 * bottom_area) + (circumference * __cached_height)
+
+	ASSERT(Z_CHEM_SET_GAS_CONTACT_AREA(src, neck_area || bottom_area))
+
+/obj/item/reagent_containers/think()
+	var/dt = (world.time - __last_integrate) / 10
+	var/turf/T = get_turf(src)
+
+	if(!T)
+		__last_integrate = world.time
+		set_next_think(world.time + world.tick_lag)
+		return
+
+	if(is_open_container())
+		ASSERT(Z_CHEM_RESET_GAS(src, volume))
+
+	var/datum/gas_mixture/M = T.return_air()
+
+	ASSERT(Z_CHEM_EXCHANGE_HEAT(src, M.temperature, 10 * __cached_area, dt) != null)
+
+	if(istype(loc, /obj/item/bunsen))
+		var/obj/item/bunsen/B = loc
+
+		if(B.is_on)
+			var/effective_flame_temp = 600 + (B.flame_temperature - 600) * B.strength
+			var/conv = B.max_convection * (0.3 + 0.7 * B.strength)
+			ASSERT(Z_CHEM_EXCHANGE_HEAT(src, effective_flame_temp, conv * bottom_area, dt) != null)
+
+	ASSERT(Z_CHEM_UPDATE_PHASE_TRANSITIONS(src, dt, volume))
+	ASSERT(Z_CHEM_INTEGRATE(src, dt, volume))
+	ASSERT(Z_CHEM_SETTLE(src))
+
+	if(is_open_container())
+		ASSERT(Z_CHEM_ENSURE_HEADSPACE(src, volume, nullspace_container) != null)
+		ASSERT(Z_CHEM_CLEAR(nullspace_container))
+		ASSERT(Z_CHEM_SET_PRESSURE(src, 101325))
+	else
+		ASSERT(Z_CHEM_UPDATE_PRESSURE(src, volume))
+
+		var/pressure = Z_CHEM_GET_PRESSURE(src)
+
+		if((pressure - 101325) > max_pressure)
+			visible_message("\the [src] explodes due to high pressure!")
+			explosion(get_turf(src), 0, 0, 1, 0)
+			qdel(src)
+
+			return
+
+	var/moles_boiled = Z_CHEM_GET_BOILED_MOLES(src)
+	ASSERT(moles_boiled != null)
+
+	if(moles_boiled)
+		THROTTLE(boiling_sfx_cd, 8 SECOND)
+
+		if(boiling_sfx_cd)
+			playsound(src, 'sound/effects/bubbles2.ogg', 50, FALSE)
+	
+	// TODO:
+	// var/moles_evaporated = Z_CHEM_GET_EVAPORATED_MOLES(src)
+	// ASSERT(moles_evaporated != null)
+	// var/steam_intensity = moles_boiled + moles_evaporated
+	// if(steam_intensity <= 0 || !is_open_container())
+	// 	cut_overlay(steam_overlay)
+	// 	steam_overlay = null
+	// 	return
+		
+	__last_integrate = world.time
+	set_next_think(world.time + world.tick_lag)
+	update_icon()
 
 /obj/item/reagent_containers/attack_self(mob/user)
 	return
 
-/obj/item/reagent_containers/afterattack(obj/target, mob/user, flag)
-	if(can_be_splashed && user.a_intent != I_HELP)
-		if(standard_splash_mob(user,target))
-			return
-		if(reagents && reagents.total_volume)
-			to_chat(user, SPAN_NOTICE("You splash the contents of \the [src] onto [target].")) // They are not on help intent, aka wanting to spill it.
-			reagents.splash(target, reagents.total_volume)
-			return
-
-/obj/item/reagent_containers/proc/reagentlist() // For attack logs
-	if(reagents)
-		return reagents.get_reagents()
-	return "No reagent holder"
-
 /obj/item/reagent_containers/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/pen) || istype(W, /obj/item/device/flashlight/pen))
 		var/tmp_label = sanitizeSafe(input(user, "Enter a label for [name]", "Label", label_text), MAX_NAME_LEN)
+
 		if(length(tmp_label) > 10)
 			to_chat(user, "<span class='notice'>The label can be at most 10 characters long.</span>")
 		else
 			to_chat(user, "<span class='notice'>You set the label to \"[tmp_label]\".</span>")
 			label_text = tmp_label
 			update_name_label()
+	else if(istype(W, /obj/item/lacmus))
+		var/obj/item/lacmus/L = W
+
+		if(!is_open_container())
+			to_chat(user, SPAN_WARNING("\The [src] is not open."))
+			return
+
+		if(L.used)
+			to_chat(user, SPAN_WARNING("\The [L] has already been used and cannot give accurate readings."))
+			return
+
+		var/liquid_phases = Z_CHEM_GET_LIQUID_PHASES(src)
+
+		if(liquid_phases == 0)
+			to_chat(user, SPAN_NOTICE("\The [src] contains no liquid to test."))
+			return
+		
+		for(var/i = 0 to liquid_phases - 1)
+			// TODO: maybe check a water concentration
+			var/has_water = Z_CHEM_LIQUID_PHASE_HAS(src, i, Z_MOL_OXIDANE)
+			ASSERT(has_water != null)
+
+			if(!has_water)
+				continue
+			
+			user.visible_message(
+				SPAN_NOTICE("[user] dips \the [L] into \the [src]."),
+				SPAN_NOTICE("You dip \the [L] into \the [src] and watch it change color.")
+			)
+
+			var/ph = Z_CHEM_LIQUID_PHASE_PH(src, i)
+
+			var/deviation = rand() * 0.6 - 0.3
+			L.ph = clamp(ph + deviation, 0, 14)
+			L.used = TRUE
+			L.update_icon()
+
+			return
+		
+		user.visible_message(
+			SPAN_NOTICE("[user] dips \the [L] into \the [src]."),
+			SPAN_NOTICE("You dip \the [L] into \the [src] and nothing changes.")
+		)
+
+		return
+	else if(istype(W, /obj/item/thermometer))
+		dip_thermometer(user, W)
+		return
 	else
 		return ..()
+
+/obj/item/reagent_containers/proc/dip_thermometer(mob/user, obj/item/thermometer/T)
+	if(!is_open_container())
+		to_chat(user, SPAN_WARNING("\The [src] is not open."))
+		return FALSE
+
+	user.visible_message(
+		SPAN_NOTICE("[user] carefully holds \the [T] in \the [src], waiting for the reading to stabilize."),
+		SPAN_NOTICE("You dip \the [T] into \the [src] and wait for the reading to stabilize...")
+	)
+
+	if(!do_after(user, 6 SECONDS, src, TRUE))
+		return FALSE
+	
+	var/temp = Z_CHEM_GET_TEMPERATURE(src)
+	to_chat(user, SPAN_NOTICE("The thermometer reads [round(CONV_KELVIN_CELSIUS(temp), 0.1)]°C ([round(temp, 0.1)] K)."))
+
+	return TRUE
 
 /obj/item/reagent_containers/proc/update_name_label()
 	if(label_text == "")
@@ -66,145 +253,46 @@
 	else
 		SetName("[initial(name)] ([label_text])")
 
-/obj/item/reagent_containers/proc/standard_dispenser_refill(mob/user, obj/structure/reagent_dispensers/target) // This goes into afterattack
-	if(!istype(target))
-		return 0
+/obj/item/reagent_containers/proc/standard_pour_into(mob/user, obj/item/reagent_containers/target)
+	if(!Z_CHEM_HAS_CONTENTS(target))
+		return FALSE
 
-	if(!target.reagents || !target.reagents.total_volume)
-		to_chat(user, "<span class='notice'>[target] is empty.</span>")
-		return 1
+	if(!target.is_open_container())
+		to_chat(user, SPAN_NOTICE("\The [target] is closed."))
+		return TRUE
 
-	if(reagents && !reagents.get_free_space())
-		to_chat(user, "<span class='notice'>[src] is full.</span>")
-		return 1
+	if(is_empty())
+		to_chat(user, SPAN_NOTICE("\The [src] is empty."))
+		return TRUE
 
-	var/trans = target.reagents.trans_to_obj(src, target:amount_per_transfer_from_this)
-	playsound(target, 'sound/effects/using/sink/fast_filling1.ogg', 75, TRUE)
-	to_chat(user, "<span class='notice'>You fill [src] with [trans] ml of the contents of [target].</span>")
-	return 1
+	var/to_transfer = amount_per_transfer_from_this / 1000
+	var/total_trans = Z_CHEM_POUR(src, target, to_transfer, target.volume)
+	ASSERT(total_trans != null)
 
-/obj/item/reagent_containers/proc/standard_splash_mob(mob/user, mob/target) // This goes into afterattack
-	if(!istype(target))
+	if(total_trans <= 0.0)
+		to_chat(user, SPAN_NOTICE("There is no more room in \the [target]."))
+		return TRUE
+
+	playsound(target, 'sound/effects/using/bottles/transfer1.ogg')
+	to_chat(user, SPAN_NOTICE("You transfer [round(total_trans * 1000, 1)] ml of the solution to \the [target]."))
+
+	update_icon()
+	target.update_icon()
+
+	return TRUE
+
+/obj/item/reagent_containers/MouseDrop_T(atom/movable/dropping, mob/living/user, params)
+	. = ..()
+
+	if(!istype(dropping, /obj/item/reagent_containers))
 		return
 
-	if(user.a_intent == I_HELP)
-		to_chat(user, "<span class='notice'>You can't splash people on help intent.</span>")
-		return 1
+	var/obj/item/filter/F = user.get_active_item()
 
-	if(!reagents || !reagents.total_volume)
-		to_chat(user, "<span class='notice'>[src] is empty.</span>")
-		return 1
-
-	if(target.reagents && !target.reagents.get_free_space())
-		to_chat(user, "<span class='notice'>[target] is full.</span>")
-		return 1
-
-	var/contained = reagentlist()
-	admin_attack_log(user, target, "Used \the [name] containing [contained] to splash the victim.", "Was splashed by \the [name] containing [contained].", "used \the [name] containing [contained] to splash")
-
-	user.visible_message("<span class='danger'>[target] has been splashed with something by [user]!</span>", "<span class = 'notice'>You splash the solution onto [target].</span>")
-	reagents.splash(target, reagents.total_volume)
-	return 1
-
-/obj/item/reagent_containers/proc/self_feed_message(mob/user, feed_volume = 0)
-	to_chat(user, "<span class='notice'>You eat \the [src]</span>")
-
-/obj/item/reagent_containers/proc/other_feed_message_start(mob/user, mob/target)
-	user.visible_message("<span class='warning'>[user] is trying to feed [target] \the [src]!</span>")
-
-/obj/item/reagent_containers/proc/other_feed_message_finish(mob/user, mob/target, feed_volume = 0)
-	user.visible_message("<span class='warning'>[user] has fed [target] \the [src]!</span>")
-
-/obj/item/reagent_containers/proc/feed_sound(mob/user)
-	playsound(user, SFX_DRINK, rand(45, 60), TRUE)
-
-/obj/item/reagent_containers/proc/standard_feed_mob(mob/user, mob/target, bypass_resist = FALSE) // This goes into attack
-	if(!istype(target))
-		return 0
-
-	if(!reagents || !reagents.total_volume)
-		to_chat(user, "<span class='notice'>\The [src] is empty.</span>")
-		return 1
-
-	// only carbons can eat
-	if(istype(target, /mob/living/carbon) && user.a_intent != I_HURT)
-		if(target == user)
-			var/feed_amount = min(MOUTH_CAPACITY, issmall(user) ? ceil(amount_per_transfer_from_this * 0.5) : amount_per_transfer_from_this)
-			if(istype(user, /mob/living/carbon/human))
-				var/mob/living/carbon/human/H = user
-				if(!H.can_eat(src))
-					return
-				if(!H.ingest_reagents(reagents, feed_amount))
-					reagents.trans_to_mob(user, feed_amount, CHEM_INGEST)
-			else
-				reagents.trans_to_mob(user, feed_amount, CHEM_INGEST)
-
-			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN) //puts a limit on how fast people can eat/drink things
-			self_feed_message(user, feed_amount)
-			feed_sound(user)
-			return 1
-
-
-		else
-			var/mob/living/carbon/H = target
-			if(!H.can_force_feed(user, src))
-				return
-
-			other_feed_message_start(user, target)
-
-			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-			var/feed_amount = min(MOUTH_CAPACITY, amount_per_transfer_from_this)
-			if(!do_mob(user, target, time = max(1.5 SECONDS, round(feed_amount / 2)))) // 1.5 to 3 seconds
-				return
-
-			if(!H.can_force_feed(user, src, check_resist = !bypass_resist)) // Secondary check since things could change during do_mob
-				return
-
-			other_feed_message_finish(user, target, feed_amount)
-
-			var/contained = reagentlist()
-			admin_attack_log(user, target, "Fed the victim with [name] (Reagents: [contained])", "Was fed [src] (Reagents: [contained])", "used [src] (Reagents: [contained]) to feed")
-
-			if(ishuman(H))
-				var/mob/living/carbon/human/HU = H
-				if(!HU.ingest_reagents(reagents, feed_amount))
-					reagents.trans_to_mob(target, feed_amount, CHEM_INGEST)
-			else
-				reagents.trans_to_mob(target, feed_amount, CHEM_INGEST)
-
-			feed_sound(user)
-			return 1
-
-	return 0
-
-/obj/item/reagent_containers/proc/standard_pour_into(mob/user, atom/target) // This goes into afterattack and yes, it's atom-level
-	if(!target.reagents)
-		return 0
-
-	// Ensure we don't splash beakers and similar containers.
-	if(!target.is_open_container() && istype(target, /obj/item/reagent_containers))
-		to_chat(user, "<span class='notice'>\The [target] is closed.</span>")
-		return 1
-	// Otherwise don't care about splashing.
-	else if(!target.is_open_container())
-		return 0
-
-	if(!reagents || !reagents.total_volume)
-		to_chat(user, "<span class='notice'>[src] is empty.</span>")
-		return 1
-
-	if(!target.reagents.get_free_space())
-		to_chat(user, "<span class='notice'>[target] is full.</span>")
-		return 1
-
-	var/trans = reagents.trans_to(target, amount_per_transfer_from_this)
-	playsound(target, 'sound/effects/using/bottles/transfer1.ogg')
-	to_chat(user, "<span class='notice'>You transfer [trans] ml of the solution to \the [target].</span>")
-	return 1
-
-/obj/item/reagent_containers/do_surgery(mob/living/carbon/M, mob/living/user)
-	if(user.zone_sel.selecting != BP_MOUTH) //in case it is ever used as a surgery tool
-		return ..()
+	if(QDELETED(F) || !istype(F, /obj/item/filter))
+		return
+	
+	F.filter_into(dropping, src, user)
 
 /obj/item/reagent_containers/AltClick(mob/user)
 	if(!CanPhysicallyInteract(user))
@@ -231,8 +319,82 @@
 	else
 		return ..()
 
-/obj/item/reagent_containers/examine(mob/user, infix)
-	. = ..()
+/// Volume in L
+/obj/item/reagent_containers/proc/get_liquids_volume()
+	return Z_CHEM_GET_LIQUIDS_VOLUME(src) || 0.0
 
-	if(hasHUD(user, HUD_SCIENCE))
-		. += SPAN_NOTICE("The [src] contains: [reagents.get_reagents()].")
+/// Weight in g
+/obj/item/reagent_containers/proc/get_liquids_weight()
+	return Z_CHEM_GET_LIQUIDS_WEIGHT(src) || 0.0
+
+/// Volume in L
+/obj/item/reagent_containers/proc/get_solids_volume()
+	return Z_CHEM_GET_SOLIDS_VOLUME(src) || 0.0
+
+/// Weight in g
+/obj/item/reagent_containers/proc/get_solids_weight()
+	return Z_CHEM_GET_SOLIDS_WEIGHT(src) || 0.0
+
+/// Volume in L
+/obj/item/reagent_containers/proc/get_used_volume()
+	return get_liquids_volume() + get_solids_volume()
+
+/obj/item/reagent_containers/proc/get_free_space()
+	return max(volume - get_used_volume(), 0.0)
+
+/obj/item/reagent_containers/proc/is_empty()
+	return get_used_volume() <= 0.0
+
+/obj/item/reagent_containers/Value(base)
+	. = base
+	
+	var/total_volume = get_used_volume()
+
+	if(total_volume <= 0.0)
+		. = ceil(.)
+
+		return
+	
+	var/const/purity_power = 1.0
+
+	var/liquid_phases = Z_CHEM_GET_LIQUID_PHASES(src)
+	var/solid_phases = Z_CHEM_GET_SOLID_PHASES(src)
+
+	for(var/i = 0 to liquid_phases - 1)
+		for(var/j = 0 to length(__z_molecules_meta) - 1)
+			var/moles = Z_CHEM_GET_LIQUID_PHASE_MOLES(src, i, j)
+
+			if(moles <= 0.0)
+				continue
+
+			var/datum/molecule_meta/meta = __z_molecules_meta[j + 1]
+			var/component_volume = moles * (meta.weight / (meta.density * 1000.0))
+			var/purity = component_volume / total_volume
+			
+			. += __molecules_cost[j + 1] * moles * (purity ** purity_power)
+
+	for(var/i = 0 to solid_phases - 1)
+		var/moles = Z_CHEM_GET_SOLID_PHASE_MOLES(src, i)
+
+		if(moles <= 0.0)
+			continue
+
+		var/molecule = Z_CHEM_GET_SOLID_PHASE_MOLECULE(src, i)
+		var/datum/molecule_meta/meta = __z_molecules_meta[molecule + 1]
+		var/component_volume = moles * (meta.weight / (meta.density * 1000.0))
+		var/purity = component_volume / total_volume
+		
+		. += __molecules_cost[molecule + 1] * moles * (purity ** purity_power)
+
+	. = ceil(.)
+
+/client/proc/cmd_print_reagent_container_debug_info(obj/item/reagent_containers/R)
+	set name = "Reagents Debug Info"
+
+	if(!check_rights(R_DEBUG))
+		return
+
+	var/info = Z_CHEM_GET_DEBUG_INFO(R, R.volume)
+	ASSERT(info != null)
+
+	to_chat(usr, info)

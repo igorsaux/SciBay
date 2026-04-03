@@ -276,9 +276,6 @@ steam.start() -- spawns the effect
 	if(!..())
 		return FALSE
 
-	if(M.isSynthetic())
-		return FALSE
-
 	if(prob(50))
 		M.drop_active_hand()
 	else
@@ -292,9 +289,7 @@ steam.start() -- spawns the effect
 
 /obj/effect/effect/smoke/bad/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
 	if(air_group || (height==0)) return 1
-	if(istype(mover, /obj/item/projectile/beam))
-		var/obj/item/projectile/beam/B = mover
-		B.damage = (B.damage/2)
+
 	return TRUE
 /////////////////////////////////////////////
 // Sleep smoke

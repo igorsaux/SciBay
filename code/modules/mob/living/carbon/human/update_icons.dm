@@ -159,9 +159,6 @@ Please contact me on #coderbus IRC. ~Carn x
 						overlay.transform = M
 					overlays_to_apply += overlay
 
-	if(auras)
-		overlays_to_apply |= auras
-
 	if(active_typing_indicator)
 		overlays_to_apply |= active_typing_indicator
 
@@ -204,7 +201,7 @@ var/global/list/damage_icon_parts = list()
 		if(O.damage_state == "00")
 			continue
 		var/icon/DI
-		var/use_colour = (BP_IS_ROBOTIC(O) ? SYNTH_BLOOD_COLOUR : O.species.get_blood_colour(src))
+		var/use_colour = O.species.get_blood_colour(src)
 		var/cache_index = "[O.damage_state]/[O.icon_name]/[use_colour]/[species.name]/[body_build.name]"
 		if(damage_icon_parts[cache_index] == null)
 			DI = new /icon(species.get_damage_overlays(src), O.damage_state)			// the damage icon for whole human
@@ -425,7 +422,6 @@ var/global/list/damage_icon_parts = list()
 	update_inv_handcuffed(0)
 	update_inv_pockets(0)
 	update_fire(0)
-	update_surgery(0)
 	update_damage_overlays()
 	queue_icon_update()
 	//Hud Stuff
@@ -583,11 +579,8 @@ var/global/list/damage_icon_parts = list()
 
 // Back
 /mob/living/carbon/human/update_inv_back(update_icons=1)
-	var/hideback = (s_store && (s_store.flags_inv & HIDERIG)) && istype(back, /obj/item/rig)
-	if(back && !hideback)
+	if(back)
 		overlays_standing[HO_BACK_LAYER] = back.get_mob_overlay(src,slot_back_str)
-	else
-		overlays_standing[HO_BACK_LAYER] = null
 
 	if(update_icons) queue_icon_update()
 
@@ -782,21 +775,6 @@ var/global/list/damage_icon_parts = list()
 				overlays_standing[HO_FIRE_LAYER] = standing
 
 	if(update_icons) queue_icon_update()
-
-// Surgery overlays
-/mob/living/carbon/human/proc/update_surgery(update_icons=1)
-	overlays_standing[HO_SURGERY_LAYER] = null
-	var/image/total = new
-	for(var/obj/item/organ/external/E in external_organs)
-		if(!BP_IS_ROBOTIC(E) && E.is_surgically_open())
-			var/image/I = image("icon"='icons/mob/surgery.dmi', "icon_state"="[E.icon_name][round(E.is_surgically_open())]", "layer"=-HO_SURGERY_LAYER)
-			total.AddOverlays(I)
-	total.appearance_flags = DEFAULT_APPEARANCE_FLAGS | RESET_COLOR
-	overlays_standing[HO_SURGERY_LAYER] = total
-
-	if(update_icons) queue_icon_update()
-
-
 
 //Human Overlays Indexes/////////
 #undef HO_MUTATIONS_LAYER

@@ -56,21 +56,6 @@
 	pins["purple pin"] = /obj/item/clothing/head/hairflower/purple
 	gear_tweaks += new /datum/gear_tweak/path(pins)
 
-/datum/gear/head/hardhat
-	display_name = "hardhat selection"
-	path = /obj/item/clothing/head/hardhat
-	cost = 2
-	allowed_roles = TECHNICAL_ROLES
-
-/datum/gear/head/hardhat/New()
-	..()
-	var/hardhats = list()
-	hardhats["blue hardhat"] = /obj/item/clothing/head/hardhat/dblue
-	hardhats["orange hardhat"] = /obj/item/clothing/head/hardhat/orange
-	hardhats["red hardhat"] = /obj/item/clothing/head/hardhat/red
-	hardhats["yellow hardhat"] = /obj/item/clothing/head/hardhat
-	gear_tweaks += new /datum/gear_tweak/path(hardhats)
-
 /datum/gear/head/formalhat
 	display_name = "formal hat selection"
 	path = /obj/item/clothing/head
@@ -171,16 +156,6 @@
 	path = /obj/item/clothing/head/kitty
 	price = 20
 
-/datum/gear/head/wizard_fake
-	display_name = "wizard hat"
-	path = /obj/item/clothing/head/wizard/fake
-	price = 30
-
-/datum/gear/head/marisa_wizard_fake
-	display_name = "marisa wizard hat"
-	path = /obj/item/clothing/head/wizard/marisa/fake
-	price = 30
-
 /datum/gear/head/witchwig
 	display_name = "witchwig"
 	path = /obj/item/clothing/head/witchwig
@@ -195,11 +170,6 @@
 	display_name = "rabbit ears"
 	path = /obj/item/clothing/head/rabbitears
 	price = 16
-
-/datum/gear/head/festive
-	display_name = "festive hat"
-	path = /obj/item/clothing/head/festive
-	price = 2
 
 /datum/gear/head/petehat
 	display_name = "pete hat"
@@ -262,9 +232,3 @@
 	path = /obj/item/clothing/head/caphat/alt
 	price = 10
 	allowed_roles = list(/datum/job/captain)
-
-/datum/gear/head/witchhunter
-	display_name = "witchunter hat"
-	path = /obj/item/clothing/head/witchunter_hat
-	price = 10
-	allowed_roles = list(/datum/job/chaplain)

@@ -73,7 +73,7 @@
 	set src in view(usr, 1)
 	set name = "Print Data"
 
-	if(!(ishuman(usr) || isrobot(usr)))
+	if(!ishuman(usr))
 		return
 	var/mob/living/L = usr
 	if(L.stat || L.restrained() || L.lying)
@@ -162,32 +162,3 @@
 	if(istype(usr,/mob/living/carbon))
 		// place the item in the usr's hand if possible
 		usr.pick_or_drop(P)
-
-/obj/item/autopsy_scanner/do_surgery(mob/living/carbon/human/M, mob/living/user)
-	if(!istype(M))
-		return 0
-
-	if(target_name != M.name)
-		target_name = M.name
-		src.wdata = list()
-		src.chemtraces = list()
-		src.timeofdeath = null
-		to_chat(user, "<span class='notice'>A new patient has been registered. Purging data for previous patient.</span>")
-
-	src.timeofdeath = M.timeofdeath
-
-	var/obj/item/organ/external/S = M.get_organ(user.zone_sel.selecting)
-	if(!S)
-		to_chat(usr, "<span class='warning'>You can't scan this body part.</span>")
-		return
-	if(!S.is_surgically_open(FALSE))
-		to_chat(usr, "<span class='warning'>You have to cut [S] open first!</span>")
-		return
-	M.visible_message("<span class='notice'>\The [user] scans the wounds on [M]'s [S.name] with [src]</span>")
-
-	src.add_data(S)
-	for(var/T in M.chem_traces)
-		var/datum/reagent/R = T
-		chemtraces += initial(R.name)
-
-	return 1

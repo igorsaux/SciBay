@@ -89,39 +89,12 @@ GLOBAL_LIST_INIT(department_flags_to_text, list(
 		job_flag = list(MSC)
 	assigned_deparment_flags = job_flag
 	set_department(english_list(job_flag_name))
-	set_species(H ? H.get_species() : SPECIES_HUMAN)
 
 	// Medical record
 	set_bloodtype(H ? H.b_type : "Unset")
-	set_status_physical(GLOB.default_physical_status)
-	set_status_mental(GLOB.default_mental_status)
-	set_major_disabilities("None")
-	set_minor_disabilities("None")
-	set_current_diseases("None")
-	set_medical_details("None")
-	set_medical_notes("None")
-	set_medical_records("None")
-	set_medRecord((H && H.med_record && !jobban_isbanned(H, "Records") ? H.med_record : "No record supplied"))
 
-	// Security record
-	set_criminalStatus(GLOB.default_security_status, automatic)
 	set_dna(H ? H.dna.unique_enzymes : "")
 	set_fingerprint(H ? md5(H.dna.uni_identity) : "")
-	set_major_crimes("None")
-	set_minor_crimes("None")
-	set_crime_details("None")
-	set_crime_notes("None")
-	set_crime_recent("None")
-	set_secRecord((H && H.sec_record && !jobban_isbanned(H, "Records") ? H.sec_record : "No record supplied"), automatic)
-
-	// Employment record
-	set_emplRecord((H && H.gen_record && !jobban_isbanned(H, "Records") ? H.gen_record : "No record supplied"))
-	set_homeSystem(H ? H.home_system : "Unset")
-	set_background(H ? H.personal_background : "Unset")
-	set_religion(H ? H.religion : "Unset")
-
-	// Antag record
-	set_antagRecord((H && H.exploit_record && !jobban_isbanned(H, "Records") ? H.exploit_record : ""))
 
 /datum/computer_file/crew_record/proc/take_mob_photo(mob/living/carbon/human/H)
 	if(istype(H))
@@ -309,129 +282,17 @@ FIELD_SHORT("Job",job, FALSE)
 FIELD_LIST("Sex", sex, FALSE, record_genders())
 FIELD_NUM("Age", age, FALSE)
 
-
 FIELD_SHORT_SECURE("Department", department, FALSE, access_change_ids)
-FIELD_SHORT("Species",species, FALSE)
-
 
 // MEDICAL RECORDS
 FIELD_LIST("Blood Type", bloodtype, FALSE, GLOB.blood_types);
 FIELD_CONTEXT_EDIT(bloodtype, CONTEXT(medical))
-
-FIELD_LIST("Physical Status", status_physical, FALSE, GLOB.physical_statuses);
-FIELD_CONTEXT_EDIT(status_physical, CONTEXT(medical))
-FIELD_ACCESS_EDIT(status_physical, access_medical)
-
-FIELD_LIST("Mental Status", status_mental, FALSE, GLOB.mental_statuses);
-FIELD_CONTEXT_EDIT(status_mental, CONTEXT(medical))
-FIELD_ACCESS_EDIT(status_mental, access_medical)
-
-FIELD_LONG_SECURE("Major Disabilities", major_disabilities, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(major_disabilities, CONTEXT(medical))
-
-FIELD_LONG_SECURE("Minor Disabilities", minor_disabilities, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(minor_disabilities, CONTEXT(medical))
-
-FIELD_LONG_SECURE("Current Diseases", current_diseases, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(current_diseases, CONTEXT(medical))
-
-FIELD_LONG_SECURE("Medical Condition Details", medical_details, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(medical_details, CONTEXT(medical))
-
-FIELD_LONG_SECURE("Important Notes", medical_notes, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(medical_notes, CONTEXT(medical))
-
-FIELD_LONG_SECURE("Medical Recent Records", medical_records, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(medical_records, CONTEXT(medical))
-
-
-FIELD_LONG_SECURE("Medical Background", medRecord, FALSE, access_medical);
-FIELD_CONTEXT_BOTH(medRecord, CONTEXT(medical))
-
-
-// SECURITY RECORDS
-FIELD_LIST_SECURE("Criminal Status", criminalStatus, FALSE, GLOB.security_statuses, access_security);
-FIELD_CONTEXT_VIEW(criminalStatus, CONTEXT(security) | CONTEXT(crew))
-FIELD_CONTEXT_EDIT(criminalStatus, CONTEXT(security))
-
-/proc/criminal_status_color(status)
-	var/ret = ""
-	switch (status)
-		if ("Arrest")
-			ret = "red"
-		if ("Incarcerated")
-			ret = "orange"
-		if ("Parolled")
-			ret = "green"
-		if ("Released")
-			ret = "darkcyan"
-	return ret
-
-/record_field/criminalStatus/announce(automatic)
-	if(automatic)
-		return
-	for(var/datum/computer_file/crew_record/R in GLOB.all_crew_records)
-		if(R.uid == record_id)
-			var/status = "<b>None</b>"
-			var/clr = criminal_status_color(value)
-			if (clr)
-				status = "<font color='[clr]'><b>[value]</b></font>"
-
-			GLOB.global_announcer.autosay("<b>[R.get_name()]</b> security status is changed to [status]!", "<b>Security Records Announcer</b>", "Security")
-
-
-FIELD_LONG_SECURE("Major Crimes", major_crimes, FALSE, access_security);
-FIELD_CONTEXT_BOTH(major_crimes, CONTEXT(security))
-
-FIELD_LONG_SECURE("Minor Crimes", minor_crimes, FALSE, access_security);
-FIELD_CONTEXT_BOTH(minor_crimes, CONTEXT(security))
-
-FIELD_LONG_SECURE("Crime Details", crime_details, FALSE, access_security);
-FIELD_CONTEXT_BOTH(crime_details, CONTEXT(security))
-
-FIELD_LONG_SECURE("Important Notes", crime_notes, FALSE, access_security);
-FIELD_CONTEXT_BOTH(crime_notes, CONTEXT(security))
-
-FIELD_LONG_SECURE("Security Recent Records", crime_recent, FALSE, access_security);
-FIELD_CONTEXT_BOTH(crime_recent, CONTEXT(security))
-
-
-FIELD_LONG_SECURE("Security Background", secRecord, FALSE, access_security);
-FIELD_CONTEXT_BOTH(secRecord, CONTEXT(security))
-/record_field/secRecord/announce(automatic)
-	if(automatic)
-		return
-	for(var/datum/computer_file/crew_record/R in GLOB.all_crew_records)
-		if(R.uid == record_id)
-			GLOB.global_announcer.autosay("<b>[R.get_name()]</b> security record was changed!", "<b>Security Records Announcer</b>", "Security")
-
 
 FIELD_SHORT_SECURE("DNA", dna, FALSE, access_medical);
 FIELD_CONTEXT_EDIT(dna, CONTEXT(medical))
 
 FIELD_SHORT_SECURE("Fingerprint", fingerprint, FALSE, access_security);
 FIELD_CONTEXT_EDIT(fingerprint, CONTEXT(security))
-
-
-// EMPLOYMENT RECORDS
-FIELD_LONG_SECURE("Employment Record", emplRecord, FALSE, access_heads);
-FIELD_CONTEXT_BOTH(emplRecord, CONTEXT(crew))
-
-FIELD_SHORT_SECURE("Home System", homeSystem, FALSE, access_heads);
-FIELD_CONTEXT_BOTH(homeSystem, CONTEXT(crew))
-
-
-FIELD_SHORT_SECURE("Background", background, FALSE, access_heads);
-FIELD_CONTEXT_BOTH(background, CONTEXT(crew))
-
-FIELD_SHORT_SECURE("Religion", religion, FALSE, access_heads);
-FIELD_CONTEXT_BOTH(religion, CONTEXT(crew))
-
-
-// ANTAG RECORDS
-FIELD_LONG_SECURE("Exploitable Information", antagRecord, FALSE, access_syndicate);
-FIELD_CONTEXT_BOTH(antagRecord, CONTEXT(syndicate))
-
 
 /record_field/sex/proc/record_genders()
 	. = list()

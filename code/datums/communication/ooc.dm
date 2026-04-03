@@ -19,9 +19,6 @@
 			to_chat(C, "<B>Advertising other servers is not allowed.</B>")
 			log_and_message_admins("has attempted to advertise in [name]: [message]")
 			return FALSE
-		if (config.multiaccount.eams_blocks_ooc && !SSeams.CheckForAccess(C))
-			to_chat(C, "<span class='danger'>Sorry! EAMS protection doesn't allow you to write in OOC.</span>")
-			return FALSE
 
 /decl/communication_channel/ooc/do_communicate(client/C, message)
 	var/datum/admins/holder = C.holder
@@ -41,8 +38,6 @@
 	var/ooc_color = C.prefs.ooccolor
 	var/decorated_ckey = C.donator_info.get_decorated_ooc_name(C)
 	message = emoji_parse(C, message)
-
-	GLOB.indigo_bot.chat_webhook(config.indigo_bot.ooc_webhook, "OOC: **[C.ckey]:** [message]")
 
 	for(var/client/target in GLOB.clients)
 		if(target.is_key_ignored(C.key)) // If we're ignored by this person, then do nothing.

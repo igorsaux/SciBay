@@ -1,12 +1,6 @@
 /proc/cmp_appearance_data(datum/appearance_data/a, datum/appearance_data/b)
 	return b.priority - a.priority
 
-/proc/cmp_camera_ctag_asc(obj/machinery/camera/a, obj/machinery/camera/b)
-	return sorttext(b.c_tag, a.c_tag)
-
-/proc/cmp_camera_ctag_dsc(obj/machinery/camera/a, obj/machinery/camera/b)
-	return sorttext(a.c_tag, b.c_tag)
-
 /proc/cmp_crew_sensor_modifier(crew_sensor_modifier/a, crew_sensor_modifier/b)
 	return b.priority - a.priority
 

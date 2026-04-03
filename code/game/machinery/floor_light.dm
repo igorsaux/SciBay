@@ -20,11 +20,6 @@
 
 	obj_flags = OBJ_FLAG_ANCHORABLE
 
-	use_power = POWER_USE_ACTIVE
-	idle_power_usage = 2 WATTS
-	active_power_usage = 20 WATTS
-	power_channel = STATIC_LIGHT
-
 	matter = list(MATERIAL_STEEL = 250, MATERIAL_GLASS = 250)
 
 	/// Whether object is turned on.
@@ -192,8 +187,6 @@
 
 	on = !on
 	update_icon()
-	update_use_power(on ? POWER_USE_ACTIVE : POWER_USE_OFF)
-
 
 /obj/machinery/floor_light/ex_act(severity)
 	switch(severity)

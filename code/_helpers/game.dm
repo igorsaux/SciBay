@@ -9,7 +9,6 @@
 	var/href
 	href_list = params2list("src=\ref[src]&[target]=1")
 	href = "src=\ref[src];[target]=1"
-	src:temphtml = null
 	src:Topic(href, href_list)
 	return null
 
@@ -195,42 +194,11 @@
 
 	return hear
 
-
-/proc/get_mobs_in_radio_ranges(list/obj/item/device/radio/radios)
-	set background = 1
-
-	. = list()
-	// Returns a list of mobs who can hear any of the radios given in @radios
-	var/list/speaker_coverage = list()
-	for(var/r in radios)
-		var/obj/item/device/radio/R = r // You better fucking be a radio.
-		var/turf/speaker = get_turf(R)
-		if(speaker)
-			for(var/turf/T in hear(R.canhear_range, speaker))
-				speaker_coverage[T] = R
-
-	// Try to find all the players who can hear the message
-	for(var/mob/M in GLOB.player_list)
-		if(M.can_hear_radio(speaker_coverage))
-			. += M
-
 /mob/proc/can_hear_radio(list/hearturfs)
 	return FALSE
 
 /mob/living/can_hear_radio(list/hearturfs)
 	return get_turf(src) in hearturfs
-
-/mob/living/silicon/robot/can_hear_radio(list/hearturfs)
-	var/turf/T = get_turf(src)
-	var/obj/item/device/radio/borg/R = hearturfs[T] // this should be an assoc list of turf-to-radio
-
-	// We heard it on our own radio? We use power for that.
-	if(istype(R) && R.myborg == src)
-		var/datum/robot_component/CO = get_robot_component("radio")
-		if(!CO || !is_component_functioning("radio") || !cell_use_power(CO.active_usage))
-			return FALSE // Sorry, couldn't hear
-
-	return R // radio, true, false, what's the difference
 
 /mob/observer/ghost/can_hear_radio(list/hearturfs)
 	return get_preference_value(/datum/client_preference/ghost_radio) == GLOB.PREF_ALL_CHATTER
@@ -337,21 +305,6 @@
 			if(((G.client.inactivity/10)/60) <= buffer + i)
 				if(!(G.mind && G.mind.current && !G.mind.current.is_ooc_dead()))
 					candidates += G.key
-		i++
-	return candidates
-
-// Same as above but for alien candidates.
-/proc/get_alien_candidates()
-	// List of candidate KEYS to assume control of the new larva ~Carn
-	var/list/candidates = list()
-	var/i = 0
-	while(candidates.len <= 0 && i < 5)
-		for(var/mob/observer/ghost/G in GLOB.player_list)
-			if(MODE_XENOMORPH in G.client.prefs.be_special_role)
-				// The most active players are more likely to become an alien
-				if(((G.client.inactivity/10)/60) <= ALIEN_SELECT_AFK_BUFFER + i)
-					if(!(G.mind && G.mind.current && !G.mind.current.is_ooc_dead()))
-						candidates += G.key
 		i++
 	return candidates
 
@@ -626,6 +579,3 @@
 
 /proc/SecondsToTicks(seconds)
 	return seconds * 10
-
-/proc/round_is_spooky(spookiness_threshold = config.ghost.req_cult_ghostwriter)
-	return (GLOB.cult.current_antagonists.len > spookiness_threshold)

@@ -328,7 +328,7 @@
 	// Replace any missing limbs.
 	for(var/name in BP_ALL_LIMBS)
 		var/obj/item/organ/external/O = character.external_organs_by_name[name]
-		if(!O && organ_data[name] != "amputated")
+		if(!O)
 			var/list/organ_data = character.species.has_limbs[name]
 			if(!islist(organ_data)) continue
 			var/limb_path = organ_data["path"]
@@ -336,55 +336,16 @@
 
 	// Destroy/cyborgize organs and limbs. The order is important for preserving low-level choices for robolimb sprites being overridden.
 	for(var/name in BP_BY_DEPTH)
-		var/status = organ_data[name]
 		var/obj/item/organ/external/O = character.external_organs_by_name[name]
 		if(!O)
 			continue
 		O.status = 0
 		O.model = null
-		if(status == "amputated")
-			character.external_organs_by_name -= O.organ_tag
-			character.external_organs -= O
-			if(O.children) // This might need to become recursive.
-				for(var/obj/item/organ/external/child in O.children)
-					character.external_organs_by_name -= child.organ_tag
-					character.external_organs -= child
-		else if(status == "cyborg")
-			if(rlimb_data[name])
-				O.robotize(rlimb_data[name])
-			else
-				O.robotize()
-		else //normal organ
-			O.force_icon = null
-			O.SetName(initial(O.name))
-			O.desc = initial(O.desc)
+		O.force_icon = null
+		O.SetName(initial(O.name))
+		O.desc = initial(O.desc)
 	//For species that don't care about your silly prefs
 	character.species.handle_limbs_setup(character)
-	if(!is_preview_copy)
-		for(var/name in list(BP_HEART, BP_EYES, BP_BRAIN, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_STOMACH, BP_TONGUE, BP_BLADDER, BP_INTESTINES))
-			var/status = organ_data[name]
-			if(!status)
-				continue
-			var/obj/item/organ/I = character.internal_organs_by_name[name]
-			if(I)
-				if(status == "assisted")
-					I.mechassist()
-				else if(status == "mechanical")
-					I.robotize()
-
-	for(var/tag in BP_ALL_LIMBS + BP_INTERNAL_ORGANS)
-		if(!LAZYLEN(organ_modules[tag]))
-			continue
-
-		var/obj/item/organ/O
-		if(tag in BP_ALL_LIMBS)
-			O = character.external_organs_by_name[tag]
-		else
-			O = character.internal_organs_by_name[tag]
-
-		for(var/path in organ_modules[tag])
-			var/obj/item/organ_module/module = new path(O)
-			module.install(O)
 
 	QDEL_NULL_LIST(character.worn_underwear)
 	character.worn_underwear = list()
@@ -439,18 +400,8 @@
 	character.flavor_texts["feet"] = flavor_texts["feet"]
 	character.flavor_texts["action"] = flavor_texts["action"]
 
-	character.med_record = med_record
-	character.sec_record = sec_record
-	character.gen_record = gen_record
-	character.exploit_record = exploit_record
-
-	character.home_system = home_system
-	character.personal_background = background
-	character.religion = religion
-
-	if(!character.isSynthetic())
-		character.set_nutrition(rand(140, 360) * character.body_build.stomach_capacity)
-		character.set_hydration(rand(HYDRATION_LOW, HYDRATION_HIGH))
+	character.set_nutrition(rand(140, 360) * character.body_build.stomach_capacity)
+	character.set_hydration(rand(HYDRATION_LOW, HYDRATION_HIGH))
 
 	return
 

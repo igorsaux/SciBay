@@ -9,9 +9,6 @@ SUBSYSTEM_DEF(misc)
 	if(config.game.generate_asteroid)
 		GLOB.using_map.perform_map_generation(FALSE)
 
-	// Create robolimbs for chargen.
-	populate_robolimb_list()
-
 	job_master = new /datum/controller/occupations()
 	job_master.SetupOccupations(setup_titles=1)
 	job_master.LoadJobs()
@@ -21,15 +18,6 @@ SUBSYSTEM_DEF(misc)
 	GLOB.syndicate_code_response = generate_code_phrase()
 	GLOB.code_response_highlight_rule = generate_code_regex(GLOB.syndicate_code_response, @"\u0430-\u0451") // Russian chars only
 
-	//Create colors for different poisonous lizards
-	var/list/toxin_color = list()
-	toxin_color["notoxin"] = hex2rgb(rand_hex_color())
-	var/list/toxin_list = POSSIBLE_LIZARD_TOXINS
-	for(var/T in toxin_list)
-		toxin_color[T] = hex2rgb(rand_hex_color())
-	GLOB.lizard_colors = toxin_color
-
-	transfer_controller = new
 	. = ..()
 
 // I have no other ideas how to do this. Moreover, it won't work for anything but walls and windows, since things like tables would need 256 baked states instead of 16, due to diagonals. Fuck my life. ~ToTh

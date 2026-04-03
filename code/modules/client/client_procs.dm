@@ -225,9 +225,6 @@
 		qdel(src)
 		return
 
-	// Load EAMS data
-	SSeams.CollectDataForClient(src)
-
 	var/age = get_player_age(ckey)
 	message_staff("[src] ([age < 10 ? "<font color='#ff0000'>[age]</font>" : age]) has connected.")
 
@@ -293,7 +290,6 @@
 		qdel(src)
 		return
 
-	load_luck()
 	//////////////
 	//DISCONNECT//
 	//////////////
@@ -363,8 +359,6 @@
 	while(query_cid.NextRow())
 		related_accounts_cid += "[query_cid.item[1]], "
 		break
-
-	watchlist.OnLogin(src)
 
 	// Just the standard check to see if it's actually a number
 	if(id)
@@ -681,142 +675,6 @@
 	var/mob/living/M = mob
 	if(istype(M) && !M.in_throw_mode)
 		M.OnMouseDown(object, location, control, params)
-
-/client/proc/get_luck_for_type(luck_type)
-	switch(luck_type)
-		if(LUCK_CHECK_GENERAL)
-			return luck_general
-
-		if(LUCK_CHECK_COMBAT)
-			return luck_combat
-
-		if(LUCK_CHECK_ENG)
-			return luck_eng
-
-		if(LUCK_CHECK_MED)
-			return luck_med
-
-		if(LUCK_CHECK_RND)
-			return luck_rnd
-
-/client/proc/load_luck()
-	if(!establish_db_connection())
-		error("Ban database connection failure.")
-		log_misc("Ban database connection failure.")
-		return
-
-	var/DBQuery/query = sql_query({"
-			SELECT
-				luck_level,
-				luck_type
-			FROM
-				erro_ban
-			WHERE
-				(ckey = $ckeytext)
-				AND
-				(
-					bantype = 'LUCK_PERMABAN'
-					OR
-					bantype = 'LUCK_TEMPBAN'
-				)
-				AND
-				isnull(unbanned)
-				[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
-			"}, dbcon, list(ckeytext = src.ckey, server_id = config.general.server_id))
-
-	while(query.NextRow())
-		var/luck_level =  text2num(query.item[1])
-		var/luck_type = query.item[2]
-		switch(luck_type)
-			if(LUCK_CHECK_GENERAL)
-				luck_general =luck_level
-			if(LUCK_CHECK_COMBAT)
-				luck_combat = luck_level
-			if(LUCK_CHECK_ENG)
-				luck_eng = luck_level
-			if(LUCK_CHECK_MED)
-				luck_med = luck_level
-			if(LUCK_CHECK_RND)
-				luck_rnd = luck_level
-
-
-
-/client/proc/write_luck(lucktype, luck_level, duration=-1, admin, reason)
-	if(!establish_db_connection())
-		error("Ban database connection failure.")
-		log_misc("Ban database connection failure.")
-		return
-
-	var/datum/admins/admin_datum = admin
-	var/bantype = BANTYPE_PERMA_LUCKBAN
-	if(duration!=-1)
-		bantype = BANTYPE_TEMP_LUCKBAN
-
-	admin_datum.DB_ban_record(bantype,src.mob,duration,reason,null,TRUE,src.ckey,null,src.computer_id,luck_level,lucktype)
-	load_luck()
-
-/client/proc/update_luck()
-	if(!establish_db_connection())
-		error("Ban database connection failure.")
-		log_misc("Ban database connection failure.")
-		return
-
-	var/DBQuery/query = sql_query({"
-			SELECT
-				id,
-				duration,
-				rounds
-			FROM
-				erro_ban
-			WHERE
-				(ckey = $ckeytext)
-				AND
-				bantype = 'LUCK_TEMPBAN'
-				AND
-				isnull(unbanned)
-				[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
-			"}, dbcon, list(ckeytext = src.ckey, server_id = config.general.server_id))
-
-	while(query.NextRow())
-		var/id = text2num(query.item[1])
-		var/duration = text2num(query.item[2])
-		var/isRounds = text2num(query.item[3])
-		if(!isRounds)
-			return
-		if(duration>1)
-			sql_query({"
-				UPDATE
-					erro_ban
-				SET
-					duration = $duration
-				WHERE
-					id = $id
-					AND
-					ckey = $ckeytext
-					AND
-					bantype = 'LUCK_TEMPBAN'
-					AND
-					isnull(unbanned)
-					[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
-				"}, dbcon, list(id = id, duration = duration-1, ckeytext = src.ckey, server_id = config.general.server_id))
-		else
-			sql_query({"
-				UPDATE
-					erro_ban
-				SET
-					unbanned = 1,
-					unbanned_reason = 'Expired',
-					unbanned_datetime = Now()
-				WHERE
-					id = $id
-					AND
-					ckey = $ckeytext
-					AND
-					bantype = 'LUCK_TEMPBAN'
-					AND
-					isnull(unbanned)
-					[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
-				"}, dbcon, list(id = id, ckeytext = src.ckey, server_id = config.general.server_id))
 
 /client/Click(atom/A)
 	//if(!user_acted(src))

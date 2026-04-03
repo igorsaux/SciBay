@@ -45,22 +45,6 @@
 
 	return
 
-/obj/machinery/portable_atmospherics/powered/pump/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-
-	if(prob(50/severity))
-		on = !on
-
-	if(prob(100/severity))
-		direction_out = !direction_out
-
-	target_pressure = rand(0,1300)
-	update_icon()
-
-	..(severity)
-
 /obj/machinery/portable_atmospherics/powered/pump/Process()
 	..()
 	var/power_draw = -1
@@ -97,24 +81,15 @@
 		last_power_draw = 0
 	else
 		power_draw = max(power_draw, power_losses)
-		if(!powered())
-			cell.use(power_draw * CELLRATE)
-		else
-			use_power_oneoff(power_draw)
 		last_power_draw = power_draw
 
 		update_connected_network()
 
 		//ran out of charge
 		if (!cell.charge)
-			power_change()
 			update_icon()
 
 	src.updateDialog()
-
-/obj/machinery/portable_atmospherics/powered/pump/attack_ai(mob/user)
-	src.add_hiddenprint(user)
-	return src.attack_hand(user)
 
 /obj/machinery/portable_atmospherics/powered/pump/attack_ghost(mob/user)
 	return src.attack_hand(user)

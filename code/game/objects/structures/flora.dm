@@ -12,13 +12,6 @@
 	var/cut_level = PLANT_CUT
 	var/cut_hits = 20
 
-/obj/structure/flora/tree/Initialize()
-	. = ..()
-	add_debris_element()
-
-/obj/structure/flora/tree/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
-
 /obj/structure/flora/tree/attackby(obj/item/W, mob/living/user)
 	if(istype(W, /obj/item/material/twohanded/chainsaw))
 		if(do_after(usr, TIME_CUT))
@@ -332,12 +325,6 @@
 			to_chat(user, SPAN("notice", "You take \the [stored_item] from \the [src]."))
 			stored_item = null
 		src.add_fingerprint(usr)
-
-/obj/structure/flora/pottedplant/bullet_act(obj/item/projectile/Proj)
-	if (prob(Proj.damage*2))
-		death()
-		return 1
-	return ..()
 
 //newbushes
 

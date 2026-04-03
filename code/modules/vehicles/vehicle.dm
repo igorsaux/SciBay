@@ -128,11 +128,6 @@
 	else
 		..()
 
-/obj/vehicle/bullet_act(obj/item/projectile/Proj)
-	health -= Proj.get_structure_damage()
-	..()
-	healthcheck()
-
 /obj/vehicle/ex_act(severity)
 	switch(severity)
 		if(1.0)
@@ -149,28 +144,6 @@
 				health -= rand(1,5)*brute_dam_coeff
 				healthcheck()
 				return
-	return
-
-/obj/vehicle/emp_act(severity)
-	var/was_on = on
-	stat |= EMPED
-	var/obj/effect/overlay/pulse2 = new /obj/effect/overlay(loc)
-	pulse2.icon = 'icons/effects/effects.dmi'
-	pulse2.icon_state = "empdisable"
-	pulse2.SetName("emp sparks")
-	pulse2.anchored = 1
-	pulse2.set_dir(pick(GLOB.cardinal))
-
-	spawn(10)
-		qdel(pulse2)
-	if(on)
-		turn_off()
-	spawn(severity*300)
-		stat &= ~EMPED
-		if(was_on)
-			turn_on()
-
-/obj/vehicle/attack_ai(mob/user as mob)
 	return
 
 /obj/vehicle/unbuckle_mob(mob/user)
@@ -198,15 +171,6 @@
 	on = 0
 	set_light(0)
 	update_icon()
-
-/obj/vehicle/emag_act(remaining_charges, mob/user as mob)
-	if(!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		emagged = 1
-		if(locked)
-			locked = 0
-			to_chat(user, "<span class='warning'>You bypass [src]'s controls.</span>")
-		return 1
 
 /obj/vehicle/proc/explode()
 	src.visible_message("<span class='danger'>\The [src] blows apart!</span>")

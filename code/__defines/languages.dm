@@ -1,23 +1,5 @@
 // Languages.
-#define LANGUAGE_GALCOM "Galactic Common"
-#define LANGUAGE_EAL "Encoded Audio Language"
-#define LANGUAGE_SOL_COMMON "Sol Common"
-#define LANGUAGE_UNATHI "Sinta'unathi"
-#define LANGUAGE_SIIK_MAAS "Siik'maas"
-#define LANGUAGE_SIIK_TAJR "Siik'tajr"
-#define LANGUAGE_SKRELLIAN "Skrellian"
-#define LANGUAGE_ROOTLOCAL "Local Rootspeak"
-#define LANGUAGE_ROOTGLOBAL "Global Rootspeak"
-#define LANGUAGE_LUNAR "Selenian"
-#define LANGUAGE_GUTTER "Gutter"
-#define LANGUAGE_CULT "Cult"
-#define LANGUAGE_SIGN "Sign Language"
-#define LANGUAGE_INDEPENDENT "Independent"
-#define LANGUAGE_SPACER "Spacer"
-#define LANGUAGE_ROBOT "Robot Talk"
-#define LANGUAGE_DRONE "Drone Talk"
-#define LANGUAGE_LING "Changeling"
-#define LANGUAGE_SPIDER "Spider"
+#define LANGUAGE_GALCOM "Common Speak"
 
 // Language flags.
 /// Language is available if the speaker is whitelisted

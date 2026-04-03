@@ -27,9 +27,6 @@
 				attack_generic(user, 1, "slices")
 	return ..()
 
-/obj/structure/attack_tk()
-	return
-
 /obj/structure/ex_act(severity)
 	switch(severity)
 		if(1.0)
@@ -41,10 +38,6 @@
 				return
 		if(3.0)
 			return
-
-/obj/structure/blob_act()
-	if(prob(50))
-		qdel(src)
 
 /obj/structure/attack_generic(mob/user, damage, attack_verb, wallbreaker)
 	if(!breakable || !damage || !wallbreaker)

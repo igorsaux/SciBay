@@ -81,7 +81,6 @@
 
 
 	if(starter && !(stat & NOPOWER))
-		use_power_oneoff(2800)
 		if(rpm<1000)
 			rpmtarget = 1000
 	else
@@ -152,7 +151,6 @@
 	for(var/mob/M in viewers(1, src))
 		if ((M.client && M.machine == src))
 			src.interact(M)
-	AutoUpdateAI(src)
 
 /obj/machinery/power/turbine/interact(mob/user)
 

@@ -14,7 +14,6 @@
 		/obj/item/photo = 1,
 		/obj/item/shreddedp = 1,
 		/obj/item/paper = 1,
-		/obj/item/newspaper = 3,
 		/obj/item/card/id = 3,
 		/obj/item/paper_bundle = 3,
 		)

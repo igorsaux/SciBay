@@ -1,6 +1,5 @@
 /obj/machinery/portable_atmospherics
 	name = "atmoalter"
-	use_power = POWER_USE_OFF
 	var/datum/gas_mixture/air_contents = new
 
 	var/obj/machinery/atmospherics/portables_connector/connected_port
@@ -130,9 +129,6 @@
 				to_chat(user, "<span class='notice'>Nothing happens.</span>")
 				return
 
-	else if (istype(W, /obj/item/device/analyzer))
-		return
-
 	return
 
 /obj/machinery/portable_atmospherics/return_air()
@@ -143,13 +139,6 @@
 	var/power_losses
 	var/last_power_draw = 0
 	var/obj/item/cell/cell
-
-/obj/machinery/portable_atmospherics/powered/powered()
-	if(use_power) //using area power
-		return ..()
-	if(cell && cell.charge)
-		return 1
-	return 0
 
 /obj/machinery/portable_atmospherics/powered/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/cell))
@@ -162,7 +151,6 @@
 		C.add_fingerprint(user)
 		cell = C
 		user.visible_message("<span class='notice'>[user] opens the panel on [src] and inserts [C].</span>", "<span class='notice'>You open the panel on [src] and insert [C].</span>")
-		power_change()
 		return
 
 	if(isScrewdriver(I))
@@ -174,7 +162,6 @@
 		cell.add_fingerprint(user)
 		cell.dropInto(loc)
 		cell = null
-		power_change()
 		return
 	..()
 

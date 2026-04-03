@@ -19,6 +19,7 @@
 	var/is_station         = FALSE
 	var/importance         = 1
 	var/loyalty            = 0
+	var/building_allowed = FALSE
 
 	/// The base turf type of the area, which can be used to override the z-level's base turf
 	var/base_turf
@@ -28,12 +29,6 @@
 /area/New()
 	icon_state = ""
 	uid = ++global_uid
-
-	if(!requires_power)
-		power_light = 0
-		power_equip = 0
-		power_environ = 0
-		ambience_powered = list()
 
 	if(dynamic_lighting)
 		luminosity = 0
@@ -47,13 +42,6 @@
 
 /area/Initialize()
 	. = ..()
-	if(!requires_power || !apc)
-		power_light = 0
-		power_equip = 0
-		power_environ = 0
-		ambience_powered = list()
-	power_change()		// all machines set to current power level, also updates lighting icon
-
 	switch(gravity_state)
 		if(AREA_GRAVITY_NEVER)
 			has_gravity = 0
@@ -74,12 +62,6 @@
 /area/proc/get_contents()
 	return contents
 
-/area/proc/get_cameras()
-	var/list/cameras = list()
-	for (var/obj/machinery/camera/C in src)
-		cameras += C
-	return cameras
-
 /area/proc/is_shuttle_locked()
 	return 0
 
@@ -89,11 +71,6 @@
 	else
 		atmosphere_alarm.triggerAlarm(src, alarm_source, severity = danger_level)
 
-	//Check all the alarms before lowering atmosalm. Raising is perfectly fine.
-	for (var/obj/machinery/alarm/AA in src)
-		if (!(AA.stat & (NOPOWER|BROKEN)) && !AA.shorted && AA.report_danger_level)
-			danger_level = max(danger_level, AA.danger_level)
-
 	if(danger_level != atmosalm)
 		if (danger_level < 1 && atmosalm >= 1)
 			//closing the doors on red and opening on green provides a bit of hysteresis that will hopefully prevent fire doors from opening and closing repeatedly due to noise
@@ -102,8 +79,6 @@
 			air_doors_close()
 
 		atmosalm = danger_level
-		for (var/obj/machinery/alarm/AA in src)
-			AA.update_icon()
 
 		return 1
 	return 0
@@ -183,7 +158,7 @@
 		INVOKE_ASYNC(D, nameof(/obj/machinery/door.proc/open))
 
 /area/on_update_icon()
-	if ((eject || party) && (!requires_power||power_environ))//If it doesn't require power, can still activate this proc.
+	if ((eject || party))
 		/*else if(atmosalm && !fire && !eject && !party)
 			icon_state = "bluenew"*/
 		if(eject && !party)
@@ -202,7 +177,6 @@
 		for(var/obj/machinery/light_switch/L in src)
 			L.sync_state()
 		update_icon()
-		power_change()
 
 /area/proc/set_lighting_mode(mode, state)
 	if(!mode)
@@ -213,12 +187,10 @@
 	else if(mode in enabled_lighting_modes)
 		enabled_lighting_modes -= mode
 
-	var/power_channel = STATIC_LIGHT
 	var/old_lighting_mode = lighting_mode
 
 	if(LIGHTMODE_EMERGENCY in enabled_lighting_modes)
 		lighting_mode = LIGHTMODE_EMERGENCY
-		power_channel = STATIC_ENVIRON
 	else if(LIGHTMODE_RADSTORM in enabled_lighting_modes)
 		lighting_mode = LIGHTMODE_RADSTORM
 	else if(LIGHTMODE_EVACUATION in enabled_lighting_modes)
@@ -233,7 +205,6 @@
 
 	for(var/obj/machinery/light/L in src)
 		L.set_mode(lighting_mode)
-		L.update_power_channel(power_channel)
 
 /area/proc/is_controlled_by_corporation()
 	return loyalty >= 0
@@ -279,7 +250,7 @@ var/list/mob/living/forced_ambiance_list = new
 
 	var/turf/T = get_turf(L)
 	var/hum = 0
-	if(!L.ear_deaf && !always_unpowered && power_environ)
+	if(!L.ear_deaf)
 		for(var/obj/machinery/atmospherics/unary/vent_pump/vent in src)
 			if(vent.can_pump())
 				hum = 1
@@ -302,13 +273,7 @@ var/list/mob/living/forced_ambiance_list = new
 		else
 			sound_to(L, sound(null, channel = 1))
 	else if(prob(35) && (world.time >= L.client.played + custom_period))
-		var/is_powered = (power_environ + power_equip + power_light) > 0
-		var/list/to_play = is_powered ? ambience_powered : ambience_off
-
-		if(!length(to_play))
-			return
-
-		var/S = GET_SFX(pick(to_play))
+		var/S = GET_SFX(pick(ambience_powered))
 
 		L.playsound_local(T, sound(S, repeat = 0, wait = 0, volume = 30, channel = SOUND_CHANNEL_AMBIENT))
 		L.client.played = world.time
@@ -331,9 +296,6 @@ var/list/mob/living/forced_ambiance_list = new
 		return
 
 	var/mob/living/carbon/human/H = M
-
-	if(istype(H.buckled, /obj/effect/dummy/immaterial_form))
-		return
 
 	// A huge-ass boilerplate, because we can't just use can_slip() here,
 	// since the area already has gravity upon calling this proc.
@@ -358,8 +320,6 @@ var/list/mob/living/forced_ambiance_list = new
 	if(theAPC && theAPC.operating)
 		for(var/obj/machinery/power/apc/temp_apc in src)
 			temp_apc.overload_lighting()
-		for(var/obj/machinery/door/airlock/temp_airlock in src)
-			temp_airlock.prison_open()
 		for(var/obj/machinery/door/window/temp_windoor in src)
 			temp_windoor.open()
 
@@ -402,3 +362,45 @@ var/list/mob/living/forced_ambiance_list = new
 
 /area/drop_location()
 	CRASH("Bad op: area/drop_location() called")
+
+/area/public_space
+	name = "Public Space"
+	icon_state = "hallway"
+
+/area/public_space/cargo
+	name = "Cargo"
+	icon_state = "blue"
+
+/area/private_space
+	name = "Private Space"
+	icon_state = "yellow"
+
+	/// Set the price so that it can be purchased
+	var/price = null
+	var/is_owned = FALSE
+
+/area/private_space/closet
+	name = "Small Closet"
+	icon_state = "janitor"
+	price = 0
+
+/area/private_space/vault
+	name = "Vault"
+	icon_state = "nuke_storage"
+	price = 167400
+
+/area/private_space/hall
+	name = "Hall"
+	icon_state = "hangar"
+	price = 572000
+
+/proc/is_there_building_allowed(atom/A)
+	var/area/area = get_area(A)
+	if(!area)
+		return FALSE
+
+	var/area/private_space/PS = area
+	if(!istype(PS, /area/private_space/))
+		return
+
+	return PS.is_owned

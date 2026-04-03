@@ -37,10 +37,7 @@
 /obj/item/organ/internal/cerebrum/proc/_create_brainmob()
 	var/mob/living/new_brainmob = new brainmob_type(src)
 	new_brainmob.set_stat(CONSCIOUS)
-	if(istype(new_brainmob, /mob/living/silicon/sil_brainmob))
-		var/mob/living/silicon/sil_brainmob/SB = new_brainmob
-		SB.container = src
-	else if(istype(new_brainmob, /mob/living/carbon/brain))
+	if(istype(new_brainmob, /mob/living/carbon/brain))
 		var/mob/living/carbon/brain/B = new_brainmob
 		B.container = src
 	return new_brainmob
@@ -58,10 +55,7 @@
 		_register_mob_signals()
 
 	if(old_self.mind)
-		if(old_self.mind.wizard?.lich) // Snowflakey
-			old_self.mind.wizard.escape_to_lich(old_self.mind)
-		else
-			old_self.mind.transfer_to(brainmob)
+		old_self.mind.transfer_to(brainmob)
 
 	to_chat(brainmob, SPAN("notice", "You feel slightly disoriented. That's normal when you're just \a [initial(name)]."))
 	callHook("debrain", list(brainmob))
@@ -92,19 +86,12 @@
 	if(isnull(brainmob))
 		return TRUE
 
-	if(!isnull(target?.mind?.changeling))
-		brainmob.death(FALSE)
-		brainmob.ghostize(FALSE)
-		return TRUE
-
 	target.ghostize(!isnull(brainmob?.mind) || !isnull(brainmob?.key) || FALSE)
 
 	if(brainmob.mind)
 		brainmob.mind.transfer_to(target)
 	else if(brainmob.key)
 		target.key = brainmob.key
-
-	if(BP_IS_ROBOTIC(target.get_organ(parent_organ))) target.set_stat(CONSCIOUS)
 
 	return TRUE
 
@@ -117,16 +104,7 @@
 
 	update_name()
 
-	var/mob/living/simple_animal/borer/borer = owner.has_brain_worms()
-	if(borer)
-		borer.detatch()
-		borer.leave_host()
-
-	if(!isnull(owner?.mind?.changeling))
-		return ..()
-
 	if(vital)
 		transfer_identity(owner)
-		if(!BP_IS_ROBOTIC(src)) brainmob?.death()
 
 	return ..()

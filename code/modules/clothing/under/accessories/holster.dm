@@ -64,9 +64,6 @@
 		to_chat(user, SPAN("warning", "[I] won't fit in [src]!"))
 		return
 
-	if(istype(user))
-		user.stop_aiming(no_message=1)
-
 	if(!user.drop(I, src))
 		return
 
@@ -113,11 +110,6 @@
 		unholster(user)
 	else
 		..()
-
-/obj/item/clothing/accessory/holster/emp_act(severity)
-	if (holstered)
-		holstered.emp_act(severity)
-	..()
 
 /obj/item/clothing/accessory/holster/examine(mob/user, infix)
 	. = ..()

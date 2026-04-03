@@ -230,9 +230,7 @@
 		var/mob/living/carbon/human/H = user
 		if(!H.IsAdvancedToolUser(TRUE))
 			can_read = FALSE
-	if(!forceshow && istype(user,/mob/living/silicon/ai))
-		var/mob/living/silicon/ai/AI = user
-		can_read = get_dist(src, AI.camera) < 2
+
 	var/content = {"
 <html>
 	<meta charset='utf-8'>
@@ -291,17 +289,10 @@
 		update_icon()
 	else
 		user.examinate(src)
-		if(rigged && (Holiday == "April Fool's Day") && !spam_flag)
-			spam_flag = TRUE
-			playsound(loc, 'sound/items/bikehorn.ogg', 50, 1)
-			spawn(20) spam_flag = FALSE
 
 /obj/item/paper/attack_hand(mob/user)
 	anchored = FALSE // Unattach it from whereever it's on, if anything.
 	return ..()
-
-/obj/item/paper/attack_ai(mob/living/silicon/ai/user)
-	show_content(user)
 
 /obj/item/paper/attack(mob/living/carbon/M, mob/living/carbon/user)
 	if(user.zone_sel.selecting == BP_EYES)
@@ -408,11 +399,7 @@
 			to_chat(usr, SPAN_WARNING("\The [src] is too crumpled to write on."))
 			return
 
-		var/obj/item/pen/robopen/RP = P
-		if (istype(RP) && RP.mode == 2)
-			RP.RenamePaper(user,src)
-		else
-			var/content = {"
+		var/content = {"
 <html>
 	<meta charset='utf-8'>
 	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -425,7 +412,7 @@
 	</body>
 </html>
 "}
-			show_browser(user, content, "window=[name]")
+		show_browser(user, content, "window=[name]")
 		return
 
 	else if(istype(P, /obj/item/stamp) || istype(P, /obj/item/clothing/ring/seal))
@@ -474,30 +461,6 @@
 		var/obj/item/paper_bundle/attacking_bundle = P
 		attacking_bundle.insert_sheet_at(user, length(attacking_bundle.pages) + 1, src)
 		attacking_bundle.update_icon()
-
-	else if(istype(P, /obj/item/reagent_containers/food/grown))
-		var/obj/item/reagent_containers/food/grown/G = P
-		if(!G.dry)
-			to_chat(user, SPAN_NOTICE("[G] must be dried before you can grind and roll it."))
-			return
-		var/R_loc = loc
-		var/roll_in_hands = FALSE
-		if(ishuman(loc))
-			R_loc = user.loc
-			roll_in_hands = TRUE
-		var/obj/item/clothing/mask/smokable/cigarette/roll/joint/big/R = new(R_loc)
-		if(G.reagents)
-			if(G.reagents.has_reagent(/datum/reagent/nutriment))
-				G.reagents.del_reagent(/datum/reagent/nutriment)
-			G.reagents.trans_to_obj(R, G.reagents.total_volume)
-		R.desc += " Looks like it contains some [G]."
-		to_chat(user, SPAN_NOTICE("You grind \the [G] and roll a big joint!"))
-		R.add_fingerprint(user)
-		qdel(src)
-		qdel(G)
-		if(roll_in_hands)
-			user.pick_or_drop(R)
-		return
 
 	add_fingerprint(user)
 
@@ -638,15 +601,7 @@
 	var/obj/item/i = usr.get_active_hand()
 	if(istype(i, /obj/item/pen))
 		return i
-	if(usr.back && istype(usr.back,/obj/item/rig))
-		var/obj/item/rig/r = usr.back
-		var/obj/item/rig_module/device/pen/m = locate(/obj/item/rig_module/device/pen) in r.installed_modules
-		if(!r.offline && m)
-			return m.device
-		else
-			return
-	else
-		return
+	return
 
 /obj/item/paper/proc/check_proximity()
 	// if paper is not in usr, then it must be near them, or in a clipboard or folder, which must be in or near usr

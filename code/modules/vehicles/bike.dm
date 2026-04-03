@@ -99,11 +99,6 @@
 		return 0
 	return ..(M)
 
-/obj/vehicle/bike/emp_act(severity)
-	if(engine)
-		engine.emp_act(severity)
-	..()
-
 /obj/vehicle/bike/insert_cell(obj/item/cell/C, mob/living/carbon/human/H)
 	return
 
@@ -188,12 +183,6 @@
 
 	update_icon()
 
-	..()
-
-/obj/vehicle/bike/bullet_act(obj/item/projectile/Proj)
-	if(buckled_mob && prob(protection_percent))
-		buckled_mob.bullet_act(Proj)
-		return
 	..()
 
 /obj/vehicle/bike/on_update_icon()

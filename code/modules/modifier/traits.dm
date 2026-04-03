@@ -193,15 +193,6 @@
 	if(carbon_target.species.species_flags & SPECIES_FLAG_NO_BLOOD) //can't lose blood if your species doesn't have any
 		return
 
-	if (carbon_target.get_blood_volume() == min_blood)
-		return
-
-	if (carbon_target.get_blood_volume() < min_blood)
-		carbon_target.regenerate_blood(carbon_target.species.blood_volume*min_blood - carbon_target.get_blood_volume_abs())
-		return
-	// Ensures that we don't reduce total blood volume below min_blood.
-	carbon_target.remove_blood(1.525)
-
 /datum/modifier/trait/radimmune
 	name = "Radiation Immunity"
 	desc = "You're immune to radiation"
@@ -218,44 +209,14 @@
 	name = "Opiate Dependence"
 	desc = "You rely on opiates to feel normal. Without them, your body and mind quickly turn against you."
 
-/datum/modifier/trait/opiat_addiction/on_applied()
-	. = ..()
-	var/mob/living/carbon/human/H = holder
-	if(H)
-		var/datum/addiction/opioid/A = new
-		H.add_addiction(A, (rand(40, 70) * 0.25))
-
 /datum/modifier/trait/alcohol_addiction
 	name = "Alcohol Dependence"
 	desc = "Alcohol has become a part of your routine. Going without it makes everything feel just a little worse."
-
-/datum/modifier/trait/alcohol_addiction/on_applied()
-	. = ..()
-	var/mob/living/carbon/human/H = holder
-	if(H)
-		var/datum/addiction/alcohol/A = new
-		H.add_addiction(A, (rand(40, 70) * 0.25))
-
 
 /datum/modifier/trait/cannabis_addiction
 	name = "Cannabis Dependence"
 	desc = "You are used to calming your thoughts with cannabis. Without it, staying relaxed becomes difficult."
 
-/datum/modifier/trait/cannabis_addiction/on_applied()
-	. = ..()
-	var/mob/living/carbon/human/H = holder
-	if(H)
-		var/datum/addiction/cannabis/A = new
-		H.add_addiction(A, (rand(40, 70) * 0.25))
-
-
 /datum/modifier/trait/smoker
 	name = "Smoker"
 	desc = "You are used to nicotine. Going without a cigarette makes you restless and irritable."
-
-/datum/modifier/trait/smoker/on_applied()
-	. = ..()
-	var/mob/living/carbon/human/H = holder
-	if(H)
-		var/datum/addiction/nicotine/A = new
-		H.add_addiction(A, (rand(40, 70) * 0.25))

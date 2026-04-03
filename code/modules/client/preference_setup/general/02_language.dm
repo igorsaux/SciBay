@@ -71,8 +71,6 @@
 	var/datum/species/S = all_species[pref.species] || all_species[SPECIES_HUMAN]
 	if(lang.name in S.secondary_langs)
 		return TRUE
-	if(!(lang.language_flags & RESTRICTED) && is_alien_whitelisted(user, lang))
-		return TRUE
 	return FALSE
 
 /datum/category_item/player_setup_item/general/language/proc/sanitize_alt_languages()

@@ -7,8 +7,6 @@
 	icon = 'icons/obj/power.dmi'
 	icon_state = "light0"
 	anchored = 1.0
-	idle_power_usage = 20 WATTS
-	power_channel = STATIC_LIGHT
 	var/on = 0
 	var/area/connected_area = null
 	var/other_area = null
@@ -63,19 +61,3 @@
 /obj/machinery/light_switch/attack_hand(mob/user)
 	playsound(src, 'sound/effects/using/switch/lightswitch.ogg', 75)
 	set_state(!on)
-
-/obj/machinery/light_switch/powered()
-	. = ..(power_channel, connected_area) //tie our powered status to the connected area
-
-/obj/machinery/light_switch/power_change()
-	. = ..()
-	//synch ourselves to the new state
-	if(connected_area) //If an APC initializes before we do it will force a power_change() before we can get our connected area
-		sync_state()
-
-/obj/machinery/light_switch/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-	power_change()
-	..(severity)

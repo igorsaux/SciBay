@@ -19,10 +19,6 @@
 	var/icon_state_open = "emerg_open"
 	var/icon_state_closed = "emerg"
 
-	power_channel = STATIC_ENVIRON
-	idle_power_usage = 10 WATTS
-	active_power_usage = 120 WATTS // No idea what the realistic amount would be.
-
 /obj/machinery/oxygen_pump/New()
 	..()
 	tank = new spawn_type (src)
@@ -74,10 +70,6 @@
 		if(breather.internals)
 			breather.internals.icon_state = "internal0"
 		breather = null
-		update_use_power(POWER_USE_IDLE)
-
-/obj/machinery/oxygen_pump/attack_ai(mob/user as mob)
-	ui_interact(user)
 
 /obj/machinery/oxygen_pump/proc/attach_mask(mob/living/carbon/C)
 	if(C && istype(C))
@@ -91,7 +83,6 @@
 			breather.internal = tank
 			if(breather.internals)
 				breather.internals.icon_state = "internal1"
-		update_use_power(POWER_USE_ACTIVE)
 
 /obj/machinery/oxygen_pump/proc/can_apply_to_target(mob/living/carbon/human/target, mob/user)
 	if(!user)
@@ -169,7 +160,6 @@
 				contained = new mask_type(src)
 			src.visible_message("<span class='notice'>\The [contained] rapidly retracts back into \the [src]!</span>")
 			breather = null
-			use_power = 1
 		else if(!breather.internal && tank)
 			breather.internal = tank
 			if(breather.internals)

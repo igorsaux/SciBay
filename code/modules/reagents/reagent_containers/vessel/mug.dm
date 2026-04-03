@@ -61,7 +61,6 @@
 	desc = "A white coffee mug, prominently featuring a \"#1 monkey\"."
 	icon_state = "coffeecup_punitelli"
 	item_state = "coffeecup"
-	startswith = list(/datum/reagent/drink/juice/banana = 300)
 
 /obj/item/reagent_containers/vessel/mug/rainbow
 	name = "rainbow mug"

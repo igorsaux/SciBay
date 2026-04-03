@@ -10,7 +10,7 @@
 	item_state = "apron"
 	blood_overlay_type = "armorblood"
 	body_parts_covered = NO_BODYPARTS
-	allowed = list (/obj/item/reagent_containers/spray/plantbgone,/obj/item/device/analyzer/plant_analyzer,/obj/item/seeds,/obj/item/reagent_containers/vessel/bottle/chemical,/obj/item/material/minihoe)
+	allowed = list (/obj/item/reagent_containers/spray/plantbgone,/obj/item/reagent_containers/vessel/bottle/chemical,/obj/item/material/minihoe)
 
 //Captain
 /obj/item/clothing/suit/captunic
@@ -108,7 +108,7 @@
 	valid_accessory_slots = list(ACCESSORY_SLOT_INSIGNIA)
 	blood_overlay_type = "coatblood"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
-	allowed = list(/obj/item/tank/emergency,/obj/item/device/flashlight,/obj/item/gun/energy,/obj/item/gun/projectile,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/storage/fancy/cigarettes,/obj/item/flame/lighter,/obj/item/device/taperecorder)
+	allowed = list(/obj/item/tank/emergency,/obj/item/device/flashlight,/obj/item/gun/energy,/obj/item/gun/projectile,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/storage/fancy/cigarettes,/obj/item/flame/lighter,/obj/item/device/taperecorder)
 	armor = list(melee = 50, bullet = 60, laser = 40, energy = 20, bomb = 25, bio = 0)
 	coverage = 0.8
 
@@ -150,7 +150,7 @@
 	icon_closed = "forensics"
 	body_parts_covered = UPPER_TORSO|ARMS
 	blood_overlay_type = "armorblood"
-	allowed = list(/obj/item/tank/emergency,/obj/item/device/flashlight,/obj/item/gun/energy,/obj/item/gun/projectile,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/device/taperecorder)
+	allowed = list(/obj/item/tank/emergency,/obj/item/device/flashlight,/obj/item/gun/energy,/obj/item/gun/projectile,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/device/taperecorder)
 	armor = list(melee = 10, bullet = 10, laser = 15, energy = 10, bomb = 0, bio = 0)
 	coverage = 0.8
 
@@ -185,7 +185,7 @@
 	icon_state = "hazard"
 	item_state = "hazard"
 	blood_overlay_type = "armorblood"
-	allowed = list (/obj/item/device/analyzer, /obj/item/device/geiger, /obj/item/device/flashlight, /obj/item/device/multitool, /obj/item/device/pipe_painter, /obj/item/device/radio, /obj/item/device/t_scanner, \
+	allowed = list (/obj/item/device/geiger, /obj/item/device/flashlight, /obj/item/device/multitool, /obj/item/device/pipe_painter, /obj/item/device/t_scanner, \
 	/obj/item/crowbar, /obj/item/screwdriver, /obj/item/weldingtool, /obj/item/wirecutters, /obj/item/wrench, /obj/item/tank/emergency, \
 	/obj/item/clothing/mask/gas, /obj/item/taperoll/engineering)
 	body_parts_covered = UPPER_TORSO
@@ -244,8 +244,8 @@
 	icon_closed = "paramedic"
 	blood_overlay_type = "armorblood"
 	allowed = list(/obj/item/stack/medical, /obj/item/reagent_containers/dropper, /obj/item/reagent_containers/hypospray, /obj/item/reagent_containers/syringe, \
-	/obj/item/device/healthanalyzer, /obj/item/device/flashlight, /obj/item/device/radio, /obj/item/tank, /obj/item/device/geiger, /obj/item/crowbar, \
-	/obj/item/device/analyzer, /obj/item/reagent_containers/vessel/flask, /obj/item/storage/pill_bottle)
+	/obj/item/device/flashlight, /obj/item/tank, /obj/item/device/geiger, /obj/item/crowbar, \
+	/obj/item/reagent_containers/vessel/flask, /obj/item/storage/pill_bottle)
 	body_parts_covered = UPPER_TORSO|ARMS
 	armor = list(melee = 30, bullet = 20, laser = 40, energy = 10, bomb = 0, bio = 50)
 	coverage = 0.8
@@ -264,7 +264,7 @@
 	icon_closed = "hv_jacket"
 	blood_overlay_type = "armorblood"
 	allowed = list(/obj/item/stack/medical, /obj/item/reagent_containers/dropper, /obj/item/reagent_containers/hypospray, /obj/item/reagent_containers/syringe, \
-	/obj/item/device/healthanalyzer, /obj/item/device/flashlight, /obj/item/device/radio, /obj/item/tank/emergency)
+	/obj/item/device/flashlight, /obj/item/tank/emergency)
 	body_parts_covered = UPPER_TORSO|ARMS
 	coverage = 0.8
 
@@ -285,6 +285,6 @@
 	blood_overlay_type = "armorblood"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	allowed = list(/obj/item/stack/medical, /obj/item/reagent_containers/dropper, /obj/item/reagent_containers/hypospray, /obj/item/reagent_containers/syringe, \
-	/obj/item/device/healthanalyzer, /obj/item/device/flashlight, /obj/item/device/radio, /obj/item/tank/emergency,/obj/item/scalpel,/obj/item/retractor,/obj/item/hemostat, \
+	/obj/item/device/flashlight, /obj/item/tank/emergency,/obj/item/scalpel,/obj/item/retractor,/obj/item/hemostat, \
 	/obj/item/cautery,/obj/item/bonegel,/obj/item/FixOVein)
 	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 50)

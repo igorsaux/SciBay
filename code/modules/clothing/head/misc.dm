@@ -131,11 +131,6 @@
 	body_parts_covered = HEAD|FACE|EYES
 	armor = list(melee = 6, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0)
 
-/obj/item/clothing/head/cardborg/Initialize()
-	. = ..()
-
-	AddComponent(/datum/component/cardborg)
-
 /obj/item/clothing/head/justice
 	name = "justice hat"
 	desc = "fight for what's righteous!"
@@ -436,7 +431,6 @@
 	item_state = ""
 	armor = list(melee = 30, bullet = 30, laser = 30, energy = 30, bomb = 15, bio = 40)
 	siemens_coefficient = 0.8
-	wizard_garb = TRUE
 	flags_inv = HIDEEARS|BLOCKHEADHAIR
 	body_parts_covered = HEAD|EYES
 

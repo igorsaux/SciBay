@@ -167,13 +167,6 @@
 /obj/effect/shield/CanZASPass(turf/T, is_zone)
 	return !gen.check_flag(MODEFLAG_ATMOSPHERIC)
 
-
-// EMP. It may seem weak but keep in mind that multiple shield segments are likely to be affected.
-/obj/effect/shield/emp_act(severity)
-	if(!disabled_for)
-		take_damage(rand(30,60) / severity, SHIELD_DAMTYPE_EM)
-
-
 // Explosions
 /obj/effect/shield/ex_act(severity)
 	if(!disabled_for)
@@ -184,17 +177,6 @@
 /obj/effect/shield/fire_act()
 	if(!disabled_for)
 		take_damage(rand(5,10), SHIELD_DAMTYPE_HEAT)
-
-
-// Projectiles
-/obj/effect/shield/bullet_act(obj/item/projectile/proj)
-	if(proj.damage_type == BURN)
-		take_damage(proj.get_structure_damage(), SHIELD_DAMTYPE_HEAT)
-	else if (proj.damage_type == BRUTE)
-		take_damage(proj.get_structure_damage(), SHIELD_DAMTYPE_PHYSICAL)
-	else
-		take_damage(proj.get_structure_damage(), SHIELD_DAMTYPE_EM)
-
 
 // Attacks with hand tools. Blocked by Hyperkinetic flag.
 /obj/effect/shield/attackby(obj/item/I as obj, mob/user as mob)
@@ -261,8 +243,6 @@
 
 // Human mobs
 /mob/living/carbon/human/can_pass_shield(obj/machinery/power/shield_generator/gen)
-	if(isSynthetic())
-		return !gen.check_flag(MODEFLAG_ANORGANIC)
 	return !gen.check_flag(MODEFLAG_HUMANOIDS)
 
 // Silicon mobs
@@ -291,7 +271,5 @@
 /obj/effect/meteor/shield_impact(obj/effect/shield/S)
 	if(!S.gen.check_flag(MODEFLAG_HYPERKINETIC))
 		return
-	S.take_damage(get_shield_damage(), SHIELD_DAMTYPE_PHYSICAL, src)
 	visible_message("<span class='danger'>\The [src] breaks into dust!</span>")
-	make_debris()
 	qdel(src)

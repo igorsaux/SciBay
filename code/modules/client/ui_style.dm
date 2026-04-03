@@ -17,10 +17,6 @@ GLOBAL_LIST_INIT(all_ui_styles, list(
 
 	var/list/icons = usr.hud_used.static_inventory + usr.hud_used.toggleable_inventory
 	icons.Add(usr.zone_sel)
-	icons.Add(usr.gun_setting_icon)
-	icons.Add(usr.item_use_icon)
-	icons.Add(usr.gun_move_icon)
-	icons.Add(usr.radio_use_icon)
 
 	var/icon/ic = GLOB.all_ui_styles[prefs.UI_style]
 

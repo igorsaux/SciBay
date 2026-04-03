@@ -20,9 +20,6 @@
 		spawn(10)
 			scanscrubbers()
 
-	attack_ai(mob/user as mob)
-		return src.attack_hand(user)
-
 	attack_hand(mob/user as mob)
 		if(..(user))
 			return

@@ -6,8 +6,6 @@
 
 	name = "Gas filter"
 
-	use_power = POWER_USE_IDLE
-	idle_power_usage = 150 WATTS //internal circuitry, friction losses and stuff
 	power_rating = 7500	//This also doubles as a measure of how powerful the filter is, in Watts. 7500 W ~ 10 HP
 
 	var/temp = null // -- TLE
@@ -64,13 +62,10 @@
 	else
 		icon_state = ""
 
-	if(!powered())
-		icon_state += "off"
-	else if(node2 && node3 && node1)
-		icon_state += use_power ? "on" : "off"
+	if(node2 && node3 && node1)
+		icon_state += "on"
 	else
 		icon_state += "off"
-		update_use_power(POWER_USE_OFF)
 
 /obj/machinery/atmospherics/trinary/filter/update_underlays()
 	if(..())
@@ -97,7 +92,7 @@
 	last_power_draw = 0
 	last_flow_rate = 0
 
-	if((stat & (NOPOWER|BROKEN)) || !use_power)
+	if((stat & (NOPOWER|BROKEN)))
 		return
 
 	//Figure out the amount of moles to transfer
@@ -118,7 +113,6 @@
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 
 	return 1
 
@@ -171,7 +165,6 @@
 			current_filter_type = "ERROR - Report this bug to the admin, please!"
 
 	dat += {"
-			<b>Power: </b><a href='?src=\ref[src];power=1'>[use_power?"On":"Off"]</a><br>
 			<b>Filtering: </b>[current_filter_type]<br><HR>
 			<h4>Set Filter Type:</h4>
 			<A href='?src=\ref[src];filterset=0'>Plasma</A><BR>
@@ -219,8 +212,6 @@
 	if(href_list["set_flow_rate"])
 		var/new_flow_rate = input(usr,"Enter new flow rate (0-[air1.volume]L/s)","Flow Rate Control",src.set_flow_rate) as num
 		src.set_flow_rate = max(0, min(air1.volume, new_flow_rate))
-	if(href_list["power"])
-		update_use_power(!use_power)
 	src.update_icon()
 	src.updateUsrDialog()
 /*

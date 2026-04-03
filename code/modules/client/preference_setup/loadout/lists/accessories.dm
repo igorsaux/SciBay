@@ -65,16 +65,6 @@
 	ntawards["command medal"] = /obj/item/clothing/accessory/medal/gold/nanotrasen
 	gear_tweaks += new /datum/gear_tweak/path(ntawards)
 
-/datum/gear/accessory/armband_security
-	display_name = "security armband"
-	path = /obj/item/clothing/accessory/armband
-	allowed_roles = SECURITY_ROLES
-
-/datum/gear/accessory/armband_cargo
-	display_name = "cargo armband"
-	path = /obj/item/clothing/accessory/armband/cargo
-	allowed_roles = CARGO_ROLES
-
 /datum/gear/accessory/armband_medical
 	display_name = "medical armband"
 	path = /obj/item/clothing/accessory/armband/med
@@ -84,16 +74,6 @@
 	display_name = "EMT armband"
 	path = /obj/item/clothing/accessory/armband/medgreen
 	allowed_roles = MEDICAL_ROLES
-
-/datum/gear/accessory/armband_engineering
-	display_name = "engineering armband"
-	path = /obj/item/clothing/accessory/armband/engine
-	allowed_roles = ENGINEERING_ROLES
-
-/datum/gear/accessory/armband_hydro
-	display_name = "hydroponics armband"
-	path = /obj/item/clothing/accessory/armband/hydro
-	allowed_roles = list(/datum/job/hydro, /datum/job/xenobiologist, /datum/job/assistant)
 
 /datum/gear/accessory/armband_nt
 	display_name = "NanoTrasen armband"

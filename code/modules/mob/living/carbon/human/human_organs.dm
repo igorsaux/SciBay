@@ -25,8 +25,6 @@
 		var/limb_path = organ_data["path"]
 		var/obj/item/organ/external/O = new limb_path(src)
 		organ_data["descriptor"] = O.name
-		var/datum/reagent/blood/B = locate(/datum/reagent/blood) in vessel.reagent_list
-		blood_splatter(src,B,1)
 		O.set_dna(dna)
 		update_body()
 		if (show_message)
@@ -130,7 +128,7 @@
 
 			if(!lying && !buckled && world.time - l_move_time < 15)
 			//Moving around with fractured ribs won't do you any good
-				if(prob(10) && !stat && can_feel_pain() && chem_effects[CE_PAINKILLER] < 50 && E.is_broken() && E.internal_organs.len)
+				if(prob(10) && !stat && can_feel_pain() && E.is_broken() && E.internal_organs.len)
 					custom_pain("Pain jolts through your broken [E.encased ? E.encased : E.name], staggering you!", 50, affecting = E)
 					if(prob(50))
 						drop_active_hand()
@@ -166,17 +164,6 @@
 		if(!E || (E.status & ORGAN_DISFIGURED) || istype(E,/obj/item/organ/external/stump))
 			stance_d_l += 5
 
-		else if(E.is_malfunctioning())
-			stance_d_l += 4
-			if(prob(10))
-				visible_message("\The [src]'s [E.name] [pick("twitches", "shudders", "trembles", "suddenly bends")] and sparks!")
-				var/datum/effect/effect/system/spark_spread/spark_system = new ()
-				spark_system.set_up(5, 0, src)
-				spark_system.attach(src)
-				spark_system.start()
-				spawn(10)
-					qdel(spark_system)
-
 		else if(E.is_broken() || (E.get_pain() >= E.pain_disability_threshold))
 			stance_d_l += 2
 
@@ -194,17 +181,6 @@
 
 		if(!E || (E.status & ORGAN_DISFIGURED) || istype(E,/obj/item/organ/external/stump))
 			stance_d_r += 5
-
-		else if(E.is_malfunctioning())
-			stance_d_r += 4
-			if(prob(10))
-				visible_message("\The [src]'s [E.name] [pick("twitches", "shudders", "trembles", "suddenly bends")] and sparks!")
-				var/datum/effect/effect/system/spark_spread/spark_system = new ()
-				spark_system.set_up(5, 0, src)
-				spark_system.attach(src)
-				spark_system.start()
-				spawn(10)
-					qdel(spark_system)
 
 		else if(E.is_broken() || (E.get_pain() >= E.pain_disability_threshold))
 			stance_d_r += 2
@@ -346,7 +322,7 @@
 	for(var/obj/item/organ/external/E in grasp_limbs)
 		if(!E || !(E.limb_flags & ORGAN_FLAG_CAN_GRASP))
 			continue
-		if(((E.is_broken() || E.is_dislocated()) && !E.splinted) || E.is_malfunctioning())
+		if(((E.is_broken() || E.is_dislocated()) && !E.splinted))
 			grasp_damage_disarm(E)
 
 /mob/living/carbon/human/proc/stance_damage_prone(obj/item/organ/external/affected)
@@ -380,33 +356,22 @@
 	if(!drop(thing))
 		return // Failed to drop, don't spam messages.
 
-	if(BP_IS_ROBOTIC(affected))
-		visible_message("<B>\The [src]</B> drops what they were holding, \his [affected.name] malfunctioning!")
+	var/grasp_name = affected.name
+	if((affected.body_part in list(ARM_LEFT, ARM_RIGHT)) && affected.children.len)
+		var/obj/item/organ/external/hand = pick(affected.children)
+		grasp_name = hand.name
 
-		var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-		spark_system.set_up(5, 0, src)
-		spark_system.attach(src)
-		spark_system.start()
-		spawn(10)
-			qdel(spark_system)
-
+	if(!no_pain && affected.can_feel_pain())
+		var/emote_scream = pick("screams in pain", "lets out a sharp cry", "cries out")
+		var/emote_scream_alt = pick("scream in pain", "let out a sharp cry", "cry out")
+		visible_message(
+			"<B>\The [src]</B> [emote_scream] and drops what they were holding in their [grasp_name]!",
+			null,
+			"You hear someone [emote_scream_alt]!"
+		)
+		custom_pain("The sharp pain in your [affected.name] forces you to drop [thing]!", 30)
 	else
-		var/grasp_name = affected.name
-		if((affected.body_part in list(ARM_LEFT, ARM_RIGHT)) && affected.children.len)
-			var/obj/item/organ/external/hand = pick(affected.children)
-			grasp_name = hand.name
-
-		if(!no_pain && affected.can_feel_pain())
-			var/emote_scream = pick("screams in pain", "lets out a sharp cry", "cries out")
-			var/emote_scream_alt = pick("scream in pain", "let out a sharp cry", "cry out")
-			visible_message(
-				"<B>\The [src]</B> [emote_scream] and drops what they were holding in their [grasp_name]!",
-				null,
-				"You hear someone [emote_scream_alt]!"
-			)
-			custom_pain("The sharp pain in your [affected.name] forces you to drop [thing]!", 30)
-		else
-			visible_message("<B>\The [src]</B> drops what they were holding in their [grasp_name]!")
+		visible_message("<B>\The [src]</B> drops what they were holding in their [grasp_name]!")
 
 /mob/living/carbon/human/proc/sync_organ_dna()
 	var/list/all_bits = internal_organs|external_organs
@@ -417,13 +382,9 @@
 	return FALSE
 
 /mob/living/carbon/human/is_asystole()
-	if(full_prosthetic)
-		var/obj/item/organ/internal/cell/C = internal_organs_by_name[BP_CELL]
-		if(istype(C) && !C.is_usable())
-			return TRUE
-	else if(should_have_organ(BP_HEART))
+	if(should_have_organ(BP_HEART))
 		var/obj/item/organ/internal/heart/heart = internal_organs_by_name[BP_HEART]
-		if(!istype(heart) || !heart.is_working() || (isundead(src) && !isfakeliving(src)))
+		if(!istype(heart) || !heart.is_working())
 			return TRUE
 	return FALSE
 
@@ -435,10 +396,6 @@
 	return 0
 
 /mob/living/carbon/human/proc/handle_coagulation()
-	if(isSynthetic() || isundead(src))
-		coagulation = COAGULATION_NONE
-		return
-
 	if(!should_have_organ(BP_LIVER)) // Blood can clot w/out a liver.
 		coagulation = species.coagulation
 		return
@@ -452,9 +409,6 @@
 	return
 
 /mob/living/carbon/human/proc/handle_toxins()
-	if(isSynthetic() || isundead(src))
-		return
-
 	// Liverless species don't suffer from missing a liver, obviously.
 	if(should_have_organ(BP_LIVER))
 		var/obj/item/organ/internal/liver/L = internal_organs_by_name[BP_LIVER]
@@ -476,7 +430,7 @@
 	// High hydratation boosts detox efficiency (if applicible), low hydration slows it down or halts it completely.
 	switch(hydration)
 		if(HYDRATION_NONE)
-			detox_efficiency -= chem_effects[CE_ANTITOX] ? 0.3 : 0.5
+			detox_efficiency -= 0.3
 		if(HYDRATION_NONE+0.01 to HYDRATION_LOW)
 			detox_efficiency -= 0.2
 		if(HYDRATION_HIGH+0.01 to HYDRATION_SUPER)
@@ -485,12 +439,6 @@
 		if(HYDRATION_SUPER+0.01 to INFINITY)
 			if(detox_efficiency >= 0) // No effect if kidneys are broken
 				detox_efficiency += 0.5
-
-	if(chem_effects[CE_TOXIN])
-		detox_efficiency -= chem_effects[CE_TOXIN] * 0.1
-
-	if(chem_effects[CE_ANTITOX])
-		detox_efficiency += chem_effects[CE_ANTITOX] * 0.1
 
 	adjustToxLoss(-1 * detox_efficiency, TRUE) // Either healing tox damage, or applying even more bypassing a liver's protection.
 
@@ -508,15 +456,8 @@
 
 	if(toxic_severity > TOXLOSS_LETHAL) // tb 280+, we're wrecked, lethal poisoning
 		Weaken(10)
-		if(!chem_effects[CE_TOXBLOCK])
-			adjustInternalLoss(2.5, TRUE)
-			adjustBrainLoss(0.5)
 
 	if(toxic_severity > TOXLOSS_CRITICAL) // tb 210+, we're in immediate danger, critical poisoning
-		if(prob(10) && !chem_effects[CE_TOXBLOCK])
-			losebreath++
-			adjustInternalLoss(5.0, TRUE)
-
 		make_dizzy(6)
 		slurring = max(slurring, 30)
 		eye_blurry = max(eye_blurry, 10)
@@ -532,10 +473,6 @@
 	else if(toxic_severity > TOXLOSS_SEVERE) // tb 140+, we're in danger, severe poisoning
 		make_dizzy(6)
 		eye_blurry = max(eye_blurry, 5)
-
-		if(prob(10) && !chem_effects[CE_TOXBLOCK])
-			slurring = max(slurring, 10)
-			adjustInternalLoss(3.0, TRUE)
 
 		if(prob(5))
 			to_chat(src, SPAN("danger", "You feel really [pick("nauseous", "sick", "weak")]!"))
@@ -559,10 +496,6 @@
 		kidney_strain = 1.5
 
 	else if(toxic_severity > TOXLOSS_CASUAL) // tb 14+, we start to notice that something's off, casual poisoning
-		if(prob(10) && !chem_effects[CE_TOXBLOCK])
-			make_dizzy(6)
-			adjustInternalLoss(1.0, TRUE) // Not enough to be life-threatening, but may cause trouble if we have ongoing health issues.
-
 		if(prob(1))
 			to_chat(src, "<i>You feel a bit [pick("nauseous", "sick", "weak")]...</i>")
 			vomit(timevomit = 1, level = 2, silent = TRUE)

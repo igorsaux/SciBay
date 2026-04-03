@@ -31,40 +31,6 @@
 	on = 0
 	rad_resist_type = /datum/rad_resist/space_gear
 
-
-/obj/item/clothing/head/helmet/space/Destroy()
-	if(camera && !ispath(camera))
-		QDEL_NULL(camera)
-	. = ..()
-
-/obj/item/clothing/head/helmet/space/Initialize()
-	. = ..()
-	if(camera)
-		verbs += /obj/item/clothing/head/helmet/space/proc/toggle_camera
-
-/obj/item/clothing/head/helmet/space/proc/toggle_camera()
-	set name = "Toggle Helmet Camera"
-	set category = "Object"
-	set src in usr
-
-	if(ispath(camera))
-		camera = new camera(src)
-		camera.set_status(0)
-
-	if(camera)
-		camera.set_status(!camera.status)
-		if(camera.status)
-			camera.c_tag = FindNameFromID(usr)
-			to_chat(usr, "<span class='notice'>User scanned as [camera.c_tag]. Camera activated.</span>")
-		else
-			to_chat(usr, "<span class='notice'>Camera deactivated.</span>")
-
-/obj/item/clothing/head/helmet/space/examine(mob/user, infix)
-	. = ..()
-
-	if(get_dist(src, user) <= 1 && camera)
-		. += "This helmet has a built-in camera. Its [!ispath(camera) && camera.status ? "" : "in"]active."
-
 /obj/item/clothing/suit/space
 	name = "Space suit"
 	desc = "A suit that protects against low pressure environments."

@@ -15,7 +15,7 @@
 	..()
 	if(!owner)
 		return
-	if(!isundead(owner) && inflamed)
+	if(inflamed)
 		inflamed++
 		if(prob(5))
 			if(owner.can_feel_pain())

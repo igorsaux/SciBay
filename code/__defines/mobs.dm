@@ -127,22 +127,6 @@
 #define MIN_SUPPLIED_LAW_NUMBER 15
 #define MAX_SUPPLIED_LAW_NUMBER 50
 
-// NT's alignment towards the character
-#define COMPANY_LOYAL 			"Loyal"
-#define COMPANY_SUPPORTATIVE	"Supportive"
-#define COMPANY_NEUTRAL 		"Neutral"
-#define COMPANY_SKEPTICAL		"Skeptical"
-#define COMPANY_OPPOSED			"Opposed"
-
-#define COMPANY_OPPOSING		list(COMPANY_SKEPTICAL,COMPANY_OPPOSED)
-#define COMPANY_ALIGNMENTS		list(COMPANY_LOYAL,COMPANY_SUPPORTATIVE,COMPANY_NEUTRAL,COMPANY_SKEPTICAL,COMPANY_OPPOSED)
-
-// Awareness about syndicate, it`s agents and equipment
-#define SYNDICATE_UNAWARE            0
-#define SYNDICATE_AWARE              1
-#define SYNDICATE_GREATLY_AWARE      2
-#define SYNDICATE_SUSPICIOUSLY_AWARE 3
-
 // Defines mob sizes, used by lockers and to determine what is considered a small sized mob, etc.
 #define MOB_LARGE  		40
 #define MOB_MEDIUM 		20
@@ -262,10 +246,6 @@
 #define BP_FEET list(BP_L_FOOT, BP_R_FOOT)
 #define BP_LIMBS_LOCOMOTION list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)
 #define BP_LIMBS_ARM_LOCOMOTION list(BP_L_HAND, BP_R_HAND, BP_L_ARM, BP_R_ARM)
-
-// Prosthetic helpers.
-#define BP_IS_ROBOTIC(org)  (org.status & ORGAN_ROBOTIC)
-#define BP_IS_ASSISTED(org) (org.status & ORGAN_ASSISTED)
 
 GLOBAL_LIST_INIT(organ_tag_to_name, list(
 	BP_HEAD  = "head", BP_CHEST = "full body",
@@ -434,11 +414,6 @@ GLOBAL_LIST_INIT(organ_tag_to_name, list(
 #define TOXLOSS_SOFTCAP  125
 #define TOXLOSS_HARDCAP  150
 
-#define HUMAN_POWER_NONE    "None"
-#define HUMAN_POWER_SPIT    "Spit"
-#define HUMAN_POWER_LEAP    "Leap"
-#define HUMAN_POWER_TACKLE  "Tackle"
-
 #define HUMAN_MAX_POISE     75 // 100% healthy, non-druged human being with magboots and heavy armor.
 #define HUMAN_HIGH_POISE    60
 #define HUMAN_DEFAULT_POISE 50 // 100% healthy, non-drugged human being.
@@ -450,19 +425,6 @@ GLOBAL_LIST_INIT(organ_tag_to_name, list(
 #define HUMAN_HEIGHT_NORMAL 1.0
 #define HUMAN_HEIGHT_LARGE  1.04
 #define HUMAN_HEIGHT_HUGE   1.07
-
-#define POSSIBLE_LIZARD_TOXINS list(/datum/reagent/toxin/plasticide,\
-									/datum/reagent/toxin/amatoxin,\
-									/datum/reagent/toxin/carpotoxin,\
-									/datum/reagent/toxin/plasma,\
-									/datum/reagent/toxin/chlorine,\
-									/datum/reagent/toxin/potassium_chloride,\
-									/datum/reagent/toxin/potassium_chlorophoride,\
-									/datum/reagent/toxin/fertilizer,\
-									/datum/reagent/mutagen,\
-									/datum/reagent/space_drugs,\
-									/datum/reagent/mindbreaker,\
-									/datum/reagent/psilocybin)
 
 #define SPELL_NOREMORSE_GHOST_DAMAGE 1 ///How much damage the ghosts do when attacking mobs during no remorse spell
 

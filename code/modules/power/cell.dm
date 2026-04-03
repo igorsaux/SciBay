@@ -72,7 +72,6 @@
 			// Spent 5 hours trying to track down what causes random areas' power usage to go below zero.
 			// TODO: Either track it down and fix it or increase the hours counter above after ultimately failing to do so.
 			var/obj/machinery/power/apc/A = loc
-			A.area.retally_power()
 			util_crash_with("Cell ([src], [c_uid]) called use() with negative amount ([amount]) in area \"[A.area]\". Attempting autofix.")
 		else
 			util_crash_with("Cell ([src], [c_uid]) called use() with negative amount ([amount]).")
@@ -109,17 +108,6 @@
 	. = ..()
 	. += "The label states it's capacity is <b>[maxcharge] Wh</b>."
 	. += "The charge meter reads <b>[round(CELL_PERCENT(src), 0.1)]%<b>."
-
-/obj/item/cell/emp_act(severity)
-	//remove this once emp changes on dev are merged in
-	if(isrobot(loc))
-		var/mob/living/silicon/robot/R = loc
-		severity *= R.cell_emp_mult
-
-	// Lose 1/2, 1/4, 1/6 of the current charge per hit or 1/4, 1/8, 1/12 of the max charge per hit, whichever is highest
-	use(max((charge / (2 * severity)), (maxcharge/(4 * severity))))
-	..()
-
 
 /obj/item/cell/proc/get_electrocute_damage()
 	switch(charge)

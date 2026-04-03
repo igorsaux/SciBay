@@ -10,7 +10,6 @@
 	var/id_with_download_string = ""
 	var/server_id = 0
 	var/produces_heat = 1
-	idle_power_usage = 800 WATTS
 	var/delay = 10
 	req_access = list(access_rd) //Only the R&D can change server settings.
 
@@ -32,7 +31,6 @@
 	var/tot_rating = 0
 	for(var/obj/item/stock_parts/SP in src)
 		tot_rating += SP.rating
-	change_power_consumption(initial(idle_power_usage)/max(1, tot_rating), POWER_USE_IDLE)
 
 /obj/machinery/r_n_d/server/Initialize()
 	. = ..()
@@ -72,10 +70,6 @@
 		produce_heat()
 		delay = initial(delay)
 
-/obj/machinery/r_n_d/server/emp_act(severity)
-	griefProtection()
-	..()
-
 /obj/machinery/r_n_d/server/ex_act(severity)
 	griefProtection()
 	..()
@@ -93,9 +87,6 @@
 	if(!produces_heat)
 		return
 
-	if(!use_power)
-		return
-
 	if(!(stat & (NOPOWER|BROKEN))) //Blatently stolen from telecoms
 		var/turf/simulated/L = loc
 		if(istype(L))
@@ -104,11 +95,6 @@
 			var/transfer_moles = 0.25 * env.total_moles
 
 			var/datum/gas_mixture/removed = env.remove(transfer_moles)
-
-			if(removed)
-				var/heat_produced = idle_power_usage	//obviously can't produce more heat than the machine draws from it's power source
-
-				removed.add_thermal_energy(heat_produced)
 
 			env.merge(removed)
 
@@ -294,15 +280,6 @@
 	show_browser(user, "<meta charset=\"utf-8\"><TITLE>R&D Server Control</TITLE><HR>[dat]", "window=server_control;size=575x400")
 	onclose(user, "server_control")
 	return
-
-/obj/machinery/computer/rdservercontrol/emag_act(remaining_charges, mob/user)
-	if(!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		playsound(src.loc, GET_SFX(SFX_SPARK), 75, 1)
-		emagged = 1
-		to_chat(user, "<span class='notice'>You you disable the security protocols.</span>")
-		src.updateUsrDialog()
-		return 1
 
 /obj/machinery/r_n_d/server/robotics
 	name = "Robotics R&D Server"

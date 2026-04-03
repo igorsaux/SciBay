@@ -18,7 +18,6 @@ GLOBAL_LIST_EMPTY(ai_status_display_list)
 GLOBAL_LIST_EMPTY(apc_list)
 GLOBAL_LIST_EMPTY(smes_list)
 GLOBAL_LIST_EMPTY(machines)
-GLOBAL_LIST_EMPTY(firealarm_list)
 GLOBAL_LIST_EMPTY(computer_list)
 GLOBAL_LIST_EMPTY(all_doors)
 GLOBAL_LIST_EMPTY(atmos_machinery)
@@ -27,8 +26,7 @@ GLOBAL_LIST_EMPTY(atmos_machinery)
 var/global/list/all_species[0]
 var/global/list/all_languages[0]
 var/global/list/language_keys[0]					// Table of say codes for all languages
-var/global/list/whitelisted_species = list(SPECIES_HUMAN) // Species that require a whitelist check.
-var/global/list/playable_species = list()                  // A list of ALL playable species, whitelisted, latejoin or otherwise.
+var/global/list/playable_species = list(SPECIES_HUMAN)                  // A list of ALL playable species, whitelisted, latejoin or otherwise.
 
 var/list/mannequins_
 
@@ -61,11 +59,8 @@ GLOBAL_LIST_EMPTY(bb_clothing_icon_states) //stores /datum/body_build's icon_sta
 
 var/global/list/body_heights = list(HUMAN_HEIGHT_TINY, HUMAN_HEIGHT_SMALL, HUMAN_HEIGHT_NORMAL, HUMAN_HEIGHT_LARGE, HUMAN_HEIGHT_HUGE)
 
-var/global/list/exclude_jobs = list(/datum/job/ai, /datum/job/cyborg, /datum/job/barmonkey)
-
 // Visual nets
 var/list/datum/visualnet/visual_nets = list()
-var/datum/visualnet/camera/cameranet = new()
 
 // Runes
 var/global/list/rune_list = new()
@@ -189,16 +184,8 @@ var/global/list/string_slot_flags = list(
 		var/datum/sprite_accessory/marking/M = new path()
 		GLOB.body_marking_styles_list[M.name] = M
 
-	//Surgery Steps - Initialize all /datum/surgery_step into a list
-	paths = typesof(/datum/surgery_step) - /datum/surgery_step
-	for(var/path in paths)
-		var/datum/surgery_step/S = new path()
-		GLOB.surgery_steps += S
-	sort_surgeries()
-
 	//List of job. I can't believe this was calculated multiple times per tick!
 	paths = typesof(/datum/job)-/datum/job
-	paths -= exclude_jobs
 	for(var/T in paths)
 		var/datum/job/J = new T
 		joblist[J.title] = J
@@ -228,11 +215,6 @@ var/global/list/string_slot_flags = list(
 		S.race_key = rkey //Used in mob icon caching.
 		all_species[S.name] = S
 
-		if(!(S.spawn_flags & SPECIES_IS_RESTRICTED))
-			playable_species += S.name
-		if(S.spawn_flags & SPECIES_IS_WHITELISTED)
-			whitelisted_species += S.name
-
 	//Posters
 	paths = typesof(/datum/poster) - /datum/poster
 	for(var/T in paths)
@@ -254,13 +236,6 @@ var/global/list/string_slot_flags = list(
 	for(var/grabstate_name in all_grabstates)
 		var/datum/grab/G = all_grabstates[grabstate_name]
 		G.refresh_updown()
-
-	//Manuals
-	paths = typesof(/obj/item/book/wiki) - /obj/item/book/wiki - /obj/item/book/wiki/template
-	for(var/booktype in paths)
-		var/obj/item/book/wiki/manual = new booktype(null, null, null, null, TRUE)
-		if(manual.topic)
-			GLOB.premade_manuals[manual.topic] = booktype
 
 	paths = typesof(/datum/body_build)
 	for(var/T in paths)

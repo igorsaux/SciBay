@@ -24,11 +24,7 @@
 			var/obj/item/organ/internal/eyes/eyes = src.internal_organs_by_name[BP_EYES]
 			if(!istype(eyes))
 				eyes = src.internal_organs_by_name[BP_OPTICS]
-			if(istype(eyes))
-				for(var/obj/item/organ_module/active/lenses/hud/HM in eyes.organ_modules)
-					if(HM.try_extract_matrix(H, src))
-						return
-					break
+
 	..()
 
 	// Should this all be in Touch()?
@@ -64,10 +60,6 @@
 
 			return
 
-	if(istype(M,/mob/living/carbon))
-		var/mob/living/carbon/C = M
-		C.spread_disease_to(src, "Contact")
-
 	if(istype(H))
 		for (var/obj/item/grab/G in H)
 			if (G.assailant == H && G.affecting == src)
@@ -77,7 +69,7 @@
 
 	switch(M.a_intent)
 		if(I_HELP)
-			if(istype(H) && ((is_asystole() && !isundead(src)) || (status_flags & FAKEDEATH)))
+			if(istype(H) && (is_asystole() || (status_flags & FAKEDEATH)))
 				if (!cpr_time)
 					return 0
 
@@ -116,12 +108,6 @@
 						return
 					if(!need_breathe())
 						return
-					var/obj/item/organ/internal/lungs/L = internal_organs_by_name[species.breathing_organ]
-					if(L)
-						var/datum/gas_mixture/breath = H.get_breath_from_environment()
-						var/fail = L.handle_breath(breath, 1)
-						if(!fail)
-							to_chat(src, "<span class='notice'>You feel a breath of fresh air enter your lungs. It feels good.</span>")
 
 			else if(!(M == src && apply_pressure(M, M.zone_sel.selecting)))
 				help_shake_act(M)
@@ -132,20 +118,6 @@
 			return H.make_grab(H, src)
 
 		if(I_HURT)
-			if(!prob(M.client?.get_luck_for_type(LUCK_CHECK_COMBAT)))
-				visible_message(SPAN_DANGER("[M] attempted to swing at \the [src], but failed miserably!"))
-				return
-
-			if(M.zone_sel.selecting == "mouth" && wear_mask && istype(wear_mask, /obj/item/grenade))
-				var/obj/item/grenade/G = wear_mask
-				if(!G.active)
-					visible_message(SPAN("danger", "\The [M] pulls the pin from \the [src]'s [G.name]!"))
-					G.activate(M)
-					update_inv_wear_mask()
-				else
-					to_chat(M, SPAN("warning", "The [G] is already primed! Run!"))
-				return
-
 			if(!istype(H))
 				attack_generic(H, rand(1, 3), "punched")
 				return
@@ -217,7 +189,6 @@
 													if(!H.put_in_inactive_hand(I))
 														return 0
 												I.cut_away(src)
-												O.implants -= I
 												H.visible_message(SPAN("danger", "[H] rips [src]'s [I.name] out!"))
 												playsound(src.loc, 'sound/effects/squelch1.ogg', 50, 1)
 												admin_attack_log(H, src, "Ripped their victim's heart out", "Got their heart ripped out", "ripped out")
@@ -373,7 +344,7 @@
 */
 /mob/living/carbon/human/proc/apply_pressure(mob/living/user, target_zone)
 	var/obj/item/organ/external/organ = get_organ(target_zone)
-	if(!organ || !(organ.status & ORGAN_BLEEDING) || BP_IS_ROBOTIC(organ))
+	if(!organ || !(organ.status & ORGAN_BLEEDING))
 		return 0
 
 	if(organ.applied_pressure)

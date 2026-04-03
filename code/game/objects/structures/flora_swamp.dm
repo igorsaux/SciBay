@@ -100,9 +100,6 @@
 			if(!spawnloc)
 				continue
 
-			var/mob/living/simple_animal/hostile/retaliate/bigrat/rat = new /mob/living/simple_animal/hostile/retaliate/bigrat(get_turf(spawnloc))
-			rat.Retaliate()
-
 /obj/structure/flora/swampgrass/bush
 	name = "bush"
 	desc = "A bush, I think I can see some spiders crawling in it."

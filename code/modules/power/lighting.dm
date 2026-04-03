@@ -143,10 +143,6 @@
 	anchored = 1
 
 	layer = ABOVE_HUMAN_LAYER // They were appearing under mobs which is a little weird - Ostaf
-	use_power = POWER_USE_OFF // It resets during initialization anyway, but using other options may cause some initially-unpowered areas to act silly.
-	idle_power_usage = 2 WATTS
-	active_power_usage = 20 WATTS
-	power_channel = STATIC_LIGHT //Lights are calc'd via area so they dont need to be in the machine list
 	glow_colored = TRUE
 
 	/// Whether light is currently turned on.
@@ -343,16 +339,6 @@
 	broken()
 	return 1
 
-/obj/machinery/light/bullet_act(obj/item/projectile/P)
-	var/status = get_status()
-	if(!(status == LIGHT_OK || status == LIGHT_BURNED))
-		return
-	if(P.nodamage || (P.damage_type != BRUTE))
-		return
-	visible_message("<span class='danger'>[P] hits \the [src]!</span>")
-	broken()
-	..()
-
 /obj/machinery/light/proc/set_mode(new_mode)
 	if(current_mode == new_mode)
 		return
@@ -495,12 +481,6 @@
 	var/area/our_area = get_area(src)
 	return (!our_area || our_area.lightswitch) && !(stat & NOPOWER)
 
-/obj/machinery/light/power_change()
-	. = ..()
-
-	on = has_power()
-	update(TRUE)
-
 /**
  * Updates lighting, icon and optionally calls `switch_on` on the inserted lightbulb. This
  * method is prefered over `update_icon` due to multiple edge-case handlers.
@@ -518,13 +498,9 @@
 		if(turning_on)
 			return
 
-		change_power_consumption((light_outer_range * light_max_bright) * LIGHTING_POWER_FACTOR, POWER_USE_ACTIVE)
-		update_use_power(POWER_USE_ACTIVE)
 		turning_on = TRUE
 		set_next_think(world.time + rand(LIGHT_ON_DELAY_LOWER, LIGHT_ON_DELAY_UPPER))
 		return
-	else
-		update_use_power(POWER_USE_IDLE)
 
 	update_icon()
 
@@ -550,16 +526,13 @@
 	if(flickering)
 		return
 
-	if(!powered()) // Allows to bypass ligthswitch check.
-		return
-
 	if(get_status() != LIGHT_OK)
 		return
 
 	flickering = TRUE
 
 	for(var/i = 0; i < amount; i++)
-		if(get_status() != LIGHT_OK || !powered())
+		if(get_status() != LIGHT_OK)
 			break
 
 		on = !on
@@ -570,11 +543,6 @@
 	update(FALSE)
 
 	flickering = FALSE
-
-// ai attack - make lights flicker, because why not
-
-/obj/machinery/light/attack_ai(mob/user)
-	src.flicker(1)
 
 // attack with hand - remove tube/bulb
 // if hands aren't protected and the light is on, burn the player
@@ -634,20 +602,6 @@
 	// create a light tube/bulb item and put it in the user's hand
 	user.put_in_clicking_hand(remove_bulb())	//puts it in our active hand
 
-/obj/machinery/light/attack_tk(mob/user)
-	if(!lightbulb)
-		to_chat(user, "There is no [get_fitting_name()] in this light.")
-		return
-
-	to_chat(user, "You telekinetically remove the [get_fitting_name()].")
-	remove_bulb()
-
-// ghost attack - make lights flicker like an AI, but even spookier!
-/obj/machinery/light/attack_ghost(mob/user)
-	if(round_is_spooky())
-		src.flicker(rand(2,5))
-	else return ..()
-
 // break the light and make sparks if was on
 /obj/machinery/light/proc/broken(skip_sound_and_sparks = FALSE)
 	if(!lightbulb)
@@ -657,9 +611,8 @@
 		if(lightbulb && !(lightbulb.status == LIGHT_BROKEN))
 			playsound(src.loc, GET_SFX(SFX_GLASS_HIT), 75, 1)
 
-		if(powered())
-			s.set_up(3, 1, src)
-			s.start()
+		s.set_up(3, 1, src)
+		s.start()
 
 	lightbulb.status = LIGHT_BROKEN
 
@@ -923,22 +876,6 @@
 // if a syringe, can inject plasma to make it explode
 /obj/item/light/attackby(obj/item/I, mob/user)
 	..()
-	if(istype(I, /obj/item/reagent_containers/syringe))
-		var/obj/item/reagent_containers/syringe/S = I
-
-		to_chat(user, "You inject the solution into the [src].")
-
-		if(S.reagents.has_reagent(/datum/reagent/toxin/plasma, 5))
-
-			log_admin("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
-			message_admins("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
-
-			rigged = 1
-
-		S.reagents.clear_reagents()
-	else
-		..()
-	return
 
 // called after an attack with a light item
 // shatter light, unless it was an attempt to put it in a light socket

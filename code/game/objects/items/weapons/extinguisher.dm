@@ -22,7 +22,6 @@
 	var/last_use = 1.0
 	var/safety = 1
 	var/sprite_name = "fire_extinguisher"
-	var/ff_reagent = /datum/reagent/water/firefoam
 	var/external_source = FALSE
 	var/spray_cooldown = 1.5 SECONDS
 
@@ -47,17 +46,6 @@
 	sprite_name = "miniFE"
 	matter = list(MATERIAL_STEEL = 500)
 
-/obj/item/extinguisher/New()
-	create_reagents(max_volume)
-	reagents.add_reagent(ff_reagent, max_volume)
-	..()
-
-/obj/item/extinguisher/examine(mob/user, infix)
-	. = ..()
-
-	if((get_dist(src, user) <= 0) && !external_source)
-		. += "[text("\icon[] [] contains [] ml of reagents left!", src, src.name, src.reagents.total_volume)]"
-
 /obj/item/extinguisher/attack_self(mob/user)
 	if(external_source)
 		return
@@ -66,23 +54,6 @@
 	src.desc = "The safety is [safety ? "on" : "off"]."
 	to_chat(user, "The safety is [safety ? "on" : "off"].")
 	return
-
-/obj/item/extinguisher/attack(mob/living/M, mob/user)
-	if((user.a_intent == I_HELP) && !external_source)
-		if(safety || (world.time < last_use + spray_cooldown)) // We still catch help intent to not randomly attack people
-			return
-		if(reagents.total_volume < 1)
-			to_chat(user, SPAN("notice", "\The [src] is empty."))
-			return
-
-		last_use = world.time
-		reagents.splash(M, min(reagents.total_volume, spray_amount))
-
-		user.visible_message(SPAN("notice", "\The [user] sprays \the [M] with \the [src]."))
-		playsound(loc, 'sound/effects/extinguish.ogg', 75, 1, -3)
-
-		return 1 // No afterattack
-	return ..()
 
 /obj/item/extinguisher/proc/propel_object(obj/O, mob/user, movementdirection)
 	if(O.anchored)
@@ -110,64 +81,3 @@
 	for(var/i in 1 to 3)
 		O.Move(get_step(user,movementdirection), movementdirection)
 		sleep(3)
-
-/obj/item/extinguisher/afterattack(atom/target, mob/user, flag)
-	//TODO; Add support for reagents in water.
-	if(external_source)
-		return ..()
-	if((istype(target, /obj/structure/reagent_dispensers/watertank) || istype(target, /obj/item/backwear/reagent/extinguisher)) && flag)
-		var/obj/O = target
-		var/amount = min((max_volume - reagents.total_volume), O.reagents.total_volume)
-		if(!O.reagents.total_volume)
-			to_chat(user, SPAN("warning", "\The [O] is empty."))
-			return
-		if(!amount)
-			to_chat(user, SPAN("notice", "\The [src] is full."))
-			return
-		O.reagents.remove_any(amount)
-		reagents.add_reagent(ff_reagent, amount)
-		to_chat(user, SPAN("notice", "You fill [src] with [amount] ml of the contents of [O]."))
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
-		return
-
-	if(!safety)
-		if(src.reagents.total_volume < 1)
-			to_chat(usr, SPAN("notice", "\The [src] is empty."))
-			return
-
-		if(world.time < src.last_use + 20)
-			return
-
-		src.last_use = world.time
-
-		playsound(src.loc, 'sound/effects/extinguish.ogg', 75, 1, -3)
-
-		if(istype(target, /obj/item/clothing/mask/smokable))
-			var/obj/item/clothing/mask/smokable/cig = target
-			cig.die()
-
-		var/direction = get_dir(target ,src)
-
-		if(user.buckled && isobj(user.buckled))
-			spawn(0)
-				propel_object(user.buckled, user, direction)
-
-		var/turf/T = get_turf(target)
-
-		var/per_particle = min(spray_amount, reagents.total_volume)/spray_particles
-		for(var/a = 1 to spray_particles)
-			spawn(0)
-				if(!src || !reagents.total_volume) return
-
-				var/obj/effect/effect/water/W = new /obj/effect/effect/water(get_turf(src))
-				W.create_reagents(per_particle)
-				reagents.trans_to_obj(W, per_particle)
-				W.set_color()
-				W.set_up(T)
-
-		if(user.can_slip(magboots_only = TRUE))
-			var/old_dir = user.dir
-			step(user, direction)
-			user.set_dir(old_dir)
-	else
-		return ..()

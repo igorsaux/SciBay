@@ -14,6 +14,3 @@ GLOBAL_LIST_EMPTY(all_wormholes)
 /obj/effect/portal/wormhole/Destroy()
 	GLOB.all_wormholes -= src
 	return ..()
-
-/obj/effect/portal/wormhole/setup_portal()
-	return

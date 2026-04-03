@@ -37,11 +37,6 @@
 	else
 		. += "The disk is locked, you cannot see its contents."
 
-/obj/item/disk/secret_project/emag_act(remaining_charges, mob/user)
-	to_chat(user, "<span class='warning'>The cryptographic lock on this disk is far too complex. \
-	Your sequencer can't break the code.</span>")
-	return 0
-
 /obj/item/disk/secret_project/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/card/id))
 		var/obj/item/card/id/ID = W

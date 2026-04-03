@@ -228,16 +228,6 @@ GLOBAL_LIST_EMPTY(music_players)
 				return TRUE
 		return
 
-	if(istype(I,/obj/item/stack/nanopaste))
-		var/obj/item/stack/S = I
-		if(broken && panel == PANEL_OPENED)
-			if(S.use(1))
-				user.visible_message(SPAN_NOTICE("\The [user] pours some of \the [S] onto \the [src]."), SPAN_NOTICE("You pour some of \the [S] over \the [src]'s internals and watch as it retraces and resolders paths."))
-				broken = FALSE
-			else
-				to_chat(user, SPAN_NOTICE("\The [S] is empty."))
-		return
-
 	if(isCoil(I))
 		var/obj/item/stack/S = I
 		if(broken && panel == PANEL_OPENED)
@@ -306,9 +296,6 @@ GLOBAL_LIST_EMPTY(music_players)
 		to_chat(user, SPAN_WARNING("You can only adjust \the [src] when it's not playing."))
 		return FALSE
 	return TRUE
-
-/obj/item/music_player/attack_ai(mob/user)
-	return
 
 /obj/item/music_player/proc/eject(mob/user)
 	if(mode)

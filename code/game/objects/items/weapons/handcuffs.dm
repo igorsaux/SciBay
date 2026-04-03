@@ -62,7 +62,7 @@
 		..()
 
 /obj/item/handcuffs/proc/can_place(mob/target, mob/user)
-	if(user == target || istype(user, /mob/living/silicon/robot) || istype(user, /mob/living/bot))
+	if(user == target)
 		return 1
 	else
 		for (var/obj/item/grab/G in target.grabbed_by)
@@ -81,10 +81,6 @@
 		to_chat(user, "<span class='danger'>\The [H] needs at least two wrists before you can cuff them together!</span>")
 		return 0
 
-	if(istype(H.gloves,/obj/item/clothing/gloves/rig) && !elastic) // Can't cuff someone who's in a deployed powersuit.
-		to_chat(user, "<span class='danger'>\The [src] won't fit around \the [H.gloves]!</span>")
-		return 0
-
 	user.visible_message("<span class='danger'>\The [user] is attempting to put [cuff_type] on \the [H]!</span>")
 
 	if(!do_after(user,30, target, , luck_check_type = LUCK_CHECK_COMBAT))
@@ -94,7 +90,6 @@
 		return 0
 
 	admin_attack_log(user, H, "Attempted to handcuff the victim", "Was target of an attempted handcuff", "attempted to handcuff")
-	feedback_add_details("handcuffs","H")
 
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	user.do_attack_animation(H)
@@ -219,19 +214,6 @@ var/last_chew = 0
 	if(mode == SYNDICUFFS_ON_REMOVE && !charge_detonated)
 		detonate(0) //This handles cleaning up the inventory already
 		return //Don't clean up twice, we don't want runtimes
-
-//C4 and EMPs don't mix, will always explode at severity 1, and likely to explode at severity 2
-/obj/item/handcuffs/syndicate/emp_act(severity)
-
-	switch(severity)
-		if(1)
-			if(prob(80))
-				detonate(1)
-			else
-				detonate(0)
-		if(2)
-			if(prob(50))
-				detonate(1)
 
 /obj/item/handcuffs/syndicate/ex_act(severity)
 

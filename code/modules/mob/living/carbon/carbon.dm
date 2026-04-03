@@ -1,30 +1,17 @@
 /mob/living/carbon/New()
-	//setup reagent holders
-	if(!bloodstr)
-		bloodstr = new /datum/reagents/metabolism(1.2 LITERS, src, CHEM_BLOOD)
-	if(!reagents)
-		reagents = bloodstr
-	if(!touching)
-		touching = new /datum/reagents/metabolism(10.0 LITERS, src, CHEM_TOUCH)
-
 	if (!default_language && species_language)
 		default_language = all_languages[species_language]
 	..()
 
 /mob/living/carbon/Destroy()
-	QDEL_NULL(touching)
-	QDEL_NULL(bloodstr)
-	QDEL_NULL(surgery_status)
 	QDEL_NULL(handcuffed)
 
 	internal = null
-	reagents = null //We assume reagents is a reference to bloodstr here
 
 	// We assume that, in case of gib, organs and whatever have already done their business escaping the body,
 	// so it's safe to just clean whatever left for reasons.
 	QDEL_NULL_LIST(internal_organs)
 	QDEL_NULL_LIST(external_organs)
-	QDEL_NULL_LIST(stomach_contents)
 	QDEL_NULL_LIST(hallucinations)
 
 	QDEL_LIST_ASSOC(external_organs_by_name)
@@ -39,11 +26,6 @@
 	return ..()
 
 /mob/living/carbon/rejuvenate(ignore_prosthetic_prefs = FALSE)
-	bloodstr.clear_reagents()
-	touching.clear_reagents()
-	var/datum/reagents/R = get_ingested_reagents()
-	if(istype(R))
-		R.clear_reagents()
 	set_nutrition(STOMACH_FULLNESS_HIGH)
 	set_hydration(HYDRATION_HIGH)
 	..()
@@ -68,36 +50,8 @@
 	if(m_intent == M_RUN && bodytemperature <= 360 && (MUTATION_FAT in mutations))
 		bodytemperature += 2
 
-/mob/living/carbon/relaymove(mob/living/user, direction)
-	if((user in src.stomach_contents) && istype(user))
-		THROTTLE_SHARED(cooldown, 50, user.last_special)
-		if(!cooldown)
-			return
-
-		src.visible_message("<span class='danger'>You hear something rumbling inside [src]'s stomach...</span>")
-		var/obj/item/I = user.get_active_hand()
-		var/dmg = (I && I.force) ? rand(round(I.force / 4), I.force) : rand(1, 6) //give a chance to creatures without hands
-		if(istype(src, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = src
-			var/obj/item/organ/external/organ = H.get_organ(BP_GROIN)
-			if(istype(organ))
-				organ.take_blunt_damage(dmg, "intra-abdominal movement")
-			H.update_health()
-		else
-			take_organ_damage(dmg)
-		user.visible_message("<span class='danger'>[user] attacks [src]'s stomach wall!</span>")
-		playsound(user.loc, 'sound/effects/attackblob.ogg', 50, 1)
-
-		if(prob(getBruteLoss() - 50))
-			for(var/atom/movable/A in stomach_contents)
-				A.dropInto(loc)
-				stomach_contents.Remove(A)
-			gib()
-
 /mob/living/carbon/gib(anim, do_gibs)
 	for(var/mob/M in src)
-		if(M in src.stomach_contents)
-			src.stomach_contents.Remove(M)
 		M.dropInto(loc)
 		for(var/mob/N in viewers(src, null))
 			if(N.client)
@@ -112,13 +66,6 @@
 		if(!H.is_hand_usable())
 			return FALSE
 	return TRUE
-
-/mob/living/carbon/attack_ghost(mob/observer/ghost/user)
-	if(HAS_TRAIT(src, TRAIT_GHOSTATTACKABLE)) //Used for wizard's spell "No remorse" which allows ghosts to attack target
-		resolve_ghost_attack(user)
-		return
-
-	return ..()
 
 /mob/living/carbon/proc/resolve_ghost_attack(mob/observer/ghost/user)
 	adjustFireLoss(SPELL_NOREMORSE_GHOST_DAMAGE)
@@ -205,7 +152,7 @@
 		swap_hand()
 
 /mob/living/carbon/proc/help_shake_act(mob/living/carbon/M)
-	if(!is_asystole() || isundead(src))
+	if(!is_asystole())
 		if (on_fire)
 			playsound(src.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 			if(M.on_fire)
@@ -411,8 +358,6 @@
 	if(now_pushing || !yes)
 		return FALSE
 	. = ..()
-	if(. && istype(AM, /mob/living/carbon) && prob(10))
-		spread_disease_to(AM, "Contact")
 
 /mob/living/carbon/slip(slipped_on, stun_duration = 8)
 	if(!can_slip())
@@ -437,20 +382,10 @@
 	return 0
 
 /mob/living/carbon/proc/add_chemical_effect(effect, magnitude = 1)
-	if(chem_effects[effect])
-		chem_effects[effect] += magnitude
-	else
-		chem_effects[effect] = magnitude
-
 	if(effect == CE_SPEEDBOOST || effect == CE_SLOWDOWN)
 		update_chem_slowdown(effect)
 
 /mob/living/carbon/proc/add_up_to_chemical_effect(effect, magnitude = 1)
-	if(chem_effects[effect])
-		chem_effects[effect] = max(magnitude, chem_effects[effect])
-	else
-		chem_effects[effect] = magnitude
-
 	if(effect == CE_SPEEDBOOST || effect == CE_SLOWDOWN)
 		update_chem_slowdown(effect)
 
@@ -490,17 +425,6 @@
 
 	return FALSE
 
-/mob/living/carbon/onDropInto(atom/movable/AM)
-	for(var/e in stomach_contents)
-		var/atom/movable/stomach_content = e
-		if(stomach_content.contains(AM))
-			if(can_devour(AM))
-				stomach_contents += AM
-				return null
-			src.visible_message(SPAN("warning", "\The [src] regurgitates \the [AM]!"))
-			return loc
-	return ..()
-
 /mob/living/carbon/update_living_sight()
 	..()
 	if(seeDarkness)
@@ -516,8 +440,6 @@
 	return 0
 
 /mob/living/carbon/proc/can_feel_pain(check_organ)
-	if(isSynthetic())
-		return 0
 	return !(species && species.species_flags & SPECIES_FLAG_NO_PAIN)
 
 /mob/living/carbon/proc/get_adjusted_metabolism(metabolism)
@@ -537,7 +459,7 @@
 	return null
 
 /mob/living/carbon/proc/SetStasis(factor, source = "misc")
-	if((species && (species.species_flags & SPECIES_FLAG_NO_SCAN)) || isSynthetic())
+	if((species && (species.species_flags & SPECIES_FLAG_NO_SCAN)))
 		return
 	stasis_sources[source] = factor
 
@@ -549,23 +471,17 @@
 // call only once per run of life
 /mob/living/carbon/proc/UpdateStasis()
 	stasis_value = 0
-	if((species && (species.species_flags & SPECIES_FLAG_NO_SCAN)) || isSynthetic())
+	if((species && (species.species_flags & SPECIES_FLAG_NO_SCAN)))
 		return
 	for(var/source in stasis_sources)
 		stasis_value += stasis_sources[source]
 	stasis_sources.Cut()
 
 /mob/living/carbon/has_chem_effect(chem, threshold)
-	return (chem_effects[chem] >= threshold)
+	return FALSE
 
 /mob/living/carbon/get_sex()
 	return species.get_sex(src)
-
-/mob/living/carbon/proc/get_ingested_reagents()
-	return reagents
-
-/mob/living/carbon/proc/get_digested_reagents()
-	return reagents
 
 /mob/living/carbon/rejuvenate(ignore_prosthetic_prefs = FALSE)
 	. = ..()

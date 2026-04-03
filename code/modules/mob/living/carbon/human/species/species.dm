@@ -97,7 +97,6 @@
 	var/generic_attack_mod = 1.0              // Damage dealt to simple animals with unarmed attacks multiplier.
 
 	// Death vars.
-	var/meat_type = /obj/item/reagent_containers/food/meat/human
 	var/remains_type = /obj/item/remains/xeno
 	var/gibbed_anim = "gibbed-h"
 	var/dusted_anim = "dust-h"
@@ -225,8 +224,6 @@
 	var/list/prone_overlay_offset = list(0, 0) // amount to shift overlays when lying
 	var/icon_scale = 1
 	var/y_shift = 0 // Vertically shifts the icon, mostly for monkeys.
-
-	var/xenomorph_type = /mob/living/carbon/larva/xenomorph // What type of larva is spawned if infected with an alien embryo
 /*
 These are all the things that can be adjusted for equipping stuff and
 each one can be in the NORTH, SOUTH, EAST, and WEST direction. Specify
@@ -297,7 +294,6 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 	H.mob_size = mob_size
 	var/list/foreign_organs = list()
-	var/list/implants_from_external_organs = list()
 
 	for(var/obj/item/organ/external/E in H.contents)
 		for(var/obj/item/organ/internal/O in E.internal_organs)
@@ -305,10 +301,6 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 				E.internal_organs.Remove(O)
 				H.internal_organs.Remove(O)
 				foreign_organs |= O
-		if(LAZYLEN(E.implants))
-			implants_from_external_organs[E.organ_tag] = list()
-			for(var/I in E.implants)
-				implants_from_external_organs[E.organ_tag] += I
 
 	for(var/obj/item/organ/organ in H.contents)
 		if((organ in H.external_organs) || (organ in H.internal_organs))
@@ -356,10 +348,6 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 	H.sync_organ_dna()
 
-	for(var/obj/item/organ/external/E in H.contents)
-		if(E.organ_tag in implants_from_external_organs)
-			E.implants += implants_from_external_organs[E.organ_tag]
-
 /datum/species/proc/hug(mob/living/carbon/human/H, mob/living/target)
 	var/mob/living/carbon/human/V
 	if(istype(target,/mob/living/carbon/human))
@@ -405,21 +393,6 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 			var/obj/item/clothing/mask/target_mask
 			if(V)
 				target_mask = V.wear_mask
-			if(actor_mask && target_mask)
-				if(istype(actor_mask, /obj/item/clothing/mask/smokable/cigarette) && istype(target_mask, /obj/item/clothing/mask/smokable/cigarette))
-					H.visible_message(SPAN_NOTICE("[H] reaches out for [target]'s face...)"), \
-									SPAN_NOTICE("You reach out for [target]'s face..."))
-					H.next_move = world.time + 15
-					if(!do_after(H,15,target) || target.a_intent != I_HELP)
-						return
-					H.visible_message(SPAN_NOTICE("\The [actor_mask] touches \the [target_mask].</span>")) // Harsh spessman flirt
-					var/obj/item/clothing/mask/smokable/cigarette/actor_cig = actor_mask
-					var/obj/item/clothing/mask/smokable/cigarette/target_cig = target_mask
-					if(actor_cig.lit && !target_cig.lit)
-						target_cig.light(actor_cig, H)
-					if(!actor_cig.lit && target_cig.lit)
-						actor_cig.light(target_cig, H)
-					return
 
 			if(actor_mask)
 				to_chat(H, "\A [actor_mask] is in the way!")
@@ -678,8 +651,6 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 	var/effective_armor = target.get_flat_armor(attacker.zone_sel.selecting, "melee")
 	var/poisedmg = round(4.0 + 4.0 * ((100 - effective_armor) / 100), 0.1)
-	if(istype(attacker.gloves, /obj/item/clothing/gloves/chameleon/robust))
-		poisedmg *= 1.75
 	target.damage_poise(poisedmg)
 
 	//target.visible_message("Debug \[DISARM\]: [target] lost [round(4.0+4.0*((100-effective_armor)/100),0.1)] poise ([target.poise]/[target.poise_pool])") // Debug Message

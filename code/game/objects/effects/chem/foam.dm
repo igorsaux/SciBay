@@ -37,11 +37,7 @@
 	QDEL_IN(src, 5)
 
 /obj/effect/effect/foam/proc/check_reagents() // transfer any reagents to the floor
-	if(!metal && reagents)
-		var/turf/T = get_turf(src)
-		reagents.touch_turf(T)
-		for(var/obj/O in T)
-			reagents.touch_obj(O)
+	return
 
 /obj/effect/effect/foam/think()
 	if(--amount < 0)
@@ -61,11 +57,6 @@
 
 		F = new(T, metal)
 		F.amount = amount
-		if(!metal)
-			F.create_reagents(100)
-			if(reagents)
-				for(var/datum/reagent/R in reagents.reagent_list)
-					F.reagents.add_reagent(R.type, 10, safety = 1) //added safety check since reagents in the foam have already had a chance to react
 
 	set_next_think(world.time + 1 SECOND)
 
@@ -88,7 +79,7 @@
 	var/list/carried_reagents	// the IDs of reagents present when the foam was mixed
 	var/metal = 0				// 0 = foam, 1 = metalfoam, 2 = ironfoam
 
-/datum/effect/effect/system/foam_spread/set_up(amt=5, loca, datum/reagents/carry = null, metalfoam = 0)
+/datum/effect/effect/system/foam_spread/set_up(amt=5, loca, metalfoam = 0)
 	amount = round(sqrt(amt / 3), 1)
 	if(istype(loca, /turf/))
 		location = loca
@@ -100,10 +91,6 @@
 
 	// bit of a hack here. Foam carries along any reagent also present in the glass it is mixed with (defaults to water if none is present). Rather than actually transfer the reagents, this makes a list of the reagent ids and spawns 1 unit of that reagent when the foam disolves.
 
-	if(carry && !metal)
-		for(var/datum/reagent/R in carry.reagent_list)
-			carried_reagents += R.type
-
 /datum/effect/effect/system/foam_spread/start()
 	spawn(0)
 		var/obj/effect/effect/foam/F = locate() in location
@@ -113,15 +100,6 @@
 
 		F = new /obj/effect/effect/foam(location, metal)
 		F.amount = amount
-
-		if(!metal) // don't carry other chemicals if a metal foam
-			F.create_reagents(100)
-
-			if(carried_reagents)
-				for(var/id in carried_reagents)
-					F.reagents.add_reagent(id, 10, safety = 1) //makes a safety call because all reagents should have already reacted anyway
-			else
-				F.reagents.add_reagent(/datum/reagent/water, 10, safety = 1)
 
 // wall formed by metal foams, dense and opaque, but easy to break
 
@@ -154,10 +132,6 @@
 
 /obj/structure/foamedmetal/ex_act(severity)
 	qdel(src)
-
-/obj/structure/foamedmetal/bullet_act()
-	if(metal == 1 || prob(50))
-		qdel(src)
 
 /obj/structure/foamedmetal/attack_hand(mob/user)
 	if((MUTATION_HULK in user.mutations) || (MUTATION_STRONG in user.mutations) || (prob(75 - metal * 25)))

@@ -32,18 +32,6 @@
 			if(g != "oxygen" && g != "nitrogen")
 				scrubbing_gas += g
 
-
-/obj/machinery/portable_atmospherics/powered/scrubber/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-
-	if(prob(50/severity))
-		on = !on
-		update_icon()
-
-	..(severity)
-
 /obj/machinery/portable_atmospherics/powered/scrubber/on_update_icon()
 	ClearOverlays()
 
@@ -81,25 +69,16 @@
 		last_power_draw = 0
 	else
 		power_draw = max(power_draw, power_losses)
-		if(!powered())
-			cell.use(power_draw * CELLRATE)
-		else
-			use_power_oneoff(power_draw)
 		last_power_draw = power_draw
 
 		update_connected_network()
 
 		//ran out of charge
 		if (!cell.charge)
-			power_change()
 			update_icon()
 
 	//src.update_icon()
 	src.updateDialog()
-
-/obj/machinery/portable_atmospherics/powered/scrubber/attack_ai(mob/user)
-	src.add_hiddenprint(user)
-	return src.attack_hand(user)
 
 /obj/machinery/portable_atmospherics/powered/scrubber/attack_ghost(mob/user)
 	return src.attack_hand(user)
@@ -158,9 +137,6 @@
 	volume = 50000
 	volume_rate = 5000
 
-	use_power = POWER_USE_IDLE
-	idle_power_usage = 500 WATTS		//internal circuitry, friction losses and stuff
-	active_power_usage = 100 KILO WATTS	//100 kW ~ 135 HP
 
 	var/global/gid = 1
 	var/id = 0
@@ -185,15 +161,8 @@
 	else
 		icon_state = "scrubber:0"
 
-/obj/machinery/portable_atmospherics/powered/scrubber/huge/power_change()
-	var/old_stat = stat
-	..()
-	if (old_stat != stat)
-		queue_icon_update()
-
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/Process()
 	if(!on || (stat & (NOPOWER|BROKEN)))
-		update_use_power(POWER_USE_OFF)
 		last_flow_rate = 0
 		last_power_draw = 0
 		return 0
@@ -204,13 +173,12 @@
 
 	var/transfer_moles = min(1, volume_rate/environment.volume)*environment.total_moles
 
-	power_draw = scrub_gas(src, scrubbing_gas, environment, air_contents, transfer_moles, active_power_usage)
+	power_draw = scrub_gas(src, scrubbing_gas, environment, air_contents, transfer_moles, 0)
 
 	if (power_draw < 0)
 		last_flow_rate = 0
 		last_power_draw = 0
 	else
-		use_power_oneoff(power_draw)
 		update_connected_network()
 
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/attackby(obj/item/I as obj, mob/user as mob)

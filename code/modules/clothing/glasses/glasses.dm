@@ -19,25 +19,6 @@
 /obj/item/clothing/glasses/needs_vision_update()
 	return ..() || overlay || vision_flags || see_invisible || darkness_view
 
-/obj/item/clothing/glasses/emp_act(severity)
-	if(electric)
-		if(istype(src.loc, /mob/living/carbon/human))
-			var/mob/living/carbon/human/M = src.loc
-			if(M.glasses == src)
-				if(!one_eyed)
-					to_chat(M, SPAN("danger", "Your [name] malfunction[gender != PLURAL ? "s":""], blinding you!"))
-					M.eye_blind = one_eyed ? 1 : 2
-				else
-					to_chat(M, SPAN("danger", "Your [name] malfunction[gender != PLURAL ? "s":""], briefly blinding you!"))
-				M.eye_blurry = one_eyed ? 2 : 4
-				// Don't cure being nearsighted
-				if(!(M.disabilities & NEARSIGHTED))
-					M.disabilities |= NEARSIGHTED
-					spawn(100)
-						M.disabilities &= ~NEARSIGHTED
-		if(toggleable)
-			active = FALSE
-
 /obj/item/clothing/glasses/attack_self(mob/user)
 	if(toggleable && !user.incapacitated())
 		if(active)

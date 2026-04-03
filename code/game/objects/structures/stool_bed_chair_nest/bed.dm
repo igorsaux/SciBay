@@ -86,21 +86,6 @@
 				qdel(src)
 				return
 
-/obj/structure/bed/bullet_act(obj/item/projectile/Proj)
-	var/damage = Proj.get_structure_damage()
-	if(!damage)
-		return
-	..()
-	if(prob(50))
-		return
-	if(material)
-		if(prob(20))
-			material.place_sheet(loc)
-		else
-			material.place_shard(loc)
-	qdel(src)
-	return
-
 /obj/structure/bed/attackby(obj/item/W as obj, mob/user as mob)
 	if(atom_flags & ATOM_FLAG_NO_DECONSTRUCTION)
 		return ..()
@@ -153,9 +138,6 @@
 		if(W.mod_weight >= 0.75)
 			shake_animation(stime = 4)
 		..()
-/obj/structure/bed/attack_robot(mob/user)
-	if(Adjacent(user)) // Robots can open/close it, but not the AI.
-		attack_hand(user)
 
 /obj/structure/bed/Move(newloc, direct)
 	. = ..()
@@ -382,9 +364,7 @@
 
 
 /obj/structure/bed/roller/proc/do_buckle_bodybag(obj/structure/closet/body_bag/B, mob/user)
-	if(isanimal(user))
-		return FALSE
-	if(!user.Adjacent(B) || user.incapacitated(INCAPACITATION_ALL) || istype(user, /mob/living/silicon/pai))
+	if(!user.Adjacent(B) || user.incapacitated(INCAPACITATION_ALL))
 		return FALSE
 	B.visible_message(SPAN_NOTICE("[user] buckles [B] to [src]!"))
 	B.roller_buckled = src
@@ -421,8 +401,6 @@
 		update_icon()
 
 /obj/structure/bed/roller/proc/manual_unbuckle(mob/user)
-	if(isanimal(user) || istype(user, /mob/living/silicon/pai))
-		return FALSE
 	if(user.incapacitated(INCAPACITATION_ALL))
 		return FALSE
 	if(buckled_bodybag && !user.Adjacent(buckled_bodybag))

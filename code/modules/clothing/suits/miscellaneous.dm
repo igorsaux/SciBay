@@ -6,29 +6,6 @@
  */
 
 /*
- * Lasertag
- */
-/obj/item/clothing/suit/bluetag
-	name = "blue laser tag armour"
-	desc = "Blue Pride, Galaxy Wide."
-	icon_state = "bluetag"
-	item_state = "bluetag"
-	blood_overlay_type = "armorblood"
-	body_parts_covered = UPPER_TORSO
-	allowed = list (/obj/item/gun/energy/lasertag/blue)
-	siemens_coefficient = 3.0
-
-/obj/item/clothing/suit/redtag
-	name = "red laser tag armour"
-	desc = "Reputed to go faster."
-	icon_state = "redtag"
-	item_state = "redtag"
-	blood_overlay_type = "armorblood"
-	body_parts_covered = UPPER_TORSO
-	allowed = list (/obj/item/gun/energy/lasertag/red)
-	siemens_coefficient = 3.0
-
-/*
  * Costume
  */
 /obj/item/clothing/suit/pirate
@@ -77,7 +54,7 @@
 	icon_state = "judge"
 	item_state = "judge"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
-	allowed = list(/obj/item/storage/fancy/cigarettes,/obj/item/spacecash)
+	allowed = list(/obj/item/storage/fancy/cigarettes)
 	flags_inv = HIDEJUMPSUIT
 
 
@@ -153,11 +130,6 @@
 	item_state = "cardborg"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	flags_inv = HIDEJUMPSUIT
-
-/obj/item/clothing/suit/cardborg/Initialize()
-	. = ..()
-
-	AddComponent(/datum/component/cardborg)
 
 /*
  * Misc
@@ -705,18 +677,11 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 	allowed = list(
-		/obj/item/ammo_magazine,
-		/obj/item/ammo_casing,
 		/obj/item/clothing/head/helmet,
 		/obj/item/clothing/mask/gas,
-		/obj/item/device/radio,
 		/obj/item/device/flashlight,
-		/obj/item/grenade,
 		/obj/item/gun/energy,
 		/obj/item/gun/projectile,
-		/obj/item/gun/charge,
-		/obj/item/gun/magnetic,
-		/obj/item/gun/launcher/grenade,
 		/obj/item/handcuffs,
 		/obj/item/melee/baton,
 		/obj/item/reagent_containers/spray/pepper

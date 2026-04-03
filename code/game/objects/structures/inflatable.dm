@@ -147,11 +147,6 @@
 	if(taped)
 		. += SPAN("notice", "It's been duct taped in few places.")
 
-/obj/structure/inflatable/bullet_act(obj/item/projectile/Proj)
-	take_damage(Proj.get_structure_damage())
-	if(health <= 0)
-		return PROJECTILE_CONTINUE
-
 /obj/structure/inflatable/ex_act(severity)
 	switch(severity)
 		if(1.0)
@@ -170,7 +165,7 @@
 	return
 
 /obj/structure/inflatable/attackby(obj/item/W, mob/user)
-	if(!istype(W) || istype(W, /obj/item/inflatable_dispenser))
+	if(!istype(W))
 		return
 	if(istype(W, /obj/item/tape_roll) && health < initial(health) - 3)
 		if(taped)
@@ -276,19 +271,10 @@
 	add_think_ctx("post_open", CALLBACK(src, nameof(.proc/post_open)), 0)
 	add_think_ctx("post_close", CALLBACK(src, nameof(.proc/post_close)), 0)
 
-/obj/structure/inflatable/door/attack_ai(mob/user) //those aren't machinery, they're just big fucking balloons
-	if(isAI(user)) //so the AI can't open it
-		return
-	else if(isrobot(user)) // but cyborgs can
-		if(Adjacent(user)) // not remotely though
-			return TryToSwitchState(user)
-
 /obj/structure/inflatable/door/attack_hand(mob/user)
 	return TryToSwitchState(user)
 
 /obj/structure/inflatable/door/CanPass(atom/movable/mover, turf/target)
-	if(istype(mover, /obj/effect/beam))
-		return !opacity
 	return !density
 
 /obj/structure/inflatable/door/proc/TryToSwitchState(atom/user)

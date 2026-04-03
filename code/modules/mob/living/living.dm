@@ -42,9 +42,7 @@
 	if(!..())
 		return 0
 
-	//Borgs and AI have their own message
-	if(!issilicon(src))
-		usr.visible_message("<b>[src]</b> points to [A]")
+	usr.visible_message("<b>[src]</b> points to [A]")
 	return 1
 
 // Check if current mob can push other mob or swap with it
@@ -118,10 +116,7 @@
 			forceMove(pushed_mob.loc)
 			pushed_mob.forceMove(oldloc)
 			now_pushing = FALSE
-			// TODO: Handle latched metroids' movement with signals or something.
-			for(var/mob/living/carbon/metroid/metroid in view(1, pushed_mob))
-				if(metroid.Victim == pushed_mob)
-					metroid.UpdateFeed()
+
 			return
 
 		// Checking if we can actually push the pushed mob.
@@ -137,10 +132,6 @@
 			// Pushing fat asses is difficult. TODO: Replace with fat bodybuild check.
 			if(ishuman(pushed_mob) && (MUTATION_FAT in pushed_mob.mutations) && !(MUTATION_FAT in mutations) && prob(40))
 				to_chat(src, SPAN("warning", "You fail to push [pushed_mob]'s fat ass out of the way."))
-				return
-
-			// Pushing riot shields is even more difficult.
-			if((istype(pushed_mob.r_hand, /obj/item/shield/riot) || istype(pushed_mob.l_hand, /obj/item/shield/riot)) && prob(99))
 				return
 
 		// Can't push the unpushable.
@@ -517,9 +508,6 @@
 	fire_stacks = 0
 
 /mob/living/proc/rejuvenate(ignore_prosthetic_prefs = FALSE)
-	if(reagents)
-		reagents.clear_reagents()
-
 	// shut down various types of badness
 	setToxLoss(0)
 	setOxyLoss(0)
@@ -618,10 +606,6 @@
 	if(s_active && !((s_active in contents) || Adjacent(s_active)))
 		s_active.close(src)
 
-	if(update_metroids)
-		for(var/mob/living/carbon/metroid/M in view(1, src))
-			M.UpdateFeed()
-
 /mob/living/proc/can_pull()
 	if(!moving)
 		return FALSE
@@ -709,17 +693,13 @@
 		location.add_blood(src)
 		if(prob(25))
 			adjustBruteLoss(1)
-			visible_message(SPAN("danger", "\The [src]'s [src.isSynthetic() ? "state worsens": "wounds open more"] from being dragged!"))
+			visible_message(SPAN("danger", "\The [src]'s wounds open more from being dragged!"))
 			. = TRUE
 	if(pull_damage())
 		if(prob(25))
 			adjustBruteLoss(2)
-			visible_message(SPAN("danger", "\The [src]'s [src.isSynthetic() ? "state worsens" : "wounds worsen"] terribly from being dragged!"))
+			visible_message(SPAN("danger", "\The [src]'s wounds worsen terribly from being dragged!"))
 			location.add_blood(src)
-			if(ishuman(src))
-				var/mob/living/carbon/human/H = src
-				if(round(H.vessel.get_reagent_amount(/datum/reagent/blood)) > 0)
-					H.vessel.remove_reagent(/datum/reagent/blood, 1)
 			. = TRUE
 
 /mob/living/verb/resist()
@@ -751,12 +731,6 @@
 		spawn() closet.mob_breakout(src)
 		return TRUE
 
-	//Trying to escape from Spider?
-	if(src.loc && (istype(src.loc, /obj/structure/spider/cocoon)))
-		var/obj/structure/spider/cocoon/cocoon = loc
-		spawn() cocoon.mob_breakout(src)
-		return TRUE
-
 /mob/living/proc/escape_inventory(obj/item/holder/H)
 	if(H != src.loc) return
 
@@ -769,7 +743,7 @@
 
 		// Update whether or not this mob needs to pass emotes to contents.
 		for(var/atom/A in M.contents)
-			if(istype(A,/mob/living/simple_animal/borer) || istype(A,/obj/item/holder))
+			if(istype(A,/obj/item/holder))
 				return
 		M.status_flags &= ~PASSEMOTES
 	else if(istype(H.loc,/obj/item/clothing/accessory/holster))
@@ -877,9 +851,6 @@
 	if(!possession_candidate)
 		to_chat(possessor, "<span class='warning'>That animal cannot be possessed.</span>")
 		return 0
-	if(jobban_isbanned(possessor, "Animal"))
-		to_chat(possessor, "<span class='warning'>You are banned from animal roles.</span>")
-		return 0
 	if(!possessor.MayRespawn(1,ANIMAL_SPAWN_DELAY))
 		return 0
 	return 1
@@ -897,15 +868,6 @@
 	log_admin("[key_name(possessor)] took control of \the [src].")
 	src.ckey = possessor.ckey
 	qdel(possessor)
-
-	if(round_is_spooky(6)) // Six or more active cultists.
-		to_chat(src, "<span class='notice'>You reach out with tendrils of ectoplasm and invade the mind of \the [src]...</span>")
-		to_chat(src, "<b>You have assumed direct control of \the [src].</b>")
-		to_chat(src, "<span class='notice'>Due to the spookiness of the round, you have taken control of the poor animal as an invading, possessing spirit - roleplay accordingly.</span>")
-		src.universal_speak = 1
-		src.universal_understand = 1
-		//src.cultify() // Maybe another time.
-		return
 
 	to_chat(src, "<b>You are now \the [src]!</b>")
 	to_chat(src, "<span class='notice'>Remember to stay in character for a mob of this type!</span>")
@@ -925,27 +887,9 @@
 	else
 		..()
 
-/mob/living/update_icons()
-	if(auras)
-		AddOverlays(auras)
-
-/mob/living/proc/add_aura(obj/aura/aura)
-	LAZYDISTINCTADD(auras,aura)
-	update_icons()
-	return 1
-
-/mob/living/proc/remove_aura(obj/aura/aura)
-	LAZYREMOVE(auras,aura)
-	update_icons()
-	return 1
-
 /mob/living/Destroy()
-	if(auras)
-		for(var/a in auras)
-			remove_aura(a)
 	if(mind)
 		mind.set_current(null)
-	QDEL_NULL(aiming)
 	if(controllable)
 		controllable = FALSE
 		GLOB.available_mobs_for_possess -= "\ref[src]"

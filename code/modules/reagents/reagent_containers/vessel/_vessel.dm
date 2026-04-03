@@ -53,32 +53,21 @@
 	var/image/flipping = null
 
 	var/list/can_be_placed_into = list(
-		/obj/machinery/chem_master/,
-		/obj/machinery/chemical_dispenser,
-		/obj/machinery/reagentgrinder,
 		/obj/structure/table,
 		/obj/structure/closet,
 		/obj/structure/sink,
 		/obj/item/storage,
 		/obj/machinery/atmospherics/unary/cryo_cell,
-		/obj/item/grenade/chem_grenade,
-		/mob/living/bot/medbot,
 		/obj/item/storage/secure/safe,
 		/obj/structure/iv_drip,
-		/obj/machinery/disease2/incubator,
 		/obj/machinery/disposal,
-		/mob/living/simple_animal/cow,
-		/mob/living/simple_animal/hostile/retaliate/goat,
-		/obj/machinery/computer/centrifuge,
 		/obj/machinery/sleeper,
-		/obj/machinery/smartfridge/,
-		/obj/machinery/biogenerator,
 		/obj/machinery/constructable_frame,
-		/obj/machinery/radiocarbon_spectrometer
 	)
 
 /obj/item/reagent_containers/vessel/Initialize()
 	. = ..()
+	
 	if(!base_icon)
 		base_icon = icon_state
 	if(!base_name)
@@ -98,15 +87,12 @@
 	if(start_label)
 		SetName(base_name)
 		AddComponent(/datum/component/label, start_label) // So the name isn't hardcoded and the label can be removed for reusability
+	
 	update_icon()
 
 /obj/item/reagent_containers/vessel/Destroy()
 	QDEL_NULL(lid)
 	return ..()
-
-/obj/item/reagent_containers/vessel/on_reagent_change()
-	..()
-	update_icon()
 
 /obj/item/reagent_containers/vessel/pickup(mob/user)
 	..()
@@ -140,19 +126,16 @@
 // 5. lid.icon_state (if present)
 /obj/item/reagent_containers/vessel/on_update_icon()
 	ClearOverlays()
-	if(reagents?.reagent_list.len > 0)
-		if(dynamic_name)
-			var/datum/reagent/R = reagents.get_master_reagent()
-			update_name_label()
-			SetName("[name] of [R.glass_name ? R.glass_name : "something"]")
-			desc = R.glass_desc ? R.glass_desc : base_desc
-		if(filling_states)
-			var/image/filling = image(icon, src, "[base_icon][get_filling_state()]")
-			filling.color = reagents.get_color()
-			AddOverlays(filling)
-	else
-		update_name_label()
-		desc = base_desc
+	// TODO: CHEM
+	// 	if(dynamic_name)
+	// 		var/datum/reagent/R = reagents.get_master_reagent()
+	// 		update_name_label()
+	// 		SetName("[name] of [R.glass_name ? R.glass_name : "something"]")
+	// 		desc = R.glass_desc ? R.glass_desc : base_desc
+	if(filling_states)
+		var/image/filling = image(icon, src, "[base_icon][get_filling_state()]")
+		filling.color = get_combined_color_hex_blended()
+		AddOverlays(filling)
 
 	if(overlay_icon)
 		AddOverlays(image(icon, src, overlay_icon))
@@ -164,7 +147,7 @@
 		AddOverlays(image(lid.icon, src, lid.get_icon_state()))
 
 /obj/item/reagent_containers/vessel/proc/get_filling_state()
-	var/percent = round((reagents.total_volume / volume) * 100)
+	var/percent = round((get_used_volume() / volume) * 100)
 	for(var/k in cached_number_list_decode(filling_states))
 		if(percent <= k)
 			return k
@@ -178,21 +161,32 @@
 /obj/item/reagent_containers/vessel/examine(mob/user, infix)
 	. = ..()
 
-	. += "Can hold up to <b>[volume]</b>ml."
+	. += "Can hold up to <b>[round(volume * 1000, 1)]</b> ml."
 
 	if(get_dist(src, user) > 2)
 		return
 
+	var/used_volume = get_used_volume()
+
 	if(precise_measurement)
-		if(reagents?.reagent_list.len)
-			. += SPAN_NOTICE("It contains <b>[reagents.total_volume]</b>ml of liquid.")
+		if(used_volume > 0.0)
+			var/list/phases = list()
+
+			if(Z_CHEM_GET_LIQUID_PHASES(src) > 0)
+				phases += "liquid"
+			if(Z_CHEM_GET_SOLID_PHASES(src) > 0)
+				phases += "solid"
+
+			if(length(phases))
+				. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 1)]</b>ml of [phases.Join(" and ")].")
+			else
+				. += SPAN_NOTICE("It is empty.")
 		else
 			. += SPAN_NOTICE("It is empty.")
 	else
-		var/ratio = 0
-		if(reagents?.total_volume)
-			ratio = reagents.total_volume / volume
+		var/ratio = used_volume / volume
 		var/ratio_text = ""
+
 		switch(ratio)
 			if(0)
 				ratio_text = "empty"
@@ -204,14 +198,293 @@
 				ratio_text = "almost full"
 			else
 				ratio_text = "full"
+
 		. += SPAN_NOTICE("\The [src] is <b>[ratio_text]</b>!")
 
+	var/moles_boiled = Z_CHEM_GET_BOILED_MOLES(src)
+	ASSERT(moles_boiled != null)
+
+	var/moles_evaporated = Z_CHEM_GET_EVAPORATED_MOLES(src)
+	ASSERT(moles_evaporated != null)
+
+	var/evap_visible_threshold = 0.0001
+
+	if(moles_boiled > evap_visible_threshold)
+		. += SPAN_NOTICE("The contents are bubbling.")
+
+	if(moles_evaporated > evap_visible_threshold)
+		if(moles_boiled > evap_visible_threshold)
+			. += SPAN_NOTICE("Thick steam billows from the opening.")
+		else
+			. += SPAN_NOTICE("Wisps of vapor rise from the opening.")
+
 	if(lid)
-		. += "\n[lid.get_examine_hint()]"
+		. += "[lid.get_examine_hint()]"
+
+	if(Adjacent(user, src) && is_open_container())
+		. += get_contents_smell_description()
+
+	. += get_contents_visual_description()
+
+/obj/item/reagent_containers/vessel/proc/get_contents_visual_description()
+	var/list/descriptions = list()
+
+	var/list/gas_flavor = Z_CHEM_GET_GAS_FLAVOR(src)
+	ASSERT(gas_flavor != null)
+
+	var/gas_desc = get_phase_color_description(gas_flavor, "vapor")
+
+	if(gas_desc)
+		descriptions += gas_desc
+
+	var/liquid_phases = Z_CHEM_GET_LIQUID_PHASES(src)
+	ASSERT(liquid_phases != null)
+
+	var/list/visible_liquid_layers = list()
+
+	for(var/i = 0 to liquid_phases - 1)
+		var/list/liquid_flavor = Z_CHEM_GET_LIQUID_PHASE_FLAVOR(src, i)
+		ASSERT(liquid_flavor != null)
+
+		var/list/colors = liquid_flavor[1]
+		var/list/intensities = liquid_flavor[2]
+
+		if(colors && length(colors) && intensities && length(intensities))
+			var/is_transparent = (colors[1] == Z_COLOR_TRANSPARENT)
+			var/intensity = intensities[1]
+
+			if(length(visible_liquid_layers))
+				var/list/prev_layer = visible_liquid_layers[visible_liquid_layers.len]
+				
+				if(is_transparent && prev_layer["is_transparent"])
+					if(abs(intensity - prev_layer["intensity"]) <= 0.1)
+						continue
+
+			visible_liquid_layers += list(list(
+				"flavor" = liquid_flavor,
+				"is_transparent" = is_transparent,
+				"intensity" = intensity
+			))
+
+	var/visible_liquids_count = length(visible_liquid_layers)
+	
+	for(var/i = 1 to visible_liquids_count)
+		var/list/layer_data = visible_liquid_layers[i]
+		var/phase_name = visible_liquids_count > 1 ? "liquid layer [i]" : "liquid"
+		var/liquid_desc = get_phase_color_description(layer_data["flavor"], phase_name)
+
+		if(liquid_desc)
+			descriptions += liquid_desc
+
+	var/solid_phases = Z_CHEM_GET_SOLID_PHASES(src)
+	ASSERT(solid_phases != null)
+
+	for(var/i = 0 to solid_phases - 1)
+		var/list/solid_flavor = Z_CHEM_GET_SOLID_PHASE_FLAVOR(src, i)
+		var/diameter = Z_CHEM_GET_SOLID_PHASE_PARTICLE_DIAMETER(src, i)
+
+		if(solid_flavor)
+			var/solid_desc = get_solid_phase_description(solid_flavor, diameter, i, solid_phases)
+
+			if(solid_desc)
+				descriptions += solid_desc
+
+	if(!length(descriptions))
+		return null
+
+	return descriptions.Join("\n")
+
+/obj/item/reagent_containers/vessel/proc/get_phase_color_description(list/flavor, phase_name)
+	if(!flavor || !length(flavor) || length(flavor) < 2)
+		return null
+
+	var/list/colors = flavor[1]
+	var/list/color_intensities = flavor[2]
+
+	if(!colors || !length(colors))
+		return null
+
+	var/primary_color = colors[1]
+	if(primary_color == Z_COLOR_TRANSPARENT)
+		return null
+
+	var/primary_intensity = color_intensities[1]
+	var/intensity_word = get_color_intensity_word(primary_intensity)
+	var/color_name = __z_color_names[primary_color + 1]
+	var/color_hex = __z_color_hex[primary_color + 1]
+
+	var/desc = "The [phase_name] is "
+	if(intensity_word)
+		desc += "[intensity_word] "
+
+	desc += "<font color='[color_hex]'><b>[color_name]</b></font>"
+
+	if(length(colors) > 1 && colors[2] != Z_COLOR_TRANSPARENT)
+		var/secondary_color = colors[2]
+		var/secondary_hex = __z_color_hex[secondary_color + 1]
+		var/secondary_name = __z_color_names[secondary_color + 1]
+		desc += " with a <font color='[secondary_hex]'><b>[secondary_name]</b></font> tint"
+
+	desc += "."
+
+	return desc
+
+/obj/item/reagent_containers/vessel/proc/get_solid_phase_description(list/flavor, diameter, phase_idx, total_phases)
+	if(!flavor || !length(flavor) || length(flavor) < 2)
+		return null
+
+	var/list/colors = flavor[1]
+	var/list/color_intensities = flavor[2]
+
+	if(!colors || !length(colors))
+		return null
+
+	var/size_word = get_particle_size_word(diameter)
+
+	var/primary_color = colors[1]
+	var/primary_intensity = color_intensities[1]
+	var/intensity_word = get_color_intensity_word(primary_intensity)
+	var/color_name = __z_color_names[primary_color + 1]
+	var/color_hex = __z_color_hex[primary_color + 1]
+
+	var/desc = "There is "
+	if(intensity_word)
+		desc += "[intensity_word] "
+
+	desc += "<font color='[color_hex]'><b>[color_name]</b></font> [size_word]"
+
+	if(length(colors) > 1 && colors[2] != Z_COLOR_TRANSPARENT)
+		var/secondary_color = colors[2]
+		var/secondary_hex = __z_color_hex[secondary_color + 1]
+		var/secondary_name = __z_color_names[secondary_color + 1]
+		desc += " with <font color='[secondary_hex]'><b>[secondary_name]</b></font> specks"
+
+	desc += "."
+
+	return desc
+
+/obj/item/reagent_containers/vessel/proc/get_contents_smell_description()
+	var/list/flavor = Z_CHEM_GET_ODOR(src)
+	ASSERT(flavor != null)
+
+	var/list/odors = flavor[3]
+	var/list/odors_intensity = flavor[4]
+
+	if(!odors || !length(odors))
+		return "It doesn't smell like anything."
+
+	if(odors[1] == Z_ODOR_NONE && (length(odors) < 2 || odors[2] == Z_ODOR_NONE))
+		return "It doesn't smell like anything."
+
+	var/list/odor_descriptions = list()
+
+	for(var/i = 1 to length(odors))
+		var/odor = odors[i]
+
+		if(odor == Z_ODOR_NONE)
+			continue
+
+		var/odor_name = __z_odor_names[odor + 1]
+		var/intensity = odors_intensity[i]
+		var/intensity_word = get_odor_intensity_word(intensity)
+
+		if(intensity_word)
+			odor_descriptions += "[intensity_word] [odor_name]"
+		else
+			odor_descriptions += odor_name
+
+	if(!length(odor_descriptions))
+		return "It doesn't smell like anything."
+
+	var/smell_string = "It smells "
+
+	if(length(odor_descriptions) == 1)
+		smell_string += "[SPAN_NOTICE(odor_descriptions[1])]."
+	else
+		smell_string += "[SPAN_NOTICE(odor_descriptions[1])] with a hint of [SPAN_NOTICE(odor_descriptions[2])]."
+
+	return smell_string
+
+/obj/item/reagent_containers/vessel/proc/get_combined_color_hex_blended()
+	var/total_r = 0
+	var/total_g = 0
+	var/total_b = 0
+	var/total_weight = 0
+	var/colored_weight = 0
+
+	var/liquid_phases = Z_CHEM_GET_LIQUID_PHASES(src)
+	if(liquid_phases)
+		for(var/i = 0 to liquid_phases - 1)
+			var/list/flavor = Z_CHEM_GET_LIQUID_PHASE_FLAVOR(src, i)
+			ASSERT(flavor != null)
+
+			var/list/colors = flavor[1]
+			var/list/intensities = flavor[2]
+
+			for(var/j = 1 to min(length(colors), liquid_phases))
+				var/color_id = colors[j]
+				var/weight = intensities[j] * (j == 1 ? 1.0 : 0.3)
+
+				if(color_id == Z_COLOR_TRANSPARENT)
+					total_weight += 1.0
+					continue
+
+				var/hex = __z_color_hex[color_id + 1]
+
+				total_r += hex2num(copytext(hex, 2, 4)) * weight
+				total_g += hex2num(copytext(hex, 4, 6)) * weight
+				total_b += hex2num(copytext(hex, 6, 8)) * weight
+				total_weight += weight
+				colored_weight += weight
+
+	var/solid_phases = Z_CHEM_GET_SOLID_PHASES(src)
+	if(solid_phases)
+		for(var/i = 0 to solid_phases - 1)
+			var/list/flavor = Z_CHEM_GET_SOLID_PHASE_FLAVOR(src, i)
+			ASSERT(flavor != null)
+
+			var/list/colors = flavor[1]
+			var/list/intensities = flavor[2]
+
+			for(var/j = 1 to min(length(colors), solid_phases))
+				var/color_id = colors[j]
+				var/weight = intensities[j] * (j == 1 ? 0.7 : 0.2)
+
+				if(color_id == Z_COLOR_TRANSPARENT)
+					total_weight += 1.0
+					continue
+
+				var/hex = __z_color_hex[color_id + 1]
+
+				total_r += hex2num(copytext(hex, 2, 4)) * weight
+				total_g += hex2num(copytext(hex, 4, 6)) * weight
+				total_b += hex2num(copytext(hex, 6, 8)) * weight
+				total_weight += weight
+				colored_weight += weight
+
+	if(total_weight <= 0)
+		return "#FFFFFF00"
+
+	if(colored_weight <= 0)
+		return "#FFFFFF00"
+
+	var/base_r = total_r / colored_weight
+	var/base_g = total_g / colored_weight
+	var/base_b = total_b / colored_weight
+
+	var/color_ratio = colored_weight / total_weight
+
+	var/r = clamp(round(255 + (base_r - 255) * color_ratio), 0, 255)
+	var/g = clamp(round(255 + (base_g - 255) * color_ratio), 0, 255)
+	var/b = clamp(round(255 + (base_b - 255) * color_ratio), 0, 255)
+
+	return "#[num2hex(r, 2)][num2hex(g, 2)][num2hex(b, 2)]"
 
 /obj/item/reagent_containers/vessel/attack_self(mob/user)
 	..()
 	if(lid?.toggle(user))
+		ASSERT(Z_CHEM_ENSURE_HEADSPACE(src, volume, nullspace_container) != null)
+		ASSERT(Z_CHEM_CLEAR(nullspace_container))
 		update_icon()
 		return
 
@@ -219,130 +492,12 @@
 	if(force && !(item_flags & ITEM_FLAG_NO_BLUDGEON) && user.a_intent == I_HURT)
 		return ..()
 
-	if(clink_glasses(user, M, def_zone))
-		return
-
-	if(standard_feed_mob(user, M))
-		return
-
 	return FALSE
-
-/obj/item/reagent_containers/vessel/proc/clink_glasses(mob/user, mob/target, zone)
-	if(user == target)
-		return FALSE
-	if(user.a_intent != I_HELP)
-		return FALSE
-	if(zone != BP_R_HAND && zone != BP_L_HAND)
-		return FALSE
-
-	var/obj/item/reagent_containers/vessel/target_vessel
-
-	if(ishuman(target))
-		var/mob/living/carbon/human/human_target = target
-		if(zone == BP_R_HAND && isvessel(human_target.r_hand))
-			target_vessel = human_target.r_hand
-		else if(isvessel(human_target.l_hand))
-			target_vessel = human_target.l_hand
-		else if(isvessel(human_target.r_hand))
-			target_vessel = human_target.r_hand
-
-	else if(isrobot(target))
-		var/mob/living/silicon/robot/robot_target = target
-		if(isvessel(robot_target.module_active))
-			target_vessel = robot_target.module_active
-
-	else if(isliving(target))
-		for(var/obj/item/reagent_containers/vessel/V in target)
-			target_vessel = V
-			break
-
-	else
-		return FALSE
-
-	if(!target_vessel)
-		return FALSE
-
-	user.custom_emote(message = "reaches out to clink glasses with [target].")
-	user.show_splash_text(target, "offers to clink!", force_skip_chat = TRUE)
-
-	var/choice = show_radial_menu(target, user, list("accept" = image('icons/hud/radial.dmi', "radial_accept"), "decline" = image('icons/hud/radial.dmi', "radial_decline")), require_near = TRUE)
-
-	if(!choice || choice == "decline")
-		target.show_splash_text(user, "declined!", force_skip_chat = TRUE)
-		target.custom_emote(message = "refuses to clink glasses with [user]!")
-		return TRUE
-
-	if(choice == "accept")
-		target.show_splash_text(user, "accepted!", force_skip_chat = TRUE)
-		user.custom_emote(message = "and <b>[target]</b> clink glasses! Cheers!")
-		playsound(user.loc, GET_SFX(SFX_GLASSES_CLINK), 50, 1)
-
-	if(!is_open_container() || !target_vessel.is_open_container())
-		return TRUE
-
-	if(!reagents.total_volume || !target_vessel.reagents.total_volume)
-		return TRUE
-
-	var/transfer_amount = rand(5, 25) // milliliters
-
-	reagents.remove_any(transfer_amount)
-	target_vessel.reagents.remove_any(transfer_amount)
-
-	reagents.trans_to_holder(target_vessel.reagents, 1, transfer_amount, TRUE)
-	target_vessel.reagents.trans_to_holder(reagents, 1, transfer_amount, TRUE)
-
-	return TRUE
-
-/obj/item/reagent_containers/vessel/standard_feed_mob(mob/user, mob/target, bypass_resist = FALSE)
-	if(!is_open_container())
-		to_chat(user, SPAN("notice", "You need to open \the [src] first."))
-		return TRUE
-	if(user.a_intent == I_HURT)
-		return TRUE
-	return ..()
-
-/obj/item/reagent_containers/vessel/standard_dispenser_refill(mob/user, obj/structure/reagent_dispensers/target)
-	if(!is_open_container())
-		to_chat(user, SPAN("notice", "You need to open \the [src] first."))
-		return TRUE
-	return ..()
-
 /obj/item/reagent_containers/vessel/standard_pour_into(mob/user, atom/target)
 	if(!is_open_container())
 		to_chat(user, SPAN("notice", "You need to open \the [src] first."))
 		return TRUE
 	return ..()
-
-/obj/item/reagent_containers/vessel/self_feed_message(mob/user, feed_volume = 0)
-	var/feed_desc = ""
-	switch(feed_volume)
-		if(50.01 to INFINITY)
-			feed_desc = "swallow a mouth full"
-		if(30.01 to 50)
-			feed_desc = "take a gulp"
-		if(15.01 to 30)
-			feed_desc = "drink"
-		if(5.01 to 15)
-			feed_desc = "take a sip"
-		if(0 to 5)
-			feed_desc = "take a tiny sip"
-	to_chat(user, SPAN("notice", "You [feed_desc] from \the [src]."))
-
-/obj/item/reagent_containers/vessel/other_feed_message_finish(mob/user, mob/target, feed_volume = 0)
-	user.visible_message("<span class='warning'>[user] has fed [target] \the [src]!</span>")
-	var/feed_desc = "drink"
-	switch(feed_volume)
-		if(50.01 to INFINITY)
-			feed_desc = "swallow a mouth full"
-		if(30.01 to 50)
-			feed_desc = "take a gulp"
-		if(15.01 to 30)
-			feed_desc = "drink"
-		if(5.01 to 15)
-			feed_desc = "take a sip"
-		if(0 to 5)
-			feed_desc = "take a tiny sip"
-	target.visible_message(SPAN("warning", "[user] has fed [target] from \the [src]!"), SPAN("warning", "[user] has made you [feed_desc] from \the [src]!"))
 
 /obj/item/reagent_containers/vessel/afterattack(obj/target, mob/user, proximity)
 	if(!is_open_container() || !proximity) //Is the container open & are they next to whatever they're clicking?
@@ -350,8 +505,6 @@
 	for(var/type in can_be_placed_into) //Is it something it can be placed into?
 		if(istype(target, type))
 			return
-	if(standard_dispenser_refill(user, target)) //Are they clicking a water tank/some dispenser?
-		return
 	if(standard_pour_into(user, target)) //Pouring into another beaker?
 		return
 	return ..()
@@ -361,9 +514,6 @@
 	..()
 	if(brittle && TT.thrower && TT.thrower.a_intent != I_HELP)
 		if(TT.speed < throw_speed || smash_check(TT.dist_travelled)) // not as reliable as smashing directly
-			if(reagents)
-				hit_atom.visible_message(SPAN("notice", "The contents of \the [src] splash all over [hit_atom]!"))
-				reagents.splash(hit_atom, reagents.total_volume)
 			smash(loc, hit_atom)
 
 /obj/item/reagent_containers/vessel/proc/smash_check(distance)
@@ -427,75 +577,11 @@
 	else
 		user.visible_message(SPAN("danger", "\The [user] smashes [src] into [target]!"))
 
-	//The reagents in the vessel splash all over the target, thanks for the idea Nodrak
-	if(reagents)
-		user.visible_message(SPAN("notice", "The contents of \the [src] splash all over [target]!"))
-		reagents.splash(target, reagents.total_volume)
-
 	//Finally, smash the bottle. This kills (qdel) the vessel.
 	var/obj/item/broken_bottle/B = smash(target.loc, target)
 	user.pick_or_drop(B, target.loc)
 
 	return blocked
-
-
-/obj/item/reagent_containers/vessel/verb/drink_whole()
-	set category = "Object"
-	set name = "Drink Down"
-
-	var/mob/living/carbon/C = usr
-	if(!iscarbon(C))
-		return
-
-	if(!istype(C.get_active_hand(), src))
-		to_chat(C, SPAN("warning", "You need to hold \the [src] in hands!"))
-		return
-
-	if(is_open_container())
-		if(!C.check_has_mouth())
-			to_chat(C, SPAN("warning", "How do you intend to drink \the [src]? You don't have a mouth!"))
-			return
-		var/obj/item/blocked = C.check_mouth_coverage()
-		if(blocked)
-			to_chat(C, SPAN("warning", "\The [blocked] is in the way!"))
-			return
-
-		if(reagents.total_volume > MOUTH_CAPACITY)
-			C.visible_message(\
-				SPAN("notice", "[C] prepares to drink down [src]."),\
-				SPAN("notice", "You prepare to drink down [src]."))
-			playsound(C, 'sound/items/drinking.ogg', reagents.total_volume, 1)
-
-		if(!do_after(C, max(1 SECOND, reagents.total_volume * 0.05)))
-			if(!Adjacent(C))
-				return
-			standard_splash_mob(src, src)
-			C.visible_message(\
-				SPAN("danger", "[C] splashes \the [src]'s contents all over themself while trying drink it down."),\
-				SPAN("danger", "You splash \the [src]'s contents on yourself!"))
-			return
-
-		else
-			if(!Adjacent(C))
-				return
-			C.visible_message(\
-				SPAN("notice", "[C] drinks down the whole [src]!"),\
-				SPAN("notice", "You drink down the whole [src]!"))
-			playsound(C, 'sound/items/drinking_after.ogg', reagents.total_volume, 1)
-			reagents.trans_to_mob(C, reagents.total_volume, CHEM_INGEST)
-	else
-		to_chat(C, SPAN("notice", "You need to open \the [src] first!"))
-
-/obj/item/reagent_containers/vessel/bullet_act(obj/item/projectile/Proj)
-	if(Proj.get_structure_damage())
-		if(brittle)
-			visible_message(SPAN("warning", "\The [Proj] shatters \the [src]!"))
-			smash(loc)
-		else
-			visible_message(SPAN("warning", "\The [Proj] hits \the [src]!"))
-			throw_at(get_step(src, pick(GLOB.alldirs)), rand(2, 3), 1)
-		return
-	return PROJECTILE_CONTINUE
 
 /obj/item/reagent_containers/vessel/equipped(mob/user)
 	. = ..()

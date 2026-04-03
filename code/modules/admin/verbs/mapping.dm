@@ -37,92 +37,7 @@ var/intercom_range_display_status = 0
 /obj/effect/debugging/marker/Move()
 	return 0
 
-/client/proc/do_not_use_these()
-	set category = "Mapping"
-	set name = "-None of these are for ingame use!!"
-
-/client/proc/camera_view()
-	set category = "Mapping"
-	set name = "Camera Range Display"
-
-	if(camera_range_display_status)
-		camera_range_display_status = 0
-	else
-		camera_range_display_status = 1
-
-
-
-	for(var/obj/effect/debugging/camera_range/C in world)
-		qdel(C)
-
-	if(camera_range_display_status)
-		for(var/obj/machinery/camera/C in cameranet.cameras)
-			new /obj/effect/debugging/camera_range(C.loc)
-	feedback_add_details("admin_verb","mCRD") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-
-
-/client/proc/sec_camera_report()
-	set category = "Mapping"
-	set name = "Camera Report"
-
-	var/list/obj/machinery/camera/CL = list()
-
-	for(var/obj/machinery/camera/C in cameranet.cameras)
-		CL += C
-
-	var/output = {"<meta charset=\"utf-8\"><B>CAMERA ANNOMALITIES REPORT</B><HR>
-<B>The following annomalities have been detected. The ones in red need immediate attention: Some of those in black may be intentional.</B><BR><ul>"}
-
-	for(var/obj/machinery/camera/C1 in CL)
-		for(var/obj/machinery/camera/C2 in CL)
-			if(C1 != C2)
-				if(C1.c_tag == C2.c_tag)
-					output += "<li><font color='red'>c_tag match for sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) and \[[C2.x], [C2.y], [C2.z]\] ([C2.loc.loc]) - c_tag is [C1.c_tag]</font></li>"
-				if(C1.loc == C2.loc && C1.dir == C2.dir && C1.pixel_x == C2.pixel_x && C1.pixel_y == C2.pixel_y)
-					output += "<li><font color='red'>FULLY overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]</font></li>"
-				if(C1.loc == C2.loc)
-					output += "<li>overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]</font></li>"
-		var/turf/T = get_step(C1,turn(C1.dir,180))
-		if(!T || !isturf(T) || !T.density )
-			if(!(locate(/obj/structure/grille,T)))
-				var/window_check = 0
-				for(var/obj/structure/window/W in T)
-					if (W.dir == turn(C1.dir,180) || (W.dir in list(5,6,9,10)) )
-						window_check = 1
-						break
-				if(!window_check)
-					output += "<li><font color='red'>Camera not connected to wall at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Network: [C1.network]</color></li>"
-
-	output += "</ul>"
-	show_browser(usr, output, "window=airreport;size=1000x500")
-	feedback_add_details("admin_verb","mCRP") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/intercom_view()
-	set category = "Mapping"
-	set name = "Intercom Range Display"
-
-	if(intercom_range_display_status)
-		intercom_range_display_status = 0
-	else
-		intercom_range_display_status = 1
-
-	for(var/obj/effect/debugging/marker/M in world)
-		qdel(M)
-
-	if(intercom_range_display_status)
-		for(var/obj/item/device/radio/intercom/I in world)
-			for(var/turf/T in orange(7,I))
-				var/obj/effect/debugging/marker/F = new /obj/effect/debugging/marker(T)
-				if (!(F in view(7,I.loc)))
-					qdel(F)
-	feedback_add_details("admin_verb","mIRD") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 var/list/debug_verbs = list (
-		/client/proc/do_not_use_these
-		,/client/proc/camera_view
-		,/client/proc/sec_camera_report
-		,/client/proc/intercom_view
 		,/client/proc/Cell
 		,/client/proc/atmosscan
 		,/client/proc/powerdebug
@@ -133,18 +48,13 @@ var/list/debug_verbs = list (
 		,/client/proc/cmd_admin_grantfullaccess
 		,/client/proc/cmd_admin_areatest
 		,/client/proc/cmd_admin_rejuvenate
-		,/datum/admins/proc/show_traitor_panel
-		,/client/proc/print_jobban_old
-		,/client/proc/print_jobban_old_filter
 		,/client/proc/Zone_Info
 		,/client/proc/Test_ZAS_Connection
 		,/client/proc/rebootAirMaster
 		,/client/proc/hide_debug_verbs
 		,/client/proc/testZAScolors
 		,/client/proc/testZAScolors_remove
-		,/datum/admins/proc/setup_supermatter
 		,/client/proc/atmos_toggle_debug
-		,/client/proc/spawn_tanktransferbomb
 	)
 
 
@@ -156,8 +66,6 @@ var/list/debug_verbs = list (
 
 	verbs += debug_verbs
 
-	feedback_add_details("admin_verb","mDV") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 /client/proc/hide_debug_verbs()
 	set category = "Debug"
 	set name = "Hide Debug verbs"
@@ -165,9 +73,6 @@ var/list/debug_verbs = list (
 	if(!check_rights(R_DEBUG)) return
 
 	verbs -= debug_verbs
-
-	feedback_add_details("admin_verb","hDV") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 
 /client/var/list/testZAScolors_turfs = list()
 /client/var/list/testZAScolors_zones = list()
@@ -294,7 +199,6 @@ var/list/debug_verbs = list (
 		log_debug(line) */
 
 	log_debug("There are [count] objects of type [type_path] on z-level [num_level]")
-	feedback_add_details("admin_verb","mOBJZ") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/count_objects_all()
 	set category = "Mapping"
@@ -321,7 +225,6 @@ var/list/debug_verbs = list (
 		log_debug(line) */
 
 	log_debug("There are [count] objects of type [type_path] in the game world")
-	feedback_add_details("admin_verb","mOBJ") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /proc/get_zas_image(turf/T, icon_state)
 	return image_repository.atom_image(T, 'icons/misc/debug_group.dmi', icon_state, plane = DEFAULT_PLANE, layer = ABOVE_TILE_LAYER)

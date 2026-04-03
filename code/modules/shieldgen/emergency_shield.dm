@@ -58,13 +58,6 @@
 
 	..()
 
-/obj/machinery/shield/bullet_act(obj/item/projectile/Proj)
-	health -= Proj.get_structure_damage()
-	..()
-	check_failure()
-	set_opacity(1)
-	spawn(20) if(!QDELETED(src)) set_opacity(0)
-
 /obj/machinery/shield/ex_act(severity)
 	switch(severity)
 		if(1.0)
@@ -77,15 +70,6 @@
 			if (prob(25))
 				qdel(src)
 	return
-
-/obj/machinery/shield/emp_act(severity)
-	switch(severity)
-		if(1)
-			qdel(src)
-		if(2)
-			if(prob(50))
-				qdel(src)
-
 
 /obj/machinery/shield/hitby(atom/movable/AM, datum/thrownthing/TT) // Okay this stuff is belly-deep in legacy stuff, let's rework it later
 	..()
@@ -128,8 +112,6 @@
 	var/is_open = 0 //Whether or not the wires are exposed
 	var/locked = 0
 	var/check_delay = 60	//periodically recheck if we need to rebuild a shield
-	use_power = POWER_USE_OFF
-	idle_power_usage = 0 WATTS
 
 /obj/machinery/shieldgen/Destroy()
 	collapse_shields()
@@ -147,8 +129,6 @@
 	var/new_idle_power_usage = 0
 	for(var/obj/machinery/shield/shield_tile in deployed_shields)
 		new_idle_power_usage += shield_tile.shield_idle_power
-	change_power_consumption(new_idle_power_usage, POWER_USE_IDLE)
-	update_use_power(POWER_USE_IDLE)
 
 /obj/machinery/shieldgen/proc/shields_down()
 	if(!active) return 0 //If it's already off, how did this get called?
@@ -158,7 +138,6 @@
 
 	collapse_shields()
 
-	update_use_power(POWER_USE_OFF)
 
 /obj/machinery/shieldgen/proc/create_shields()
 	for(var/turf/target_tile in range(2, src))
@@ -166,19 +145,10 @@
 			if (malfunction && prob(33) || !malfunction)
 				var/obj/machinery/shield/S = new /obj/machinery/shield(target_tile)
 				deployed_shields += S
-				use_power_oneoff(S.shield_generate_power)
 
 /obj/machinery/shieldgen/proc/collapse_shields()
 	for(var/obj/machinery/shield/shield_tile in deployed_shields)
 		qdel(shield_tile)
-
-/obj/machinery/shieldgen/power_change()
-	. = ..()
-	if(!. || !active) return
-	if (stat & NOPOWER)
-		collapse_shields()
-	else
-		create_shields()
 
 /obj/machinery/shieldgen/Process()
 	if (!active || (stat & NOPOWER))
@@ -194,9 +164,6 @@
 			var/new_power_usage = 0
 			for(var/obj/machinery/shield/shield_tile in deployed_shields)
 				new_power_usage += shield_tile.shield_idle_power
-
-			if (new_power_usage != idle_power_usage)
-				change_power_consumption(new_power_usage, POWER_USE_IDLE)
 
 			check_delay = 60
 		else
@@ -227,18 +194,6 @@
 			src.checkhp()
 	return
 
-/obj/machinery/shieldgen/emp_act(severity)
-	switch(severity)
-		if(1)
-			src.health /= 2 //cut health in half
-			malfunction = 1
-			locked = pick(0,1)
-		if(2)
-			if(prob(50))
-				src.health *= 0.3 //chop off a third of the health
-				malfunction = 1
-	checkhp()
-
 /obj/machinery/shieldgen/attack_hand(mob/user as mob)
 	if(locked)
 		to_chat(user, "The machine is locked, you are unable to use it.")
@@ -261,12 +216,6 @@
 		else
 			to_chat(user, "The device must first be secured to the floor.")
 	return
-
-/obj/machinery/shieldgen/emag_act(remaining_charges, mob/user)
-	if(!malfunction)
-		malfunction = 1
-		update_icon()
-		return 1
 
 /obj/machinery/shieldgen/attackby(obj/item/W as obj, mob/user as mob)
 	if(isScrewdriver(W))
@@ -307,7 +256,7 @@
 			anchored = 1
 
 
-	else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
+	else if(istype(W, /obj/item/card/id))
 		if(src.allowed(user))
 			src.locked = !src.locked
 			to_chat(user, "The controls are now [src.locked ? "locked." : "unlocked."]")

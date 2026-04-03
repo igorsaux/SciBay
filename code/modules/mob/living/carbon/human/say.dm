@@ -18,10 +18,8 @@
 		whispering = TRUE
 
 	message = sanitize(message)
-	var/obj/item/organ/internal/voicebox/vox = locate() in internal_organs
-	var/snowflake_speak = (language?.language_flags & (NONVERBAL|SIGNLANG)) || (vox?.is_usable() && (language in vox.assists_languages))
 
-	if(stat == CONSCIOUS && !full_prosthetic && need_breathe() && failed_last_breath && !snowflake_speak)
+	if(stat == CONSCIOUS && need_breathe() && failed_last_breath)
 		var/obj/item/organ/internal/lungs/L = internal_organs_by_name[species.breathing_organ]
 
 		var/first_char = copytext_char(message, 1, 2)
@@ -86,29 +84,12 @@
 		remove_speech_bubble()
 
 /mob/living/carbon/human/say_understands(mob/other,datum/language/language = null)
-
-	if(has_brain_worms()) //Brain worms translate everything. Even mice and alien speak.
-		return TRUE
-
 	if(species.can_understand(other))
 		return TRUE
 
-	var/obj/item/organ/external/head/head = external_organs_by_name[BP_HEAD]
-	if(istype(head))
-		var/obj/item/organ_module/active/translator/translator = locate() in head
-		if(language && translator?.toggled && (language.name in translator.languages))
-			return TRUE
-
 	//These only pertain to common. Languages are handled by mob/say_understands()
 	if(!language)
-		if(istype(other, /mob/living/carbon/larva/diona))
-			if(other.languages.len >= 2) //They've sucked down some blood and can speak common now.
-				return TRUE
-		if(istype(other, /mob/living/silicon))
-			return TRUE
 		if(istype(other, /mob/living/carbon/brain))
-			return TRUE
-		if(istype(other, /mob/living/carbon/metroid))
 			return TRUE
 
 	return ..()
@@ -116,22 +97,12 @@
 /mob/living/carbon/human/GetVoice()
 
 	var/voice_sub
-	if(istype(back,/obj/item/rig))
-		var/obj/item/rig/rig = back
-		if(rig.speech?.voice_holder?.active && rig.speech.voice_holder.voice)
-			voice_sub = rig.speech.voice_holder.voice
 	if(!voice_sub)
 		for(var/obj/item/gear in list(wear_mask,wear_suit,head))
 			if(!gear)
 				continue
-			var/obj/item/voice_changer/changer = locate() in gear
-			if(changer?.active)
-				voice_sub = changer.voice
-				break
 	if(voice_sub)
 		return voice_sub
-	if(mind?.changeling?.mimicing)
-		return mind.changeling.mimicing
 	if(GetSpecialVoice())
 		return GetSpecialVoice()
 	return real_name
@@ -201,57 +172,6 @@
 		. = ..(message_data)
 
 /mob/living/carbon/human/handle_message_mode(message_mode, message, verb, language, used_radios, alt_name)
-	switch(message_mode)
-		if("intercom")
-			if(!src.restrained())
-				for(var/obj/item/device/radio/intercom/I in view(1))
-					I.talk_into(src, message, null, verb, language)
-					I.add_fingerprint(src)
-					used_radios += I
-		if("headset")
-			if(l_ear && istype(l_ear,/obj/item/device/radio))
-				var/obj/item/device/radio/R = l_ear
-				R.talk_into(src,message,null,verb,language)
-				used_radios += l_ear
-			else if(r_ear && istype(r_ear,/obj/item/device/radio))
-				var/obj/item/device/radio/R = r_ear
-				R.talk_into(src,message,null,verb,language)
-				used_radios += r_ear
-		if("right ear")
-			var/obj/item/device/radio/R
-			var/has_radio = FALSE
-			if(r_ear && istype(r_ear,/obj/item/device/radio))
-				R = r_ear
-				has_radio = TRUE
-			if(r_hand && istype(r_hand, /obj/item/device/radio))
-				R = r_hand
-				has_radio = TRUE
-			if(has_radio)
-				R.talk_into(src,message,null,verb,language)
-				used_radios += R
-		if("left ear")
-			var/obj/item/device/radio/R
-			var/has_radio = FALSE
-			if(l_ear && istype(l_ear,/obj/item/device/radio))
-				R = l_ear
-				has_radio = TRUE
-			if(l_hand && istype(l_hand,/obj/item/device/radio))
-				R = l_hand
-				has_radio = TRUE
-			if(has_radio)
-				R.talk_into(src,message,null,verb,language)
-				used_radios += R
-		if("whisper")
-			whisper_say(message, language, alt_name)
-			return TRUE
-		else
-			if(message_mode)
-				if(l_ear && istype(l_ear,/obj/item/device/radio))
-					l_ear.talk_into(src,message, message_mode, verb, language)
-					used_radios += l_ear
-				else if(r_ear && istype(r_ear,/obj/item/device/radio))
-					r_ear.talk_into(src,message, message_mode, verb, language)
-					used_radios += r_ear
 	return FALSE
 
 /mob/living/carbon/human/handle_speech_sound()

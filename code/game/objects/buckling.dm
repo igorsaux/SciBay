@@ -73,17 +73,9 @@
 		animate(M, pixel_x = M.default_pixel_x, pixel_y = M.default_pixel_y, time = 1, loop = 1, easing = LINEAR_EASING, flags = ANIMATION_PARALLEL)
 
 /obj/proc/user_buckle_mob(mob/living/M, mob/user)
-	if(isanimal(user) || istype(M, /mob/living/simple_animal/hostile))
-		return 0
-	if(!user.Adjacent(M) || user.restrained() || user.incapacitated(INCAPACITATION_ALL) || user.stat || istype(user, /mob/living/silicon/pai))
+	if(!user.Adjacent(M) || user.restrained() || user.incapacitated(INCAPACITATION_ALL) || user.stat)
 		return 0
 	if(M == buckled_mob)
-		return 0
-	if(istype(M, /mob/living/carbon/metroid))
-		to_chat(user, SPAN("warning", "\The [M] is too squishy to buckle in."))
-		return 0
-	if(issilicon(M) && !is_drone(M))
-		to_chat(user, SPAN("warning", "\The [M] is too heavy to buckle in."))
 		return 0
 
 	add_fingerprint(user)

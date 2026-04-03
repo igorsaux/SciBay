@@ -127,7 +127,7 @@
 	if(usr.incapacitated())
 		return 0
 
-	if(!can_touch(usr) || ismouse(usr))
+	if(!can_touch(usr))
 		return
 
 	if(anchored)

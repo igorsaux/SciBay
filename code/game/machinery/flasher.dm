@@ -12,7 +12,6 @@
 	var/strength = 10 //How weakened targets are when flashed.
 	var/base_state = "mflash"
 	anchored = 1
-	idle_power_usage = 2 WATTS
 	var/_wifi_id
 	var/datum/wifi/receiver/button/flasher/wifi_receiver
 
@@ -56,24 +55,13 @@
 	else
 		..()
 
-//Let the AI trigger them directly.
-/obj/machinery/flasher/attack_ai()
-	if (src.anchored)
-		return src.flash()
-	else
-		return
-
 /obj/machinery/flasher/proc/flash()
-	if (!(powered()))
-		return
-
 	if ((src.disable) || (src.last_flash && world.time < src.last_flash + 150))
 		return
 
 	playsound(src.loc, 'sound/weapons/flash.ogg', 100, 1)
 	flick("[base_state]_flash", src)
 	src.last_flash = world.time
-	use_power_oneoff(1500)
 
 	for (var/mob/living/O in viewers(src, null))
 		if (get_dist(src, O) > src.range)
@@ -92,25 +80,11 @@
 				H.flash_eyes()
 				E.damage += rand(1, 5)
 		if(!O.blinded)
-			if (istype(O,/mob/living/silicon/ai))
-				return
-			if (istype(O,/mob/living/silicon/robot))
-				var/mob/living/silicon/robot/R = O
-				if (R.sensor_mode == FLASH_PROTECTION_VISION)
-					return
 			O.flash_eyes()
 			O.eye_blurry += flash_time
 			O.confused += (flash_time + 2)
 			O.Stun(flash_time / 2)
 			O.Weaken(3)
-
-/obj/machinery/flasher/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-	if(prob(75/severity))
-		flash()
-	..(severity)
 
 /obj/machinery/flasher/portable/HasProximity(atom/movable/AM)
 	if (disable || (last_flash && world.time < last_flash + 150))
@@ -144,8 +118,6 @@
 
 	if(..())
 		return
-
-	use_power_oneoff(5)
 
 	active = 1
 	icon_state = "launcheract"

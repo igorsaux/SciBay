@@ -1,135 +1,69 @@
-///
-/// Presets for /obj/item/reagent_containers/vessel/bottle/chemical
-///
+// Medium
 
-/obj/item/reagent_containers/vessel/bottle/chemical/inaprovaline
-	name = "inaprovaline bottle"
-	desc = "A small bottle. Contains inaprovaline - used to stabilize patients."
-	start_label = "Inaprovaline"
-	startswith = list(/datum/reagent/inaprovaline)
+/obj/item/reagent_containers/vessel/bottle/chemical/dichloromethane
+	start_label = "dichloromethane (99.9%)"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_DICHLOROMETHANE = 0.4995 LITERS,
+		Z_MOL_OXIDANE = 0.0005 LITERS,
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/toxin
-	name = "toxin bottle"
-	desc = "A small bottle of toxins. Do not drink, it is poisonous."
-	start_label = "toxin"
-	startswith = list(/datum/reagent/toxin)
+/obj/item/reagent_containers/vessel/bottle/chemical/calcium_carbonate
+	start_label = "calcium carbonate"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_CALCIUM_CARBONATE = list(0.369 LITERS, 1e-5)
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/small/cyanide
-	name = "cyanide bottle"
-	desc = "A small bottle of cyanide. Bitter almonds?"
-	start_label = "Cyanide"
-	startswith = list(/datum/reagent/toxin/cyanide)
+/obj/item/reagent_containers/vessel/bottle/chemical/graphite
+	start_label = "graphite"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_GRAPHITE = list(0.4425 LITERS, 2.5e-5)
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/stoxin
-	name = "soporific bottle"
-	desc = "A small bottle of soporific. Just the fumes make you sleepy."
-	start_label = "Soporific"
-	startswith = list(/datum/reagent/soporific)
+/obj/item/reagent_containers/vessel/bottle/chemical/sodium_chloride
+	start_label = "sodium chloride"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_SODIUM_CHLORIDE = list(0.463 LITERS, 5e-4)
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/small/chloralhydrate
-	name = "Chloral Hydrate Bottle"
-	desc = "A small bottle of Choral Hydrate. Mickey's Favorite!"
-	start_label = "Chloral Hydrate"
-	startswith = list(/datum/reagent/chloralhydrate)
+/obj/item/reagent_containers/vessel/bottle/chemical/disodium_sulfate
+	start_label = "disodium sulfate"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_DISODIUM_SULFATE = list(0.3731 LITERS, 1.5e-4)
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/antitoxin
-	name = "dylovene bottle"
-	desc = "A small bottle of dylovene. Counters poisons, and repairs damage. A wonder drug."
-	start_label = "Dylovene"
-	startswith = list(/datum/reagent/dylovene)
+/obj/item/reagent_containers/vessel/bottle/chemical/barium_sulfate
+	start_label = "barium sulfate"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_BARIUM_SULFATE = list(0.22 LITERS, 1e-5)
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/mutagen
-	name = "unstable mutagen bottle"
-	desc = "A small bottle of unstable mutagen. Randomly changes the DNA structure of whoever comes in contact."
-	start_label = "Unstable Mutagen"
-	startswith = list(/datum/reagent/mutagen)
+// Big
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/nanites
-	name = "nanites bottle"
-	desc = "A small bottle of nanites. Causes inpredictable changes in living lifeforms."
-	start_label = "Nanites"
-	startswith = list(/datum/reagent/nanites)
+/obj/item/reagent_containers/vessel/bottle/chemical/big/ethanol
+	start_label = "ethanol 95%"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_ETHANOL = 0.95 LITERS,
+		Z_MOL_OXIDANE = 0.05 LITERS
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/ammonia
-	name = "ammonia bottle"
-	desc = "Smells funny."
-	start_label = "Ammonia"
-	startswith = list(/datum/reagent/ammonia)
+/obj/item/reagent_containers/vessel/bottle/chemical/big/acetic_acid
+	start_label = "acetic acid 70%"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_ACETIC_ACID = 0.6999 LITERS,
+		Z_MOL_OXIDANE = 0.2999 LITERS
+	)
 
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/diethylamine
-	name = "diethylamine bottle"
-	start_label = "Diethylamine"
-	startswith = list(/datum/reagent/diethylamine)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/pacid
-	name = "Polytrinic Acid Bottle"
-	desc = "A glass bottle. Contains a small amount of Polytrinic Acid."
-	start_label = "Polytrinic Acid"
-	startswith = list(/datum/reagent/acid/polyacid)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/adminordrazine
-	name = "Adminordrazine Bottle"
-	desc = "A small bottle. Contains the liquid essence of the gods."
-	start_label = "Adminordrazine"
-	startswith = list(/datum/reagent/adminordrazine)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/capsaicin
-	name = "Capsaicin Bottle"
-	desc = "A small bottle. Contains hot sauce."
-	start_label = "Capsaicin"
-	startswith = list(/datum/reagent/capsaicin)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/frostoil
-	name = "Frost Oil Bottle"
-	desc = "A small bottle. Contains cold sauce."
-	start_label = "Frost Oil"
-	startswith = list(/datum/reagent/frostoil)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/spaceacillin
-	name = "spaceacillin bottle"
-	desc = "A small bottle of spaceacillin. It has antiviral and antibiotic effects."
-	start_label = "Spaceacillin"
-	startswith = list(/datum/reagent/spaceacillin)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/metroidtoxin
-	name = "Mysterious Bottle"
-	desc = "An old ketchup bottle filled with some sort of gelatinous substance. Must be szechuan sauce! Or not."
-	icon = 'icons/obj/food.dmi'
-	icon_state = "ketchupold"
-	startswith = list(/datum/reagent/metroidtoxin)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/opium
-	name = "opium bottle"
-	desc = "A small bottle of opium. An effective, but addictive painkiller."
-	start_label = "Opium"
-	startswith = list(/datum/reagent/painkiller/opium)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/tarine
-	name = "tarine bottle"
-	desc = "A small bottle of tarine. An extremely effective painkiller, yet is terribly addictive and notorious for its life-threatening side-effects."
-	start_label = "Tarine"
-	startswith = list(/datum/reagent/painkiller/opium/tarine)
-
-//////////
-/obj/item/reagent_containers/vessel/bottle/chemical/painkiller
-	name = "metazine bottle"
-	desc = "A small bottle of metazine. A very potent painkiller. Although it's not an opiate, users may quickly develop a tolerance to the drug."
-	start_label = "Metazine"
-	startswith = list(/datum/reagent/painkiller)
+/obj/item/reagent_containers/vessel/bottle/chemical/big/water
+	start_label = "distilled water"
+	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_OXIDANE = 1.0 LITERS
+	)

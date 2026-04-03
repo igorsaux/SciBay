@@ -26,7 +26,6 @@ other types of metals and chemistry for reagents).
 	var/list/req_tech = list()		//IDs of that techs the object originated from and the minimum level requirements.
 	var/build_type = null			//Flag as to what kind machine the design is built in. See defines.
 	var/list/materials = list()		//List of materials. Format: "id" = amount.
-	var/list/chemicals = list()		//List of chemicals.
 	var/build_path = null			//The path of the object that gets created.
 	var/time = 10					//How many ticks it requires to build
 	var/category = null 			//Primarily used for Mech Fabricators, but can be used for anything
@@ -87,33 +86,6 @@ other types of metals and chemistry for reagents).
 	category_items = list("Misc")
 
 
-/datum/design/item/integrated_printer
-	name = "Integrated Circuit Printer"
-	desc = "This machine provides all the necessary things for circuitry."
-	id = "icprinter"
-	req_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 1)
-	materials = list(MATERIAL_STEEL = 10000, MATERIAL_GLASS = 5000)
-	build_path = /obj/item/device/integrated_circuit_printer
-	sort_string = "WCLAC"
-
-/datum/design/item/integrated_printer_upgrade_advanced
-	name = "Integrated Circuit Printer Upgrade Disk"
-	desc = "This disk allows for integrated circuit printers to print advanced circuitry designs."
-	id = "icupgradv"
-	req_tech = list(TECH_MATERIAL = 3, TECH_ENGINEERING = 3)
-	materials = list(MATERIAL_STEEL = 10000, MATERIAL_GLASS = 10000)
-	build_path = /obj/item/disk/integrated_circuit/upgrade/advanced
-	sort_string = "WCLAD"
-
-/datum/design/item/integrated_printer_upgrade_clone
-	name = "Integrated Circuit Printer Clone Disk"
-	desc = "This disk allows for integrated circuit printers to copy and clone designs instantaneously."
-	id = "icupclo"
-	req_tech = list(TECH_DATA = 3, TECH_MATERIAL = 5)
-	materials = list(MATERIAL_STEEL = 10000, MATERIAL_GLASS = 10000)
-	build_path = /obj/item/disk/integrated_circuit/upgrade/clone
-	sort_string = "WCLAE"
-
 /*
 CIRCUITS BELOW
 */
@@ -122,7 +94,6 @@ CIRCUITS BELOW
 	build_type = IMPRINTER
 	req_tech = list(TECH_DATA = 2)
 	materials = list(MATERIAL_GLASS = 2000)
-	chemicals = list(/datum/reagent/acid = 20)
 	time = 5
 	category_items = list("Machine Boards")
 

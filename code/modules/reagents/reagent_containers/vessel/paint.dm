@@ -19,16 +19,8 @@
 /obj/item/reagent_containers/vessel/paint/afterattack(turf/simulated/target, mob/user, proximity)
 	if(!proximity)
 		return
-	if(istype(target) && reagents.total_volume > 50)
-		user.visible_message(SPAN("waarning", "\The [target] has been splashed with something by [user]!"))
-		reagents.trans_to_turf(target, min(reagents.total_volume, 100))
-	else
-		return ..()
 
-/obj/item/reagent_containers/vessel/paint/Initialize()
-	. = ..()
-	if(paint_hex && length(paint_hex) > 0)
-		reagents.add_reagent(/datum/reagent/paint, volume, paint_hex)
+	return ..()
 
 /obj/item/reagent_containers/vessel/paint/red
 	name = "red paint bucket"

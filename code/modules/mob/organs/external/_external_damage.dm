@@ -175,12 +175,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 	if(used_weapon)
 		add_autopsy_data("[used_weapon]", brute + burn)
 
-	if(owner) // No need to report damage inflicted on severed limbs
-		if(brute)
-			SSstoryteller.report_wound(owner, BRUTE, brute)
-		if(burn)
-			SSstoryteller.report_wound(owner, BURN, burn)
-
 	cache_last_damage()
 
 	if(brute)
@@ -243,68 +237,60 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 				damage_amt /= 2
 				victim.take_internal_damage(damage_amt, is_traumatic = TRUE)
 
-	if(!BP_IS_ROBOTIC(src))
-		// Painful stuff
-		if(blunt)
-			adjust_pain(brute * (1 + (blunt_last / max_damage)))
-		else if(sharp || edge)
-			adjust_pain(brute * 0.5) // Not as painful as blunt right away, hurts a lot later.
+	// Painful stuff
+	if(blunt)
+		adjust_pain(brute * (1 + (blunt_last / max_damage)))
+	else if(sharp || edge)
+		adjust_pain(brute * 0.5) // Not as painful as blunt right away, hurts a lot later.
 
-		if(laser)
-			adjust_pain(burn * 0.5)
-		else if(burn)
-			adjust_pain(burn * 0.25) // First, you don't realize what happened, next, it hurts like a bitch.
+	if(laser)
+		adjust_pain(burn * 0.5)
+	else if(burn)
+		adjust_pain(burn * 0.25) // First, you don't realize what happened, next, it hurts like a bitch.
 
-		// Bones stuff
-		if(brute >= (blunt ? 5.0 : 10.0) && !clean)
-			if(status & ORGAN_BROKEN)
-				jostle_bone(brute)
-				if(owner && prob(40) && can_feel_pain())
-					owner.emote("scream") // Getting hit on a broken hand hurts
-			else
-				var/should_fracture = FALSE
-				if(blunt_last >= max_damage && (blunt || prob(brute_dam + brute)))
-					should_fracture = TRUE
-				else if(blunt_dam >= min_broken_damage && prob(brute_dam + brute * (1 + blunt))) // blunt damage is gud at fracturing
-					should_fracture = TRUE
+	// Bones stuff
+	if(brute >= (blunt ? 5.0 : 10.0) && !clean)
+		if(status & ORGAN_BROKEN)
+			jostle_bone(brute)
+			if(owner && prob(40) && can_feel_pain())
+				owner.emote("scream") // Getting hit on a broken hand hurts
+		else
+			var/should_fracture = FALSE
+			if(blunt_last >= max_damage && (blunt || prob(brute_dam + brute)))
+				should_fracture = TRUE
+			else if(blunt_dam >= min_broken_damage && prob(brute_dam + brute * (1 + blunt))) // blunt damage is gud at fracturing
+				should_fracture = TRUE
 
-				if(should_fracture)
-					fracture()
+			if(should_fracture)
+				fracture()
 
-		// Bloody stuff
-		if(brute)
-			if(edge)
-				bandaged -= brute
-				scabbed -= brute
-			else
-				bandaged -= brute * 0.5
-				scabbed -= brute * 0.5
+	// Bloody stuff
+	if(brute)
+		if(edge)
+			bandaged -= brute
+			scabbed -= brute
+		else
+			bandaged -= brute * 0.5
+			scabbed -= brute * 0.5
 
-		if(burn)
-			bandaged -= burn
-			scabbed += burn // Cauterization
+	if(burn)
+		bandaged -= burn
+		scabbed += burn // Cauterization
 
-			// Burn damage can cause fluid loss due to blistering and cook-off.
-			// Smaller limbs and existing bloodloss reduce the amount of fluid loss.
-			if(owner && (burn_dam >= min_broken_damage) && !clean)
-				var/fluid_loss = ceil((damage/(owner.maxHealth - config.health.health_threshold_dead)) * owner.species.blood_volume * (max_damage / 100) * (min(10, owner.get_blood_volume()) / 100))
-				owner.remove_blood(fluid_loss  * (laser ? FLUIDLOSS_CONC_BURN : FLUIDLOSS_WIDE_BURN))
+	// Arteries+Tendons stuff
+	if(brute > 15 && max(cut_dam, pierce_dam) > min_broken_damage && !clean)
+		var/internal_damage
+		if(prob(ceil(damage/2)) && sever_artery())
+			internal_damage = TRUE
+		if(prob(ceil(damage/4)) && sever_tendon())
+			internal_damage = TRUE
+		if(internal_damage)
+			owner.custom_pain("You feel something rip in your [name]!", 50, affecting = src)
 
-		// Arteries+Tendons stuff
-		if(brute > 15 && max(cut_dam, pierce_dam) > min_broken_damage && !clean)
-			var/internal_damage
-			if(prob(ceil(damage/2)) && sever_artery())
-				internal_damage = TRUE
-			if(prob(ceil(damage/4)) && sever_tendon())
-				internal_damage = TRUE
-			if(internal_damage)
-				owner.custom_pain("You feel something rip in your [name]!", 50, affecting = src)
+	salved = FALSE
 
-		salved = FALSE
-
-		if(clamped && !clean)
-			clamped = FALSE
-			owner?.update_surgery()
+	if(clamped && !clean)
+		clamped = FALSE
 
 	// Sync the organ's damage with its wounds
 	update_damages()
@@ -372,9 +358,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 #undef DISMEMBER_BRUTE_TRESHOLD
 
 /obj/item/organ/external/heal_damage(brute, burn, internal = 0, robo_repair = 0, update_damage_icon = TRUE)
-	if(BP_IS_ROBOTIC(src) && !robo_repair)
-		return FALSE
-
 	if(burn_dam && burn)
 		heal_burn_damage(burn, robo_repair, FALSE, FALSE)
 
@@ -407,9 +390,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 	if(!amount)
 		return
 
-	if(BP_IS_ROBOTIC(src) && !robo_repair)
-		return
-
 	. = min(amount, burn_dam)
 	if(!.)
 		return amount
@@ -436,9 +416,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 	if(!amount)
 		return
 
-	if(BP_IS_ROBOTIC(src) && !robo_repair)
-		return
-
 	. = min(amount, blunt_dam)
 	if(!.)
 		return amount
@@ -463,9 +440,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 
 /obj/item/organ/external/proc/heal_sharp_damage(amount, robo_repair = FALSE, should_update_damages = TRUE, update_damage_icon = TRUE)
 	if(!amount)
-		return
-
-	if(BP_IS_ROBOTIC(src) && !robo_repair)
 		return
 
 	. = (cut_dam + pierce_dam)
@@ -510,10 +484,10 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 
 // Geneloss/cloneloss.
 /obj/item/organ/external/proc/get_genetic_damage()
-	return (BP_IS_ROBOTIC(src) || (species?.species_flags & SPECIES_FLAG_NO_SCAN)) ? 0 : genetic_degradation
+	return ((species?.species_flags & SPECIES_FLAG_NO_SCAN)) ? 0 : genetic_degradation
 
 /obj/item/organ/external/proc/remove_genetic_damage(amount)
-	if((species.species_flags & SPECIES_FLAG_NO_SCAN) || BP_IS_ROBOTIC(src))
+	if((species.species_flags & SPECIES_FLAG_NO_SCAN))
 		genetic_degradation = 0
 		status &= ~ORGAN_MUTATED
 		return
@@ -528,7 +502,7 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 /obj/item/organ/external/proc/add_genetic_damage(amount)
 	if(owner.status_flags & GODMODE)
 		return 0
-	if((species.species_flags & SPECIES_FLAG_NO_SCAN) || BP_IS_ROBOTIC(src))
+	if((species.species_flags & SPECIES_FLAG_NO_SCAN))
 		genetic_degradation = 0
 		status &= ~ORGAN_MUTATED
 		return
@@ -541,8 +515,6 @@ obj/item/organ/external/take_general_damage(amount, silent = FALSE)
 	return (genetic_degradation - last_gene_dam)
 
 /obj/item/organ/external/proc/mutate()
-	if(BP_IS_ROBOTIC(src))
-		return
 	src.status |= ORGAN_MUTATED
 	if(owner)
 		owner.update_body()

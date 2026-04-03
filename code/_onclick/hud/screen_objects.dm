@@ -74,8 +74,6 @@
 	if(usr.stat || usr.paralysis || usr.stunned || usr.weakened)
 		return TRUE
 
-	if (istype(usr.loc,/obj/mecha)) // stops inventory actions in a mech
-		return TRUE
 	if(master)
 		var/obj/item/I = usr.get_active_hand()
 		if(usr.twohanded_mode)
@@ -234,8 +232,6 @@
 			usr.hud_used.hidden_inventory_update()
 
 		if("Equip")
-			if (istype(usr.loc,/obj/mecha)) // stops inventory actions in a mech
-				return 1
 			if(ishuman(usr))
 				var/mob/living/carbon/human/H = usr
 				H.quick_equip()
@@ -299,14 +295,6 @@
 							else
 								nicename = list("right hand", "left hand", "back")
 								tankcheck = list(C.r_hand, C.l_hand, C.back)
-
-							// Rigs are a fucking pain since they keep an air tank in nullspace.
-							if(istype(C.back,/obj/item/rig))
-								var/obj/item/rig/rig = C.back
-								if(rig.air_supply)
-									from = "in"
-									nicename |= "powersuit"
-									tankcheck |= rig.air_supply
 
 							for(var/i=1, i<tankcheck.len+1, ++i)
 								if(istype(tankcheck[i], /obj/item/tank))
@@ -392,195 +380,6 @@
 				var/mob/living/carbon/human/H = usr
 				H.toggle_aim_assist()
 
-		if("module")
-			if(isrobot(usr))
-				var/mob/living/silicon/robot/R = usr
-//				if(R.module)
-//					R.hud_used.toggle_show_robot_modules()
-//					return 1
-				R.choose_module()
-
-		if("inventory")
-			if(isrobot(usr))
-				var/mob/living/silicon/robot/R = usr
-				if(R.module)
-					R.hud_used.toggle_show_robot_modules()
-					return 1
-				else
-					to_chat(R, "You haven't selected a module yet.")
-
-		if("radio")
-			if(issilicon(usr))
-				var/mob/living/silicon/robot/R = usr
-				R.radio_menu()
-		if("panel")
-			if(issilicon(usr))
-				var/mob/living/silicon/robot/R = usr
-				R.installed_modules()
-
-		if("store")
-			if(isrobot(usr))
-				var/mob/living/silicon/robot/R = usr
-				if(R.module)
-					R.uneq_active()
-					R.hud_used.update_robot_modules_display()
-				else
-					to_chat(R, "You haven't selected a module yet.")
-
-		if("module1")
-			if(istype(usr, /mob/living/silicon/robot))
-				var/mob/living/silicon/robot/R = usr
-				R.toggle_module(1)
-
-		if("module2")
-			if(istype(usr, /mob/living/silicon/robot))
-				var/mob/living/silicon/robot/R = usr
-				R.toggle_module(2)
-
-		if("module3")
-			if(istype(usr, /mob/living/silicon/robot))
-				var/mob/living/silicon/robot/R = usr
-				R.toggle_module(3)
-
-
-		if("AI core")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.view_core()
-
-		if("Set AI Core Display")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.pick_icon()
-
-		if("AI Status")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_statuschange()
-
-		if("Change Hologram")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_hologram_change()
-
-		if("Show Camera List")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			var/network = tgui_input_list(AI, "Chooce which network you want to view", "Networks", AI.get_camera_network_list())
-			AI.ai_network_change(network)
-			var/camera = tgui_input_list(AI, "Choose which camera you want to view", "Cameras", AI.get_camera_list())
-			AI.ai_camera_list(camera)
-
-		if("Track With Camera")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			var/target_name = tgui_input_list(AI, "Choose who you want to track", "Tracking", AI.trackable_mobs())
-			AI.ai_camera_track(target_name)
-
-		if("Toggle Camera Light")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.toggle_camera_light()
-
-		if("Store Camera Location")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			var/name_l = input(AI, "Enter name camera location", "Name")
-			AI.ai_store_location(name_l)
-
-		if("Goto Camera Location")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			var/cam_loc = tgui_input_list(AI, "Choose which location you want to view", "Locations", AI.sorted_stored_locations())
-			AI.ai_goto_location(cam_loc)
-
-		if("Delete Camera Location")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			var/delete = tgui_input_list(AI, "Choose which location you want to delete", "Locations", AI.sorted_stored_locations())
-			AI.ai_remove_location(delete)
-
-		if("Crew Manifest")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_roster()
-
-		if("Make Announcement")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_announcement()
-
-		if("Call Emergency Shuttle")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_call_shuttle()
-
-		if("State Laws")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_checklaws()
-
-		if("Sensor Augmentation")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.toggle_sensor_mode()
-
-		if("Radio Settings")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.control_integrated_radio()
-
-		if("Take Image")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.silicon_camera.toggle_camera_mode()
-
-		if("View Images")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.silicon_camera.viewpictures()
-
-		if("Delete Image")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.silicon_camera.deletepicture()
-
-		if("Toggle Shutdown")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_shutdown()
-
-		if("Toggle Power Override")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.ai_power_override()
-
-		if("Toggle Ringer")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.aiPDA.cmd_toggle_pda_silent()
-
-		if("Send Message")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.aiPDA.cmd_send_pdamesg()
-
-		if("Show Message Log")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.aiPDA.cmd_show_message_log()
-
-		if("Toggle Sender/Receiver")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.aiPDA.cmd_toggle_pda_receiver()
-
-		if("Toggle Multitool Mode")
-			ASSERT(isAI(usr))
-			var/mob/living/silicon/ai/AI = usr
-			AI.multitool_mode()
-		else
-			return 0
 	return 1
 
 /atom/movable/screen/inventory/Click(location, control, params)
@@ -589,8 +388,6 @@
 	if(!usr.canClick())
 		return 1
 	if(usr.stat || usr.paralysis || usr.stunned || usr.weakened)
-		return 1
-	if (istype(usr.loc,/obj/mecha)) // stops inventory actions in a mech
 		return 1
 	switch(name)
 		if("Right Hand")

@@ -3,7 +3,6 @@
 	var/datum/pipeline/parent
 	var/volume = 0
 	var/leaking = 0		// Do not set directly, use set_leaking(TRUE/FALSE)
-	use_power = POWER_USE_OFF
 
 	var/alert_pressure = 170*ONE_ATMOSPHERE
 	var/in_stasis = 0
@@ -1176,9 +1175,6 @@
 
 /obj/machinery/atmospherics/pipe/tank/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W, /obj/item/device/pipe_painter))
-		return
-
-	if(istype(W, /obj/item/device/analyzer))
 		return
 
 /obj/machinery/atmospherics/pipe/tank/air

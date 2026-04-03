@@ -8,8 +8,6 @@
 	var/active = 0
 	var/operating = 0
 	anchored = 1.0
-	idle_power_usage = 2 WATTS
-	active_power_usage = 4 WATTS
 	var/_wifi_id
 	var/datum/wifi/sender/wifi_sender
 
@@ -23,9 +21,6 @@
 	qdel(wifi_sender)
 	wifi_sender = null
 	return ..()
-
-/obj/machinery/button/attack_ai(mob/user as mob)
-	return attack_hand(user)
 
 /obj/machinery/button/attackby(obj/item/W, mob/user as mob)
 	return attack_hand(user)
@@ -44,7 +39,6 @@
 
 	operating = 1
 	active = 1
-	use_power_oneoff(5)
 	update_icon()
 	wifi_sender.activate(user)
 	sleep(10)
@@ -84,7 +78,6 @@
 
 	operating = 1
 	active = !active
-	use_power_oneoff(5)
 	if(active)
 		wifi_sender.activate(user)
 	else
@@ -120,17 +113,11 @@
 /obj/machinery/button/mass_driver
 	name = "mass driver button"
 
-/obj/machinery/button/mass_driver/Initialize()
-	if(_wifi_id)
-		wifi_sender = new /datum/wifi/sender/mass_driver(_wifi_id, src)
-	. = ..()
-
 /obj/machinery/button/mass_driver/activate(mob/living/user)
 	if(active || !istype(wifi_sender))
 		return
 
 	active = 1
-	use_power_oneoff(5)
 	update_icon()
 	wifi_sender.activate()
 	active = 0
@@ -176,7 +163,6 @@
 
 	operating = 1
 	active = !active
-	use_power_oneoff(5)
 	update_icon()
 	if(active)
 		if(_door_functions & IDSCAN)

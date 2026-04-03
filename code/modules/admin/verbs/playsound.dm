@@ -18,7 +18,6 @@ var/list/sounds_cache = list()
 		if(M.get_preference_value(/datum/client_preference/play_admin_midis) == GLOB.PREF_YES)
 			sound_to(M, uploaded_sound)
 
-	feedback_add_details("admin_verb","PGS") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/play_local_sound(S as sound)
 	set category = "Fun"
@@ -27,7 +26,6 @@ var/list/sounds_cache = list()
 
 	log_admin("[key_name(src)] played a local sound [S]", location = src.mob, notify_admin = TRUE)
 	playsound(src.mob, S, 50, 0, 0)
-	feedback_add_details("admin_verb","PLS") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 
 /client/proc/play_server_sound()
@@ -45,4 +43,3 @@ var/list/sounds_cache = list()
 		return
 
 	play_sound(melody)
-	feedback_add_details("admin_verb","PSS") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!

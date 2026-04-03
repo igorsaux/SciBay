@@ -387,9 +387,8 @@
 	if(user.a_intent != I_HURT)
 		return 0 // Not trying to hurt them.
 
-	if(!istype(W,/obj/item/material/kitchen/utensil/spoon))
-		if(!W.sharp || !W.force || W.damtype != BRUTE || W.w_class > ITEM_SIZE_NORMAL)
-			return 0 //unsuitable weapon
+	if(!W.sharp || !W.force || W.damtype != BRUTE || W.w_class > ITEM_SIZE_NORMAL)
+		return 0 //unsuitable weapon
 
 	for(var/obj/item/protection in list(affecting.head, affecting.wear_mask, affecting.glasses))
 		if(protection && (protection.body_parts_covered & EYES))
@@ -412,8 +411,7 @@
 	eyes.damage += rand(8,12)
 	if(eyes.damage >= eyes.min_bruised_damage)
 		if(affecting.stat != 2)
-			if(!BP_IS_ROBOTIC(eyes)) //robot eyes bleeding might be a bit silly
-				to_chat(affecting, "<span class='danger'>Your eyes start to bleed profusely!</span>")
+			to_chat(affecting, "<span class='danger'>Your eyes start to bleed profusely!</span>")
 		if(prob(50))
 			if(affecting.stat != 2)
 				to_chat(affecting, "<span class='warning'>You drop what you're holding and clutch at your eyes!</span>")
@@ -440,8 +438,6 @@
 		return 0
 
 	eyes.cut_away(affecting)
-	var/obj/item/organ/external/E = affecting.get_organ(eyes.parent_organ)
-	E.implants -= eyes
 	eyes.dropInto(affecting.loc)
 	playsound(affecting.loc, 'sound/effects/squelch1.ogg', 20, 1)
 

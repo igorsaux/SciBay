@@ -150,32 +150,6 @@
 
 	..()
 
-//returns 1 if made bloody, returns 0 otherwise
-/turf/simulated/add_blood(source)
-	if(!ishuman(source))
-		return FALSE // Meh, fuck it, if you'll ever need the add_blood("#abcdef") behavior - just go ahead code it yourself. ~ToTh
-	. = ..()
-	if(!.)
-		return null
-
-	var/mob/living/carbon/human/M = source
-	for(var/obj/effect/decal/cleanable/blood/B in contents)
-		if(!B.blood_DNA)
-			B.blood_DNA = list()
-		if(!B.blood_DNA[M.dna.unique_enzymes])
-			B.blood_DNA[M.dna.unique_enzymes] = M.dna.b_type
-			B.virus2 = virus_copylist(M.virus2)
-		return B
-	return blood_splatter(src, M.get_blood(M.vessel), 1)
-
-// Only adds blood on the floor -- Skie
-/turf/simulated/proc/add_blood_floor(mob/living/carbon/M as mob)
-	if(ischestburster(M))
-		var/obj/effect/decal/cleanable/blood/xeno/this = new /obj/effect/decal/cleanable/blood/xeno(src)
-		this.blood_DNA["UNKNOWN BLOOD"] = "X*"
-	else if( istype(M, /mob/living/silicon/robot ))
-		new /obj/effect/decal/cleanable/blood/oil(src)
-
 /turf/simulated/proc/can_build_cable(mob/user)
 	return 0
 

@@ -12,19 +12,10 @@
 	var/detox_efficiency = 0.25
 	var/hydration_consumption = DEFAULT_THIRST_FACTOR
 
-/obj/item/organ/internal/kidneys/robotize()
-	. = ..()
-	SetName("renal implants")
-	icon_state = "kidneys-prosthetic"
-	dead_icon = "kidneys-prosthetic-br"
-
 /obj/item/organ/internal/kidneys/think()
 	..()
 
 	if(!owner)
-		return
-
-	if(isundead(owner))
 		return
 
 	detox_efficiency = 0.5
@@ -44,9 +35,6 @@
 
 /obj/item/organ/internal/kidneys/proc/process_hydration()
 	if(!owner)
-		return
-
-	if(isundead(owner))
 		return
 
 	var/dynamic_hydration_consumption = hydration_consumption
@@ -74,4 +62,3 @@
 			// TODO: Abdominal cavity here.
 			return
 		L.waste_to_spawn += dynamic_hydration_consumption
-

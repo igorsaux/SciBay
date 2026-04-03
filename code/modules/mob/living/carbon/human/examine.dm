@@ -62,9 +62,8 @@
 
 	msg += SPAN("info", "<em>[src.name]</em>")
 
-	var/is_synth = isSynthetic()
 	if(!(skipjumpsuit && skipface))
-		var/species_name = "\improper [is_synth ? "Cyborg" : species.name]"
+		var/species_name = "\improper [species.name]"
 		msg += ", <b><font color='[species.get_flesh_colour(src)]'> \a [species_name]!</font></b>"
 
 	var/extra_species_text = species.get_additional_examine_text(src)
@@ -72,9 +71,6 @@
 		msg += "[extra_species_text]<br>"
 
 	msg += "<br>"
-
-	if (isundead(src) && !isfakeliving(src) && (!skipface || (!skipgloves && !gloves) || (!skipjumpsuit && !w_uniform) || (!skipshoes && !shoes)))
-		msg += FONT_LARGE(SPAN_DANGER("[T.He] looks like a month-old corpse.\n"))
 
 	// uniform
 	if(w_uniform && !skipjumpsuit)
@@ -122,8 +118,6 @@
 	// mask
 	if(wear_mask && !skipmask)
 		var/descriptor = "on [T.his] face"
-		if(istype(wear_mask, /obj/item/grenade))
-			descriptor = "in [T.his] mouth"
 
 		if(wear_mask.is_bloodied)
 			msg += SPAN("warning", "[T.He] [T.has] \icon[wear_mask] [wear_mask.gender==PLURAL?"some":"a"] [(wear_mask.blood_color != SYNTH_BLOOD_COLOUR) ? "blood" : "oil"]-stained [wear_mask.name] [descriptor]!\n")
@@ -269,8 +263,6 @@
 			if(E.is_stump())
 				wound_flavor_text[E.name] += "<b>[T.He] [T.has] a stump where [T.his] [organ_descriptor] should be.</b>\n"
 			else
-				if(!is_synth && BP_IS_ROBOTIC(E) && (E.parent && !BP_IS_ROBOTIC(E.parent) && !BP_IS_ASSISTED(E.parent)))
-					wound_flavor_text[E.name] = "[T.He] [T.has] a [E.name].\n"
 				var/damagedesc = E.get_damages_desc()
 				var/wounddesc = E.get_wounds_desc()
 				if(damagedesc)
@@ -312,61 +304,9 @@
 	if(digitalcamo)
 		msg += "[T.He] [T.is] repulsively uncanny!\n"
 
-	if(hasHUD(user, HUD_SECURITY))
-		var/perpname = "wot"
-		var/criminal = "None"
-
-		if(wear_id)
-			var/obj/item/card/id/I = wear_id.get_id_card()
-			if(I)
-				perpname = I.registered_name
-			else
-				perpname = name
-		else
-			perpname = name
-
-		if(perpname)
-			var/datum/computer_file/crew_record/R = get_crewmember_record(perpname)
-			if(R)
-				criminal = R.get_criminalStatus()
-
-			msg += SPAN("deptradio", "Criminal status:") + " <a href='?src=\ref[src];criminal=1'>\[[criminal]\]</a>\n"
-			msg += SPAN("deptradio", "Security records:") + " <a href='?src=\ref[src];secrecord=`'>\[View\]</a>\n"
-
-	if(hasHUD(user, HUD_MEDICAL))
-		var/perpname = "wot"
-		var/physical = "None"
-		var/mental = "None"
-
-		if(wear_id)
-			if(istype(wear_id,/obj/item/card/id))
-				perpname = wear_id:registered_name
-			else if(istype(wear_id,/obj/item/device/pda))
-				var/obj/item/device/pda/tempPda = wear_id
-				perpname = tempPda.owner
-		else
-			perpname = src.name
-
-		var/datum/computer_file/crew_record/R = get_crewmember_record(perpname)
-		if(R)
-			physical = R.get_status_physical()
-			mental = R.get_status_mental()
-
-		msg += SPAN("deptradio", "Physical status:") + " <a href='?src=\ref[src];physical=1'>\[[physical]\]</a>\n"
-		msg += SPAN("deptradio", "Mental status:") + " <a href='?src=\ref[src];mental=1'>\[[mental]\]</a>\n"
-		msg += SPAN("deptradio", "Medical records:") + " <a href='?src=\ref[src];medrecord=`'>\[View\]</a>\n"
-
-
 	if(print_flavor_text()) msg += "[print_flavor_text()]\n"
 
 	msg += applying_pressure
-
-	if(!skipeyes)
-		var/obj/item/organ/internal/eyes/eyes = internal_organs_by_name[BP_EYES]
-		if(istype(eyes))
-			var/list/glow = eyes.get_active_glow()
-			if(glow && glow["name"])
-				msg += SPAN("notice", "[T.His] eyes are glowing [glow["name"]].\n")
 
 	if (pose)
 		if( findtext(pose,".",length(pose)) == 0 && findtext(pose,"!",length(pose)) == 0 && findtext(pose,"?",length(pose)) == 0 )
@@ -381,10 +321,7 @@
 		var/mob/living/carbon/human/H = M
 		var/obj/item/clothing/glasses/G = H.glasses
 		return istype(G) && (G.hud_type & hudtype)
-	else if(istype(M, /mob/living/silicon))
-		var/mob/living/silicon/R = M
-		if (R.active_hud == hudtype)
-			return TRUE
+
 	return FALSE
 
 /mob/living/carbon/human/verb/pose()

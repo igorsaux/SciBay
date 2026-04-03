@@ -335,16 +335,3 @@
 			final_name = "Near Finished "
 	final_name += "[glass == 1 ? "Window " : ""][istext(glass) ? "[glass] Airlock" : base_name] Assembly"
 	SetName(final_name)
-
-/obj/structure/door_assembly/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 5 SECONDS, "cost" = 16)
-
-	return FALSE
-
-/obj/structure/door_assembly/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
-		qdel_self()
-		return TRUE
-
-	return FALSE

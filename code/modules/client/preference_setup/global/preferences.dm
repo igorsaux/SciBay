@@ -205,26 +205,6 @@ var/global/list/_client_preferences_by_type
 	key = "SOUND_HITMARKER"
 	category = PREF_CATEGORY_AUDIO
 
-/datum/client_preference/announcer
-	description = "Announcer"
-	key = "SOUND_ANNOUNCER"
-	category = PREF_CATEGORY_AUDIO
-	default_value = GLOB.PREF_ANNOUNCER_DEFAULT
-	options = list(
-		GLOB.PREF_ANNOUNCER_DEFAULT,
-		GLOB.PREF_ANNOUNCER_VGSTATION,
-		GLOB.PREF_ANNOUNCER_BAYSTATION12,
-		GLOB.PREF_ANNOUNCER_BAYSTATION12_TORCH,
-		GLOB.PREF_ANNOUNCER_TGSTATION
-	)
-
-/datum/client_preference/announcer/changed(mob/preference_mob, new_value)
-	if(!preference_mob.client)
-		return
-
-	if(!SSannounce.is_announcer_available(preference_mob, new_value))
-		to_chat(preference_mob, SPAN_WARNING("Selected announcer is not available due to a low patron tier, default announcer will be used instead."))
-
 /datum/client_preference/language_display
 	description = "Display Language Names"
 	key = "LANGUAGE_DISPLAY"
@@ -245,12 +225,6 @@ var/global/list/_client_preferences_by_type
 	key = "SHOW_PROGRESS"
 	category = PREF_CATEGORY_UI
 	options = list(GLOB.PREF_SHOW, GLOB.PREF_HIDE)
-
-/datum/client_preference/powersuit_activation
-	description = "Powersuit Module Activation Key"
-	key = "POWERSUIT_ACTIVATION"
-	category = PREF_CATEGORY_CONTROL
-	options = list(GLOB.PREF_MIDDLE_CLICK, GLOB.PREF_SHIFT_MIDDLE_CLICK, GLOB.PREF_CTRL_CLICK, GLOB.PREF_ALT_CLICK, GLOB.PREF_CTRL_SHIFT_CLICK)
 
 /datum/client_preference/pointing
 	description = "Point to Activation Key"

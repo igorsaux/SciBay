@@ -30,6 +30,9 @@ var/__z_name = null
 #define Z_ERROR_UNKNOWN "Unknown"
 #define Z_ERROR_ALREADY_RUNNING "AlreadyRunning"
 #define Z_ERROR_FAILED_TO_START "FailedToStart"
+#define Z_ERROR_ALREADY_BINDED "AlreadyBinded"
+#define Z_ERROR_CONTENTS_NOT_FOUND "ContentsNotFound"
+#define Z_ERROR_PHASE_NOT_FOUND "PhaseNotFound"
 
 // Global
 
@@ -270,3 +273,89 @@ var/__z_name = null
 /// Content and key must be a string.
 /// Returns a url-safe base64 string without padding.
 #define Z_CRYPTO_HMAC_SHA256(CONTENT, KEY) call_ext(__z_name, "byond:Z_crypto_hmac_sha256")(CONTENT, KEY)
+
+// Chem
+
+#define Z_CHEM_CREATE(SRC) call_ext(__z_name, "byond:Z_chem_create")(SRC)
+
+#define Z_CHEM_GET_LIQUIDS_VOLUME(SRC) call_ext(__z_name, "byond:Z_chem_get_liquids_volume")(SRC)
+
+#define Z_CHEM_GET_SOLIDS_VOLUME(SRC) call_ext(__z_name, "byond:Z_chem_get_solids_volume")(SRC)
+
+#define Z_CHEM_DESTROY(SRC) call_ext(__z_name, "byond:Z_chem_destroy")(SRC)
+
+#define Z_CHEM_HAS_CONTENTS(SRC) call_ext(__z_name, "byond:Z_chem_has_contents")(SRC)
+
+#define Z_CHEM_GET_LIQUID_PHASES(SRC) call_ext(__z_name, "byond:Z_chem_get_liquid_phases")(SRC)
+
+#define Z_CHEM_GET_SOLID_PHASES(SRC) call_ext(__z_name, "byond:Z_chem_get_solid_phases")(SRC)
+
+#define Z_CHEM_GET_ODOR(SRC) call_ext(__z_name, "byond:Z_chem_get_odor")(SRC)
+
+#define Z_CHEM_GET_LIQUID_PHASE_FLAVOR(SRC, PHASE_IDX) call_ext(__z_name, "byond:Z_chem_get_liquid_phase_flavor")(SRC, PHASE_IDX)
+
+#define Z_CHEM_GET_SOLID_PHASE_FLAVOR(SRC, PHASE_IDX) call_ext(__z_name, "byond:Z_chem_get_solid_phase_flavor")(SRC, PHASE_IDX)
+
+#define Z_CHEM_GET_GAS_FLAVOR(SRC) call_ext(__z_name, "byond:Z_chem_get_gas_flavor")(SRC)
+
+#define Z_CHEM_GET_SOLID_PHASE_PARTICLE_DIAMETER(SRC, PHASE_IDX) call_ext(__z_name, "byond:Z_chem_get_solid_phase_particle_diameter")(SRC, PHASE_IDX)
+
+#define Z_CHEM_INTEGRATE(SRC, DT, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_integrate")(SRC, DT, MAX_VOLUME)
+
+#define Z_CHEM_LIQUID_PHASE_HAS(SRC, PHASE_IDX, MOLECULE) call_ext(__z_name, "byond:Z_chem_liquid_phase_has")(SRC, PHASE_IDX, MOLECULE)
+
+#define Z_CHEM_LIQUID_PHASE_PH(SRC, PHASE_ID) call_ext(__z_name, "byond:Z_chem_liquid_phase_ph")(SRC, PHASE_ID)
+
+#define Z_CHEM_UPDATE_PHASE_TRANSITIONS(SRC, DT, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_update_phase_transitions")(SRC, DT, MAX_VOLUME)
+
+#define Z_CHEM_SETTLE(SRC) call_ext(__z_name, "byond:Z_chem_settle")(SRC)
+
+#define Z_CHEM_EXCHANGE_HEAT(SRC, T_KELVINS, THERMAL_COND, DT) call_ext(__z_name, "byond:Z_chem_exchange_heat")(SRC, T_KELVINS, THERMAL_COND, DT)
+
+#define Z_CHEM_SET_HEAT_CAPACITY(SRC, CAP) call_ext(__z_name, "byond:Z_chem_set_heat_capacity")(SRC, CAP)
+
+#define Z_CHEM_SET_STIRRING(SRC, STIRRING) call_ext(__z_name, "byond:Z_chem_set_stirring")(SRC, STIRRING)
+
+#define Z_CHEM_SET_TEMPERATURE(SRC, T_KELVINS, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_set_temperature")(SRC, T_KELVINS, MAX_VOLUME)
+
+#define Z_CHEM_GET_TEMPERATURE(SRC) call_ext(__z_name, "byond:Z_chem_get_temperature")(SRC)
+
+#define Z_CHEM_GET_LIQUIDS_WEIGHT(SRC) call_ext(__z_name, "byond:Z_chem_get_liquids_weight")(SRC)
+
+#define Z_CHEM_GET_SOLIDS_WEIGHT(SRC) call_ext(__z_name, "byond:Z_chem_get_solids_weight")(SRC)
+
+#define Z_CHEM_SET_GAS_CONTACT_AREA(SRC, AREA) call_ext(__z_name, "byond:Z_chem_set_gas_contact_area")(SRC, AREA)
+
+#define Z_CHEM_GET_BOILED_MOLES(SRC) call_ext(__z_name, "byond:Z_chem_get_boiled_moles")(SRC)
+
+#define Z_CHEM_GET_DEBUG_INFO(SRC, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_get_debug_info")(SRC, MAX_VOLUME)
+
+#define Z_CHEM_UPDATE_PRESSURE(SRC, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_update_pressure")(SRC, MAX_VOLUME)
+
+#define Z_CHEM_GET_PRESSURE(SRC) call_ext(__z_name, "byond:Z_chem_get_pressure")(SRC)
+
+#define Z_CHEM_SET_PRESSURE(SRC, PRESSURE) call_ext(__z_name, "byond:Z_chem_set_pressure")(SRC, PRESSURE)
+
+#define Z_CHEM_CLEAR(SRC) call_ext(__z_name, "byond:Z_chem_clear")(SRC)
+
+#define Z_CHEM_GET_EVAPORATED_MOLES(SRC) call_ext(__z_name, "byond:Z_chem_get_evaporated_moles")(SRC)
+
+#define Z_CHEM_GET_LIQUID_PHASE_MOLES(SRC, PHASE_IDX, MOLECULE) call_ext(__z_name, "byond:Z_chem_get_liquid_phase_moles")(SRC, PHASE_IDX, MOLECULE)
+
+#define Z_CHEM_GET_SOLID_PHASE_MOLES(SRC, PHASE_IDX) call_ext(__z_name, "byond:Z_chem_get_solid_phase_moles")(SRC, PHASE_IDX)
+
+#define Z_CHEM_GET_SOLID_PHASE_MOLECULE(SRC, PHASE_IDX) call_ext(__z_name, "byond:Z_chem_get_solid_phase_molecule")(SRC, PHASE_IDX)
+
+#define Z_CHEM_ADD_VOLUME(SRC, MOLECULE, VOLUME, PARTICLE_DIAMETER) call_ext(__z_name, "byond:Z_chem_add_volume")(SRC, MOLECULE, VOLUME, PARTICLE_DIAMETER)
+
+#define Z_CHEM_POUR(SRC, DST, VOLUME, DST_MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_pour")(SRC, DST, VOLUME, DST_MAX_VOLUME)
+
+#define Z_CHEM_ENSURE_GAS(SRC) call_ext(__z_name, "byond:Z_chem_ensure_gas")(SRC)
+
+#define Z_CHEM_ENSURE_HEADSPACE(SRC, MAX_VOLUME, EXCESS_DST) call_ext(__z_name, "byond:Z_chem_ensure_headspace")(SRC, MAX_VOLUME, EXCESS_DST)
+
+#define Z_CHEM_RESET_GAS(SRC, MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_reset_gas")(SRC, MAX_VOLUME)
+
+#define Z_CHEM_TRANSFER_LIQUID_VOLUME(SRC, DST, VOLUME, DST_MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_transfer_liquid_volume")(SRC, DST, VOLUME, DST_MAX_VOLUME)
+
+#define Z_CHEM_TRANSFER_SOLID_PHASE_VOLUME(SRC, DST, PHASE_IDX, VOLUME, DST_MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_transfer_solid_phase_volume")(SRC, DST, PHASE_IDX, VOLUME, DST_MAX_VOLUME)

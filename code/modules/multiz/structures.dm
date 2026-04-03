@@ -50,17 +50,6 @@
 /obj/structure/ladder/attack_hand(mob/user)
 	climb(user)
 
-/obj/structure/ladder/attack_robot(mob/user)
-	climb(user)
-
-/obj/structure/ladder/attack_ai(mob/user)
-	var/mob/living/silicon/ai/ai = user
-	if(!istype(ai))
-		return
-	var/mob/observer/eye/AIeye = ai.eyeobj
-	if(istype(AIeye))
-		instant_climb(AIeye)
-
 /obj/structure/ladder/attack_ghost(mob/user)
 	instant_climb(user)
 

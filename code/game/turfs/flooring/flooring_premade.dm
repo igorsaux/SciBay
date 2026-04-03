@@ -649,9 +649,6 @@
 	initial_flooring = /decl/flooring/reinforced/cult
 	var/previous_type = /turf/simulated/floor
 
-/turf/simulated/floor/misc/cult/cultify()
-	return
-
 /turf/simulated/floor/water/fountain
 	name = "water"
 	icon = 'icons/misc/beach.dmi'

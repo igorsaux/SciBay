@@ -103,7 +103,6 @@ var/list/name_to_material
 	var/conductive = 1           // Objects with this var add CONDUCTS to flags on spawn.
 	var/luminescence
 	var/list/composite_material  // If set, object matter var will be a list containing these values.
-	var/reagent_path = null      // If set, the material is linked with the given chemical reagent.
 
 	var/resilience = 1			 // The higher this value is, the higher is the chance that bullets will ricochet from wall's surface. Don't set negative values.
 	var/reflectance = -50		 // Defines whether material in walls raises (positive values) or decreases (negative values) reflection chance. -50 <= reflectance <= 50 - recommended values.
@@ -251,7 +250,6 @@ var/list/name_to_material
 	resilience = 16
 	reflectance = 15
 	stack_origin_tech = list(TECH_MATERIAL = 5)
-	reagent_path = /datum/reagent/uranium
 
 /material/diamond
 	name = MATERIAL_DIAMOND
@@ -284,14 +282,12 @@ var/list/name_to_material
 	stack_origin_tech = list(TECH_MATERIAL = 4)
 	sheet_singular_name = "ingot"
 	sheet_plural_name = "ingots"
-	reagent_path = /datum/reagent/gold
 
 /material/gold/bronze //placeholder for ashtrays
 	name = MATERIAL_BRONZE
 	icon_colour = "#dd8639"
 	hardness = 55
 	weight = 30
-	reagent_path = null // Why in the world is this inherited from gold, sigh
 
 /material/silver
 	name = MATERIAL_SILVER
@@ -304,7 +300,6 @@ var/list/name_to_material
 	stack_origin_tech = list(TECH_MATERIAL = 3)
 	sheet_singular_name = "ingot"
 	sheet_plural_name = "ingots"
-	reagent_path = /datum/reagent/silver
 
 /material/plasma
 	name = MATERIAL_PLASMA
@@ -322,7 +317,6 @@ var/list/name_to_material
 	sheet_singular_name = "crystal"
 	sheet_plural_name = "crystals"
 	is_fusion_fuel = 1
-	reagent_path = /datum/reagent/toxin/plasma
 
 /material/plasma/supermatter
 	name = MATERIAL_SUPERMATTER
@@ -330,7 +324,6 @@ var/list/name_to_material
 	stack_origin_tech = list(TECH_BLUESPACE = 2, TECH_MATERIAL = 6, TECH_PLASMA = 4)
 	stack_type = null
 	luminescence = 3
-	reagent_path = null
 
 //Controls plasma and plasma based objects reaction to being in a turf over 200c -- Plasma's flashpoint.
 /material/plasma/combustion_effect(turf/T, temperature, effect_multiplier)
@@ -365,7 +358,6 @@ var/list/name_to_material
 	conductive = 0
 	resilience = 9
 	craft_tool = 1
-	reagent_path = /datum/reagent/silicon
 
 /material/stone/marble
 	name = MATERIAL_MARBLE
@@ -378,7 +370,6 @@ var/list/name_to_material
 	reflectance = 5
 	stack_type = /obj/item/stack/material/marble
 	craft_tool = 1
-	reagent_path = /datum/reagent/carbon
 
 /material/steel
 	name = MATERIAL_STEEL
@@ -393,23 +384,6 @@ var/list/name_to_material
 	hitsound = 'sound/effects/fighting/Genhit.ogg'
 	resilience = 36
 	reflectance = 13
-
-/material/diona
-	name = "biomass"
-	icon_colour = null
-	stack_type = null
-	integrity = 600
-	icon_base = "diona"
-	icon_reinf = "noreinf"
-	hitsound = 'sound/effects/attackblob.ogg'
-	conductive = 0
-	craft_tool = 1
-
-/material/diona/place_dismantled_product()
-	return
-
-/material/diona/place_dismantled_girder(turf/target)
-	spawn_diona_nymph(target)
 
 /material/steel/holographic
 	name = "holo" + MATERIAL_STEEL
@@ -512,7 +486,6 @@ var/list/name_to_material
 	rod_product = /obj/item/stack/material/glass/reinforced
 	hitsound = 'sound/effects/breaking/window/break1.ogg'
 	conductive = 0
-	reagent_path = /datum/reagent/glass
 
 /material/glass/build_windows(mob/living/user, obj/item/stack/used_stack)
 
@@ -639,7 +612,6 @@ var/list/name_to_material
 	created_window = /obj/structure/window/plasmabasic
 	wire_product = null
 	rod_product = /obj/item/stack/material/glass/rplass
-	reagent_path = null
 
 /material/glass/plass/reinforced
 	name = MATERIAL_REINFORCED_PLASS
@@ -707,14 +679,12 @@ var/list/name_to_material
 	reflectance = -20
 	stack_origin_tech = list(TECH_MATERIAL = 3)
 	conductive = 0
-	reagent_path = /datum/reagent/toxin/plasticide
 
 /material/plastic/holographic
 	name = "holoplastic"
 	display_name = "plastic"
 	stack_type = null
 	shard_type = SHARD_NONE
-	reagent_path = null
 
 /material/osmium
 	name = MATERIAL_OSMIUM
@@ -748,7 +718,6 @@ var/list/name_to_material
 	icon_colour = "#e6c5de"
 	stack_origin_tech = list(TECH_MATERIAL = 6, TECH_POWER = 6, TECH_MAGNET = 5)
 	is_fusion_fuel = 1
-	reagent_path = /datum/reagent/hydrazine
 
 /material/platinum
 	name = MATERIAL_PLATINUM
@@ -783,7 +752,6 @@ var/list/name_to_material
 	sheet_plural_name = "ingots"
 	hitsound = 'sound/effects/fighting/smash.ogg'
 	shard_type = SHARD_SCRAP
-	reagent_path = /datum/reagent/iron
 
 // Adminspawn only, do not let anyone get this.
 /material/voxalloy
@@ -833,7 +801,6 @@ var/list/name_to_material
 	hitsound = 'sound/effects/woodhit.ogg'
 	conductive = 0
 	craft_tool = 1
-	reagent_path = /datum/reagent/woodpulp
 
 /material/wood
 	name = MATERIAL_WOOD
@@ -860,14 +827,12 @@ var/list/name_to_material
 	hitsound = 'sound/effects/woodhit.ogg'
 	conductive = 0
 	craft_tool = 1
-	reagent_path = /datum/reagent/woodpulp
 
 /material/wood/holographic
 	name = "holowood"
 	display_name = "wood"
 	stack_type = null
 	shard_type = SHARD_NONE
-	reagent_path = null
 
 /material/cardboard
 	name = MATERIAL_CARDBOARD
@@ -887,7 +852,6 @@ var/list/name_to_material
 	destruction_desc = "crumples"
 	conductive = 0
 	craft_tool = 1
-	reagent_path = /datum/reagent/woodpulp // Probably makes some sense
 
 /material/cloth //todo
 	name = MATERIAL_CLOTH
@@ -932,9 +896,6 @@ var/list/name_to_material
 	integrity = 20
 
 /material/resin/can_open_material_door(mob/living/user)
-	var/mob/living/carbon/M = user
-	if(istype(M) && locate(/obj/item/organ/internal/xenos/hivenode) in M.internal_organs)
-		return 1
 	return 0
 
 /material/aliumium

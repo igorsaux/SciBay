@@ -20,8 +20,6 @@
 
 	level = 1
 
-	use_power = POWER_USE_OFF
-	idle_power_usage = 150 WATTS		//internal circuitry, friction losses and stuff
 	power_rating = 7.500 KILO WATTS		//7500 W ~ 10 HP
 
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_SUPPLY|CONNECT_TYPE_SCRUBBER //connects to regular, supply and scrubbers pipes
@@ -69,11 +67,7 @@
 
 	if(!T.is_plating() && node1 && node2 && node1.level == 1 && node2.level == 1 && istype(node1, /obj/machinery/atmospherics/pipe) && istype(node2, /obj/machinery/atmospherics/pipe))
 		vent_icon += "h"
-
-	if(!powered())
 		vent_icon += "off"
-	else
-		vent_icon += "[use_power ? "[pump_direction ? "out" : "in"]" : "off"]"
 
 	AddOverlays(icon_manager.get_atmos_icon("device", , , vent_icon))
 
@@ -105,7 +99,7 @@
 	last_power_draw = 0
 	last_flow_rate = 0
 
-	if(stat & (NOPOWER|BROKEN) || !use_power)
+	if(stat & (NOPOWER|BROKEN))
 		return 0
 
 	var/datum/gas_mixture/environment = loc.return_air()
@@ -136,7 +130,6 @@
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 
 	return 1
 
@@ -173,7 +166,6 @@
 	var/list/data = list(
 		"tag" = id,
 		"device" = "ADVP",
-		"power" = use_power,
 		"direction" = pump_direction?("release"):("siphon"),
 		"checks" = pressure_checks,
 		"input" = input_pressure_min,
@@ -203,10 +195,6 @@
 		return 0
 	if(signal.data["power"])
 		playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
-		update_use_power(sanitize_integer(text2num(signal.data["power"]), POWER_USE_OFF, POWER_USE_ACTIVE, use_power))
-
-	if(signal.data["power_toggle"])
-		update_use_power(!use_power)
 
 	if(signal.data["direction"])
 		pump_direction = text2num(signal.data["direction"])

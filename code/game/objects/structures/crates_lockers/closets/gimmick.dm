@@ -12,10 +12,6 @@
 	else
 		icon_state = icon_opened
 
-/obj/structure/closet/cabinet/Initialize()
-	. = ..()
-	AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
-
 /obj/structure/closet/cabinet/wizcabinet
 	desc = "Magic will forever be in fashion."
 	icon_state = "wizcabinet_closed"
@@ -82,10 +78,7 @@
 /obj/structure/closet/thunderdome/tdred/WillContain()
 	return list(
 		/obj/item/clothing/suit/armor/tdome/red = 3,
-		/obj/item/melee/energy/sword/saber/red = 3,
-		/obj/item/gun/energy/laser = 3,
 		/obj/item/melee/baton = 3,
-		/obj/item/storage/box/flashbangs = 3,
 		/obj/item/clothing/head/helmet/thunderdome = 3
 	)
 
@@ -98,9 +91,6 @@
 /obj/structure/closet/thunderdome/tdgreen/WillContain()
 	return list(
 		/obj/item/clothing/suit/armor/tdome/green = 3,
-		/obj/item/melee/energy/sword/saber/green = 3,
-		/obj/item/gun/energy/laser = 3,
 		/obj/item/melee/baton = 3,
-		/obj/item/storage/box/flashbangs = 3,
 		/obj/item/clothing/head/helmet/thunderdome = 3
 	)

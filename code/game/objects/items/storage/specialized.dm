@@ -6,60 +6,6 @@
 */
 
 // -----------------------------
-//        Mining Satchel
-// -----------------------------
-
-/obj/item/storage/ore
-	name = "mining satchel"
-	desc = "This sturdy bag can be used to store and transport ores."
-	icon = 'icons/obj/mining.dmi'
-	icon_state = "satchel"
-	slot_flags = SLOT_BELT
-	max_storage_space = 200
-	max_w_class = ITEM_SIZE_NORMAL
-	w_class = ITEM_SIZE_LARGE
-	can_hold = list(/obj/item/ore)
-	allow_quick_gather = 1
-	allow_quick_empty = 1
-	use_to_pickup = 1
-
-
-// -----------------------------
-//          Plant bag
-// -----------------------------
-
-/obj/item/storage/plants
-	name = "botanical satchel"
-	desc = "This bag can be used to store all kinds of plant products and botanical specimen."
-	icon = 'icons/obj/hydroponics_items.dmi'
-	icon_state = "plantbag"
-	slot_flags = SLOT_BELT
-	max_storage_space = 100
-	max_w_class = ITEM_SIZE_SMALL
-	w_class = ITEM_SIZE_NORMAL
-	can_hold = list(/obj/item/reagent_containers/food/grown,/obj/item/seeds,/obj/item/grown)
-	allow_quick_gather = 1
-	allow_quick_empty = 1
-	use_to_pickup = 1
-
-// -----------------------------
-//          Xenobio bag
-// -----------------------------
-/obj/item/storage/xenobag
-	name = "Xenobiology satchel"
-	desc = "This bag can be used to store all kinds of plant products and botanical specimen."
-	icon = 'icons/obj/objects.dmi'
-	icon_state = "xenobag"
-	slot_flags = SLOT_BELT
-	max_storage_space = 100
-	max_w_class = ITEM_SIZE_SMALL
-	w_class = ITEM_SIZE_NORMAL
-	can_hold = list(/obj/item/metroid_extract, /obj/item/metroidcross, /obj/item/reagent_containers/food/monkeycube)
-	allow_quick_gather = 1
-	allow_quick_empty = 1
-	use_to_pickup = 1
-
-// -----------------------------
 //        Sheet Snatcher
 // -----------------------------
 // Because it stacks stacks, this doesn't operate normally.
@@ -233,7 +179,7 @@
 	if(!canremove)
 		return
 
-	if((ishuman(user) || isrobot(user) || issmall(user)) && !user.incapacitated() && Adjacent(user))
+	if((ishuman(user) || issmall(user)) && !user.incapacitated() && Adjacent(user))
 		add_fingerprint(user)
 		attack_hand(user)
 		return TRUE

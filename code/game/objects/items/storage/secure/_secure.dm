@@ -49,15 +49,6 @@
 
 /obj/item/storage/secure/attackby(obj/item/W, mob/user)
 	if(locked)
-		if(istype(W, /obj/item/melee/energy))
-			emag_act(INFINITY, user, W, "You slice through the lock of \the [src]")
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, loc)
-			spark_system.start()
-			playsound(loc, 'sound/weapons/blade1.ogg', 50, 1)
-			playsound(loc, SFX_SPARK, 50, 1)
-			return
-
 		if(isScrewdriver(W))
 			if(!do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				return
@@ -185,12 +176,6 @@
 		"lock_setshort" = lock_setshort
 	)
 	return data
-
-/obj/item/storage/secure/emag_act(remaining_charges, mob/user, emag_source, visual_feedback = "", audible_feedback = "")
-	var/obj/item/melee/energy/WS = emag_source
-	if(WS.active)
-		on_hack_behavior(WS, user)
-		return TRUE
 
 /obj/item/storage/secure/proc/on_hack_behavior()
 	var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()

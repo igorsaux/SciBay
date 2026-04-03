@@ -73,25 +73,12 @@
 		return
 	return ..()
 
-/obj/item/clothing/accessory/badge/holo/emag_act(remaining_charges, mob/user)
-	if (emagged)
-		to_chat(user, "<span class='danger'>\The [src] is already cracked.</span>")
-		return
-	else
-		emagged = 1
-		to_chat(user, "<span class='danger'>You crack the holobadge security checks.</span>")
-		return 1
-
 /obj/item/clothing/accessory/badge/holo/attackby(obj/item/O, mob/user)
-	if(istype(O, /obj/item/card/id) || istype(O, /obj/item/device/pda))
-
+	if(istype(O, /obj/item/card/id))
 		var/obj/item/card/id/id_card = null
 
 		if(istype(O, /obj/item/card/id))
 			id_card = O
-		else
-			var/obj/item/device/pda/pda = O
-			id_card = pda.id
 
 		if(!id_card)
 			return

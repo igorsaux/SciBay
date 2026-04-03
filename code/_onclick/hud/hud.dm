@@ -225,8 +225,6 @@
 			if(action_intent)
 				mymob.client.screen += action_intent
 				action_intent.screen_loc = ui_acti_alt
-			if(mymob.gun_setting_icon)
-				mymob.client.screen += mymob.gun_setting_icon
 		if(HUD_STYLE_NONE)
 			hud_shown = FALSE
 			if(length(infodisplay))

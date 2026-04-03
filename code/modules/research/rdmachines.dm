@@ -17,9 +17,6 @@ var/list/default_material_composition = list(MATERIAL_STEEL = 0, MATERIAL_GLASS 
 	return
 
 /obj/machinery/r_n_d/dismantle()
-	for(var/obj/I in component_parts)
-		if(istype(I, /obj/item/reagent_containers/vessel/beaker))
-			reagents.trans_to_obj(I, reagents.total_volume)
 	for(var/f in materials)
 		if(materials[f] >= SHEET_MATERIAL_AMOUNT)
 			var/material/M = get_material_by_name(f)
@@ -51,8 +48,4 @@ var/list/default_material_composition = list(MATERIAL_STEEL = 0, MATERIAL_GLASS 
 	for(var/M in D.materials)
 		if(materials[M] < D.materials[M])
 			ret += "[D.materials[M] - materials[M]] [M]"
-	for(var/C in D.chemicals)
-		if(!reagents.has_reagent(C, D.chemicals[C]))
-			var/datum/reagent/R = C
-			ret += lowertext(initial(R.name))
 	return english_list(ret)

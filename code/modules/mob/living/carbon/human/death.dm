@@ -40,16 +40,9 @@
 	if(is_ic_dead())
 		return
 
-	if(mind?.wizard?.lich)
-		mind.wizard.escape_to_lich(mind)
-
 	BITSET(hud_updateflag, HEALTH_HUD)
 	BITSET(hud_updateflag, STATUS_HUD)
 	BITSET(hud_updateflag, LIFE_HUD)
-
-	//backs up lace if available.
-	var/obj/item/organ/internal/stack/S = get_organ(BP_STACK)
-	S?.do_backup()
 
 	animate_tail_stop()
 
@@ -57,9 +50,6 @@
 
 	if(SSticker.mode)
 		SSticker.mode.check_win()
-
-	if(wearing_rig)
-		wearing_rig.notify_ai("<span class='danger'>Warning: user death event. Mobility control passed to integrated intelligence system.</span>")
 
 	if(species)
 		deathmessage = species.get_death_message(src)
@@ -72,7 +62,6 @@
 		handle_organs()
 		if(species.death_sound)
 			playsound(loc, species.death_sound, 80, 1, 1)
-	handle_hud_list()
 
 /mob/living/carbon/human/proc/ChangeToHusk()
 	if(MUTATION_HUSK in mutations)

@@ -1,85 +1,8 @@
-var/list/department_radio_keys = list(
-	  ":r" = "right ear",	":к" = "right ear",
-	  ":l" = "left ear",	":д" = "left ear",
-	  ":i" = "intercom",	":ш" = "intercom",
-	  ":h" = "department",	":р" = "department",
-	  ":+" = "special",		".+" = "special", // activate radio-specific special functions
-	  ":c" = "Command",		":с" = "Command",
-	  ":n" = "Science",		":т" = "Science",
-	  ":m" = "Medical",		":ь" = "Medical",
-	  ":e" = "Engineering", ":у" = "Engineering",
-	  ":s" = "Security",	":ы" = "Security",
-	  ":w" = "whisper",		":ц" = "whisper",
-	  ":t" = "Syndicate",	":е" = "Syndicate",
-	  ":x" = "Raider",		":ч" = "Raider",
-	  ":u" = "Cargo",		":г" = "Cargo",
-	  ":v" = "Provisioning",":м" = "Provisioning",
-	  ":p" = "AI Private",	":з" = "AI Private",
-	  ":z" = "Entertainment",":я" = "Entertainment",
-	  ":y" = "Exploration",		":н" = "Exploration",
-
-	  ":R" = "right ear",	":К" = "right ear",
-	  ":L" = "left ear",	":Д" = "left ear",
-	  ":I" = "intercom",	":Ш" = "intercom",
-	  ":H" = "department",	":Р" = "department",
-	  ":C" = "Command",		":С" = "Command",
-	  ":N" = "Science",		":Т" = "Science",
-	  ":M" = "Medical",		":Ь" = "Medical",
-	  ":E" = "Engineering",	":У" = "Engineering",
-	  ":S" = "Security",	":Ы" = "Security",
-	  ":W" = "whisper",		":Ц" = "whisper",
-	  ":T" = "Syndicate",	":Е" = "Syndicate",
-	  ":X" = "Raider",		":Ч" = "Raider",
-	  ":U" = "Cargo",		":Г" = "Cargo",
-	  ":V" = "Provisioning",":М" = "Provisioning",
-	  ":P" = "AI Private",	":З" = "AI Private",
-	  ":Z" = "Entertainment",":Я" = "Entertainment",
-	  ":Y" = "Exploration",		":Н" = "Exploration",
-)
-
-
-var/list/channel_to_radio_key = new
-
-/proc/get_radio_key_from_channel(channel)
-	var/key = channel_to_radio_key[channel]
-	if(!key)
-		for(var/radio_key in department_radio_keys)
-			if(department_radio_keys[radio_key] == channel)
-				key = radio_key
-				break
-		if(!key)
-			key = ""
-		channel_to_radio_key[channel] = key
-
-	return key
-
-/mob/living/proc/binarycheck()
-
-	if(istype(src, /mob/living/silicon/pai))
-		return FALSE
-
-	if(!ishuman(src))
-		return FALSE
-
-	var/mob/living/carbon/human/H = src
-	if(H.l_ear || H.r_ear)
-		var/obj/item/device/radio/headset/dongle
-		if(istype(H.l_ear,/obj/item/device/radio/headset))
-			dongle = H.l_ear
-		else
-			dongle = H.r_ear
-		if(!istype(dongle))
-			return FALSE
-		if(dongle.translate_binary)
-			return TRUE
-
-	return FALSE
-
 /mob/living/proc/get_default_language()
 	return default_language
 
 /mob/proc/is_muzzled()
-	return (wear_mask && (istype(wear_mask, /obj/item/clothing/mask/muzzle) || istype(src.wear_mask, /obj/item/grenade)))
+	return (wear_mask && (istype(wear_mask, /obj/item/clothing/mask/muzzle)))
 
 // Takes a list of the form list(message, verb, whispering) and modifies it as needed
 // Returns TRUE if a speech problem was applied, FALSE otherwise
@@ -112,10 +35,6 @@ var/list/channel_to_radio_key = new
 		. = TRUE
 
 /mob/living/proc/handle_message_mode(message_mode, message, verb, language, used_radios, alt_name)
-	if(message_mode == "intercom")
-		for(var/obj/item/device/radio/intercom/I in view(1, null))
-			I.talk_into(src, message, verb, language)
-			used_radios += I
 	return FALSE
 
 /mob/living/proc/handle_speech_sound()

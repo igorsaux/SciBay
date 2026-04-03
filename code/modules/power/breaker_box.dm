@@ -20,8 +20,6 @@
 	var/update_locked = 0
 
 /obj/machinery/power/breakerbox/Destroy()
-	for(var/datum/nano_module/rcon/R in world)
-		R.FindDevices()
 	return ..()
 
 /obj/machinery/power/breakerbox/activated
@@ -40,26 +38,6 @@
 		. += "<span class='good'>It seems to be online.</span>"
 	else
 		. += SPAN_WARNING("It seems to be offline.")
-
-/obj/machinery/power/breakerbox/attack_ai(mob/user)
-	if(update_locked)
-		to_chat(user, "<span class='warning'>System locked. Please try again later.</span>")
-		return
-
-	if(busy)
-		to_chat(user, "<span class='warning'>System is busy. Please wait until current operation is finished before changing power settings.</span>")
-		return
-
-	busy = 1
-	to_chat(user, "<span class='good'>Updating power settings..</span>")
-	if(do_after(user, 50, src))
-		set_state(!on)
-		to_chat(user, "<span class='good'>Update Completed. New setting:[on ? "on": "off"]</span>")
-		update_locked = 1
-		spawn(600)
-			update_locked = 0
-	busy = 0
-
 
 /obj/machinery/power/breakerbox/attack_hand(mob/user)
 	if(update_locked)

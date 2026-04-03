@@ -39,8 +39,6 @@
 	if(user.client)
 		if(user.gas_scan)
 			print_atmos_analysis(user, atmosanalyzer_scan(src))
-		if(user.chem_scan)
-			reagent_scanner_scan(user, src)
 		if(user.rads_scan)
 			var/dose = SSradiation.get_total_absorbed_dose_at_turf(get_turf(src), AVERAGE_HUMAN_WEIGHT)
 			to_chat(user, EXAMINE_BLOCK(SPAN_NOTICE("Radiation: [fmt_siunit(dose, "Gy/s", 3)].")))
@@ -48,40 +46,6 @@
 			user.examinate(src)
 	return
 
-/mob/living/attack_ghost(mob/observer/ghost/user)
-	if(user.client && user.health_scan)
-		show_browser(user, medical_scan_results(src, TRUE), "window=scanconsole;size=430x350")
-	return ..()
-
-// ---------------------------------------
-// And here are some good things for free:
-// Now you can click through portals, wormholes, gateways, and teleporters while observing. -Sayu
-
-/obj/machinery/teleporter_gate/attack_ghost(mob/user)
-	if(isnull(console))
-		return
-
-	var/atom/target_atom = console.target_ref.resolve()
-	if(isnull(target_atom))
-		return
-
-	user.forceMove(get_turf(target_atom))
-
-/obj/effect/portal/attack_ghost(mob/user)
-	if(target)
-		user.forceMove(get_turf(target))
-
-/obj/machinery/gateway/centerstation/attack_ghost(mob/user)
-	if(awaygate)
-		user.forceMove(awaygate.loc)
-	else
-		to_chat(user, "[src] has no destination.")
-
-/obj/machinery/gateway/centeraway/attack_ghost(mob/user)
-	if(stationgate)
-		user.forceMove(stationgate.loc)
-	else
-		to_chat(user, "[src] has no destination.")
 
 // -------------------------------------------
 // This was supposed to be used by adminghosts

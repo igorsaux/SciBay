@@ -338,12 +338,6 @@
 	else if(user.nutrition <= STOMACH_FULLNESS_SUPER_LOW)
 		. *= 1 + (STOMACH_FULLNESS_SUPER_LOW - user.nutrition) / 100
 
-	if(user.reagents.has_reagent(/datum/reagent/hyperzine))
-		. *= 0.2
-
-	else if(user.reagents.has_reagent(/datum/reagent/adrenaline))
-		. *= 0.8
-
 /datum/push_up/proc/get_body_build_mult()
 	if(istype(user.body_build, /datum/body_build/slim))
 		return 2

@@ -25,8 +25,6 @@
 			if(abs(holdermob.age - kidmob.age) > 3)
 				creche -= kid		//No creepers please, it's okay if the pool is small.
 				continue
-			if(holdermob.home_system && kidmob.home_system && (holdermob.home_system != kidmob.home_system))
-				creche -= kid		//No trans-galactic shennanigans either.
 	return creche
 
 /datum/relation/enemy

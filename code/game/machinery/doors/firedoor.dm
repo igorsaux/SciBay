@@ -36,9 +36,6 @@
 
 	var/hatch_open = FALSE
 
-	power_channel = STATIC_ENVIRON
-	idle_power_usage = 5 WATTS
-
 	var/list/tile_info[4]
 	var/list/dir_alerts[4] // 4 dirs, bitflags
 
@@ -123,13 +120,6 @@
 	if(!density)
 		return ..()
 
-	if(istype(AM, /obj/mecha))
-		var/obj/mecha/mecha = AM
-		if(mecha.occupant)
-			var/mob/M = mecha.occupant
-			if(world.time - M.last_bumped <= 10) return //Can bump-open one airlock per second. This is to prevent popup message spam.
-			M.last_bumped = world.time
-			trigger_open_close(M, TRUE)
 	return FALSE
 
 /obj/machinery/door/firedoor/attack_hand(mob/user)
@@ -154,7 +144,7 @@
 		if(A.fire || A.air_doors_activated)
 			alarmed = 1
 
-	if(user.incapacitated() || !user.Adjacent(src) && !issilicon(user))
+	if(user.incapacitated() || !user.Adjacent(src))
 		to_chat(user, SPAN("warning", "You must remain able bodied and close to \the [src] in order to use it."))
 		return
 
@@ -173,7 +163,7 @@
 	if(alarmed)
 		// Accountability!
 		users_to_open |= user.name
-		needs_to_close = !issilicon(user)
+		needs_to_close = TRUE
 	trigger_open_close(user)
 
 	if(needs_to_close)
@@ -299,8 +289,6 @@
 /obj/machinery/door/firedoor/deconstruct(mob/user, moved = FALSE)
 	if (stat & BROKEN)
 		new /obj/item/circuitboard/broken(src.loc)
-	else
-		new /obj/item/airalarm_electronics(src.loc)
 
 	var/obj/structure/firedoor_assembly/FA = new /obj/structure/firedoor_assembly(src.loc)
 	FA.anchored = !moved
@@ -335,9 +323,7 @@
 		visible_message("The maintenance hatch of \the [src] closes.")
 		update_icon()
 
-	if(!forced)
-		use_power_oneoff(360)
-	else if(user)
+	if(user)
 		var/area/A = get_area(src)
 		log_admin("[user]([user.ckey]) has forced open an emergency shutter at X:[x], Y:[y], Z:[z] Area: [A.name].")
 
@@ -367,8 +353,6 @@
 		if(. & AIR_BLOCKED)
 			continue
 		var/area/A = get_area(neighbour)
-		if(!A.master_air_alarm)
-			return
 
 		if(A.atmosalm)
 			return
@@ -462,21 +446,6 @@
 		changed = TRUE
 	if(changed)
 		update_icon()
-
-/obj/machinery/door/firedoor/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	switch(the_rcd.mode)
-		if(RCD_DECONSTRUCT)
-			return list("delay" = 5 SECONDS, "cost" = 32)
-
-	return FALSE
-
-/obj/machinery/door/firedoor/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	switch(rcd_data["[RCD_DESIGN_MODE]"])
-		if(RCD_DECONSTRUCT)
-			qdel_self()
-			return TRUE
-
-	return FALSE
 
 //These are playing merry hell on ZAS.  Sorry fellas :(
 

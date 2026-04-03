@@ -45,32 +45,12 @@
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ILLEGAL = 4)
 
-/obj/item/clothing/ring/reagent/New()
-	..()
-	create_reagents(15)
-
-/obj/item/clothing/ring/reagent/equipped(mob/living/carbon/human/H)
-	..()
-	if(istype(H) && H.gloves==src)
-		to_chat(H, "<span class='info'><b>You feel a prick as you slip on the ring.</b></span>")
-
-		if(reagents.total_volume)
-			if(H.reagents)
-				var/contained_reagents = reagents.get_reagents()
-				var/trans = reagents.trans_to_mob(H, 15, CHEM_BLOOD)
-				admin_inject_log(usr, H, src, contained_reagents, trans)
-	return
-
 //Sleepy Ring
 /obj/item/clothing/ring/reagent/sleepy
 	name = "silver ring"
 	desc = "A ring made from what appears to be silver."
 	icon_state = "material"
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ILLEGAL = 5)
-
-/obj/item/clothing/ring/reagent/sleepy/New()
-	..()
-	reagents.add_reagent(/datum/reagent/chloralhydrate, 15) // Less than a sleepy-pen, but still enough to knock someone out
 
 /////////////////////////////////////////
 //Seals and Signet Rings

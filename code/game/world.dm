@@ -149,8 +149,6 @@ var/server_name = "OnyxBay"
 		// dumb and hardcoded but I don't care~
 		config.general.server_name += " #[(world.port % 1000) / 100]"
 
-	watchlist = new /datum/watchlist
-
 	var/list/lobby_music_tracks = subtypesof(/lobby_music)
 	var/lobby_music_type = /lobby_music
 	if(lobby_music_tracks.len)
@@ -257,53 +255,6 @@ var/world_topic_spam_protect_time = world.timeofday
 
 		return list2params(L)
 
-	else if(copytext(T,1,5) == "laws")
-		if(input["key"] != config.external.comms_password)
-			if(abs(world_topic_spam_protect_time - world.time) < 50)
-				sleep(50)
-				world_topic_spam_protect_time = world.time
-				return "Bad Key (Throttled)"
-
-			world_topic_spam_protect_time = world.time
-
-			return "Bad Key"
-
-		var/list/match = text_find_mobs(input["laws"], /mob/living/silicon)
-
-		if(!match.len)
-			return "No matches"
-		else if(match.len == 1)
-			var/mob/living/silicon/S = match[1]
-			var/info = list()
-			info["name"] = S.name
-			info["key"] = S.key
-
-			if(!S.laws)
-				info["laws"] = null
-				return list2params(info)
-
-			var/list/lawset_parts = list(
-				"ion" = S.laws.ion_laws,
-				"inherent" = S.laws.inherent_laws,
-				"supplied" = S.laws.supplied_laws
-			)
-
-			for(var/law_type in lawset_parts)
-				var/laws = list()
-				for(var/datum/ai_law/L in lawset_parts[law_type])
-					laws += L.law
-				info[law_type] = list2params(laws)
-
-			info["zero"] = S.laws.zeroth_law ? S.laws.zeroth_law.law : null
-
-			return list2params(info)
-
-		else
-			var/list/ret = list()
-			for(var/mob/M in match)
-				ret[M.key] = M.name
-			return list2params(ret)
-
 	else if(copytext(T,1,5) == "info")
 		if(input["key"] != config.external.comms_password)
 			if(abs(world_topic_spam_protect_time - world.time) < 50)
@@ -330,7 +281,6 @@ var/world_topic_spam_protect_time = world.timeofday
 			info["turf"] = MT ? "[MT] @ [MT.x], [MT.y], [MT.z]" : "null"
 			info["area"] = MT ? "[MT.loc]" : "null"
 			info["antag"] = M.mind ? (M.mind.special_role ? M.mind.special_role : "Not antag") : "No mind"
-			info["hasbeenrev"] = M.mind ? M.mind.has_been_rev : "No mind"
 			info["stat"] = M.stat
 			info["type"] = M.type
 			if(isliving(M))
@@ -398,8 +348,6 @@ var/world_topic_spam_protect_time = world.timeofday
 		if(!config.misc.ooc_allowed)
 			return "globally muted"
 
-		GLOB.indigo_bot.chat_webhook(config.indigo_bot.ooc_webhook, "DOOC: **[username]:** [message]")
-
 		var/sent_message = "[create_text_tag("dooc", "Discord")] <EM>[username]:</EM> <span class='message linkify'>[message]</span>"
 		for(var/client/target in GLOB.clients)
 			if(!target)
@@ -454,74 +402,6 @@ var/world_topic_spam_protect_time = world.timeofday
 		toggle_ooc()
 		log_and_message_admins("discord toggled OOC.")
 		return config.misc.ooc_allowed ? "ON" : "OFF"
-
-	else if(copytext(T,1,6) == "notes")
-		/*
-			We got a request for notes from the IRC Bot
-			expected output:
-				1. notes = ckey of person the notes lookup is for
-				2. validationkey = the key the bot has, it should match the gameservers commspassword in it's configuration.
-		*/
-		if(input["key"] != config.external.comms_password)
-			if(abs(world_topic_spam_protect_time - world.time) < 50)
-				sleep(50)
-				world_topic_spam_protect_time = world.time
-				return "Bad Key (Throttled)"
-
-			world_topic_spam_protect_time = world.time
-			return "Bad Key"
-
-		return show_player_info_irc(ckey(input["notes"]))
-
-	else if(copytext(T,1,4) == "age")
-		if(input["key"] != config.external.comms_password)
-			if(abs(world_topic_spam_protect_time - world.time) < 50)
-				sleep(50)
-				world_topic_spam_protect_time = world.time
-				return "Bad Key (Throttled)"
-
-			world_topic_spam_protect_time = world.time
-			return "Bad Key"
-
-		var/age = get_player_age(input["age"])
-		if(isnum(age))
-			if(age >= 0)
-				return "[age]"
-			else
-				return "Ckey not found"
-		else
-			return "Database connection failed or not set up"
-
-	else if(copytext(T,1,14) == "placepermaban")
-		if(!config.external.ban_comms_password)
-			return "Not enabled"
-		if(input["bankey"] != config.external.ban_comms_password)
-			if(abs(world_topic_spam_protect_time - world.time) < 50)
-				sleep(50)
-				world_topic_spam_protect_time = world.time
-				return "Bad Key (Throttled)"
-
-			world_topic_spam_protect_time = world.time
-			return "Bad Key"
-
-		var/target = ckey(input["target"])
-
-		var/client/C
-		for(var/client/K in GLOB.clients)
-			if(K.ckey == target)
-				C = K
-				break
-		if(!C)
-			return "No client with that name found on server"
-		if(!C.mob)
-			return "Client missing mob"
-
-		if(!_DB_ban_record(input["id"], "0", "127.0.0.1", 1, C.mob, -1, input["reason"]))
-			return "Save failed"
-		ban_unban_log_save("[input["id"]] has permabanned [C.ckey]. - Reason: [input["reason"]] - This is a ban until appeal.")
-		notes_add(target,"[input["id"]] has permabanned [C.ckey]. - Reason: [input["reason"]] - This is a ban until appeal.",input["id"])
-		qdel(C)
-
 
 /world/Reboot(reason, reboot_hardness = 0)
 	// sound_to(world, sound('sound/AI/newroundsexy.ogg')

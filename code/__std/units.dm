@@ -8,7 +8,7 @@
 #define HOURS   HOUR
 #define DAYS    DAY
 
-#define LITER        *1000
+#define LITER        *1
 #define WATT         *1
 #define METER        *1
 #define GRAM         *1

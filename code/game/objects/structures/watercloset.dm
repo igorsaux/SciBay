@@ -102,7 +102,7 @@
 			user.visible_message(SPAN_DANGER("[user] gives [G.affecting.name] a swirlie!"), \
 									SPAN_DANGER("You give [G.affecting.name] a swirlie!"))
 			playsound(src, 'sound/effects/toilet_flush.ogg', 100, TRUE)
-			if(!G?.affecting?.internal && !G.affecting.isSynthetic())
+			if(!G?.affecting?.internal)
 				G.affecting.adjustOxyLoss(TOILET_OXYLOSS_PER_SWIRLIE)
 				G.affecting.emote("gasp")
 			swirlie = null
@@ -152,7 +152,6 @@
 	icon_state = "shower"
 	density = FALSE
 	anchored = TRUE
-	use_power = 0
 	layer = ABOVE_WINDOW_LAYER
 	var/watertemp = "normal"	//freezing, normal, or boiling
 	var/is_washing = 0
@@ -177,10 +176,6 @@
 			if(prob(25))
 				new /obj/item/shower_parts(get_turf(src))
 				qdel_self()
-
-/obj/machinery/shower/Initialize(mapload, ...)
-	. = ..()
-	create_reagents(0.5 LITERS)
 
 //add heat controls? when emagged, you can freeze to death in it?
 
@@ -232,10 +227,6 @@
 		new /obj/item/shower_parts(get_turf(src))
 		qdel_self()
 
-	if(I.type == /obj/item/device/analyzer)
-		to_chat(user, SPAN_NOTICE("The water temperature seems to be [watertemp]."))
-		return
-
 	if(isWrench(I))
 		var/newtemp = tgui_input_list(user, "What setting would you like to set the temperature valve to?", "Water Temperature Valve", temperature_settings)
 		if(!Adjacent(user))
@@ -275,11 +266,6 @@
 		if(M.back)
 			if(M.back.clean_blood())
 				M.update_inv_back(0)
-
-		//flush away reagents on the skin
-		if(M.touching)
-			var/remove_amount = M.touching.maximum_volume * M.reagent_permeability() //take off your suit first
-			M.touching.remove_any(remove_amount)
 
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
@@ -352,10 +338,8 @@
 	if(isturf(loc))
 		var/turf/tile = loc
 		for(var/obj/effect/E in tile)
-			if(istype(E,/obj/effect/rune) || istype(E,/obj/effect/decal/cleanable) || istype(E,/obj/effect/overlay))
+			if(istype(E,/obj/effect/decal/cleanable) || istype(E,/obj/effect/overlay))
 				qdel(E)
-
-	reagents.splash(O, 10)
 
 /obj/machinery/shower/Process()
 	if(world.time >= time_enabled + SHOWER_MAX_WORKING_TIME)
@@ -379,11 +363,8 @@
 		next_wash_time = world.time + SHOWER_WASH_FLOOR_INTERVAL
 		wash_floor()
 
-	reagents.add_reagent(/datum/reagent/water, reagents.get_free_space())
-
 /obj/machinery/shower/proc/wash_floor()
 	var/turf/T = get_turf(src)
-	reagents.splash(T, reagents.total_volume)
 	T.clean(src)
 
 /obj/machinery/shower/proc/process_heat(mob/living/M)
@@ -438,12 +419,8 @@
 		return ..()
 	if(!usr.Adjacent(src))
 		return ..()
-	if(!thing.reagents || thing.reagents.total_volume == 0)
-		to_chat(usr, "<span class='warning'>\The [thing] is empty.</span>")
-		return
 	// Clear the vessel.
 	visible_message("<span class='notice'>\The [usr] tips the contents of \the [thing] into \the [src].</span>")
-	thing.reagents.clear_reagents()
 	thing.update_icon()
 
 /obj/structure/sink/attack_hand(mob/user)
@@ -451,9 +428,6 @@
 		var/mob/living/carbon/human/H = user
 		if(!H.is_hand_usable())
 			return
-
-	if(isrobot(user) || isAI(user))
-		return
 
 	if(!Adjacent(user))
 		return
@@ -487,11 +461,7 @@
 
 	var/obj/item/reagent_containers/RG = O
 	if (istype(RG) && RG.is_open_container())
-		if(RG.reagents.total_volume == RG.volume)
-			to_chat(user, SPAN("notice", "\The [RG] is already full!"))
-			return
 		playsound(loc, 'sound/effects/using/sink/filling1.ogg', 75)
-		RG.reagents.add_reagent(/datum/reagent/water, min(RG.volume - RG.reagents.total_volume, RG.amount_per_transfer_from_this))
 		user.visible_message("<span class='notice'>[user] fills \the [RG] using \the [src].</span>","<span class='notice'>You fill \the [RG] using \the [src].</span>")
 		return TRUE
 
@@ -506,11 +476,8 @@
 				user.Stun(10)
 				user.stuttering = 10
 				user.Weaken(10)
-				if(isrobot(user))
-					var/mob/living/silicon/robot/R = user
-					R.cell.charge -= 20
-				else
-					B.deductcharge(B.hitcost)
+
+				B.deductcharge(B.hitcost)
 
 				playsound(get_turf(src), GET_SFX(SFX_SPARK_SMALL), 50, TRUE, -1)
 				user.visible_message( \
@@ -520,7 +487,6 @@
 
 	else if(istype(O, /obj/item/mop))
 		playsound(loc, 'sound/effects/using/sink/filling1.ogg', 75)
-		O.reagents.add_reagent(/datum/reagent/water, 300)
 		to_chat(user, "<span class='notice'>You wet \the [O] in \the [src].</span>")
 		playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
 		return TRUE

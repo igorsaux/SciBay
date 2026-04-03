@@ -10,26 +10,6 @@
 	display_name = "dice pack (gaming)"
 	path = /obj/item/storage/pill_bottle/dice_nerd
 
-/datum/gear/cards
-	display_name = "deck of cards"
-	path = /obj/item/deck/cards
-
-/datum/gear/tarot
-	display_name = "deck of tarot cards"
-	path = /obj/item/deck/tarot
-
-/datum/gear/holder
-	display_name = "card holder"
-	path = /obj/item/deck/holder
-
-/datum/gear/cardemon_pack
-	display_name = "Cardemon booster pack"
-	path = /obj/item/pack/cardemon
-
-/datum/gear/spaceball_pack
-	display_name = "Spaceball booster pack"
-	path = /obj/item/pack/spaceball
-
 /datum/gear/coffeecup
 	display_name = "coffee cup"
 	path = /obj/item/reagent_containers/vessel/mug
@@ -75,19 +55,6 @@
 	display_name = "pipe, smoking"
 	path = /obj/item/clothing/mask/smokable/pipe
 
-/datum/gear/cornpipe
-	display_name = "pipe, corn"
-	path = /obj/item/clothing/mask/smokable/pipe/cobpipe
-
-/datum/gear/ashtray
-	display_name = "ashtray, plastic"
-	path = /obj/item/material/ashtray/plastic
-
-/datum/gear/cigars
-	display_name = "fancy cigar case"
-	path = /obj/item/storage/fancy/cigar
-	cost = 2
-
 /datum/gear/cigar
 	display_name = "fancy cigar"
 	path = /obj/item/clothing/mask/smokable/cigarette/cigar
@@ -98,41 +65,6 @@
 	cigar_type["premium"] = /obj/item/clothing/mask/smokable/cigarette/cigar
 	cigar_type["Cohiba Robusto"] = /obj/item/clothing/mask/smokable/cigarette/cigar/cohiba
 	gear_tweaks += new /datum/gear_tweak/path(cigar_type)
-
-/datum/gear/ecig
-	display_name = "electronic cigarette"
-	path = /obj/item/clothing/mask/smokable/ecig/util
-
-/datum/gear/ecig/deluxe
-	display_name = "electronic cigarette, deluxe"
-	path = /obj/item/clothing/mask/smokable/ecig/deluxe
-	cost = 2
-
-/datum/gear/accessory/wallet
-	display_name = "wallet, colour select"
-	path = /obj/item/storage/wallet
-	flags = GEAR_HAS_COLOR_SELECTION
-
-/datum/gear/accessory/wallet_poly
-	display_name = "wallet, polychromic"
-	path = /obj/item/storage/wallet/poly
-	cost = 2
-
-/datum/gear/augmentations/pen /// well it could be in a new category, but there will be only 2 items so whatever
-	display_name = "embedded pen module"
-	path = /obj/item/organ_module/active/simple/pen
-	cost = 1
-
-/datum/gear/augmentations/pen/is_allowed_to_display(mob/user)
-	return FALSE
-
-/datum/gear/augmentations/cyber_hair
-	display_name = "synthetic hair extensions module"
-	path = /obj/item/organ_module/active/cyber_hair
-	cost = 1
-
-/datum/gear/augmentations/cyber_hair/is_allowed_to_display(mob/user)
-	return FALSE
 
 /datum/gear/welding_cover
 	display_name = "welding helmet covers selection"

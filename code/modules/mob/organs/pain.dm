@@ -7,10 +7,8 @@
 // power decides how much painkillers will stop the message
 // force means it ignores anti-spam timer
 /mob/living/carbon/proc/custom_pain(message, power, force, obj/item/organ/external/affecting, nohalloss)
-	if(stat || !can_feel_pain() || chem_effects[CE_PAINKILLER] > power)
+	if(stat || !can_feel_pain())
 		return 0
-
-	power -= chem_effects[CE_PAINKILLER] / 2 //Take the edge off.
 
 	if(!message)
 		if(affecting)
@@ -60,7 +58,7 @@
 			damaged_organ = E
 			maxdam = dam
 
-	if(damaged_organ && chem_effects[CE_PAINKILLER] < maxdam)
+	if(damaged_organ)
 		if(maxdam > 10 && paralysis)
 			paralysis = max(0, paralysis - round(maxdam/10))
 		if(maxdam > 50 && prob(maxdam / 5))
@@ -72,7 +70,7 @@
 
 	// Damage to internal organs hurts a lot.
 	for(var/obj/item/organ/internal/I in internal_organs)
-		if(prob(1) && !((I.status & ORGAN_DEAD) || BP_IS_ROBOTIC(I)) && I.damage > 5)
+		if(prob(1) && !((I.status & ORGAN_DEAD)) && I.damage > 5)
 			var/obj/item/organ/external/parent = get_organ(I.parent_organ)
 			var/pain = 10
 			var/message = "You feel a dull pain in your [parent.name]"

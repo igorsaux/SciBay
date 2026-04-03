@@ -65,26 +65,6 @@
 	else
 		. += SPAN_NOTICE("\The [src] is off.")
 
-/obj/machinery/power/port_gen/emp_act(severity)
-	if(!active)
-		return
-	var/duration = 6000 //ten minutes
-	switch(severity)
-		if(1)
-			stat &= BROKEN
-			if(prob(75)) explode()
-		if(2)
-			if(prob(25)) stat &= BROKEN
-			if(prob(10)) explode()
-		if(3)
-			if(prob(10)) stat &= BROKEN
-			duration = 300
-
-	stat |= EMPED
-	if(duration)
-		spawn(duration)
-			stat &= ~EMPED
-
 /obj/machinery/power/port_gen/proc/explode()
 	explosion(src.loc, -1, 3, 5, -1)
 	qdel(src)
@@ -266,15 +246,6 @@
 	sheet_left = 0
 	..()
 
-/obj/machinery/power/port_gen/pacman/emag_act(remaining_charges, mob/user)
-	if (active && prob(25))
-		explode() //if they're foolish enough to emag while it's running
-
-	if (!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		emagged = 1
-		return 1
-
 /obj/machinery/power/port_gen/pacman/attackby(obj/item/W, mob/user)
 	if(istype(W, sheet_path))
 		var/obj/item/stack/addstack = W
@@ -305,9 +276,6 @@
 	..()
 	if (!anchored)
 		return
-	ui_interact(user)
-
-/obj/machinery/power/port_gen/pacman/attack_ai(mob/user)
 	ui_interact(user)
 
 /obj/machinery/power/port_gen/pacman/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
@@ -456,24 +424,9 @@
 	board_path = /obj/item/circuitboard/pacman/super/potato
 	anchored = 1
 
-/obj/machinery/power/port_gen/pacman/super/potato/New()
-	create_reagents(1.2 LITERS)
-	..()
-
-/obj/machinery/power/port_gen/pacman/super/potato/examine(mob/user, infix)
-	. = ..()
-	. += "Auxilary tank shows [reagents.total_volume]ml of liquid in it."
-
 /obj/machinery/power/port_gen/pacman/super/potato/UseFuel()
-	if(reagents.has_reagent("vodka"))
-		rad_power = 2
-		temperature_gain = 60
-		reagents.remove_any(10)
-		if(prob(2))
-			audible_message("<span class='notice'>[src] churns happily</span>", splash_override = "*churn*")
-	else
-		rad_power = initial(rad_power)
-		temperature_gain = initial(temperature_gain)
+	rad_power = initial(rad_power)
+	temperature_gain = initial(temperature_gain)
 	..()
 
 /obj/machinery/power/port_gen/pacman/super/potato/on_update_icon()
@@ -486,12 +439,8 @@
 	if(istype(O, /obj/item/reagent_containers/))
 		var/obj/item/reagent_containers/R = O
 		if(R.standard_pour_into(src,user))
-			if(reagents.has_reagent("vodka"))
-				audible_message("<span class='notice'>[src] blips happily</span>", splash_override = "*blip!*")
-				playsound(src,'sound/machines/synth_yes.ogg', 50, 0)
-			else
-				audible_message("<span class='warning'>[src] blips in disappointment</span>", splash_override = "*blip...*")
-				playsound(src, 'sound/machines/synth_no.ogg', 50, 0)
+			audible_message("<span class='warning'>[src] blips in disappointment</span>", splash_override = "*blip...*")
+			playsound(src, 'sound/machines/synth_no.ogg', 50, 0)
 		return
 	..()
 

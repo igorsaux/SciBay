@@ -14,7 +14,6 @@
 	var/area/A = areas[selected_area]
 	mob.jumpTo(pick(get_area_turfs(A)))
 	log_and_message_admins("jumped to [A]")
-	feedback_add_details("admin_verb","JA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/jumptoturf(turf/T)
 	set name = "Jump to Turf"
@@ -26,7 +25,6 @@
 
 	log_and_message_admins("jumped to [T.x],[T.y],[T.z] in [T.loc]")
 	mob.jumpTo(T)
-	feedback_add_details("admin_verb","JT") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/jumptomob(mob/M in SSmobs.mob_list)
 	set category = null
@@ -40,7 +38,6 @@
 		if(mob)
 			var/turf/T = get_turf(M)
 			if(T && isturf(T))
-				feedback_add_details("admin_verb","JM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 				mob.jumpTo(T)
 			else
 				to_chat(mob, "This mob is not located in the game world.")
@@ -74,7 +71,6 @@
 		return
 	mob.jumpTo(T)
 
-	feedback_add_details("admin_verb","JC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	log_and_message_admins("jumped to coordinates [tx], [ty], [tz]")
 
 /proc/sorted_client_keys()
@@ -95,7 +91,6 @@
 		var/mob/M = C.mob
 		log_and_message_admins("jumped to [key_name(M)]")
 		mob.jumpTo(get_turf(M))
-		feedback_add_details("admin_verb","JK") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	else
 		alert("Admin jumping disabled")
 
@@ -108,7 +103,6 @@
 	if(config.admin.allow_admin_jump)
 		log_and_message_admins("teleported [key_name(M)] to self.")
 		M.jumpTo(get_turf(mob))
-		feedback_add_details("admin_verb","GM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	else
 		alert("Admin jumping disabled")
 
@@ -143,7 +137,6 @@
 		log_and_message_admins("teleported [key_name(M)] to self.")
 		if(M)
 			M.jumpTo(get_turf(mob))
-			feedback_add_details("admin_verb","GK") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	else
 		alert("Admin jumping disabled")
 
@@ -161,5 +154,4 @@
 	A = A ? areas[A] : A
 	if(A)
 		M.jumpTo(pick(get_area_turfs(A)))
-		feedback_add_details("admin_verb","SMOB") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 		log_and_message_admins("teleported [key_name(M)] to [A].")

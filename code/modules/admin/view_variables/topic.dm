@@ -76,28 +76,6 @@
 		src.holder.show_player_panel(M)
 		href_list["datumrefresh"] = href_list["mob_player_panel"]
 
-	else if(href_list["give_spell"])
-		if(!check_rights(R_ADMIN|R_FUN))	return
-
-		var/mob/M = locate(href_list["give_spell"])
-		if(!istype(M))
-			to_chat(usr, "This can only be used on instances of type /mob")
-			return
-
-		src.give_spell(M)
-		href_list["datumrefresh"] = href_list["give_spell"]
-
-	else if(href_list["give_disease2"])
-		if(!check_rights(R_ADMIN|R_FUN))	return
-
-		var/mob/M = locate(href_list["give_disease2"])
-		if(!istype(M))
-			to_chat(usr, "This can only be used on instances of type /mob")
-			return
-
-		src.give_disease2(M)
-		href_list["datumrefresh"] = href_list["give_spell"]
-
 	else if(href_list["godmode"])
 		if(!check_rights(R_REJUVINATE))	return
 
@@ -214,17 +192,6 @@
 
 		src.cmd_admin_explosion(A)
 		href_list["datumrefresh"] = href_list["explode"]
-
-	else if(href_list["emp"])
-		if(!check_rights(R_DEBUG|R_FUN))	return
-
-		var/atom/A = locate(href_list["emp"])
-		if(!isobj(A) && !ismob(A) && !isturf(A))
-			to_chat(usr, "This can only be done to instances of type /obj, /mob and /turf")
-			return
-
-		src.cmd_admin_emp(A)
-		href_list["datumrefresh"] = href_list["emp"]
 
 	else if(href_list["mark_object"])
 		if(!check_rights(0))	return
@@ -387,10 +354,6 @@
 		switch(H.type)
 			if(/mob/living/carbon/human)
 				possibleverbs += typesof(/mob/living/carbon/proc,/mob/living/carbon/verb,/mob/living/carbon/human/verb,/mob/living/carbon/human/proc)
-			if(/mob/living/silicon/robot)
-				possibleverbs += typesof(/mob/living/silicon/proc,/mob/living/silicon/robot/proc,/mob/living/silicon/robot/verb)
-			if(/mob/living/silicon/ai)
-				possibleverbs += typesof(/mob/living/silicon/proc,/mob/living/silicon/ai/proc,/mob/living/silicon/ai/verb)
 		possibleverbs -= H.verbs
 		possibleverbs += "Cancel" 								// ...And one for the bottom
 
@@ -568,26 +531,6 @@
 		var/datum/D = locate(href_list["call_proc"])
 		if(istype(D) || istype(D, /client)) // can call on clients too, not just datums
 			callproc_targetpicked(1, D)
-	else if(href_list["addaura"])
-		if(!check_rights(R_DEBUG|R_ADMIN|R_FUN))	return
-		var/mob/living/L = locate(href_list["addaura"])
-		if(!istype(L))
-			return
-		var/choice = input("Please choose an aura to add", "Auras", null) as null|anything in typesof(/obj/aura)
-		if(!choice || !L)
-			return
-		var/obj/o = new choice(L)
-		log_and_message_admins("added \the [o] to \the [L]")
-	else if(href_list["removeaura"])
-		if(!check_rights(R_DEBUG|R_ADMIN|R_FUN))	return
-		var/mob/living/L = locate(href_list["removeaura"])
-		if(!istype(L))
-			return
-		var/choice = input("Please choose an aura to remove", "Auras", null) as null|anything in L.auras
-		if(!choice || !L)
-			return
-		log_and_message_admins("removed \the [choice] to \the [L]")
-		qdel(choice)
 	if(href_list["datumrefresh"])
 		var/datum/DAT = locate(href_list["datumrefresh"])
 		if(istype(DAT, /datum) || istype(DAT, /client))

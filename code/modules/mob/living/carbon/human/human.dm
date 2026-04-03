@@ -11,12 +11,6 @@
 	var/embedded_flag	  //To check if we've need to roll for damage on movement while an item is imbedded in us.
 	var/obj/item/rig/wearing_rig // This is very not good, but it's much much better than calling get_rig() every update_canmove() call.
 
-	var/spitting = 0                     //Spitting and spitting related things. Any human based ranged attacks, be it innate or added abilities.
-	var/spit_projectile = null           //Projectile type.
-	var/spit_name = "none"               //String
-	var/last_spit = 0                    //Timestamp.
-	var/active_ability = HUMAN_POWER_NONE  //Active "special power" like spits or leap/tackle
-
 	var/list/stance_limbs
 	var/list/grasp_limbs
 	var/last_body_response_to_pain = 0
@@ -62,7 +56,6 @@
 		dna.real_name = real_name
 		dna.s_base = s_base
 		sync_organ_dna()
-	make_blood()
 
 	if(!should_have_organ(BP_LIVER)) // Blood can clot w/out a liver.
 		coagulation = species.coagulation
@@ -80,37 +73,10 @@
 	grasp_limbs.Cut()
 	bad_external_organs.Cut()
 
-	QDEL_NULL(vessel)
 	return ..()
 
 /mob/living/carbon/human/get_description_fluff()
 	return print_flavor_text(FALSE)
-
-/mob/living/carbon/human/get_ingested_reagents()
-	if(should_have_organ(BP_STOMACH))
-		var/obj/item/organ/internal/stomach/stomach = internal_organs_by_name[BP_STOMACH]
-		if(stomach)
-			return stomach.ingested
-	return touching // Kind of a shitty hack, but makes more sense to me than digesting them.
-
-/mob/living/carbon/human/get_digested_reagents()
-	if(should_have_organ(BP_INTESTINES))
-		var/obj/item/organ/internal/intestines/I = internal_organs_by_name[BP_INTESTINES]
-		if(I)
-			return I.digested
-	return touching
-
-/mob/living/carbon/human/proc/metabolize_ingested_reagents()
-	if(should_have_organ(BP_STOMACH))
-		var/obj/item/organ/internal/stomach/stomach = internal_organs_by_name[BP_STOMACH]
-		if(stomach)
-			stomach.metabolize()
-
-/mob/living/carbon/human/proc/metabolize_digested_reagents()
-	if(should_have_organ(BP_INTESTINES))
-		var/obj/item/organ/internal/intestines/I = internal_organs_by_name[BP_INTESTINES]
-		if(I)
-			I.metabolize()
 
 /mob/living/carbon/human/Stat()
 	. = ..()
@@ -118,16 +84,6 @@
 		stat("Intent:", "[a_intent]")
 		stat("Move Mode:", "[m_intent]")
 		stat("Poise:", "[round(100/poise_pool*poise)]%")
-		stat("Special Ability:", "[active_ability]")
-		var/cpu_total = get_cpu_power()
-		var/cpu_used = get_active_cpu_load()
-		if(cpu_total || cpu_used)
-			stat("CPU:", "[cpu_used]/[cpu_total]")
-
-		if(evacuation_controller)
-			var/eta_status = evacuation_controller.get_status_panel_eta()
-			if(eta_status)
-				stat(null, eta_status)
 
 		if (istype(internal))
 			if (!internal.air_contents)
@@ -136,33 +92,6 @@
 				stat("Internal Atmosphere Info: ", internal.name)
 				stat("Tank Pressure: ", internal.air_contents.return_pressure())
 				stat("Distribution Pressure: ", internal.distribute_pressure)
-
-		var/obj/item/organ/internal/xenos/plasmavessel/P = internal_organs_by_name[BP_PLASMA]
-		if(P)
-			stat(null, "Plasma Stored: [P.stored_plasma]/[P.max_plasma]")
-
-		var/obj/item/organ/internal/cell/potato = internal_organs_by_name[BP_CELL]
-		if(potato && potato.cell)
-			stat("Battery charge:", "[potato.get_charge()]/[potato.cell.maxcharge]")
-
-		if(back && istype(back,/obj/item/rig))
-			var/obj/item/rig/suit = back
-			var/cell_status = "ERROR"
-			if(suit.cell) cell_status = "[suit.cell.charge]/[suit.cell.maxcharge]"
-			stat(null, "Suit charge: [cell_status]")
-
-		if(mind)
-			if(mind.vampire)
-				stat("Usable Blood: ", mind.vampire.blood_usable)
-				stat("Total Blood: ", mind.vampire.blood_total)
-
-			if(mind.changeling)
-				stat("Chemical Storage: ", mind.changeling.chem_charges)
-				stat("Genetic Damage Time: ", mind.changeling.genome_damage)
-
-			if(mind.special_role == "Borer Husk")
-				var/mob/living/simple_animal/borer/B = get_organ(BP_BRAIN)
-				stat("Chemicals: ", B?.chemicals)
 
 /mob/living/carbon/human/ex_act(severity)
 	if(!blinded)
@@ -215,32 +144,6 @@
 	f_loss *= 0.3
 	for(var/obj/item/organ/external/temp in external_organs)
 		temp.take_external_damage(b_loss, f_loss, used_weapon = "Explosive Blast")
-
-/mob/living/carbon/human/blob_act(damage)
-	if(is_ic_dead())
-		return
-
-	var/blocked = run_armor_check(BP_CHEST, "melee")
-	apply_damage(damage, BRUTE, BP_CHEST, blocked)
-
-/mob/living/carbon/human/proc/implant_loyalty(mob/living/carbon/human/M, override = FALSE) // Won't override by default.
-	if(!config.game.use_loyalty_implants && !override) return // Nuh-uh.
-
-	var/obj/item/implant/loyalty/L = new /obj/item/implant/loyalty(M)
-	L.imp_in = M
-	L.implanted = 1
-	var/obj/item/organ/external/affected = M.external_organs_by_name[BP_HEAD]
-	affected.implants += L
-	L.part = affected
-	L.implanted(src)
-
-/mob/living/carbon/human/proc/is_loyalty_implanted(mob/living/carbon/human/M)
-	for(var/L in M.contents)
-		if(istype(L, /obj/item/implant/loyalty))
-			for(var/obj/item/organ/external/O in M.external_organs)
-				if(L in O.implants)
-					return 1
-	return 0
 
 /mob/living/carbon/human/restrained()
 	if (handcuffed)
@@ -372,10 +275,6 @@
 // called when something steps onto a human
 // this handles mulebots and vehicles
 /mob/living/carbon/human/Crossed(atom/movable/AM)
-	if(istype(AM, /mob/living/bot/mulebot))
-		var/mob/living/bot/mulebot/MB = AM
-		MB.runOver(src)
-
 	if(istype(AM, /obj/vehicle))
 		var/obj/vehicle/V = AM
 		V.RunOver(src)
@@ -429,9 +328,6 @@
 //Useful when player is being seen by other mobs
 /mob/living/carbon/human/proc/get_id_name(if_no_id = "Unknown")
 	. = if_no_id
-	if(istype(wear_id,/obj/item/device/pda))
-		var/obj/item/device/pda/P = wear_id
-		return P.owner
 	if(wear_id)
 		var/obj/item/card/id/I = wear_id.get_id_card()
 		if(I)
@@ -524,134 +420,6 @@
 
 	if(href_list["item"])
 		handle_strip(href_list["item"],usr,locate(href_list["holder"]))
-
-	if (href_list["criminal"])
-		if(hasHUD(usr, HUD_SECURITY))
-
-			var/modified = 0
-			var/perpname = "wot"
-			if(wear_id)
-				var/obj/item/card/id/I = wear_id.get_id_card()
-				if(I)
-					perpname = I.registered_name
-				else
-					perpname = name
-			else
-				perpname = name
-
-			var/datum/computer_file/crew_record/R = get_crewmember_record(perpname)
-			if(R)
-				var/setcriminal = input(usr, "Specify a new criminal status for this person.", "Security HUD", R.get_criminalStatus()) as null|anything in GLOB.security_statuses
-				if(hasHUD(usr, HUD_SECURITY) && setcriminal)
-					R.set_criminalStatus(setcriminal)
-					modified = 1
-
-					spawn()
-						BITSET(hud_updateflag, WANTED_HUD)
-						if(istype(usr,/mob/living/carbon/human))
-							var/mob/living/carbon/human/U = usr
-							U.handle_regular_hud_updates()
-						if(istype(usr,/mob/living/silicon/robot))
-							var/mob/living/silicon/robot/U = usr
-							U.handle_regular_hud_updates()
-
-			if(!modified)
-				to_chat(usr, "<span class='warning'>Unable to locate a data core entry for this person.</span>")
-	if (href_list["secrecord"])
-		if(hasHUD(usr, HUD_SECURITY))
-			var/perpname = "wot"
-			var/read = 0
-
-			if(wear_id)
-				if(istype(wear_id,/obj/item/card/id))
-					perpname = wear_id:registered_name
-				else if(istype(wear_id,/obj/item/device/pda))
-					var/obj/item/device/pda/tempPda = wear_id
-					perpname = tempPda.owner
-			else
-				perpname = src.name
-			var/datum/computer_file/crew_record/E = get_crewmember_record(perpname)
-			if(E)
-				if(hasHUD(usr, HUD_SECURITY))
-					to_chat(usr, "<b>Name:</b> [E.get_name()]")
-					to_chat(usr, "<b>Criminal Status:</b> [E.get_criminalStatus()]")
-					to_chat(usr, "<b>Major Crimes:</b> [pencode2html(E.get_major_crimes())]")
-					to_chat(usr, "<b>Minor Crimes:</b> [pencode2html(E.get_minor_crimes())]")
-					to_chat(usr, "<b>Crime Details:</b> [pencode2html(E.get_crime_details())]")
-					to_chat(usr, "<b>Important Notes:</b> [pencode2html(E.get_crime_notes())]")
-					to_chat(usr, "<b>Security Background:</b> [pencode2html(E.get_secRecord())]")
-					read = 1
-
-			if(!read)
-				to_chat(usr, "<span class='warning'>Unable to locate a data core entry for this person.</span>")
-	if (href_list["physical"] || href_list["mental"])
-		var/is_physical = href_list["physical"]
-		if(hasHUD(usr, HUD_MEDICAL))
-			var/perpname = "wot"
-			var/modified = 0
-
-			if(wear_id)
-				if(istype(wear_id,/obj/item/card/id))
-					perpname = wear_id:registered_name
-				else if(istype(wear_id,/obj/item/device/pda))
-					var/obj/item/device/pda/tempPda = wear_id
-					perpname = tempPda.owner
-			else
-				perpname = src.name
-
-			var/datum/computer_file/crew_record/E = get_crewmember_record(perpname)
-			if(E)
-				var/setstatus
-				if (is_physical)
-					setstatus = input(usr, "Specify a new physical status for this person.", "Medical HUD", E.get_status_physical()) as null|anything in GLOB.physical_statuses
-				else
-					setstatus = input(usr, "Specify a new mental status for this person.", "Medical HUD", E.get_status_mental()) as null|anything in GLOB.mental_statuses
-				if(hasHUD(usr, HUD_MEDICAL) && setstatus)
-					if (is_physical)
-						E.set_status_physical(setstatus)
-					else
-						E.set_status_mental(setstatus)
-					modified = 1
-
-					spawn()
-						if(istype(usr,/mob/living/carbon/human))
-							var/mob/living/carbon/human/U = usr
-							U.handle_regular_hud_updates()
-						if(istype(usr,/mob/living/silicon/robot))
-							var/mob/living/silicon/robot/U = usr
-							U.handle_regular_hud_updates()
-
-			if(!modified)
-				to_chat(usr, "<span class='warning'>Unable to locate a data core entry for this person.</span>")
-	if (href_list["medrecord"])
-		if(hasHUD(usr, HUD_MEDICAL))
-			var/perpname = "wot"
-			var/read = 0
-
-			if(wear_id)
-				if(istype(wear_id,/obj/item/card/id))
-					perpname = wear_id:registered_name
-				else if(istype(wear_id,/obj/item/device/pda))
-					var/obj/item/device/pda/tempPda = wear_id
-					perpname = tempPda.owner
-			else
-				perpname = src.name
-			var/datum/computer_file/crew_record/E = get_crewmember_record(perpname)
-			if(E)
-				if(hasHUD(usr, HUD_MEDICAL))
-					to_chat(usr, "<b>Name:</b> [E.get_name()]")
-					to_chat(usr, "<b>Gender:</b> [E.get_sex()]")
-					to_chat(usr, "<b>Species:</b> [E.get_species()]")
-					to_chat(usr, "<b>Blood Type:</b> [E.get_bloodtype()]")
-					to_chat(usr, "<b>Major Disabilities:</b> [pencode2html(E.get_major_disabilities())]")
-					to_chat(usr, "<b>Minor Disabilities:</b> [pencode2html(E.get_minor_disabilities())]")
-					to_chat(usr, "<b>Curent Diseases:</b> [pencode2html(E.get_current_diseases())]")
-					to_chat(usr, "<b>Medical Condition Details:</b> [pencode2html(E.get_medical_details())]")
-					to_chat(usr, "<b>Important Notes:</b> [pencode2html(E.get_medical_notes())]")
-					to_chat(usr, "<b>Medical Background:</b> [pencode2html(E.get_medRecord())]")
-					read = 1
-			if(!read)
-				to_chat(usr, "<span class='warning'>Unable to locate a data core entry for this person.</span>")
 
 	if (href_list["lookitem"])
 		var/obj/item/I = locate(href_list["lookitem"])
@@ -767,60 +535,9 @@
 		return 0
 	return 1
 
-/mob/living/carbon/human/proc/taste(datum/reagents/R, amount = 1, multiplier = 1, force = FALSE)
-	if(!force && last_taste_time + 50 >= world.time)
-		return FALSE
-
-	if(should_have_organ(BP_TONGUE))
-		var/obj/item/organ/internal/tongue/L = internal_organs_by_name[BP_TONGUE]
-		if(!L || L.is_broken())
-			return FALSE
-
-	var/datum/reagents/temp = new(amount, GLOB.temp_reagents_holder) //temporary holder used to analyse what gets transfered.
-	R.trans_to_holder(temp, amount, multiplier, 1)
-
-	var/text_output = temp.generate_taste_message(src)
-	if(text_output != last_taste_text || last_taste_time + 100 < world.time) //We dont want to spam the same message over and over again at the person. Give it a bit of a buffer.
-		to_chat(src, "<span class='notice'>You can taste [text_output].</span>")//no taste means there are too many tastes and not enough flavor.
-
-		last_taste_time = world.time
-		last_taste_text = text_output
-
-/mob/living/carbon/human/proc/ingest_reagents(datum/reagents/R, amount = 0)
-	if(!R || !amount)
-		return FALSE
-
-	taste(R, amount)
-
-	if(!should_have_organ(BP_STOMACH))
-		R.trans_to_mob(src, amount, CHEM_INGEST)
-		return TRUE
-
-	var/obj/item/organ/internal/stomach/S = internal_organs_by_name[BP_STOMACH]
-	if(S)
-		if(S.is_broken() && prob(15))
-			custom_pain("Your stomach cramps!", 10)
-		R.trans_to_mob(src, amount, CHEM_INGEST)
-		return TRUE
-
-	if(should_have_organ(BP_INTESTINES))
-		var/obj/item/organ/internal/intestines/I = internal_organs_by_name[BP_INTESTINES]
-		if(!I)
-			// TODO: Abdominal cavity here
-			custom_pain("Your guts cramp!", 10)
-			return TRUE
-		else
-			R.trans_to_mob(src, amount, CHEM_DIGEST)
-		return TRUE
-
-	return FALSE
-
 /mob/living/carbon/human/proc/ingest(atom/movable/AM, ignore_taste = FALSE)
 	if(QDELETED(AM))
 		return FALSE
-
-	if(!ignore_taste)
-		taste(AM.reagents, AM.reagents.total_volume)
 
 	if(!should_have_organ(BP_STOMACH))
 		return FALSE // Whatever fallback we rely on.
@@ -853,7 +570,7 @@
 
 /mob/living/carbon/human/proc/vomit(toxvomit = 0, timevomit = 1, level = 3, silent = FALSE)
 	set waitfor = 0
-	if(!timevomit || !level || chem_effects[CE_NOVOMIT] || !check_has_mouth() || isSynthetic())
+	if(!timevomit || !level || !check_has_mouth())
 		return
 	level = Clamp(level, 1, 3)
 	timevomit = Clamp(timevomit, 1, 10)
@@ -872,17 +589,9 @@
 				var/obj/item/organ/internal/stomach/stomach = internal_organs_by_name[BP_STOMACH]
 				if(!istype(stomach))
 					custom_emote(VISIBLE_MESSAGE, "dry heaves.", "AUTO_EMOTE")
-				else if(!(nutrition > STOMACH_FULLNESS_SUPER_LOW || stomach.get_fullness() > 5))
+				else if(!(nutrition > STOMACH_FULLNESS_SUPER_LOW))
 					custom_emote(VISIBLE_MESSAGE, "dry heaves.", "AUTO_EMOTE")
 				else
-					// Legacy stomach_contents (mostly used by mobs by now)
-					for(var/a in stomach_contents)
-						var/atom/movable/A = a
-						A.forceMove(get_turf(src))
-						stomach_contents.Remove(a)
-						if(src.species.gluttonous & GLUT_PROJECTILE_VOMIT)
-							A.throw_at(get_edge_target_turf(src, dir), 7, 1, src)
-
 					// Actual stomach contents
 					for(var/a in stomach.processing)
 						if(prob(20))
@@ -894,15 +603,8 @@
 						stomach.processing.Remove(a)
 					stomach.recalc_items_volume()
 
-					// Getting rid of reagents in stomach, randoming from 30 ml to the whole contents
-					stomach.ingested.remove_any(rand(30, stomach.ingested.total_volume))
-
 					src.visible_message("<span class='warning'>[src] throws up!</span>","<span class='warning'>You throw up!</span>")
 					playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-
-					var/turf/location = loc
-					if(istype(location, /turf/simulated))
-						location.add_vomit_floor(src, toxvomit, stomach.ingested)
 
 					remove_nutrition(10.0)
 					remove_hydration(rand(50, 200))
@@ -947,10 +649,6 @@
 	return ..()
 
 /mob/living/carbon/human/revive(ignore_prosthetic_prefs = FALSE)
-	if(should_have_organ(BP_HEART))
-		vessel.add_reagent(/datum/reagent/blood, species.blood_volume - vessel.total_volume)
-		fixblood()
-
 	species.create_organs(src) // Reset our organs/limbs.
 
 	if(!client || !key) //Don't boot out anyone already in the mob.
@@ -960,10 +658,6 @@
 					if(H.brainmob.mind)
 						H.brainmob.mind.transfer_to(src)
 						qdel(H)
-
-	for(var/ID in virus2)
-		var/datum/disease2/disease/V = virus2[ID]
-		V.cure()
 
 	losebreath = 0
 
@@ -1009,20 +703,6 @@
 			bloody_hands = null
 			update_inv_gloves(0)
 	update_icons()	//apply the now updated overlays to the mob
-
-/mob/living/carbon/human/get_visible_implants()
-	var/list/visible_implants = ..()
-
-	for(var/obj/item/organ/external/organ in external_organs)
-		for(var/obj/item/O in organ.implants)
-			if(!istype(O, /obj/item/organ_module))
-				continue
-			var/obj/item/organ_module/module = O
-			if(!(module.module_flags & OM_FLAG_INSPECTABLE))
-				continue
-			visible_implants += O
-
-	return visible_implants
 
 /mob/living/carbon/human/get_embedded_objects(class = 0)
 	var/list/embedded_objects = ..()
@@ -1170,22 +850,10 @@
 
 	spawn(0)
 		regenerate_icons()
-		if(vessel.total_volume < species.blood_volume)
-			vessel.maximum_volume = species.blood_volume
-			vessel.add_reagent(/datum/reagent/blood, species.blood_volume - vessel.total_volume)
-		else if(vessel.total_volume > species.blood_volume)
-			vessel.remove_reagent(/datum/reagent/blood, vessel.total_volume - species.blood_volume)
-			vessel.maximum_volume = species.blood_volume
-		fixblood()
-
 
 	// Rebuild the HUD. If they aren't logged in then login() should reinstantiate it for them.
 	if(client)
 		Login()
-
-	if(config && config.revival.use_cortical_stacks && client && client.prefs.has_cortical_stack && !(species.spawn_flags & SPECIES_NO_LACE))
-		create_stack()
-	full_prosthetic = null
 
 	//recheck species-restricted clothing
 	for(var/slot in slot_first to slot_last)
@@ -1268,10 +936,6 @@
 		to_chat(user, "<span class='warning'>They are missing that limb.</span>")
 		return 0
 
-	if(BP_IS_ROBOTIC(affecting))
-		to_chat(user, "<span class='warning'>That limb is robotic.</span>")
-		return 0
-
 	. = CAN_INJECT
 	for(var/obj/item/clothing/C in list(head, wear_mask, wear_suit, w_uniform, gloves, shoes))
 		if(C && (C.body_parts_covered & affecting.body_part) && (C.item_flags & ITEM_FLAG_THICKMATERIAL))
@@ -1344,14 +1008,10 @@
 /mob/living/carbon/human/getDNA()
 	if(species.species_flags & SPECIES_FLAG_NO_SCAN)
 		return null
-	if(isSynthetic())
-		return
 	..()
 
 /mob/living/carbon/human/setDNA()
 	if(species.species_flags & SPECIES_FLAG_NO_SCAN)
-		return
-	if(isSynthetic())
 		return
 	..()
 
@@ -1437,13 +1097,6 @@
 
 
 /mob/living/carbon/human/can_stand_overridden()
-	if(wearing_rig && wearing_rig.ai_can_move_suit(check_for_ai = 1))
-		// Actually missing a leg will screw you up. Everything else can be compensated for.
-		for(var/limbcheck in list(BP_L_LEG,BP_R_LEG))
-			var/obj/item/organ/affecting = get_organ(limbcheck)
-			if(!affecting)
-				return 0
-		return 1
 	return 0
 
 /mob/living/carbon/human/verb/pull_punches()
@@ -1514,7 +1167,7 @@
 	if(!src.species.gluttonous)
 		return FALSE
 	var/total = 0
-	for(var/a in stomach_contents + victim)
+	for(var/a in victim)
 		if(ismob(a))
 			var/mob/M = a
 			total += M.mob_size
@@ -1524,7 +1177,7 @@
 	if(total > src.species.stomach_capacity)
 		return FALSE
 
-	if(iscarbon(victim) || isanimal(victim))
+	if(iscarbon(victim))
 		var/mob/living/L = victim
 		if((src.species.gluttonous & GLUT_TINY) && (L.mob_size <= MOB_TINY) && !ishuman(victim)) // Anything MOB_TINY or smaller
 			return DEVOUR_SLOW
@@ -1545,18 +1198,6 @@
 	return ..()
 
 /mob/living/carbon/human/should_have_organ(organ_check)
-
-	var/obj/item/organ/external/affecting
-	if(organ_check in list(BP_HEART, BP_LUNGS, BP_STOMACH, BP_LIVER))
-		affecting = external_organs_by_name[BP_CHEST]
-	else if(organ_check in list(BP_KIDNEYS, BP_BLADDER, BP_INTESTINES))
-		affecting = external_organs_by_name[BP_GROIN]
-	else if(organ_check in list(BP_EYES, BP_TONGUE))
-		affecting = external_organs_by_name[BP_HEAD]
-
-	if(affecting && BP_IS_ROBOTIC(affecting))
-		return 0
-
 	return (species && species.has_organ[organ_check])
 
 /mob/living/carbon/human/has_limb(limb_check)	//returns 1 if found, 2 if limb is robotic, 0 if not found and null if its chest or groin (dont pass those)
@@ -1568,9 +1209,7 @@
 	limb = external_organs_by_name[limb_check]
 
 	if(limb && !limb.is_stump())
-		if(BP_IS_ROBOTIC(limb))
-			return 2
-		else return 1
+		return 1
 	return 0
 
 /// Basically the same as before, but also checks whether limb is FUBAR
@@ -1582,17 +1221,13 @@
 	limb = external_organs_by_name[limb_check]
 
 	if(limb && !limb.is_stump() && !(limb.status & ORGAN_DISFIGURED))
-		if(BP_IS_ROBOTIC(limb))
-			return 2
-		else return 1
+		return 1
 	return 0
 
 /mob/living/carbon/human/can_feel_pain(obj/item/organ/check_organ)
 	if(no_pain)
 		return 0
 		// TODO [V] Remove this dirty hack
-	if(full_prosthetic) // Not using isSynthetic() to prevent huge overhead
-		return 0
 	if(check_organ)
 		if(!istype(check_organ))
 			return 0
@@ -1672,7 +1307,7 @@
 	if(!is_asystole() || !should_have_organ(BP_HEART))
 		return
 	var/obj/item/organ/internal/heart/heart = internal_organs_by_name[BP_HEART]
-	if(istype(heart) && !BP_IS_ROBOTIC(heart) && !(heart.status & ORGAN_DEAD))
+	if(istype(heart) && !(heart.status & ORGAN_DEAD))
 		var/species_organ = species.breathing_organ
 		var/active_breaths = 0
 		if(species_organ)
@@ -1687,26 +1322,9 @@
 		if(getOxyLoss() >= 75)
 			setOxyLoss(75)
 		heart.pulse = PULSE_NORM
-		heart.handle_pulse()
-
-/mob/living/carbon/human/proc/make_adrenaline(amount)
-	if(stat == CONSCIOUS && !isundead(src))
-		var/limit = max(0, reagents.get_overdose(/datum/reagent/adrenaline) - reagents.get_reagent_amount(/datum/reagent/adrenaline))
-		reagents.add_reagent(/datum/reagent/adrenaline, min(amount, limit))
-
-//Get fluffy numbers
-/mob/living/carbon/human/proc/get_blood_pressure()
-	if(isfakeliving(src))
-		return "[Floor(120+rand(-5,5))]/[Floor(80+rand(-5,5))]"
-	if(status_flags & FAKEDEATH)
-		return "[Floor(120+rand(-5,5))*0.25]/[Floor(80+rand(-5,5)*0.25)]"
-	var/blood_result = get_blood_circulation()
-	return "[Floor((120+rand(-5,5))*(blood_result/100))]/[Floor((80+rand(-5,5))*(blood_result/100))]"
 
 //Determine body temperature
 /mob/living/carbon/human/proc/get_body_temperature()
-	if ((isfakeliving(src)) && species.body_temperature != null)
-		return species.body_temperature + (species.passive_temp_gain * 3)
 	return bodytemperature
 
 //Point at which you dun breathe no more. Separate from asystole crit, which is heart-related.
@@ -1783,15 +1401,6 @@
 		winset(my_client, "mapwindow.rightclickblocker", "is-visible=[twohanded_mode ? "true" : "false"]") // Please, forgive me for this abomination, but I can't think of a faster, mostly-client-sided way to preserve Shift, Ctrl and Alt macros' behavior.
 		winset(my_client, "mapwindow.map", "right-click=[twohanded_mode ? "true" : "false"]")
 
-/mob/living/carbon/human/is_deaf()
-	var/obj/item/organ/external/head/head = external_organs_by_name[BP_HEAD]
-	if((sdisabilities & DEAF) && istype(head))
-		var/obj/item/organ_module/cochlear/coch = locate() in head
-		if(istype(coch))
-			return FALSE
-
-	return ..()
-
 /mob/living/carbon/human/verb/succumb()
 	set hidden = 1
 
@@ -1816,16 +1425,6 @@
 
 /mob/living/carbon/human/get_runechat_color()
 	return species.get_species_runechat_color(src)
-
-/mob/living/carbon/human/get_scooped(mob/living/carbon/human/grabber, self_grab)
-	if(isMonkey(src))
-		var/turf/T = get_turf(src)
-		var/list/on_monkey = view(1, T)
-		for(var/mob/living/carbon/metroid/M in on_monkey)
-			if(M.Victim == src)
-				to_chat(grabber, SPAN("warning", "You can't scoop up \the [src] because of the [M]"))
-				return
-	. = ..()
 
 /mob/living/carbon/human/lay_down()
 	if(crawling && canClick())

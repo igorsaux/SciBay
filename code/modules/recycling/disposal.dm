@@ -29,8 +29,6 @@
 	var/flush_every_ticks = 30 //Every 30 ticks it will look whether it is ready to flush
 	var/flush_count = 0 //this var adds 1 once per tick. When it reaches flush_every_ticks it resets and tries to flush.
 	var/list/allowed_objects = list(/obj/structure/closet, /obj/structure/bigDelivery)
-	active_power_usage = 2.200 KILO WATTS	//the pneumatic pump power. 3 HP ~ 2200W
-	idle_power_usage = 100 WATTS
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	hitby_loudness_multiplier = 0.5
 
@@ -161,10 +159,6 @@
 	if(stat & BROKEN || !CanMouseDrop(AM, user, incapacitation_flags) || AM.anchored || !isturf(user.loc))
 		return
 
-	// Animals can only put themself in
-	if(isanimal(user) && AM != user)
-		return
-
 	// Determine object type and run necessary checks
 	var/mob/M = AM
 	var/is_dangerous // To determine css style in messages
@@ -236,10 +230,6 @@
 	update_icon()
 	return
 
-// ai as human but can't flush
-/obj/machinery/disposal/attack_ai(mob/user)
-	tgui_interact(user)
-
 // human interact with machine
 /obj/machinery/disposal/attack_hand(mob/user)
 	. = ..()
@@ -271,7 +261,6 @@
 	var/list/data = list(
 		"mode" = mode,
 		"pressure" = CLAMP01(air_contents.return_pressure() / SEND_PRESSURE),
-		"isAi" = isAI(user),
 		"panel" = panel_open,
 		"eject" = length(contents) ? TRUE : FALSE,
 		"handle" = flush
@@ -340,7 +329,6 @@
 // charge the gas reservoir and perform flush if ready
 /obj/machinery/disposal/Process()
 	if(!air_contents || (stat & BROKEN))			// nothing can happen if broken
-		update_use_power(POWER_USE_OFF)
 		return
 
 	flush_count++
@@ -348,7 +336,6 @@
 		if( contents.len )
 			if(mode == DISPOSALS_CHARGED)
 				spawn(0)
-					feedback_inc("disposal_auto_flush",1)
 					flush()
 		flush_count = 0
 
@@ -357,9 +344,7 @@
 	if(flush && air_contents.return_pressure() >= SEND_PRESSURE )	// flush can happen even without power
 		flush()
 
-	if(mode != DISPOSALS_CHARGING) //if off or ready, no need to charge
-		update_use_power(POWER_USE_IDLE)
-	else if(air_contents.return_pressure() >= SEND_PRESSURE)
+	if(air_contents.return_pressure() >= SEND_PRESSURE)
 		mode = DISPOSALS_CHARGED //if full enough, switch to ready mode
 		update_icon()
 	else
@@ -367,19 +352,7 @@
 
 /obj/machinery/disposal/proc/pressurize()
 	if(stat & NOPOWER)			// won't charge if no power
-		update_use_power(POWER_USE_OFF)
 		return
-
-	var/atom/L = loc						// recharging from loc turf
-	var/datum/gas_mixture/env = L.return_air()
-
-	var/power_draw = -1
-	if(env && env.temperature > 0)
-		var/transfer_moles = (PUMP_MAX_FLOW_RATE/env.volume)*env.total_moles	//group_multiplier is divided out here
-		power_draw = pump_gas(src, env, air_contents, transfer_moles, active_power_usage)
-
-	if (power_draw > 0)
-		use_power_oneoff(power_draw)
 
 // perform a flush
 /obj/machinery/disposal/proc/flush()
@@ -391,9 +364,6 @@
 	var/wrapcheck = 0
 	var/obj/structure/disposalholder/H = new()	// virtual holder object which actually
 												// travels through the pipes.
-	//Hacky test to get drones to mail themselves through disposals.
-	for(var/mob/living/silicon/robot/drone/D in src)
-		wrapcheck = 1
 
 	for(var/obj/item/smallDelivery/O in src)
 		wrapcheck = 1
@@ -421,14 +391,6 @@
 	update_icon()
 	return
 
-
-// called when area power changes
-/obj/machinery/disposal/power_change()
-	..()	// do default setting/reset of stat NOPOWER bit
-	queue_icon_update()	// update icon
-	return
-
-
 // called when holder is expelled from a disposal
 // should usually only occur if the pipe network is modified
 /obj/machinery/disposal/proc/expel(obj/structure/disposalholder/H)
@@ -441,8 +403,7 @@
 
 			AM.forceMove(src.loc)
 			AM.pipe_eject(0)
-			if(!istype(AM, /mob/living/silicon/robot/drone)) //Poor drones kept smashing windows and taking system damage being fired out of disposals. ~Z
-				AM.throw_at(target, 5, 1)
+			AM.throw_at(target, 5, 1)
 
 		H.vent_gas(loc)
 		qdel(H)
@@ -485,7 +446,7 @@
 	//Check for any living mobs trigger hasmob.
 	//hasmob effects whether the package goes to cargo or its tagged destination.
 	for(var/mob/living/M in D)
-		if(M && M.stat != 2 && !istype(M,/mob/living/silicon/robot/drone))
+		if(M && M.stat != 2)
 			hasmob = 1
 
 	//Checks 1 contents level deep. This means that players can be sent through disposals...
@@ -493,7 +454,7 @@
 	for(var/obj/O in D)
 		if(O.contents)
 			for(var/mob/living/M in O.contents)
-				if(M && M.stat != 2 && !istype(M,/mob/living/silicon/robot/drone))
+				if(M && M.stat != 2)
 					hasmob = 1
 
 	// now everything inside the disposal gets put into the holder
@@ -506,11 +467,6 @@
 		if(istype(AM, /obj/item/smallDelivery) && !hasmob)
 			var/obj/item/smallDelivery/T = AM
 			src.destinationTag = T.sortTag
-		//Drones can mail themselves through maint.
-		if(istype(AM, /mob/living/silicon/robot/drone))
-			var/mob/living/silicon/robot/drone/drone = AM
-			src.destinationTag = drone.mail_destination
-
 
 // start the movement process
 // argument is the disposal unit the holder started in
@@ -536,8 +492,7 @@
 
 		if(hasmob && prob(3))
 			for(var/mob/living/H in src)
-				if(!istype(H,/mob/living/silicon/robot/drone)) //Drones use the mailing code to move through the disposal system,
-					H.take_overall_damage(20, 0, 0, "Blunt Trauma", FALSE)//horribly maim any living creature jumping down disposals.  c'est la vie
+				H.take_overall_damage(20, 0, 0, "Blunt Trauma", FALSE)//horribly maim any living creature jumping down disposals.  c'est la vie
 
 		var/obj/structure/disposalpipe/curr = loc
 		last = curr
@@ -1596,8 +1551,7 @@
 			for(var/atom/movable/AM in H)
 				AM.forceMove(src.loc)
 				AM.pipe_eject(dir)
-				if(!istype(AM, /mob/living/silicon/robot/drone)) //Drones keep smashing windows from being fired out of chutes. Bad for the station. ~Z
-					AM.throw_at(target, 3, 1)
+				AM.throw_at(target, 3, 1)
 			H.vent_gas(src.loc)
 			qdel(H)
 

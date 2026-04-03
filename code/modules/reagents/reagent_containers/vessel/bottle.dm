@@ -136,7 +136,7 @@
 
 /obj/item/reagent_containers/vessel/bottle/chemical
 	name = "bottle"
-	desc = "A regular glass bottle."
+	desc = "A regular 500 ml glass bottle."
 	icon = 'icons/obj/reagent_containers/chemical.dmi'
 	icon_state = "bottle_medium"
 	item_state = "atoxinbottle"
@@ -148,7 +148,9 @@
 	mod_handy = 0.65
 	smash_weaken = 0
 
-	volume = 0.25 LITERS
+	volume = 0.5 LITERS
+	bottom_area = 0.0035 METERS
+	neck_area = 0.0007 METERS
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250"
 
@@ -167,7 +169,7 @@
 
 /obj/item/reagent_containers/vessel/bottle/chemical/small
 	name = "small bottle"
-	desc = "A small glass bottle."
+	desc = "A small 100 ml glass bottle."
 	icon_state = "bottle_small"
 	force = 5.0
 	mod_weight = 0.5
@@ -176,6 +178,8 @@
 	smash_weaken = 0
 
 	volume = 0.1 LITERS
+	bottom_area = 0.0012 METERS
+	neck_area = 0.0004 METERS
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "10;15;25;30;50;60;100"
 
@@ -190,7 +194,7 @@
 
 /obj/item/reagent_containers/vessel/bottle/chemical/big
 	name = "big bottle"
-	desc = "A big glass bottle."
+	desc = "A big 1 L glass bottle."
 	icon_state = "bottle_big"
 	force = 8.5
 	mod_weight = 0.75
@@ -198,8 +202,9 @@
 	mod_handy = 0.75
 	smash_weaken = 4
 
-
-	volume = 0.5 LITERS
+	volume = 1.0 LITER
+	bottom_area = 0.0065
+	neck_area = 0.0007
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "10;15;25;30;50;60;100;150;300;500"
 
@@ -231,17 +236,12 @@
 	desc = "A small bottle. Contains inaprovaline - used to stabilize patients."
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = "bottle-4"
-	reagent = /datum/reagent/inaprovaline
-	startswith = list(/datum/reagent/inaprovaline)
 
 /obj/item/reagent_containers/vessel/bottle/chemical/robot/antitoxin
 	name = "internal anti-toxin bottle"
 	desc = "A small bottle of Anti-toxins. Counters poisons, and repairs damage, a wonder drug."
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = "bottle-4"
-	reagent = /datum/reagent/dylovene
-	startswith = list(/datum/reagent/dylovene)
-
 
 //Pourers and stuff
 
@@ -271,7 +271,8 @@
 	volume = 0.2 LITERS
 
 /obj/item/reagent_containers/glass/coffee_cup/on_update_icon()
-	icon_state = reagents.total_volume ? base_icon_state : "[base_icon_state]_e"
+	// TODO: CHEM
+	// icon_state = reagents.total_volume ? base_icon_state : "[base_icon_state]_e"
 
 /*
  *	Syrup bottles, basically a unspillable cup that transfers reagents upon clicking on it with a cup
@@ -297,25 +298,6 @@
 	. += SPAN_NOTICE("It's pump is [pump_cap ? "on" : "removed"].")
 	. += SPAN_NOTICE("Alt-click to toggle the pump cap.")
 
-/obj/item/reagent_containers/vessel/bottle/syrup_bottle/attackby(obj/item/W, mob/user)
-	if(pump_cap && W.is_open_container())
-		if(!reagents.total_volume)
-			show_splash_text(user, "bottle empty!")
-
-		var/free_amount = W.reagents.get_free_space()
-		if(free_amount <= 0)
-			show_splash_text(user, "container is full!")
-
-		var/transfer_amount = min(amount_per_transfer_from_this, free_amount)
-		reagents.trans_to(W, transfer_amount)
-
-		CutOverlays()
-		flick("syrup_anim", src)
-		update_icon()
-		return
-
-	return ..()
-
 /obj/item/reagent_containers/vessel/bottle/syrup_bottle/AltClick(mob/user)
 	pump_cap = !pump_cap
 	if(pump_cap)
@@ -333,9 +315,7 @@
 /obj/item/reagent_containers/vessel/bottle/syrup_bottle/caramel
 	name = "bottle of caramel syrup"
 	desc = "A pump bottle containing caramalized sugar, also known as caramel. Do not lick."
-	startswith = list(/datum/reagent/sugar/caramel)
 
 /obj/item/reagent_containers/vessel/bottle/syrup_bottle/liqueur
 	name = "bottle of coffee liqueur syrup"
 	desc = "A pump bottle containing mexican coffee-flavoured liqueur syrup. In production since 1936, HONK."
-	startswith = list(/datum/reagent/ethanol/kahlua)

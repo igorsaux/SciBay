@@ -94,16 +94,12 @@
 /mob/living/carbon/human/getBruteLoss()
 	var/amount = 0
 	for(var/obj/item/organ/external/O in external_organs)
-		if(BP_IS_ROBOTIC(O) && !O.vital)
-			continue //robot limbs don't count towards shock and crit
 		amount += O.brute_dam
 	return amount
 
 /mob/living/carbon/human/getFireLoss()
 	var/amount = 0
 	for(var/obj/item/organ/external/O in external_organs)
-		if(BP_IS_ROBOTIC(O) && !O.vital)
-			continue //robot limbs don't count towards shock and crit
 		amount += O.burn_dam
 	return amount
 
@@ -152,10 +148,6 @@
 /mob/living/carbon/human/Paralyse(amount)
 	if((MUTATION_HULK in mutations) || (MUTATION_STRONG in mutations))
 		return
-
-	// Notify our AI if they can now control the suit.
-	if(wearing_rig && !stat && paralysis < amount) //We are passing out right this second.
-		wearing_rig.notify_ai("<span class='danger'>Warning: user consciousness failure. Mobility control passed to integrated intelligence system.</span>")
 
 	..()
 
@@ -235,13 +227,9 @@
 	BITSET(hud_updateflag, HEALTH_HUD)
 
 /mob/living/carbon/human/getToxLoss()
-	if(isSynthetic() || isundead(src))
-		return 0
 	return toxic_severity
 
 /mob/living/carbon/human/setToxLoss(amount)
-	if(isSynthetic() || isundead(src))
-		return
 	toxic_buildup = amount
 
 /mob/living/carbon/human/adjustToxPercent(amount)
@@ -252,9 +240,6 @@
 	toxic_severity = round(toxic_buildup / (species ? (species.blood_volume * 0.05) : 280) * 100)
 
 /mob/living/carbon/human/adjustToxLoss(amount, bypass_liver = FALSE)
-	if(isSynthetic() || isundead(src))
-		return
-
 	var/heal = amount < 0 || HAS_TRAIT(src, TRAIT_TOXINLOVER)
 	amount = abs(amount)
 
@@ -271,21 +256,15 @@
 		toxic_buildup += amount
 
 /mob/living/carbon/human/getInternalLoss() // In the year 2025, we finally have separate toxLoss and internalLoss. Awe.
-	if(isSynthetic() || isundead(src))
-		return 0
 	var/amount = 0
 	for(var/obj/item/organ/internal/I in internal_organs)
 		amount += I.damage
 	return amount
 
 /mob/living/carbon/human/setInternalLoss(amount)
-	if(!isSynthetic() && !isundead(src))
-		adjustInternalLoss(getInternalLoss() - amount)
+	adjustInternalLoss(getInternalLoss() - amount)
 
 /mob/living/carbon/human/adjustInternalLoss(amount, toxic = FALSE)
-	if(isSynthetic() || isundead(src))
-		return
-
 	var/heal = amount < 0 || (toxic && HAS_TRAIT(src, TRAIT_TOXINLOVER))
 	amount = abs(amount)
 
@@ -311,9 +290,6 @@
 		pick_organs += brain
 
 	for(var/obj/item/organ/internal/I in pick_organs)
-		if(toxic && BP_IS_ROBOTIC(I))
-			continue
-
 		if(amount <= 0)
 			for(var/datum/modifier/M in modifiers)
 				if(!isnull(M.incoming_healing_percent))
@@ -388,8 +364,7 @@ In most cases it makes more sense to use apply_damage() instead! And make sure t
 	var/list/organic_organs = list()
 
 	for(var/obj/item/organ/external/organ in external_organs)
-		if(!BP_IS_ROBOTIC(organ))
-			organic_organs += organ
+		organic_organs += organ
 
 	if(!length(organic_organs))
 		return
@@ -432,10 +407,8 @@ In most cases it makes more sense to use apply_damage() instead! And make sure t
 	if(getHalLoss() < last_body_response_to_pain)
 		last_body_response_to_pain = getHalLoss()
 	if(can_feel_pain() && damage > 5)
-		make_adrenaline(round(damage)/10)
 		last_body_response_to_pain = getHalLoss()
 	else if(can_feel_pain() && getHalLoss() - last_body_response_to_pain > 5)
-		make_adrenaline(round(getHalLoss() - last_body_response_to_pain)/10)
 		last_body_response_to_pain = getHalLoss()
 
 	switch(damagetype)
@@ -540,10 +513,6 @@ This function restores all organs.
 	for (var/obj/item/organ/internal/I in internal_organs)
 		I.rejuvenate()
 
-	if(mind?.vampire)
-		var/datum/vampire/V = mind.vampire
-		V.set_up_organs()
-
 	full_pain = 0
 	update_organ_movespeed()
 
@@ -566,7 +535,6 @@ This function restores all organs.
 		return 0
 
 	var/traumatic_shock = getHalLoss()                 // Pain.
-	traumatic_shock -= chem_effects[CE_PAINKILLER] // TODO: check what is actually stored here.
 
 	if(stat == UNCONSCIOUS)
 		traumatic_shock *= 0.6
@@ -588,8 +556,6 @@ This function restores all organs.
 	var/has_blood = TRUE
 	if(species && (species.species_flags & SPECIES_FLAG_NO_BLOOD))
 		has_blood = FALSE
-	else if(!vessel.has_reagent(/datum/reagent/blood))
-		has_blood = FALSE
 
 	var/damage_message = ""
 	var/turf/location = get_turf(src)
@@ -600,25 +566,17 @@ This function restores all organs.
 		var/should_take_damage = max(E.cut_dam, E.burn_dam) >= E.min_broken_damage * (E.bleeding ? 0.75 : 1.25)
 		if(should_take_damage)
 			if(max(E.cut_ratio, E.burn_ratio) >= 0.9)
-				if(BP_IS_ROBOTIC(E))
-					damage_message = "Damage to [src]'s [E] worsens terribly from being dragged!"
-				else
-					damage_message = "Wounds on [src]'s [E] worsen terribly from being dragged!"
-					if(has_blood && prob(75))
-						var/obj/effect/decal/cleanable/blood/B = location.add_blood(src)
-						if(istype(B))
-							B.Crossed(src)
-						vessel.remove_reagent(/datum/reagent/blood, 30)
+				damage_message = "Wounds on [src]'s [E] worsen terribly from being dragged!"
+				if(has_blood && prob(75))
+					var/obj/effect/decal/cleanable/blood/B = location.add_blood(src)
+					if(istype(B))
+						B.Crossed(src)
 			else
-				if(BP_IS_ROBOTIC(E))
-					damage_message = "Damage to [src]'s [E] worsens from being dragged!"
-				else
-					damage_message = "Wounds on [src]'s [E] open more from being dragged!"
-					if(has_blood && prob(25))
-						var/obj/effect/decal/cleanable/blood/B = location.add_blood(src)
-						if(istype(B))
-							B.Crossed(src)
-						vessel.remove_reagent(/datum/reagent/blood, 10)
+				damage_message = "Wounds on [src]'s [E] open more from being dragged!"
+				if(has_blood && prob(25))
+					var/obj/effect/decal/cleanable/blood/B = location.add_blood(src)
+					if(istype(B))
+						B.Crossed(src)
 
 			if(E.last_pull_damage_time < world.time - 3 SECONDS  || E.last_pull_damage_message != damage_message)
 				visible_message(SPAN("danger", damage_message))
@@ -628,7 +586,7 @@ This function restores all organs.
 			E.take_cut_damage(3, "Friction")
 			return TRUE // Let's not make floors a tiled god of death, one proc per move is more than enough.
 
-		should_take_damage = !BP_IS_ROBOTIC(E) && E.is_broken()
+		should_take_damage = E.is_broken()
 		if(should_take_damage)
 			if(E.blunt_ratio >= 0.9)
 				damage_message = "Broken bones in [src]'s [E] shred through the skin from being dragged!"
@@ -637,7 +595,6 @@ This function restores all organs.
 					var/obj/effect/decal/cleanable/blood/B = location.add_blood(src)
 					if(istype(B))
 						B.Crossed(src)
-					vessel.remove_reagent(/datum/reagent/blood, 20)
 			else
 				damage_message = "Broken bones in [src]'s [E] jostle badly from being dragged!"
 				E.take_blunt_damage(3, "Broken Bone Movement")

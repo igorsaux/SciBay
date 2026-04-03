@@ -48,71 +48,6 @@
 	src.add_fingerprint(usr)
 	return
 
-/*
- * ID CARDS
- */
-
-/obj/item/card/emag_broken
-	desc = "It's a card with a magnetic strip attached to some circuitry. It looks too busted to be used for anything but salvage."
-	name = "broken cryptographic sequencer"
-	icon_state = "emag"
-	item_state = "emag"
-	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
-
-/obj/item/card/emag
-	desc = "It's a card with a magnetic strip attached to some circuitry."
-	name = "cryptographic sequencer"
-	icon_state = "emag"
-	item_state = "emag"
-	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
-	var/uses = 10
-
-var/const/NO_EMAG_ACT = -50
-/obj/item/card/emag/resolve_attackby(atom/A, mob/user)
-	var/used_uses = A.emag_act(uses, user, src)
-	if(used_uses == NO_EMAG_ACT)
-		return ..(A, user)
-
-	uses -= used_uses
-	uses = max(uses, -1)
-	A.add_fingerprint(user)
-	if(used_uses)
-		log_and_message_admins("emagged \an [A].")
-
-	if(uses == 0)
-		user.visible_message(SPAN("warning", "\The [src] fizzles and sparks - it seems it's been used once too often, and is now spent."))
-		var/obj/item/card/emag_broken/junk = new(user.loc)
-		junk.add_fingerprint(user)
-		uses = -1
-		user.replace_item(src, junk, TRUE, TRUE)
-
-	return 1
-
-/obj/item/card/emag/robot
-	desc = "It's a card with a magnetic strip attached to some circuitry."
-	name = "cryptographic sequencer"
-	icon_state = "emag"
-	item_state = "emag"
-	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
-	uses = 3
-
-/obj/item/card/emag/robot/resolve_attackby(atom/A, mob/user)
-	var/used_uses = A.emag_act(uses, user, src)
-	if(used_uses == NO_EMAG_ACT)
-		return ..(A, user)
-
-	uses -= used_uses
-	if(used_uses)
-		log_and_message_admins("emagged \an [A].")
-
-	if(uses<1)
-		user.visible_message("<span class='warning'>\The [src] fizzles and sparks - it seems it's been used once too often, and is now spent.</span>")
-	return 1
-
-/obj/item/card/emag/robot/examine(mob/user, infix)
-	. = ..()
-	. += SPAN_NOTICE("It has [uses] uses left.")
-
 /obj/item/card/id
 	name = "identification card"
 	desc = "A card used to provide ID and determine access."
@@ -253,13 +188,6 @@ var/const/NO_EMAG_ACT = -50
 		to_chat(usr, "A ticker indicates the card has [mining_points] ore redemption points available.")
 	return
 
-/obj/item/card/id/silver
-	name = "identification card"
-	desc = "A silver card which shows honour and dedication."
-	icon_state = "card_silver"
-	item_state = "card_silver"
-	job_access_type = /datum/job/hop
-
 /obj/item/card/id/gold
 	name = "identification card"
 	desc = "A golden card which shows power and might."
@@ -285,8 +213,8 @@ var/const/NO_EMAG_ACT = -50
 	desc = "The spare ID of the High Lord himself."
 	icon_state = "card_gold"
 	item_state = "card_gold"
-	registered_name = "Captain"
-	assignment = "Captain"
+	registered_name = JOB_ID_CEO
+	assignment = JOB_ID_CEO
 	is_poi = TRUE
 
 /obj/item/card/id/captains_spare/New()
@@ -340,98 +268,9 @@ var/const/NO_EMAG_ACT = -50
 	access = get_access_ids()
 	..()
 
-// Department-flavor IDs
-/obj/item/card/id/medical
-	name = "identification card"
-	desc = "A card issued to medical staff."
-	icon_state = "card_med"
-	item_state = "card_med"
-	job_access_type = /datum/job/doctor
-
 /obj/item/card/id/medical/chemist
 	icon_state = "card_chem"
 	job_access_type = /datum/job/chemist
-
-/obj/item/card/id/medical/virologist
-	icon_state = "card_viro"
-	job_access_type = /datum/job/virologist
-
-/obj/item/card/id/medical/psychiatrist
-	icon_state = "card_psych"
-	job_access_type = /datum/job/psychiatrist
-
-/obj/item/card/id/medical/paramedic
-	icon_state = "card_paramed"
-	job_access_type = /datum/job/paramedic
-
-/obj/item/card/id/medical/head
-	name = "identification card"
-	desc = "A card which represents care and compassion."
-	icon_state = "card_cmo"
-	item_state = "card_head"
-	job_access_type = /datum/job/cmo
-
-/obj/item/card/id/security
-	name = "identification card"
-	desc = "A card issued to security staff."
-	icon_state = "card_sec"
-	item_state = "card_sec"
-	job_access_type = /datum/job/officer
-
-/obj/item/card/id/security/warden
-	icon_state = "card_warden"
-	job_access_type = /datum/job/warden
-
-/obj/item/card/id/security/detective
-	icon_state = "card_dec"
-	job_access_type = /datum/job/detective
-
-/obj/item/card/id/security/head
-	name = "identification card"
-	desc = "A card which represents honor and protection."
-	icon_state = "card_hos"
-	item_state = "card_head"
-	job_access_type = /datum/job/hos
-
-/obj/item/card/id/engineering
-	name = "identification card"
-	desc = "A card issued to engineering staff."
-	icon_state = "card_eng"
-	item_state = "card_eng"
-	job_access_type = /datum/job/engineer
-
-/obj/item/card/id/engineering/atmos
-	icon_state = "card_atmos"
-	job_access_type = /datum/job/atmos
-
-/obj/item/card/id/engineering/head
-	name = "identification card"
-	desc = "A card which represents creativity and ingenuity."
-	icon_state = "card_ce"
-	item_state = "card_head"
-	job_access_type = /datum/job/chief_engineer
-
-/obj/item/card/id/science
-	name = "identification card"
-	desc = "A card issued to science staff."
-	icon_state = "card_sci"
-	item_state = "card_sci"
-	job_access_type = /datum/job/scientist
-
-/obj/item/card/id/science/xenobiologist
-	icon_state = "card_xenobio"
-	job_access_type = /datum/job/xenobiologist
-
-/obj/item/card/id/science/roboticist
-	icon_state = "card_roboticist"
-	job_access_type = /datum/job/roboticist
-
-/obj/item/card/id/science/head
-	name = "identification card"
-	desc = "A card which represents knowledge and reasoning."
-	icon_state = "card_rd"
-	item_state = "card_head"
-	job_access_type = /datum/job/rd
 
 /obj/item/card/id/provisioning
 	name = "identification card"
@@ -439,68 +278,12 @@ var/const/NO_EMAG_ACT = -50
 	icon_state = "card_civ"
 	item_state = "card_civ"
 
-/obj/item/card/id/provisioning/head
-	name = "identification card"
-	desc = "A card which represents service and planning."
-	icon_state = "card_hop"
-	item_state = "card_head"
-	job_access_type = /datum/job/hop
-
-/obj/item/card/id/provisioning/cargo
-	name = "identification card"
-	desc = "A card issued to cargo staff."
-	icon_state = "card_cargo"
-	item_state = "card_cargo"
-	job_access_type = /datum/job/cargo_tech
-
-/obj/item/card/id/provisioning/cargo/mining
-	icon_state = "card_mining"
-	job_access_type = /datum/job/mining
-
-/obj/item/card/id/provisioning/bartender
-	icon_state = "card_bartender"
-	job_access_type = /datum/job/bartender
-
-/obj/item/card/id/provisioning/chef
-	icon_state = "card_chef"
-	job_access_type = /datum/job/chef
-
-/obj/item/card/id/provisioning/botanist
-	icon_state = "card_botanist"
-	job_access_type = /datum/job/hydro
-
-/obj/item/card/id/provisioning/janitor
-	icon_state = "card_janitor"
-	job_access_type = /datum/job/janitor
-
 /obj/item/card/id/civilian
 	name = "identification card"
 	desc = "A card issued to civilian staff."
 	icon_state = "card_civ"
 	item_state = "card_civ"
 	job_access_type = /datum/job/assistant
-
-/obj/item/card/id/civilian/librarian
-	icon_state = "card_librarian"
-	job_access_type = /datum/job/librarian
-
-/obj/item/card/id/civilian/internal_affairs_agent
-	icon_state = "card_iaa"
-	job_access_type = /datum/job/iaa
-
-/obj/item/card/id/civilian/lawyer
-	icon_state = "card_lawyer"
-	job_access_type = /datum/job/lawyer
-
-/obj/item/card/id/civilian/chaplain
-	icon_state = "card_chaplain"
-	job_access_type = /datum/job/chaplain
-
-/obj/item/card/id/civilian/clown
-	desc = "A card issued to... Wait, what?!"
-	icon_state = "card_clown"
-	item_state = "card_clown"
-	job_access_type = /datum/job/clown
 
 /obj/item/card/id/civilian/clown/gold //Use me in the name of Honkmother
 	icon_state = "card_clownGold"
@@ -511,26 +294,9 @@ var/const/NO_EMAG_ACT = -50
 	access = get_all_station_access()
 	..()
 
-/obj/item/card/id/civilian/mime
-	desc = "A card issued to..."
-	icon_state = "card_mime"
-	item_state = "card_mime"
-	job_access_type = /datum/job/mime
-
-/obj/item/card/id/civilian/mime/gold //...
-	icon_state = "card_mimeGold"
-	item_state = "card_mimeGold"
-	job_access_type = null
-
 /obj/item/card/id/civilian/mime/gold/New()
 	access = get_all_station_access()
 	..()
-
-/obj/item/card/id/civilian/barmonkey
-	desc = "A card issued to a monkey. Aboard a space station."
-	icon_state = "card_monkey"
-	item_state = "card_id"
-	job_access_type = /datum/job/barmonkey
 
 /obj/item/card/id/civilian/head //This is not the HoP. There's no position that uses this right now.
 	name = "identification card"

@@ -89,12 +89,8 @@
 	if(istype(mob, /mob/living/carbon))
 		var/mob/living/carbon/C = mob
 		C.swap_hand()
-	if(istype(mob, /mob/living/silicon/robot))
-		var/mob/living/silicon/robot/R = mob
-		R.cycle_modules()
+
 	return
-
-
 
 /client/verb/attack_self()
 	set hidden = 1
@@ -115,7 +111,7 @@
 
 /client/verb/drop_item()
 	set hidden = 1
-	if(!isrobot(mob) && mob.stat == CONSCIOUS && isturf(mob.loc))
+	if(mob.stat == CONSCIOUS && isturf(mob.loc))
 		var/obj/item/I = mob.get_active_hand()
 		if(I && mob.can_unequip(I))
 			mob.drop_active_hand()

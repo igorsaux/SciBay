@@ -62,8 +62,6 @@
 	if(!job_master)
 		return
 
-	var/datum/species/S = preference_species()
-
 	. = list()
 	. += "<tt><center>"
 	. += "<b>Choose occupation chances</b><br>Unavailable occupations are crossed out.<br>"
@@ -98,24 +96,6 @@
 		if(job.total_positions == 0 && job.spawn_positions == 0)
 			. += "<del>[rank]</del></td><td><b> \[UNAVAILABLE]</b></td></tr>"
 			continue
-		var/bannedReason = jobban_isbanned(user, rank)
-		if(bannedReason == "Whitelisted Job")
-			. += "<del>[rank]</del></td><td><b> \[WHITELIST]</b></td></tr>"
-			continue
-		else if (bannedReason == IAA_ban_reason)
-			. += "<del>[rank]</del></td><td><b> \[FIRED BY NT]</b></td></tr>"
-			continue
-		else if(bannedReason)
-			. += "<del>[rank]</del></td><td><b> \[BANNED]</b></td></tr>"
-			continue
-
-		if(job.faction_restricted)
-			if(user.client?.prefs.background != GLOB.using_map.company_name)
-				. += "<del>[rank]</del></td><td><b> \[FOR [uppertext(GLOB.using_map.company_name)] EMPLOYESS ONLY]</b></td></tr>"
-				continue
-			if(user.client?.prefs.nanotrasen_relation in COMPANY_OPPOSING)
-				. += "<del>[rank]</del></td><td><b> \[LOW LOYALTY IS FORBIDDEN]</b></td></tr>"
-				continue
 
 		if(!job.player_old_enough(user.client))
 			var/available_in_days = job.available_in_days(user.client)
@@ -123,10 +103,6 @@
 			continue
 		if(job.minimum_character_age && user.client && (user.client.prefs.age < job.minimum_character_age))
 			. += "<del>[rank]</del></td><td> \[MINIMUM CHARACTER AGE: [job.minimum_character_age]]</td></tr>"
-			continue
-
-		if(!job.is_species_allowed(S))
-			. += "<del>[rank]</del></td><td><b> \[SPECIES RESTRICTED]</b></td></tr>"
 			continue
 
 		if(("Assistant" in pref.job_low) && (rank != "Assistant"))

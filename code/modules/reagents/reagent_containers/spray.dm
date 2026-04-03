@@ -24,91 +24,6 @@
 	. = ..()
 	src.verbs -= /obj/item/reagent_containers/verb/set_APTFT
 
-/obj/item/reagent_containers/spray/afterattack(atom/A as mob|obj, mob/user, proximity)
-	if(istype(A, /obj/item/storage) || istype(A, /obj/structure/table) || istype(A, /obj/structure/closet) || istype(A, /obj/item/reagent_containers) || istype(A, /obj/structure/sink) || istype(A, /obj/structure/janitorialcart) || istype(A, /obj/item/backwear/reagent))
-		return
-
-	if(istype(A, /datum/spell))
-		return
-
-	var/obj/item/reagent_containers/actual_container = external_container ? external_container : src
-
-	if(proximity)
-		if(actual_container.standard_dispenser_refill(user, A))
-			return
-
-	if(actual_container.reagents.total_volume < amount_per_transfer_from_this)
-		to_chat(user, SPAN("notice", "\The [actual_container] is empty!"))
-		return
-
-	if(!user.canClick()) // yeah there we go year 2019...
-		return
-
-	if(widespray)
-		Spray_at_wide(A, user)
-	else
-		Spray_at(A, user, proximity)
-
-	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-
-	if(actual_container.reagents.has_reagent(/datum/reagent/acid))
-		message_admins("[key_name_admin(user)] fired sulphuric acid from \a [src].")
-		log_game("[key_name(user)] fired sulphuric acid from \a [src].")
-	if(actual_container.reagents.has_reagent(/datum/reagent/acid/polyacid))
-		message_admins("[key_name_admin(user)] fired Polyacid from \a [src].")
-		log_game("[key_name(user)] fired Polyacid from \a [src].")
-	if(actual_container.reagents.has_reagent(/datum/reagent/lube))
-		message_admins("[key_name_admin(user)] fired Space lube from \a [src].")
-		log_game("[key_name(user)] fired Space lube from \a [src].")
-	return
-
-/obj/item/reagent_containers/spray/proc/Spray_at(atom/A as mob|obj, mob/user, proximity)
-	var/obj/item/reagent_containers/actual_container = external_container ? external_container : src
-
-	playsound(src.loc, 'sound/effects/spray2.ogg', 50, 1, -6)
-	if(A.density && proximity)
-		A.visible_message("[usr] sprays [A] with [src].")
-		actual_container.reagents.splash(A, amount_per_transfer_from_this)
-	else
-		spawn(0)
-			var/obj/effect/effect/water/chempuff/D = new /obj/effect/effect/water/chempuff(get_turf(src))
-			if(atom_flags & ATOM_FLAG_NO_REACT)
-				D.atom_flags |= ATOM_FLAG_NO_REACT
-			var/turf/my_target = get_turf(A)
-			D.create_reagents(amount_per_transfer_from_this)
-			if(!src || !actual_container)
-				return
-			actual_container.reagents.trans_to_obj(D, amount_per_transfer_from_this)
-			D.set_color()
-			D.set_up(my_target, spray_size, step_delay)
-	return
-
-/obj/item/reagent_containers/spray/proc/Spray_at_wide(atom/A as mob|obj, mob/user)
-	var/obj/item/reagent_containers/actual_container = external_container ? external_container : src
-
-	playsound(src.loc, 'sound/effects/spray2.ogg', 75, 1, -3)
-	var/direction = get_dir(src, A)
-	var/turf/T = get_turf(A)
-	var/turf/T1 = get_step(T,turn(direction, 90))
-	var/turf/T2 = get_step(T,turn(direction, -90))
-	var/list/the_targets = list(T, T1, T2)
-
-	for(var/a = 1 to 3)
-		spawn(0)
-			if(actual_container.reagents.total_volume < 1)
-				break
-			var/obj/effect/effect/water/chempuff/D = new /obj/effect/effect/water/chempuff(get_turf(src))
-			if(atom_flags & ATOM_FLAG_NO_REACT)
-				D.atom_flags |= ATOM_FLAG_NO_REACT
-			var/turf/my_target = the_targets[a]
-			D.create_reagents(amount_per_transfer_from_this)
-			if(!src || !actual_container)
-				return
-			actual_container.reagents.trans_to_obj(D, amount_per_transfer_from_this)
-			D.set_color()
-			D.set_up(my_target, rand(6, 8), 2)
-	return
-
 /obj/item/reagent_containers/spray/attack_self(mob/user)
 	if(!possible_transfer_amounts)
 		return
@@ -116,46 +31,23 @@
 	spray_size = next_in_list(spray_size, spray_sizes)
 	to_chat(user, "<span class='notice'>You adjusted the pressure nozzle. You'll now use [amount_per_transfer_from_this] ml per spray.</span>")
 
-/obj/item/reagent_containers/spray/examine(mob/user, infix)
-	. = ..()
-
-	if(get_dist(src, user) <= 0 && loc == user)
-		. += "[round(external_container ? external_container.reagents.total_volume : reagents.total_volume)] ml left."
-
-
-/obj/item/reagent_containers/spray/verb/empty()
-
-	set name = "Empty Spray Bottle"
-	set category = "Object"
-	set src in usr
-
-	if (alert(usr, "Are you sure you want to empty that?", "Empty Bottle:", "Yes", "No") != "Yes")
-		return
-	if(isturf(usr.loc))
-		to_chat(usr, "<span class='notice'>You empty \the [src] onto the floor.</span>")
-		reagents.splash(usr.loc, reagents.total_volume)
-
 //space cleaner
 /obj/item/reagent_containers/spray/cleaner
 	name = "space cleaner"
 	desc = "BLAM!-brand non-foaming space cleaner!"
 	step_delay = 6
-	startswith = list(/datum/reagent/space_cleaner)
 
 /obj/item/reagent_containers/spray/sterilizine
 	name = "sterilizine"
 	desc = "Great for hiding incriminating bloodstains and sterilizing scalpels."
-	startswith = list(/datum/reagent/sterilizine)
 
 /obj/item/reagent_containers/spray/hair_remover
 	name = "hair remover"
 	desc = "Very effective at removing hair, feathers, spines and horns."
-	startswith = list(/datum/reagent/toxin/hair_remover)
 
 /obj/item/reagent_containers/spray/hair_grower
 	name = "hair grower"
 	desc = "Very effective at growing hair."
-	startswith = list(/datum/reagent/toxin/hair_grower)
 
 /obj/item/reagent_containers/spray/pepper
 	name = "pepperspray"
@@ -168,7 +60,6 @@
 	volume = 75
 	var/safety = 1
 	step_delay = 1
-	startswith = list(/datum/reagent/capsaicin/condensed)
 
 /obj/item/reagent_containers/spray/pepper/examine(mob/user, infix)
 	. = ..()
@@ -180,12 +71,6 @@
 	safety = !safety
 	to_chat(usr, SPAN("notice", "You switch the safety [safety ? "on" : "off"]."))
 
-/obj/item/reagent_containers/spray/pepper/Spray_at(atom/A)
-	if(safety)
-		to_chat(usr, SPAN("warning", "The safety is on!"))
-		return
-	..()
-
 /obj/item/reagent_containers/spray/waterflower
 	name = "water flower"
 	desc = "A seemingly innocent sunflower...with a twist."
@@ -195,7 +80,6 @@
 	amount_per_transfer_from_this = 10
 	possible_transfer_amounts = null
 	volume = 0.1 LITERS
-	startswith = list(/datum/reagent/water)
 
 	drop_sound = SFX_DROP_HERB
 	pickup_sound = SFX_PICKUP_HERB
@@ -221,7 +105,6 @@
 	icon = 'icons/obj/hydroponics_items.dmi'
 	icon_state = "plantbgone"
 	item_state = "plantbgone"
-	startswith = list(/datum/reagent/toxin/plantbgone)
 
 /obj/item/reagent_containers/spray/plantbgone/afterattack(atom/A, mob/user, proximity)
 	if(!proximity)

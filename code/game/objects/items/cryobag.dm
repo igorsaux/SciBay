@@ -152,30 +152,3 @@
 	H.add_chemical_effect(CE_OXYGENATED, 1)
 	H.add_chemical_effect(CE_ANTITOX , 1)
 	H.add_chemical_effect(CE_PULSE, -1)
-
-// Bag'o'Vat
-/obj/item/bodybag/cryobag/vatgrownbody
-	name = "VAT stasis bag"
-	icon = 'icons/obj/vat_cryobag.dmi'
-	bag_structure = /obj/structure/closet/body_bag/cryobag/vatgrownbody
-
-/obj/structure/closet/body_bag/cryobag/vatgrownbody
-	name = "VAT stasis bag"
-	desc = "A non-reusable plastic bag designed to prevent additional damage to an occupant, especially useful if short on time or in \
-	a hostile enviroment. This one is marked with big \"VAT\" letters and has some sort of document glued to it."
-	icon = 'icons/obj/vat_cryobag.dmi'
-	item_path = /obj/item/bodybag/cryobag/vatgrownbody
-	var/mobpath = null
-
-/obj/structure/closet/body_bag/cryobag/vatgrownbody/Initialize()
-	. = ..()
-	if(mobpath)
-		new mobpath(src)
-		contains_body = 1
-		update_icon()
-
-/obj/structure/closet/body_bag/cryobag/vatgrownbody/male
-	mobpath = /mob/living/carbon/human/vatgrown
-
-/obj/structure/closet/body_bag/cryobag/vatgrownbody/female
-	mobpath = /mob/living/carbon/human/vatgrown/female

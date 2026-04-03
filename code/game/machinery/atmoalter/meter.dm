@@ -5,10 +5,8 @@
 	icon_state = "meterX"
 	var/atom/target = null //A pipe for the base type
 	anchored = 1.0
-	power_channel = STATIC_ENVIRON
 	var/frequency = 0
 	var/id
-	idle_power_usage = 15 WATTS
 	var/static/list/meter_ea_overlays
 	var/last_level = "INIT"
 	var/last_val = -666

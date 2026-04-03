@@ -106,8 +106,6 @@ GLOBAL_LIST(end_titles)
 	for(var/mob/living/carbon/human/H in GLOB.living_mob_list_|GLOB.dead_mob_list_)
 		if(findtext(H.real_name,"(mannequin)"))
 			continue
-		if(isMonkey(H) && findtext(H.real_name,"[lowertext(H.species.name)]")) //no monki
-			continue
 		if(H.timeofdeath && H.timeofdeath < 5 MINUTES) //don't mention these losers (prespawned corpses mostly)
 			continue
 		if(!cast.len && !chunksize)
@@ -140,8 +138,6 @@ GLOBAL_LIST(end_titles)
 	for(var/mob/living/carbon/human/H in GLOB.dead_mob_list_)
 		if(H.timeofdeath < 5 MINUTES) //no prespawned corpses
 			continue
-		if(isMonkey(H) && findtext(H.real_name,"[lowertext(H.species.name)]"))
-			monkies[H.species.name] += 1
 		else if(H.real_name)
 			corpses += H.real_name
 	for(var/spec in monkies)

@@ -40,9 +40,6 @@
 	fireaxe = new(src)
 	update_icon()
 
-/obj/structure/fireaxecabinet/attack_ai(mob/user)
-	toggle_lock(user)
-
 /obj/structure/fireaxecabinet/attack_hand(mob/user)
 	if(!unlocked)
 		to_chat(user, "<span class='warning'>\The [src] is locked.</span>")

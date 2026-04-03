@@ -11,8 +11,6 @@
 	layer = BELOW_OBJ_LAYER
 	anchored = 1
 	density = 1
-	idle_power_usage = 50 WATTS
-	active_power_usage = 200 WATTS
 	interact_offline = 1
 	req_access = list()
 
@@ -119,16 +117,6 @@
 	suit_type = /obj/item/clothing/suit/space/void/mining/alt
 	helmet_type = /obj/item/clothing/head/helmet/space/void/mining/alt
 	mask_type = /obj/item/clothing/mask/breath
-
-/obj/machinery/suit_storage_unit/science
-	name = "Excavation Voidsuit Storage Unit"
-	suit_type = /obj/item/clothing/suit/space/void/excavation
-	helmet_type = /obj/item/clothing/head/helmet/space/void/excavation
-	boots_type = /obj/item/clothing/shoes/magboots
-	tank_type = /obj/item/tank/oxygen
-	mask_type = /obj/item/clothing/mask/breath
-	req_access = list(access_xenoarch)
-	islocked = 1
 
 /obj/machinery/suit_storage_unit/security
 	name = "Security Voidsuit Storage Unit"
@@ -259,7 +247,7 @@
 	if(length(choices) < 1)
 		return
 
-	var/choice = show_radial_menu(user, src, choices, require_near = !issilicon(user))
+	var/choice = show_radial_menu(user, src, choices, require_near = TRUE)
 	if(!choice)
 		return
 
@@ -427,16 +415,14 @@
 		sleep(50)
 		if(occupant)
 			occupant.rad_act(new /datum/radiation_source(new /datum/radiation(4 TERA BECQUEREL, RADIATION_ALPHA_PARTICLE), src))
-			var/obj/item/organ/internal/diona/nutrients/rad_organ = locate() in occupant.internal_organs
-			if (!rad_organ)
-				if (occupant.can_feel_pain())
-					occupant.emote("scream")
-				if(issuperUV)
-					var/burndamage = rand(40,60)
-					occupant.take_organ_damage(0,burndamage)
-				else
-					var/burndamage = rand(10,15)
-					occupant.take_organ_damage(0,burndamage)
+			if (occupant.can_feel_pain())
+				occupant.emote("scream")
+			if(issuperUV)
+				var/burndamage = rand(40,60)
+				occupant.take_organ_damage(0,burndamage)
+			else
+				var/burndamage = rand(10,15)
+				occupant.take_organ_damage(0,burndamage)
 		if(i==3) //End of the cycle
 			if(!issuperUV)
 				if(helmet )
@@ -684,10 +670,6 @@
 	updateUsrDialog()
 	return
 
-
-/obj/machinery/suit_storage_unit/attack_ai(mob/user as mob)
-	return attack_hand(user)
-
 //////////////////////////////REMINDER: Make it lock once you place some fucker inside.
 
 //God this entire file is fucking awful
@@ -732,14 +714,11 @@
 /obj/machinery/suit_cycler/New()
 	..()
 
-	wires = new(src)
 	target_department = departments[1]
 	target_species = species[1]
 	if(!target_department || !target_species) qdel(src)
 
 /obj/machinery/suit_cycler/Destroy()
-	qdel(wires)
-	wires = null
 	return ..()
 
 /obj/machinery/suit_cycler/engineering
@@ -792,9 +771,6 @@
 	departments = list("Pilot")
 	species = list(SPECIES_HUMAN,SPECIES_TAJARA,SPECIES_SKRELL,SPECIES_UNATHI)
 
-/obj/machinery/suit_cycler/attack_ai(mob/user as mob)
-	return attack_hand(user)
-
 /obj/machinery/suit_cycler/attackby(obj/item/I as obj, mob/user as mob)
 
 	if(electrified != 0)
@@ -845,7 +821,7 @@
 		updateUsrDialog()
 		return
 
-	else if(istype(I,/obj/item/clothing/head/helmet/space) && !istype(I, /obj/item/clothing/head/helmet/space/rig))
+	else if(istype(I,/obj/item/clothing/head/helmet/space))
 
 		if(locked)
 			to_chat(user, "<span class='danger'>The suit cycler is locked.</span>")
@@ -893,21 +869,6 @@
 
 	..()
 
-/obj/machinery/suit_cycler/emag_act(remaining_charges, mob/user)
-	if(emagged)
-		to_chat(user, "<span class='danger'>The cycler has already been subverted.</span>")
-		return
-
-	//Clear the access reqs, disable the safeties, and open up all paintjobs.
-	playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-	to_chat(user, "<span class='danger'>You run the sequencer across the interface, corrupting the operating protocols.</span>")
-	departments = list("Engineering","Mining","Medical","Security","Atmos","^%###^%$")
-	emagged = 1
-	safeties = 0
-	req_access = list()
-	updateUsrDialog()
-	return 1
-
 /obj/machinery/suit_cycler/attack_hand(mob/user as mob)
 	if(..() || stat & (BROKEN|NOPOWER))
 		return
@@ -948,9 +909,6 @@
 		dat += "<h2>Customisation</h2>"
 		dat += "<b>Target product:</b> <A href='?src=\ref[src];select_department=1'>[target_department]</a>, <A href='?src=\ref[src];select_species=1'>[target_species]</a>."
 		dat += "<A href='?src=\ref[src];apply_paintjob=1'><br>\[apply customisation routine\]</a><br><hr>"
-
-	if(panel_open)
-		wires.Interact(user)
 
 	show_browser(user, dat, "window=suit_cycler")
 	onclose(user, "suit_cycler")

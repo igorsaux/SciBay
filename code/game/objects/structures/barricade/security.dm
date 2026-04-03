@@ -52,7 +52,7 @@
 
 
 /obj/structure/barricade/security/attackby(obj/item/W, mob/user)
-	if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda) || istype(W, /obj/item/card/robot_sec))
+	if(istype(W, /obj/item/card/id))
 		_toggle(user)
 		return
 
@@ -94,34 +94,6 @@
 
 	return ..()
 
-
-/obj/structure/barricade/security/emp_act(severity)
-	if(!prob(50 / severity))
-		return
-
-	locked = !locked
-	anchored = !anchored
-	update_icon()
-
-
-/obj/structure/barricade/security/emag_act(remaining_charges, mob/user)
-	if(emagged)
-		return FALSE
-
-	atom_flags |= ATOM_FLAG_UNPUSHABLE
-	change_pull_slowdown(PULL_SLOWDOWN_EXTREME)
-	emagged = TRUE
-
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
-	s.set_up(2, 1, src)
-	s.start()
-
-	playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-	show_splash_text(user, "bolt locks broken!", "You burn out \the [src] bolt locks!")
-
-	return TRUE
-
-
 /obj/structure/barricade/security/Break()
 	visible_message(SPAN("danger", "\the [src] blows apart!"))
 
@@ -130,7 +102,3 @@
 	var/datum/effect/effect/system/spark_spread/S = new /datum/effect/effect/system/spark_spread
 	S.set_up(3, 1, src)
 	S.start()
-
-
-
-

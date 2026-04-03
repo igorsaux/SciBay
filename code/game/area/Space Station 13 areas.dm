@@ -34,15 +34,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	var/eject = null
 
 	var/debug = 0
-	var/requires_power = 1
-	var/always_unpowered = 0	//this gets overriden to 1 for space in area/New()
-
-	var/power_equip = 1 // Status
-	var/power_light = 1
-	var/power_environ = 1
-	var/oneoff_equip   = 0 //Used once and cleared each tick.
-	var/oneoff_light   = 0
-	var/oneoff_environ = 0
 
 	var/has_gravity = TRUE
 	var/gravity_state = AREA_GRAVITY_NORMAL
@@ -68,12 +59,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 /area/space
 	name = "\improper Space"
 	icon_state = "space"
-	requires_power = 1
-	always_unpowered = 1
 	dynamic_lighting = 1
-	power_light = 0
-	power_equip = 0
-	power_environ = 0
 	has_gravity = 0
 	area_flags = AREA_FLAG_EXTERNAL | AREA_FLAG_UNIQUE_AREA | AREA_FLAG_CAVES_ALLOWED
 	ambient_music_tags = list(MUSIC_TAG_SPACE)
@@ -104,7 +90,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 /area/centcom
 	name = "\improper Centcom"
 	icon_state = "centcom"
-	requires_power = 0
 	dynamic_lighting = 0
 
 /area/centcom/holding
@@ -205,7 +190,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 //All shuttles should now be under shuttle since we have smooth-wall code.
 
 /area/shuttle
-	requires_power = 0
 	sound_env = SMALL_ENCLOSED
 	area_flags = AREA_FLAG_NO_STATION | AREA_FLAG_UNIQUE_AREA
 
@@ -215,7 +199,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 /area/wizard_station
 	name = "\improper Wizard's Den"
 	icon_state = "yellow"
-	requires_power = 0
 	dynamic_lighting = 0
 	area_flags = AREA_FLAG_NO_STATION | AREA_FLAG_UNIQUE_AREA
 
@@ -224,7 +207,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	icon_state = "null"
 	luminosity = 1
 	dynamic_lighting = 0
-	requires_power = 0
 	area_flags = AREA_FLAG_NO_STATION | AREA_FLAG_UNIQUE_AREA
 	var/sound/mysound = null
 
@@ -279,5 +261,4 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	icon_state = "yellow"
 	luminosity = 1
 	dynamic_lighting = 0
-	requires_power = 0
 	area_flags = AREA_FLAG_NO_STATION | AREA_FLAG_UNIQUE_AREA

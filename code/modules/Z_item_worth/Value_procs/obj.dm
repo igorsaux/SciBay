@@ -1,4 +1,4 @@
-/obj/Value()
-	. = ..()
+/obj/Value(base)
+	. = ..(base)
 	for(var/a in contents)
-		. += get_value(a)
+		. += get_base_value(a)

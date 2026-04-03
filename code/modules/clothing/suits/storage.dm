@@ -25,10 +25,6 @@
 	if(!LAZYISIN(accessories, W))		//Make sure that an accessory wasn't successfully attached to suit.
 		pockets.attackby(W, user)
 
-/obj/item/clothing/suit/storage/emp_act(severity)
-	pockets.emp_act(severity)
-	..()
-
 //Jackets with buttons, used for labcoats, IA jackets, First Responder jackets, and brown jackets.
 /obj/item/clothing/suit/storage/toggle
 	var/icon_open

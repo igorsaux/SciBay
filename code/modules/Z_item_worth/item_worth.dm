@@ -1,20 +1,43 @@
+// Global margins for dynamic economy. Can be randomized at round start.
+GLOBAL_VAR_INIT(economy_buy_margin, 1.15)  // 15% markup when players buy
+GLOBAL_VAR_INIT(economy_sell_margin, 0.85) // 15% markdown when players sell
+
 GLOBAL_LIST_EMPTY(price_cache)
-/proc/get_value(atom/A) // A can be either type *or* instance; ie get_value(/obj) is valid, as is get_value(new /obj)
+
+// Get the raw base value of an item, including its specific modifier
+/proc/get_base_value(atom/A)
 	var/atom/t = ispath(A) ? A : A.type
-	while(!(t in worths)) // Find the first parent that is in the list
+	while(!(t in worths))
 		t = PARENT(t)
 		if(!t)
 			return 0
+			
 	var/value = worths[t]
-	if(value >= 0) // Value zero or greater than zero, all instances have same value
-		return value
+	var/item_modifier = 1
+	
+	// If it's an instantiated item, check for its specific modifier
+	if(!ispath(A) && istype(A, /obj/item))
+		var/obj/item/I = A
+		if(I.price_modifier)
+			item_modifier = I.price_modifier
+
+	if(value >= 0)
+		return value * item_modifier
 	else 
-		if(ispath(A)) // Build a cache for tricky pricing types
+		if(ispath(A))
 			t = A
 			if(!GLOB.price_cache[A])
 				A = new A
 				GLOB.price_cache[A.type] = A.Value(-value)
 				qdel(A)
-			return GLOB.price_cache[t]
+			return GLOB.price_cache[t] * item_modifier
 		else
-			return A.Value(-value)
+			return A.Value(-value) * item_modifier
+
+// Price when ordering from cargo
+/proc/get_buy_price(atom/A)
+	return ceil(get_base_value(A) * GLOB.economy_buy_margin)
+
+// Price when selling to cargo
+/proc/get_sell_price(atom/A)
+	return ceil(get_base_value(A) * GLOB.economy_sell_margin)

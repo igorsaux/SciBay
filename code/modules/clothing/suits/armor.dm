@@ -1,18 +1,11 @@
 
 /obj/item/clothing/suit/armor
 	allowed = list(
-		/obj/item/ammo_magazine,
-		/obj/item/ammo_casing,
 		/obj/item/clothing/head/helmet,
 		/obj/item/clothing/mask/gas,
-		/obj/item/device/radio,
 		/obj/item/device/flashlight,
-		/obj/item/grenade,
 		/obj/item/gun/energy,
 		/obj/item/gun/projectile,
-		/obj/item/gun/charge,
-		/obj/item/gun/magnetic,
-		/obj/item/gun/launcher/grenade,
 		/obj/item/handcuffs,
 		/obj/item/melee/baton,
 		/obj/item/reagent_containers/spray/pepper
@@ -96,16 +89,10 @@
 	allowed = list(
 		/obj/item/gun,
 		/obj/item/device/flashlight,
-		/obj/item/device/radio,
 		/obj/item/tank,
-		/obj/item/ammo_magazine,
-		/obj/item/ammo_casing,
 		/obj/item/reagent_containers/spray/pepper,
-		/obj/item/melee/whip/chainofcommand,
 		/obj/item/melee/baton,
 		/obj/item/handcuffs,
-		/obj/item/disk/nuclear,
-		/obj/item/grenade,
 		)
 	siemens_coefficient = 0.5
 
@@ -183,26 +170,6 @@
 	siemens_coefficient = 0
 	starting_accessories = list(/obj/item/clothing/accessory/armguards/ablative, /obj/item/clothing/accessory/legguards/ablative)
 
-/obj/item/clothing/suit/armor/laserproof/handle_shield(mob/user, damage, atom/damage_source = null, mob/attacker = null, def_zone = null, attack_text = "the attack")
-	if(istype(damage_source, /obj/item/projectile/energy) || istype(damage_source, /obj/item/projectile/beam))
-		var/obj/item/projectile/P = damage_source
-
-		var/reflectchance = 40 - round(damage/3)
-		if(!(def_zone in list(BP_CHEST, BP_GROIN))) //not changing this so arm and leg shots reflect, gives some incentive to not aim center-mass
-			reflectchance /= 2
-		if(P.starting && prob(reflectchance))
-			visible_message("<span class='danger'>\The [user]'s [src.name] reflects [attack_text]!</span>")
-
-			// Find a turf near or on the original location to bounce to
-			var/new_x = P.starting.x + pick(0, 0, 0, 0, 0, -1, 1, -2, 2)
-			var/new_y = P.starting.y + pick(0, 0, 0, 0, 0, -1, 1, -2, 2)
-			var/turf/curloc = get_turf(user)
-
-			// redirect the projectile
-			P.redirect(new_x, new_y, curloc, user)
-
-			return PROJECTILE_CONTINUE // complete projectile permutation
-
 //Reactive armor
 //When the wearer gets hit, this armor will teleport the user a short distance away (to safety or to more danger, no one knows. That's the fun of it!)
 /obj/item/clothing/suit/armor/reactive
@@ -253,12 +220,6 @@
 		src.item_state = "reactiveoff"
 		src.add_fingerprint(user)
 	return
-
-/obj/item/clothing/suit/armor/reactive/emp_act(severity)
-	active = 0
-	src.icon_state = "reactiveoff"
-	src.item_state = "reactiveoff"
-	..()
 
 //All of the armor below is mostly unused
 /obj/item/clothing/suit/armor/swat // Adminspawn armor for total annihilation

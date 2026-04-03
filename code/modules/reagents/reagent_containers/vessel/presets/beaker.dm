@@ -1,21 +1,13 @@
-///
-/// Presets for /obj/item/reagent_containers/vessel/beaker
-///
+// Vials
 
-/obj/item/reagent_containers/vessel/beaker/cryoxadone
-	name = "cryoxadone beaker"
-	desc = "Just put it into the nearest cryocell. Please."
-	base_name = "beaker"
-	base_desc = "A beaker."
-	start_label = "cryoxadone"
-	startswith = list(/datum/reagent/cryoxadone = 150)
+/obj/item/reagent_containers/vessel/beaker/vial/barium_dichloride
+	start_label = "barium dichloride (99.9%)"
 	override_lid_state = LID_CLOSED
+	startswith = alist(
+		Z_MOL_BARIUM_DICHLORIDE = list(0.001815 LITERS, 2e-4),
+	)
 
-/obj/item/reagent_containers/vessel/beaker/sulphuric
-	name = "sulphuric acid beaker"
-	desc = "Suphuric acid is used for printing various circuits. Or melting down people's faces."
-	base_name = "beaker"
-	base_desc = "A beaker."
-	start_label = "sulphuric acid"
-	startswith = list(/datum/reagent/acid = 300)
-	override_lid_state = LID_CLOSED
+/obj/item/storage/fancy/vials/barium_dichloride
+	startswith = list(
+		/obj/item/reagent_containers/vessel/beaker/vial/barium_dichloride = 6,
+	)

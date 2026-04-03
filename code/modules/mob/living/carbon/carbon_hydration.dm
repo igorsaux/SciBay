@@ -5,9 +5,6 @@
 	return
 
 /mob/living/carbon/human/add_hydration(amount)
-	if(isSynthetic())
-		return
-
 	hydration = clamp(hydration + amount, HYDRATION_NONE, HYDRATION_LIMIT)
 	if(amount >= 1 || world.time >= last_hydration_speed_update + UPDATE_DELAY) // This proc is often called with extremely small amounts
 		update_hydration_movespeed_if_necessary()
@@ -18,9 +15,6 @@
 	return
 
 /mob/living/carbon/human/remove_hydration(amount)
-	if(isSynthetic())
-		return
-
 	hydration = clamp(hydration - amount, HYDRATION_NONE, HYDRATION_LIMIT)
 	if(amount >= 1  || world.time >= last_hydration_speed_update + UPDATE_DELAY) // This proc is often called with extremely small amounts
 		update_hydration_movespeed_if_necessary()
@@ -40,8 +34,6 @@
 
 /mob/living/carbon/human/update_hydration_movespeed_if_necessary()
 	last_hydration_speed_update = world.time
-	if(full_prosthetic)
-		return
 
 	if(hydration <= HYDRATION_NONE)
 		add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/hydration_slowdown, slowdown = 1.0)

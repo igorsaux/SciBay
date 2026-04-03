@@ -20,9 +20,6 @@
 	///Proximity monitor associated with this atom
 	var/datum/proximity_monitor/proximity_monitor
 
-	///Chemistry.
-	var/datum/reagents/reagents = null
-
 	//var/chem_is_open_container = 0
 	// replaced by OPENCONTAINER flags and atom/proc/is_open_container()
 	///Chemistry.
@@ -100,9 +97,6 @@
 		if(istype(T))
 			T.RecalculateOpacity()
 
-	if(is_poi)
-		SSpoints_of_interest.make_point_of_interest(src)
-
 	return INITIALIZE_HINT_NORMAL
 
 //called if Initialize returns INITIALIZE_HINT_LATELOAD
@@ -126,7 +120,6 @@
 	SEND_SIGNAL(src, SIGNAL_EXITED, src, exitee, new_loc)
 
 /atom/Destroy()
-	QDEL_NULL(reagents)
 	QDEL_NULL(proximity_monitor)
 	ClearOverlays()
 	underlays.Cut()
@@ -154,9 +147,6 @@
 	if (istype(user, /mob/living/silicon/ai)) // WHYYYY
 		return 0
 	return -1
-
-/atom/proc/on_reagent_change()
-	return
 
 /atom/proc/Bumped(atom/movable/AM)
 	return
@@ -187,17 +177,9 @@
 /atom/proc/HasProximity(atom/movable/AM)
 	return
 
-/atom/proc/emp_act(severity)
-	return
-
 /atom/proc/set_density(new_density)
 	if(density != new_density)
 		density = !!new_density
-
-/atom/proc/bullet_act(obj/item/projectile/P, def_zone)
-	P.on_hit(src, 0, def_zone)
-	SEND_SIGNAL(src, SIGNAL_BULLET_ACT, src, P)
-	. = 0
 
 /atom/proc/in_contents_of(container)//can take class or object instance as argument
 	if(ispath(container))
@@ -364,17 +346,9 @@ its easier to just keep the beam vertical.
 /atom/proc/on_update_icon()
 	return
 
-/atom/proc/blob_act(damage)
-	CAN_BE_REDEFINED(TRUE)
-	return
-
 /atom/proc/ex_act()
 	CAN_BE_REDEFINED(TRUE)
 	return
-
-/atom/proc/emag_act(remaining_charges, mob/user, emag_source)
-	CAN_BE_REDEFINED(TRUE)
-	return NO_EMAG_ACT
 
 /atom/proc/fire_act()
 	CAN_BE_REDEFINED(TRUE)
@@ -430,16 +404,6 @@ its easier to just keep the beam vertical.
 	else
 		blood_color = COLOR_BLOOD_HUMAN
 	return TRUE
-
-/atom/proc/add_vomit_floor(mob/living/carbon/M, toxvomit = 0, datum/reagents/inject_reagents)
-	if(istype(src, /turf/simulated))
-		var/obj/effect/decal/cleanable/vomit/this = new /obj/effect/decal/cleanable/vomit(src)
-		if(istype(inject_reagents) && inject_reagents.total_volume)
-			inject_reagents.trans_to_obj(this, min(150, inject_reagents.total_volume))
-			//this.reagents.add_reagent(/datum/reagent/acid/stomach, 5) //Gonna rework the vomiting system one day. ~Toby
-		// Make toxins vomit look different
-		if(toxvomit)
-			this.icon_state = "vomittox_[pick(1,4)]"
 
 /atom/proc/clean_blood()
 	if(!simulated)
@@ -573,9 +537,6 @@ its easier to just keep the beam vertical.
 		to_chat(user, "<span class='notice'>You need your hands and legs free for this.</span>")
 		return 0
 	if (user.incapacitated())
-		return 0
-	if (issilicon(user))
-		to_chat(user, "<span class='notice'>You need hands for this.</span>")
 		return 0
 	return 1
 
@@ -825,16 +786,3 @@ its easier to just keep the beam vertical.
 		offset_y = tf_offset_y,
 		others = others
 	)
-
-
-/// Respond to an RCD acting on our item
-/atom/proc/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	return FALSE
-
-///Return the values you get when an RCD eats you?
-/atom/proc/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	return FALSE
-
-/// Adds the debris element for projectile impacts
-/atom/proc/add_debris_element()
-	AddElement(/datum/element/debris, null, -15, 8, 0.7)

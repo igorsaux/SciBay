@@ -26,7 +26,6 @@
 	icon_state = "firstaid"
 
 	startswith = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/stack/medical/bandage = 2,
 		/obj/item/stack/medical/ointment = 1,
 		/obj/item/reagent_containers/hypospray/autoinjector,
@@ -41,7 +40,6 @@
 	item_state = "firstaid-ointment"
 
 	startswith = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/reagent_containers/hypospray/autoinjector,
 		/obj/item/stack/medical/bandage,
 		/obj/item/stack/medical/ointment = 2,
@@ -60,9 +58,7 @@
 	item_state = "firstaid-toxin"
 
 	startswith = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/storage/pill_bottle/dylovene,
-		/obj/item/reagent_containers/syringe/antitoxin/packaged = 3,
 		/obj/item/reagent_containers/vessel/plastic/waterbottle
 		)
 
@@ -77,10 +73,8 @@
 	item_state = "firstaid-o2"
 
 	startswith = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/storage/pill_bottle/dexalin,
 		/obj/item/reagent_containers/hypospray/autoinjector,
-		/obj/item/reagent_containers/syringe/inaprovaline/packaged,
 		/obj/item/tank/emergency/oxygen,
 		/obj/item/clothing/mask/breath
 		)
@@ -92,7 +86,6 @@
 	item_state = "firstaid-advanced"
 
 	startswith = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/reagent_containers/hypospray/autoinjector/adrenaline,
 		/obj/item/stack/medical/gel/brute = 2,
 		/obj/item/stack/medical/gel/burn = 2,
@@ -133,7 +126,6 @@
 	startswith = list(
 		/obj/item/reagent_containers/hypospray/autoinjector/antirad,
 		/obj/item/reagent_containers/hypospray/autoinjector/pain,
-		/obj/item/reagent_containers/syringe/antitoxin/packaged,
 		/obj/item/reagent_containers/pill/dylovene
 		)
 	can_hold = list(
@@ -171,7 +163,6 @@
 		/obj/item/FixOVein,
 		/obj/item/organfixer,
 		/obj/item/stack/medical/gel/brute,
-		/obj/item/stack/nanopaste
 		)
 
 	startswith = list(

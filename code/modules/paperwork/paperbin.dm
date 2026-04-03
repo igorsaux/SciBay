@@ -40,11 +40,6 @@
 		else
 			if(response == "Regular")
 				P = new /obj/item/paper
-				if(Holiday == "April Fool's Day")
-					if(prob(30))
-						P.info = "<font face=\"[P.crayonfont]\" color=\"red\"><b>HONK HONK HONK HONK HONK HONK HONK<br>HOOOOOOOOOOOOOOOOOOOOOONK<br>APRIL FOOLS</b></font>"
-						P.rigged = 1
-						P.generateinfolinks()
 			else if (response == "Carbon-Copy")
 				P = new /obj/item/paper/carbon
 
@@ -59,8 +54,6 @@
 
 /obj/item/paper_bin/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/paper))
-		if(istype(I, /obj/item/paper/talisman))
-			return
 		if(!user.drop(I, src))
 			return
 		to_chat(user, SPAN("notice", "You put [I] in [src]."))

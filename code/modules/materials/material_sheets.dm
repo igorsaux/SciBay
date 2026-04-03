@@ -44,10 +44,6 @@
 		craft_tool = material.craft_tool
 	update_strings()
 
-	if(material.reagent_path)
-		create_reagents(get_max_amount() * REAGENTS_PER_MATERIAL_SHEET)
-		reagents.add_reagent(material.reagent_path, amount * REAGENTS_PER_MATERIAL_SHEET, null, FALSE)
-
 /obj/item/stack/material/get_material()
 	return material
 
@@ -66,16 +62,10 @@
 
 /obj/item/stack/material/add(extra)
 	. = ..(extra)
-	if(. && material.reagent_path)
-		reagents.add_reagent(material.reagent_path, (extra * REAGENTS_PER_MATERIAL_SHEET))
 
 /obj/item/stack/material/use(used)
 	. = ..()
 	update_strings()
-	if(. && material?.reagent_path)
-		reagents?.remove_reagent(material.reagent_path, (amount * REAGENTS_PER_MATERIAL_SHEET))
-	return
-
 /obj/item/stack/material/transfer_to(obj/item/stack/S, tamount=null, type_verified)
 	var/obj/item/stack/material/M = S
 	if(!istype(M) || material.name != M.material.name)

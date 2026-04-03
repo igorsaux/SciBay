@@ -7,7 +7,6 @@
 
 	max_damage = 100
 	relative_size = 70
-	food_organ_type = /obj/item/reagent_containers/food/organ/brain
 	traumatic_damage_multiplier = 2.0
 
 	var/damage_threshold_value
@@ -40,12 +39,6 @@
 		brain_self.add_modifier(M.type)
 	return ..()
 
-/obj/item/organ/internal/cerebrum/brain/robotize()
-	replace_self_with(/obj/item/organ/internal/cerebrum/posibrain)
-
-/obj/item/organ/internal/cerebrum/brain/mechassist()
-	replace_self_with(/obj/item/organ/internal/cerebrum/mmi)
-
 /obj/item/organ/internal/cerebrum/brain/proc/replace_self_with(replace_path)
 	var/mob/living/carbon/human/tmp_owner = owner
 	qdel(src)
@@ -61,68 +54,6 @@
 
 /obj/item/organ/internal/cerebrum/brain/proc/past_damage_threshold(threshold)
 	return (get_current_damage_threshold() > threshold)
-
-/obj/item/organ/internal/cerebrum/brain/think()
-	if(isnull(owner))
-		return ..()
-
-	if(damage > max_damage / 2 && healed_threshold)
-		spawn()
-			alert(owner, "You have taken massive brain damage! You will not be able to remember the events leading up to your injury.", "Brain Damaged")
-		healed_threshold = 0
-
-	if(damage < (max_damage / 4))
-		healed_threshold = 1
-
-	handle_disabilities()
-	handle_damage_effects()
-
-	// Brain damage from low oxygenation or lack of blood.
-	if(owner.should_have_organ(BP_HEART) && !(isundead(owner)))
-
-		// No heart? You are going to have a very bad time. Not 100% lethal because heart transplants should be a thing.
-		var/blood_volume = owner.get_blood_oxygenation()
-
-		if(owner.is_asystole()) // Heart is missing or isn't beating and we're not breathing (hardcrit)
-			owner.Paralyse(3)
-		var/can_heal = damage && damage < max_damage && (damage % damage_threshold_value || owner.chem_effects[CE_BRAIN_REGEN] || (!past_damage_threshold(3) && owner.chem_effects[CE_STABLE]))
-		var/damprob
-		//Effects of bloodloss
-		switch(blood_volume)
-
-			if(BLOOD_VOLUME_SAFE to INFINITY)
-				if(can_heal)
-					heal_damage(1)
-			if(BLOOD_VOLUME_OKAY to BLOOD_VOLUME_SAFE)
-				if(prob(1))
-					to_chat(owner, SPAN("warning", "You feel a bit [pick("dizzy","woozy","faint")]..."))
-				damprob = owner.chem_effects[CE_STABLE] ? 10 : 40
-				if(!past_damage_threshold(2) && prob(damprob))
-					take_internal_damage(0.5)
-			if(BLOOD_VOLUME_BAD to BLOOD_VOLUME_OKAY)
-				owner.eye_blurry = max(owner.eye_blurry, 6)
-				damprob = owner.chem_effects[CE_STABLE] ? 30 : 60
-				if(!past_damage_threshold(4) && prob(damprob))
-					take_internal_damage(0.5)
-				if(!owner.weakened && prob(10))
-					owner.Weaken(rand(1,3))
-					to_chat(owner, SPAN("warning", "You feel [pick("dizzy","woozy","faint")]..."))
-			if(BLOOD_VOLUME_SURVIVE to BLOOD_VOLUME_BAD)
-				owner.eye_blurry = max(owner.eye_blurry, 6)
-				damprob = owner.chem_effects[CE_STABLE] ? 50 : 80
-				if(!past_damage_threshold(6) && prob(damprob))
-					take_internal_damage(0.5)
-				if(!owner.paralysis && prob(15))
-					owner.visible_message("<B>[owner]</B> faints!", \
-											SPAN("warning", "You feel extremely [pick("dizzy","woozy","faint")]..."))
-					owner.Paralyse(3,5)
-			if(-(INFINITY) to BLOOD_VOLUME_SURVIVE) // Also see heart.dm, being below this point puts you into cardiac arrest.
-				owner.eye_blurry = max(owner.eye_blurry, 6)
-				damprob = owner.chem_effects[CE_STABLE] ? 70 : 100
-				if(prob(damprob))
-					take_internal_damage(1.0)
-
-	return ..()
 
 /obj/item/organ/internal/cerebrum/brain/proc/handle_disabilities()
 	if(owner.stat)

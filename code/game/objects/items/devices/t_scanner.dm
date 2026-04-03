@@ -30,10 +30,6 @@
 /obj/item/device/t_scanner/on_update_icon()
 	icon_state = "[base_state][on]"
 
-/obj/item/device/t_scanner/emp_act()
-	audible_message(src, "<span class = 'notice'> \The [src] buzzes oddly.</span>", splash_override = "*buzz-z-z*")
-	set_active(FALSE)
-
 /obj/item/device/t_scanner/attack_self(mob/user)
 	set_active(!on)
 	user.update_action_buttons()
@@ -131,8 +127,6 @@
 				if(H.is_cloaked())
 					. += M
 			else if(M.alpha < 255)
-				. += M
-			else if(round_is_spooky() && isobserver(M))
 				. += M
 
 		if(!!T.is_plating())

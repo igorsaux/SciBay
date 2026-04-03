@@ -11,8 +11,7 @@
 		return .
 
 	organ_tag = limb.organ_tag
-	if(!BP_IS_ROBOTIC(limb)) // These nasty fucks are broken, fuck robolimbs, their dumb icons and whomever the fuck created them in their current fucking state
-		icon_name = limb.icon_name
+	icon_name = limb.icon_name
 	body_part = limb.body_part
 	amputation_point = limb.amputation_point
 	joint = limb.joint
@@ -22,8 +21,6 @@
 		limb_flags |= ORGAN_FLAG_GENDERED_ICON
 
 	max_damage = limb.max_damage
-	if(BP_IS_ROBOTIC(limb) && (!parent || BP_IS_ROBOTIC(parent)))
-		robotize() //if both limb and the parent are robotic, the stump is robotic too
 
 /obj/item/organ/external/stump/is_stump()
 	return 1
@@ -66,10 +63,7 @@
 		gender = "_f"
 
 	if(owner)
-		if(!BP_IS_ROBOTIC(src))
-			body_build = owner.body_build.index
-		else
-			body_build = owner.body_build.roboindex
+		body_build = owner.body_build.index
 
 	var/chosen_icon = ""
 	var/chosen_icon_state = ""
@@ -80,8 +74,6 @@
 	/////
 	if(force_icon)
 		chosen_icon = force_icon
-	else if(BP_IS_ROBOTIC(src))
-		chosen_icon = 'icons/mob/human_races/cyberlimbs/unbranded/unbranded_main.dmi'
 	else if(!dna)
 		chosen_icon = 'icons/mob/human_races/r_human.dmi'
 	else

@@ -1,5 +1,4 @@
 /obj/machinery/space_heater
-	use_power = POWER_USE_OFF
 	anchored = 0
 	density = 1
 	icon = 'icons/obj/atmos.dmi'
@@ -47,14 +46,6 @@
 		. += "The charge meter reads [cell ? round(CELL_PERCENT(cell),1) : 0]%"
 	return
 
-/obj/machinery/space_heater/emp_act(severity)
-	if(stat & (BROKEN|NOPOWER))
-		..(severity)
-		return
-	if(cell)
-		cell.emp_act(severity)
-	..(severity)
-
 /obj/machinery/space_heater/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/cell))
 		if(panel_open)
@@ -69,7 +60,6 @@
 					C.add_fingerprint(user)
 
 					user.visible_message("<span class='notice'>[user] inserts a power cell into [src].</span>", "<span class='notice'>You insert the power cell into [src].</span>")
-					power_change()
 		else
 			to_chat(user, "The hatch must be open to insert a power cell.")
 			return
@@ -150,41 +140,29 @@
 
 /obj/machinery/space_heater/Process()
 	if(on)
-		if(powered() || (cell && cell.charge))
-			var/datum/gas_mixture/env = loc.return_air()
-			if(env && abs(env.temperature - set_temperature) <= 0.1)
-				active = 0
-			else
-				var/transfer_moles = 0.25 * env.total_moles
-				var/datum/gas_mixture/removed = env.remove(transfer_moles)
-
-				if(removed)
-					var/heat_transfer = removed.get_thermal_energy_change(set_temperature)
-					var/power_draw
-					if(heat_transfer > 0)	//heating air
-						heat_transfer = min( heat_transfer , heating_power ) //limit by the power rating of the heater
-
-						removed.add_thermal_energy(heat_transfer)
-						power_draw = heat_transfer
-					else	//cooling air
-						heat_transfer = abs(heat_transfer)
-
-						//Assume the heat is being pumped into the hull which is fixed at 20 C
-						var/cop = removed.temperature/(20 CELSIUS)	//coefficient of performance from thermodynamics -> power used = heat_transfer/cop
-						heat_transfer = min(heat_transfer, cop * heating_power)	//limit heat transfer by available power
-
-						heat_transfer = removed.add_thermal_energy(-heat_transfer)	//get the actual heat transfer
-
-						power_draw = abs(heat_transfer)/cop
-					if(!powered())
-						cell.use(power_draw*CELLRATE)
-					else
-						use_power_oneoff(power_draw)
-					active = heat_transfer
-
-				env.merge(removed)
-		else
-			on = 0
+		var/datum/gas_mixture/env = loc.return_air()
+		if(env && abs(env.temperature - set_temperature) <= 0.1)
 			active = 0
-			power_change()
+		else
+			var/transfer_moles = 0.25 * env.total_moles
+			var/datum/gas_mixture/removed = env.remove(transfer_moles)
+
+			if(removed)
+				var/heat_transfer = removed.get_thermal_energy_change(set_temperature)
+				if(heat_transfer > 0)	//heating air
+					heat_transfer = min( heat_transfer , heating_power ) //limit by the power rating of the heater
+
+					removed.add_thermal_energy(heat_transfer)
+				else	//cooling air
+					heat_transfer = abs(heat_transfer)
+
+					//Assume the heat is being pumped into the hull which is fixed at 20 C
+					var/cop = removed.temperature/(20 CELSIUS)	//coefficient of performance from thermodynamics -> power used = heat_transfer/cop
+					heat_transfer = min(heat_transfer, cop * heating_power)	//limit heat transfer by available power
+
+					heat_transfer = removed.add_thermal_energy(-heat_transfer)	//get the actual heat transfer
+
+				active = heat_transfer
+
+			env.merge(removed)
 		update_icon()

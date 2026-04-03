@@ -17,7 +17,6 @@
 	var/atom/origin					//Used to identify the alarm area.
 	var/list/sources = new()		//List of sources triggering the alarm. Used to determine when the alarm should be cleared.
 	var/list/sources_assoc = new()	//Associative list of source triggers. Used to efficiently acquire the alarm source.
-	var/list/cameras				//List of cameras that can be switched to, if the player has that capability.
 	var/cache_id					//ID for camera cache, changed by invalidateCameraCache().
 	var/area/last_area				//The last acquired area, used should origin be lost (for example a destroyed borg containing an alarming camera).
 	var/area/last_name				//The last acquired name, used should origin be lost
@@ -28,7 +27,6 @@
 /datum/alarm/New(atom/origin, atom/source, duration, severity)
 	src.origin = origin
 
-	cameras()	// Sets up both cameras and last alarm area.
 	set_source_data(source, duration, severity)
 
 /datum/alarm/proc/process()
@@ -80,22 +78,6 @@
 	last_name = origin.get_alarm_name()
 	return last_name
 
-/datum/alarm/proc/cameras()
-	// reset camera cache
-	if(camera_repository.camera_cache_id != cache_id)
-		cameras = null
-		cache_id = camera_repository.camera_cache_id
-	// If the alarm origin has changed area, for example a borg containing an alarming camera, reset the list of cameras
-	else if(cameras && (last_camera_area != alarm_area()))
-		cameras = null
-
-	// The list of cameras is also reset by /proc/invalidateCameraCache()
-	if(!cameras)
-		cameras = origin ? origin.get_alarm_cameras() : last_area.get_alarm_cameras()
-
-	last_camera_area = last_area
-	return cameras
-
 /datum/alarm/proc/max_severity()
 	var/max_severity = 0
 	for(var/datum/alarm_source/AS in sources)
@@ -130,25 +112,5 @@
 
 /atom/proc/get_source_name()
 	return name
-
-/obj/machinery/camera/get_source_name()
-	return c_tag
-
-/atom/proc/get_alarm_cameras()
-	var/area/A = get_area(src)
-	return A.get_cameras()
-
-/area/get_alarm_cameras()
-	return get_cameras()
-
-/mob/living/silicon/robot/get_alarm_cameras()
-	var/list/cameras = ..()
-	if(camera)
-		cameras += camera
-
-	return cameras
-
-/mob/living/silicon/robot/syndicate/get_alarm_cameras()
-	return list()
 
 #undef ALARM_RESET_DELAY

@@ -162,10 +162,6 @@
 	update_icon()
 	..()
 
-/obj/item/balloon/bullet_act(obj/item/projectile/Proj)
-	burst()
-	return PROJECTILE_CONTINUE
-
 /obj/item/balloon/ex_act(severity)
 	burst()
 

@@ -3,9 +3,6 @@
 	icon = 'icons/hud/screen_spells.dmi'
 	icon_state = "grey_spell_ready"
 	var/list/atom/movable/screen/ability/ability_objects = list()
-	var/list/atom/movable/screen/ability/spell_objects = list()
-	var/list/atom/movable/screen/ability/changeling_power_objects = list()
-	var/list/atom/movable/screen/ability/vampire_power_objects = list()
 	var/showing = 0 // If we're 'open' or not.
 
 	var/open_state = "master_open"		// What the button looks like when it's 'open', showing the other buttons.
@@ -28,16 +25,6 @@
 	//Get rid of the ability objects.
 	remove_all_abilities()
 	ability_objects.Cut()
-
-	remove_all_changeling_powers()
-	changeling_power_objects.Cut()
-
-	remove_all_vampire_powers()
-	vampire_power_objects.Cut()
-
-	for(var/atom/movable/screen/ability/spell/spell in spell_objects)
-		remove_ability(spell)
-	spell_objects.Cut()
 
 	// After that, remove ourselves from the mob seeing us, so we can qdel cleanly.
 	if(my_mob)
@@ -105,10 +92,6 @@
 	var/i = 1
 	for(var/atom/movable/screen/ability/ability in ability_objects)
 		ability.update_icon(forced)
-		if(istype(ability, /atom/movable/screen/ability/changeling_power))
-			continue // Lings' powers display chemcost and stuff
-		else if(istype(ability, /atom/movable/screen/ability/vampire_power))
-			continue // The same with vamps' powers.
 		ability.maptext = "[i]" // Slot number
 		i++
 
@@ -133,14 +116,7 @@
 	if(!ability)
 		return
 	ability_objects.Remove(ability)
-	if(istype(ability,/atom/movable/screen/ability/spell))
-		spell_objects.Remove(ability)
-	if(istype(ability, /atom/movable/screen/ability/changeling_power))
-		changeling_power_objects.Remove(ability)
-	if(istype(ability, /atom/movable/screen/ability/vampire_power))
-		vampire_power_objects.Remove(ability)
 	qdel(ability)
-
 
 	if(ability_objects.len)
 		toggle_open(showing + 1)
@@ -151,14 +127,6 @@
 /atom/movable/screen/movable/ability_master/proc/remove_all_abilities()
 	for(var/atom/movable/screen/ability/A in ability_objects)
 		remove_ability(A)
-
-/atom/movable/screen/movable/ability_master/proc/remove_all_changeling_powers()
-	for(var/atom/movable/screen/ability/changeling_power/CP in changeling_power_objects)
-		remove_ability(CP)
-
-/atom/movable/screen/movable/ability_master/proc/remove_all_vampire_powers()
-	for(var/atom/movable/screen/ability/vampire_power/VP in vampire_power_objects)
-		remove_ability(VP)
 
 /atom/movable/screen/movable/ability_master/proc/get_ability_by_name(name_to_search)
 	for(var/atom/movable/screen/ability/A in ability_objects)
@@ -176,27 +144,6 @@
 	for(var/atom/movable/screen/ability/obj_based/O in ability_objects)
 		if(O.object == instance)
 			return O
-	return null
-
-/atom/movable/screen/movable/ability_master/proc/get_ability_by_spell(datum/spell/s)
-	for(var/screen in spell_objects)
-		var/atom/movable/screen/ability/spell/S = screen
-		if(S.spell == s)
-			return S
-	return null
-
-/atom/movable/screen/movable/ability_master/proc/get_ability_by_changeling_power(datum/changeling_power/cp)
-	for(var/screen in changeling_power_objects)
-		var/atom/movable/screen/ability/changeling_power/CP = screen
-		if(CP.power == cp)
-			return CP
-	return null
-
-/atom/movable/screen/movable/ability_master/proc/get_ability_by_vampire_power(datum/vampire_power/vp)
-	for(var/screen in vampire_power_objects)
-		var/atom/movable/screen/ability/vampire_power/VP = screen
-		if(istype(VP) && VP.power == vp)
-			return VP
 	return null
 
 /mob/Initialize()
@@ -303,265 +250,3 @@
 /atom/movable/screen/ability/obj_based/activate()
 	if(object)
 		object.Click()
-
-
-// Wizard
-/atom/movable/screen/ability/spell
-	var/datum/spell/spell
-	var/spell_base
-	var/last_charge = 0
-	var/icon/last_charged_icon
-
-/atom/movable/screen/ability/spell/Destroy()
-	if(spell)
-		spell.connected_button = null
-		spell = null
-	return ..()
-
-/atom/movable/screen/movable/ability_master/proc/add_spell(datum/spell/spell)
-	if(!spell) return
-
-	if(spell.spell_flags & NO_BUTTON) //no button to add if we don't get one
-		return
-
-	if(get_ability_by_spell(spell))
-		return
-
-	var/atom/movable/screen/ability/spell/A = new()
-	A.ability_master = src
-	A.spell = spell
-	A.SetName(spell.name)
-	spell.connected_button = A
-
-	if(!spell.override_base) //if it's not set, we do basic checks
-		if(spell.spell_flags & CONSTRUCT_CHECK)
-			A.spell_base = "const" //construct spells
-		else
-			A.spell_base = "wiz" //wizard spells
-	else
-		A.spell_base = spell.override_base
-	A.update_charge(1)
-	spell_objects.Add(A)
-	ability_objects.Add(A)
-	if(my_mob.client)
-		toggle_open(2) //forces the icons to refresh on screen
-
-/mob/Life()
-	..()
-	if(ability_master)
-		ability_master.update_spells(0)
-
-/atom/movable/screen/movable/ability_master/proc/update_spells(forced = 0)
-	for(var/atom/movable/screen/ability/spell/spell in spell_objects)
-		spell.update_charge(forced)
-
-/atom/movable/screen/ability/spell/proc/update_charge(forced_update = 0)
-	if(!spell)
-		qdel(src)
-		return
-
-	if(last_charge == spell.charge_counter && !forced_update)
-		return //nothing to see here
-
-	CutOverlays(spell.icon_state)
-
-	if(spell.charge_type == SP_RECHARGE || spell.charge_type == SP_CHARGES)
-		if(spell.charge_counter < spell.charge_max)
-			icon_state = "[spell_base]_spell_base"
-			if(spell.charge_counter > 0)
-				var/icon/partial_charge = icon(src.icon, "[spell_base]_spell_ready")
-				partial_charge.Crop(1, 1, partial_charge.Width(), round(partial_charge.Height() * spell.charge_counter / spell.charge_max))
-				AddOverlays(partial_charge)
-				if(last_charged_icon)
-					CutOverlays(last_charged_icon)
-				last_charged_icon = partial_charge
-			else if(last_charged_icon)
-				CutOverlays(last_charged_icon)
-				last_charged_icon = null
-		else
-			icon_state = "[spell_base]_spell_ready"
-			if(last_charged_icon)
-				CutOverlays(last_charged_icon)
-	else
-		icon_state = "[spell_base]_spell_ready"
-
-	AddOverlays(spell.icon_state)
-
-	last_charge = spell.charge_counter
-
-	CutOverlays("silence")
-	if(spell.silenced)
-		AddOverlays("silence")
-
-/atom/movable/screen/ability/spell/on_update_icon(forced = 0)
-	update_charge(forced)
-
-	if(istype(spell, /datum/spell/toggled))
-		ClearOverlays()
-		var/datum/spell/toggled/attached_spell = spell
-		AddOverlays(spell.icon_state)
-		if(attached_spell.toggled)
-			AddOverlays("vampire_spell_active")
-		if(attached_spell.mana_drain_per_tick)
-			var/image/T = image(icon, "blank")
-			T.maptext = MAPTEXT("[attached_spell.mana_current]/[attached_spell.mana_max]")
-			AddOverlays(T)
-	return
-
-/atom/movable/screen/ability/spell/activate()
-	spell.perform(usr)
-
-/atom/movable/screen/movable/ability_master/proc/silence_spells(amount)
-	for(var/atom/movable/screen/ability/spell/spell in spell_objects)
-		spell.spell.silenced = amount
-		spell.spell.process()
-		spell.update_charge(1)
-
-
-/mob/Life()
-	..()
-	if(ability_master)
-		ability_master.update_changeling_powers()
-		ability_master.update_vampire_powers()
-
-// Changeling
-
-/atom/movable/screen/movable/ability_master/proc/reskin_changeling()
-	icon_state = "changeling_spell_base"
-	open_state = "ling_open"
-	closed_state = "ling_closed"
-	ClearOverlays()
-	AddOverlays(open_state)
-
-/atom/movable/screen/ability/changeling_power
-	background_base_state = "changeling"
-	var/datum/changeling_power/power
-	var/chemical_cost = 0
-	var/icon/last_charged_icon
-
-/atom/movable/screen/ability/changeling_power/Destroy()
-	power = null
-	return ..()
-
-/atom/movable/screen/movable/ability_master/proc/add_changeling_power(datum/changeling_power/power)
-	if(!power)
-		return
-
-	if(istype(power, /datum/changeling_power/passive))
-		return
-
-	if(get_ability_by_changeling_power(power))
-		return
-
-	var/atom/movable/screen/ability/changeling_power/P = new()
-	P.ability_master = src
-	P.power = power
-	P.SetName("[power.name] ([power.required_chems])")
-
-	changeling_power_objects.Add(P)
-	ability_objects.Add(P)
-	if(my_mob.client)
-		toggle_open(2) //forces the icons to refresh on screen
-
-/atom/movable/screen/movable/ability_master/proc/update_changeling_powers()
-	for(var/atom/movable/screen/ability/changeling_power/P in changeling_power_objects)
-		P.update_icon()
-
-/atom/movable/screen/ability/changeling_power/on_update_icon()
-	if(!power)
-		qdel(src)
-		return
-
-	ClearOverlays()
-
-	icon_state = "[background_base_state]_spell_[power.is_usable(TRUE) ? "ready" : "base"]"
-	AddOverlays(power.icon_state)
-
-	if(istype(power, /datum/changeling_power/toggled))
-		if(power.active)
-			AddOverlays("changeling_spell_active")
-
-	var/image/T = image(icon, "blank")
-	if(!power.chems_drain)
-		if(power.required_chems)
-			T.maptext = "[power.required_chems]" // Slot number not needed, chem cost holds more importance.
-		else
-			T.maptext = ""
-	else
-		T.maptext = "[power.required_chems] ([power.chems_drain])"
-
-	AddOverlays(T)
-
-/atom/movable/screen/ability/changeling_power/activate()
-	power.use(usr)
-
-// Vampire
-
-/atom/movable/screen/movable/ability_master/proc/reskin_vampire()
-	icon_state = "vampire_spell_base"
-	open_state = "vamp_open"
-	closed_state = "vamp_closed"
-	ClearOverlays()
-	AddOverlays(open_state)
-
-/atom/movable/screen/ability/vampire_power
-	background_base_state = "vampire"
-	var/datum/vampire_power/power
-	var/blood_cost = 0
-	var/icon/last_charged_icon
-
-/atom/movable/screen/ability/vampire_power/Destroy()
-	power = null
-	return ..()
-
-/atom/movable/screen/movable/ability_master/proc/add_vampire_power(datum/vampire_power/power)
-	if(!power)
-		return
-
-	if(get_ability_by_vampire_power(power))
-		return
-
-	var/atom/movable/screen/ability/vampire_power/P = new()
-	P.ability_master = src
-	P.power = power
-	P.SetName("[power.name] ([power.blood_cost])")
-
-	vampire_power_objects.Add(P)
-	ability_objects.Add(P)
-	if(my_mob.client)
-		toggle_open(2) //forces the icons to refresh on screen
-
-/atom/movable/screen/movable/ability_master/proc/update_vampire_powers()
-	for(var/atom/movable/screen/ability/vampire_power/P in vampire_power_objects)
-		P.update_icon()
-
-/atom/movable/screen/ability/vampire_power/on_update_icon()
-	if(!power)
-		qdel(src)
-		return
-
-	ClearOverlays()
-
-	icon_state = "[background_base_state]_spell_[power.is_usable(TRUE) ? "ready" : "base"]"
-	AddOverlays(power.icon_state)
-
-	if(power.cooldown > 0)
-		AddOverlays("vampire_cooldown")
-
-	if(istype(power, /datum/vampire_power/toggled))
-		if(power.active)
-			AddOverlays("vampire_spell_active")
-
-	var/image/T = image(icon, "blank")
-	if(!power.blood_drain)
-		if(power.blood_cost)
-			T.maptext = " [power.blood_cost]" // Slot number not needed, blood cost holds more importance.
-		else
-			T.maptext = ""
-	else
-		T.maptext = " [power.blood_cost] ([power.blood_drain])"
-
-	AddOverlays(T)
-
-/atom/movable/screen/ability/vampire_power/activate()
-	power.use(usr)

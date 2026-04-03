@@ -24,8 +24,6 @@ Thus, the two variables affect pump operation are set in New():
 
 	//var/max_volume_transfer = 10000
 
-	use_power = POWER_USE_OFF
-	idle_power_usage = 150 WATTS		//internal circuitry, friction losses and stuff
 	power_rating = 7.500 KILO WATTS		//7500 W ~ 10 HP
 
 	var/max_pressure_setting = MAX_PUMP_PRESSURE
@@ -44,25 +42,11 @@ Thus, the two variables affect pump operation are set in New():
 		set_frequency(frequency)
 	return ..()
 
-/obj/machinery/atmospherics/binary/pump/AltClick(mob/user)
-	if(user.is_ic_dead() || user.restrained())
-		return
-
-	if(!Adjacent(user, src) && !issilicon(user))
-		return
-
-	if(!allowed(user))
-		return
-
-	show_splash_text(user, "toggled [use_power ? "off" : "on"]", "You toggle \the [src] [use_power ? "off" : "on"].")
-	update_use_power(!use_power)
-	update_icon()
-
 /obj/machinery/atmospherics/binary/pump/AltRightClick(mob/user)
 	if(user.is_ic_dead() || user.restrained())
 		return
 
-	if(!Adjacent(user, src) && !issilicon(user))
+	if(!Adjacent(user, src))
 		return
 
 	if(!allowed(user))
@@ -73,14 +57,9 @@ Thus, the two variables affect pump operation are set in New():
 
 /obj/machinery/atmospherics/binary/pump/on
 	icon_state = "map_on"
-	use_power = POWER_USE_IDLE
-
 
 /obj/machinery/atmospherics/binary/pump/on_update_icon()
-	if(!powered())
-		icon_state = "off"
-	else
-		icon_state = "[use_power ? "on" : "off"]"
+	icon_state = "on"
 
 /obj/machinery/atmospherics/binary/pump/update_underlays()
 	if(..())
@@ -98,7 +77,7 @@ Thus, the two variables affect pump operation are set in New():
 	last_power_draw = 0
 	last_flow_rate = 0
 
-	if((stat & (NOPOWER|BROKEN)) || !use_power)
+	if((stat & (NOPOWER|BROKEN)))
 		return
 
 	var/power_draw = -1
@@ -111,7 +90,6 @@ Thus, the two variables affect pump operation are set in New():
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 
 		if(network1)
 			network1.update = 1
@@ -136,7 +114,6 @@ Thus, the two variables affect pump operation are set in New():
 	var/list/data = list(
 		"tag" = id,
 		"device" = "AGP",
-		"power" = use_power,
 		"target_output" = target_pressure,
 		"sigtype" = "status"
 	)
@@ -154,7 +131,6 @@ Thus, the two variables affect pump operation are set in New():
 	var/data[0]
 
 	data = list(
-		"on" = use_power,
 		"pressure_set" = round(target_pressure*100),	//Nano UI can't handle rounded non-integers, apparently.
 		"max_pressure" = max_pressure_setting,
 		"last_flow_rate" = round(last_flow_rate*10),
@@ -178,13 +154,6 @@ Thus, the two variables affect pump operation are set in New():
 
 	if(signal.data["power"])
 		playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
-		if(text2num(signal.data["power"]))
-			update_use_power(POWER_USE_IDLE)
-		else
-			update_use_power(POWER_USE_OFF)
-
-	if("power_toggle" in signal.data)
-		update_use_power(!use_power)
 
 	if(signal.data["set_output_pressure"])
 		target_pressure = between(
@@ -219,7 +188,6 @@ Thus, the two variables affect pump operation are set in New():
 
 	if(href_list["power"])
 		playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
-		update_use_power(!use_power)
 		. = 1
 
 	switch(href_list["set_press"])
@@ -240,7 +208,7 @@ Thus, the two variables affect pump operation are set in New():
 /obj/machinery/atmospherics/binary/pump/attackby(obj/item/W, mob/user)
 	if(!isWrench(W))
 		return ..()
-	if (!(stat & NOPOWER) && use_power)
+	if (!(stat & NOPOWER))
 		to_chat(user, SPAN_WARNING("You cannot unwrench this [src], turn it off first."))
 		return 1
 	var/datum/gas_mixture/int_air = return_air()

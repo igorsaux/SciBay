@@ -23,8 +23,6 @@
 		/obj/item/storage/box/syringes,
 		/obj/item/reagent_containers/dropper = 2,
 		/obj/item/reagent_containers/vessel/beaker = 2,
-		/obj/item/reagent_containers/vessel/bottle/chemical/inaprovaline = 2,
-		/obj/item/reagent_containers/vessel/bottle/chemical/antitoxin = 2,
 		/obj/random/firstaid,
 		/obj/item/storage/box/masks,
 		/obj/item/storage/box/gloves
@@ -66,7 +64,6 @@
 		/obj/item/clothing/suit/storage/toggle/labcoat,
 		/obj/item/clothing/suit/storage/toggle/fr_jacket,
 		/obj/item/clothing/shoes/white,
-		/obj/item/device/radio/headset/headset_med,
 		/obj/item/taperoll/medical,
 		/obj/item/storage/belt/medical/emt,
 		RANDOM_SCRUBS,
@@ -89,19 +86,13 @@
 		new /datum/atom_creator/simple(/obj/item/storage/backpack/dufflebag/emt, 50),
 	    /obj/item/storage/box/autoinjectors,
 	    /obj/item/storage/box/syringes,
-	    /obj/item/reagent_containers/vessel/bottle/chemical/inaprovaline,
-	    /obj/item/reagent_containers/vessel/bottle/chemical/antitoxin,
 	    /obj/item/storage/belt/medical/emt,
 	    /obj/item/clothing/mask/gas,
 	    /obj/item/clothing/suit/storage/toggle/paramedic,
 	    /obj/item/clothing/suit/storage/toggle/labcoat,
-	    /obj/item/device/radio/headset/headset_med,
-	    /obj/item/cartridge/medical,
 	    /obj/item/device/flashlight,
 	    /obj/item/tank/emergency/oxygen/engi,
 	    /obj/item/clothing/glasses/hud/one_eyed/oneye/medical,
-	    /obj/item/device/healthanalyzer,
-	    /obj/item/device/radio/off,
 	    /obj/random/medical,
 	    /obj/item/crowbar,
 	    /obj/item/extinguisher/mini,
@@ -126,11 +117,7 @@
 		/obj/item/clothing/suit/bio_suit/cmo,
 		/obj/item/clothing/head/bio_hood/cmo,
 		/obj/item/storage/belt/medical,
-		/obj/item/device/radio/headset/heads/cmo,
-		/obj/item/cartridge/cmo,
-		/obj/item/device/hudmatrix/medical,
 		/obj/item/device/flash,
-		/obj/item/melee/telebaton,
 		/obj/item/device/flashlight/pen,
 		/obj/item/reagent_containers/hypospray/vial
 	)
@@ -148,7 +135,6 @@
 /obj/structure/closet/secure_closet/chemical/WillContain()
 	return list(
 		/obj/item/storage/box/pillbottles = 2,
-		/obj/item/reagent_containers/vessel/beaker/cryoxadone,
 		/obj/random/medical = 12
 	)
 
@@ -185,11 +171,7 @@
 		/obj/item/clothing/shoes/black,
 		/obj/item/clothing/suit/chaplain_hoodie,
 		/obj/item/storage/fancy/candle_box = 2,
-		/obj/item/deck/tarot,
-		/obj/item/reagent_containers/vessel/bottle/holywater,
-		/obj/item/nullrod,
 		/obj/item/clothing/suit/straight_jacket,
-		/obj/item/reagent_containers/vessel/bottle/chemical/stoxin,
 		/obj/item/reagent_containers/syringe,
 		/obj/item/storage/pill_bottle/citalopram,
 		/obj/item/reagent_containers/pill/methylphenidate,
@@ -216,17 +198,13 @@
 		/obj/item/storage/box/syringes,
 		/obj/item/reagent_containers/dropper = 2,
 		/obj/item/reagent_containers/vessel/beaker = 2,
-		/obj/item/reagent_containers/vessel/bottle/chemical/inaprovaline,
 		/obj/item/storage/pill_bottle/spaceacillin,
-		/obj/item/reagent_containers/syringe/antiviral/packaged,
-		/obj/item/reagent_containers/vessel/bottle/chemical/antitoxin,
 		/obj/item/storage/box/masks,
 		/obj/item/storage/box/gloves,
 		/obj/item/clothing/under/rank/virologist,
 		/obj/item/clothing/shoes/white,
 		/obj/item/clothing/suit/storage/toggle/labcoat/virologist,
 		/obj/item/clothing/mask/surgical,
-		/obj/item/device/healthanalyzer,
 		/obj/item/clothing/glasses/hud/one_eyed/oneye/medical
 	)
 
@@ -243,7 +221,6 @@
 /obj/structure/closet/secure_closet/psychiatry/WillContain()
 	return list(
 		/obj/item/clothing/suit/straight_jacket,
-		/obj/item/reagent_containers/vessel/bottle/chemical/stoxin,
 		/obj/item/reagent_containers/syringe,
 		/obj/item/storage/pill_bottle/citalopram,
 		/obj/item/storage/pill_bottle/methylphenidate,

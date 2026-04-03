@@ -60,11 +60,6 @@
 		if(EXPLODE_LIGHT)
 			take_damage(maxdamage * 0.4)
 
-
-/obj/structure/barricade/bullet_act(obj/item/projectile/P)
-	take_damage(P.damage)
-	return PROJECTILE_CONTINUE
-
 /obj/structure/barricade/proc/take_damage(amount)
 	damage = clamp(damage + amount, 0, maxdamage)
 

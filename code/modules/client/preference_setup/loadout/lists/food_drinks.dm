@@ -72,9 +72,6 @@
 	path = /obj/item/reagent_containers/vessel/flask
 	price = 5
 
-/datum/gear/flask/New()
-	..()
-	gear_tweaks += new /datum/gear_tweak/reagents(lunchables_ethanol_reagents())
 
 /datum/gear/flask/bar
 	display_name = "bar flask"

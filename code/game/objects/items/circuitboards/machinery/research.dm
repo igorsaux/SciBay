@@ -56,18 +56,6 @@
 							/obj/item/stock_parts/manipulator = 1,
 							/obj/item/reagent_containers/vessel/beaker = 2)
 
-/obj/item/circuitboard/mechfab
-	name = "Circuit board (Exosuit Fabricator)"
-	icon_state = "id_mod_purple"
-	build_path = /obj/machinery/mecha_part_fabricator
-	board_type = "machine"
-	origin_tech = list(TECH_DATA = 3, TECH_ENGINEERING = 3)
-	req_components = list(
-							/obj/item/stock_parts/matter_bin = 2,
-							/obj/item/stock_parts/manipulator = 1,
-							/obj/item/stock_parts/micro_laser = 1,
-							/obj/item/stock_parts/console_screen = 1)
-
 /obj/item/circuitboard/ntnet_relay
 	name = "Circuit board (NTNet Quantum Relay)"
 	icon_state = "id_mod_blue"

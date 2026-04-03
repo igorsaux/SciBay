@@ -95,13 +95,9 @@
 	output_level = output_level_max
 
 /obj/machinery/power/smes/buildable/Destroy()
-	qdel(wires)
-	wires = null
 	for(var/obj/machinery/power/terminal/T in terminals)
 		T.master = null
 	terminals = null
-	for(var/datum/nano_module/rcon/R in world)
-		R.FindDevices()
 	return ..()
 
 // Proc: process()
@@ -119,19 +115,6 @@
 
 	..()
 
-// Proc: attack_ai()
-// Parameters: None
-// Description: AI requires the RCON wire to be intact to operate the SMES.
-/obj/machinery/power/smes/buildable/attack_ai()
-	if(RCon)
-		..()
-	else // RCON wire cut
-		to_chat(usr, SPAN_WARNING("Connection error: Destination Unreachable."))
-
-	// Cyborgs standing next to the SMES can play with the wiring.
-	if(istype(usr, /mob/living/silicon/robot) && Adjacent(usr) && panel_open)
-		wires.Interact(usr)
-
 // Proc: Initialize()
 // Parameters: None
 // Description: Adds standard components for this SMES, and forces recalculation of properties.
@@ -139,7 +122,6 @@
 	component_parts = list()
 	component_parts += new /obj/item/stack/cable_coil(src,30)
 	component_parts += new /obj/item/circuitboard/smes(src)
-	src.wires = new /datum/wires/smes(src)
 
 	// Allows for mapped-in SMESs with larger capacity/IO
 	if(cur_coils)
@@ -147,14 +129,6 @@
 			component_parts += new /obj/item/smes_coil(src)
 		recalc_coils()
 	. = ..()
-
-// Proc: attack_hand()
-// Parameters: None
-// Description: Opens the UI as usual, and if cover is removed opens the wiring panel.
-/obj/machinery/power/smes/buildable/attack_hand()
-	..()
-	if(panel_open)
-		wires.Interact(usr)
 
 // Proc: recalc_coils()
 // Parameters: None
@@ -236,8 +210,6 @@
 				to_chat(h_user, "Medium electrical sparks as you touch the [src], severely burning your hand!")
 				h_user.adjustFireLoss(rand(10,25))
 				h_user.Paralyse(5)
-			spawn(0)
-				empulse(src.loc, 2, 4)
 			apcs_overload(0, 5, 10)
 			charge = 0
 
@@ -254,8 +226,6 @@
 				to_chat(h_user, "Strong electrical arc sparks between you and [src], knocking you out for a while!")
 				h_user.adjustFireLoss(rand(35,75))
 				h_user.Paralyse(12)
-			spawn(0)
-				empulse(src.loc, 8, 16)
 			charge = 0
 			apcs_overload(1, 10, 20)
 			energy_fail(10)
@@ -270,8 +240,6 @@
 			// Remember, we have few gigajoules of electricity here.. Turn them into crispy toast.
 			h_user.adjustFireLoss(rand(150,195))
 			h_user.Paralyse(25)
-			spawn(0)
-				empulse(src.loc, 32, 64)
 			charge = 0
 			apcs_overload(5, 25, 100)
 			energy_fail(30)
@@ -415,8 +383,3 @@
 /obj/machinery/power/smes/buildable/proc/set_output(new_output = 0)
 	output_level = between(0, new_output, output_level_max)
 	update_icon()
-
-/obj/machinery/power/smes/buildable/emp_act(severity)
-	if(emp_proof)
-		return
-	..(severity)

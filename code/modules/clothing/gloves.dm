@@ -95,9 +95,6 @@
 		return
 
 	if(isCoil(W) && !wired)
-		if(istype(src, /obj/item/clothing/gloves/rig))
-			to_chat(user, SPAN("notice", "That definitely won't work."))
-			return
 		var/obj/item/stack/cable_coil/C = W
 		if(C.use(15))
 			wired = TRUE

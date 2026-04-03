@@ -1,6 +1,5 @@
 /datum/preferences
 	var/list/flavor_texts        = list()
-	var/list/flavour_texts_robot = list()
 
 /datum/category_item/player_setup_item/general/flavor
 	name = "Flavor"
@@ -18,11 +17,6 @@
 	pref.flavor_texts["feet"] = R.read("flavor_texts_feet")
 	pref.flavor_texts["action"] = R.read("flavor_texts_action")
 
-	//Flavour text for robots.
-	pref.flavour_texts_robot["Default"] = R.read("flavour_texts_robot_Default")
-	for(var/module in GLOB.robot_module_types)
-		pref.flavour_texts_robot[module] = R.read("flavour_texts_robot_[module]")
-
 /datum/category_item/player_setup_item/general/flavor/save_character(datum/pref_record_writer/W)
 	W.write("flavor_texts_general", pref.flavor_texts["general"])
 	W.write("flavor_texts_head",    pref.flavor_texts["head"])
@@ -35,18 +29,12 @@
 	W.write("flavor_texts_feet",    pref.flavor_texts["feet"])
 	W.write("flavor_texts_action",  pref.flavor_texts["action"])
 
-	W.write("flavour_texts_robot_Default", pref.flavour_texts_robot["Default"])
-	for(var/module in GLOB.robot_module_types)
-		W.write("flavour_texts_robot_[module]", pref.flavour_texts_robot[module])
-
 /datum/category_item/player_setup_item/general/flavor/sanitize_character()
 	if(!istype(pref.flavor_texts))        pref.flavor_texts = list()
-	if(!istype(pref.flavour_texts_robot)) pref.flavour_texts_robot = list()
 
 /datum/category_item/player_setup_item/general/flavor/content(mob/user)
 	. += "<b>Flavor:</b><br>"
 	. += "<a href='?src=\ref[src];flavor_text=open'>Set Flavor Text</a><br/>"
-	. += "<a href='?src=\ref[src];flavour_text_robot=open'>Set Robot Flavor Text</a><br/>"
 
 /datum/category_item/player_setup_item/general/flavor/OnTopic(href,list/href_list, mob/user)
 	if(href_list["flavor_text"])
@@ -62,21 +50,6 @@
 				if(CanUseTopic(user))
 					pref.flavor_texts[href_list["flavor_text"]] = msg
 		SetFlavorText(user)
-		return TOPIC_HANDLED
-
-	else if(href_list["flavour_text_robot"])
-		switch(href_list["flavour_text_robot"])
-			if("open")
-				pass()
-			if("Default")
-				var/msg = sanitize(input(usr,"Set the default flavour text for your robot. It will be used for any module without individual setting.","Flavour Text",html_decode(pref.flavour_texts_robot["Default"])) as message, extra = 0)
-				if(CanUseTopic(user))
-					pref.flavour_texts_robot[href_list["flavour_text_robot"]] = msg
-			else
-				var/msg = sanitize(input(usr,"Set the flavour text for your robot with [href_list["flavour_text_robot"]] module. If you leave this empty, default flavour text will be used for this module.","Flavour Text",html_decode(pref.flavour_texts_robot[href_list["flavour_text_robot"]])) as message, extra = 0)
-				if(CanUseTopic(user))
-					pref.flavour_texts_robot[href_list["flavour_text_robot"]] = msg
-		SetFlavourTextRobot(user)
 		return TOPIC_HANDLED
 
 	return ..()
@@ -116,23 +89,6 @@
 	HTML += "<a href='?src=\ref[src];flavor_text=action'>Action:</a> "
 	HTML += TextPreview(pref.flavor_texts["action"])
 	HTML += "<br>"
-	HTML += "<hr />"
-	HTML += "<tt>"
-	show_browser(user, HTML, "window=flavor_text;size=430x300")
-	return
-
-/datum/category_item/player_setup_item/general/flavor/proc/SetFlavourTextRobot(mob/user)
-	var/HTML = "<meta charset=\"utf-8\"><body>"
-	HTML += "<tt><center>"
-	HTML += "<b>Set Robot Flavour Text</b> <hr />"
-	HTML += "<br></center>"
-	HTML += "<a href='?src=\ref[src];flavour_text_robot=Default'>Default:</a> "
-	HTML += TextPreview(pref.flavour_texts_robot["Default"])
-	HTML += "<hr />"
-	for(var/module in GLOB.robot_module_types)
-		HTML += "<a href='?src=\ref[src];flavour_text_robot=[module]'>[module]:</a> "
-		HTML += TextPreview(pref.flavour_texts_robot[module])
-		HTML += "<br>"
 	HTML += "<hr />"
 	HTML += "<tt>"
 	show_browser(user, HTML, "window=flavor_text;size=430x300")

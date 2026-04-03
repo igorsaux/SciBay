@@ -227,26 +227,3 @@ LINEN BINS
 
 
 	add_fingerprint(user)
-
-/obj/structure/bedsheetbin/attack_tk(mob/user as mob)
-	if(amount >= 1)
-		amount--
-
-		var/obj/item/bedsheet/B
-		if(sheets.len > 0)
-			B = sheets[sheets.len]
-			sheets.Remove(B)
-
-		else
-			B = new /obj/item/bedsheet(loc)
-
-		B.dropInto(loc)
-		to_chat(user, "<span class='notice'>You telekinetically remove [B] from [src].</span>")
-		update_icon()
-
-		if(hidden)
-			hidden.dropInto(loc)
-			hidden = null
-
-
-	add_fingerprint(user)

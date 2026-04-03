@@ -8,7 +8,6 @@
 	icon_state = "ginbottle"
 	item_state = "ginbottle"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/gin)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/whiskey
@@ -17,7 +16,6 @@
 	icon_state = "whiskeybottle"
 	item_state = "whiskeybottle"
 	center_of_mass = "x=16;y=3"
-	startswith = list(/datum/reagent/ethanol/whiskey)
 
 /obj/item/reagent_containers/vessel/bottle/specialwhiskey
 	name = "Special Blend Whiskey"
@@ -25,7 +23,6 @@
 	icon_state = "whiskeybottle2"
 	item_state = "whiskeybottle2"
 	center_of_mass = "x=16;y=3"
-	startswith = list(/datum/reagent/ethanol/whiskey/specialwhiskey)
 
 /obj/item/reagent_containers/vessel/bottle/vodka
 	name = "Tunguska Triple Distilled"
@@ -33,7 +30,6 @@
 	icon_state = "vodkabottle"
 	item_state = "vodkabottle"
 	center_of_mass = "x=17;y=3"
-	startswith = list(/datum/reagent/ethanol/vodka)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/vodka/fivelakes
@@ -48,7 +44,6 @@
 	icon_state = "tequillabottle"
 	item_state = "tequillabottle"
 	center_of_mass = "x=16;y=3"
-	startswith = list(/datum/reagent/ethanol/tequilla)
 
 /obj/item/reagent_containers/vessel/bottle/bottleofnothing
 	name = "Bottle of Nothing"
@@ -56,7 +51,6 @@
 	icon_state = "bottleofnothing"
 	item_state = "bottleofnothing"
 	center_of_mass = "x=17;y=5"
-	startswith = list(/datum/reagent/drink/nothing)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/patron
@@ -65,7 +59,6 @@
 	icon_state = "patronbottle"
 	item_state = "patronbottle"
 	center_of_mass = "x=16;y=7"
-	startswith = list(/datum/reagent/ethanol/patron)
 	rag_underlay = "rag_big"
 
 /obj/item/reagent_containers/vessel/bottle/rum
@@ -74,7 +67,6 @@
 	icon_state = "rumbottle"
 	item_state = "rumbottle"
 	center_of_mass = "x=16;y=8"
-	startswith = list(/datum/reagent/ethanol/rum)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/holywater
@@ -83,7 +75,6 @@
 	icon_state = "holyflask"
 	item_state = "holyflask"
 	center_of_mass = "x=17;y=10"
-	startswith = list(/datum/reagent/water/holywater)
 	lid_type = null
 
 /obj/item/reagent_containers/vessel/bottle/vermouth
@@ -92,7 +83,6 @@
 	icon_state = "vermouthbottle"
 	item_state = "vermouthbottle"
 	center_of_mass = "x=17;y=3"
-	startswith = list(/datum/reagent/ethanol/vermouth)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/kahlua
@@ -101,7 +91,6 @@
 	icon_state = "kahluabottle"
 	item_state = "kahluabottle"
 	center_of_mass = "x=17;y=3"
-	startswith = list(/datum/reagent/ethanol/kahlua)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/goldschlager
@@ -110,7 +99,6 @@
 	icon_state = "goldschlagerbottle"
 	item_state = "goldschlagerbottle"
 	center_of_mass = "x=15;y=3"
-	startswith = list(/datum/reagent/ethanol/goldschlager)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/cognac
@@ -119,7 +107,6 @@
 	icon_state = "cognacbottle"
 	item_state = "cognacbottle"
 	center_of_mass = "x=16;y=6"
-	startswith = list(/datum/reagent/ethanol/cognac)
 
 /obj/item/reagent_containers/vessel/bottle/wine
 	name = "Doublebeard Bearded Special Wine"
@@ -127,7 +114,6 @@
 	icon_state = "winebottle"
 	item_state = "winebottle"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/wine)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/winewhite
@@ -136,7 +122,6 @@
 	icon_state = "whitewine"
 	item_state = "whitewine"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/wine/white)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/winerose
@@ -145,7 +130,6 @@
 	icon_state = "rosewine"
 	item_state = "rosewine"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/wine/rose)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/winesparkling
@@ -154,7 +138,6 @@
 	icon_state = "sparklingwine"
 	item_state = "sparklingwine"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/wine/sparkling)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/absinthe
@@ -163,7 +146,6 @@
 	icon_state = "absinthebottle"
 	item_state = "absinthebottle"
 	center_of_mass = "x=16;y=7"
-	startswith = list(/datum/reagent/ethanol/absinthe)
 
 /obj/item/reagent_containers/vessel/bottle/melonliquor
 	name = "Emeraldine Melon Liquor"
@@ -171,7 +153,6 @@
 	icon_state = "melonliqueur" //Finally drawn by Toby. Praise Me.
 	item_state = "melonliqueur"
 	center_of_mass = "x=16;y=6"
-	startswith = list(/datum/reagent/ethanol/melonliquor)
 
 /obj/item/reagent_containers/vessel/bottle/bluecuracao
 	name = "Miss Blue Curacao"
@@ -179,7 +160,6 @@
 	icon_state = "bluecuracao" //Finally drawn by Toby. Praise Me.
 	item_state = "bluecuracaobottle"
 	center_of_mass = "x=16;y=6"
-	startswith = list(/datum/reagent/ethanol/bluecuracao)
 
 /obj/item/reagent_containers/vessel/bottle/herbal
 	name = "Liqueur d'Herbe"
@@ -187,7 +167,6 @@
 	icon_state = "herbal"
 	item_state = "herbal"
 	center_of_mass = "x=16;y=6"
-	startswith = list(/datum/reagent/ethanol/herbal)
 
 /obj/item/reagent_containers/vessel/bottle/chacha
 	name = "Georgian Wild Drink"
@@ -195,7 +174,6 @@
 	icon_state = "chacha"
 	item_state = "chacha"
 	center_of_mass = "x=16;y=6"
-	startswith = list(/datum/reagent/ethanol/chacha)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/grenadine
@@ -204,7 +182,6 @@
 	icon_state = "grenadinebottle"
 	item_state = "grenadinebottle"
 	center_of_mass = "x=16;y=9"
-	startswith = list(/datum/reagent/drink/grenadine)
 
 /obj/item/reagent_containers/vessel/bottle/cola
 	name = "\improper Space Cola"
@@ -217,7 +194,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
 
-	startswith = list(/datum/reagent/drink/space_cola)
 	rag_underlay = "rag_big"
 
 /obj/item/reagent_containers/vessel/bottle/space_up
@@ -231,7 +207,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
 
-	startswith = list(/datum/reagent/drink/space_up)
 	rag_underlay = "rag_big"
 
 /obj/item/reagent_containers/vessel/bottle/space_mountain_wind
@@ -245,7 +220,6 @@
 	amount_per_transfer_from_this = 25
 	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
 
-	startswith = list(/datum/reagent/drink/spacemountainwind)
 	rag_underlay = "rag_big"
 
 /obj/item/reagent_containers/vessel/bottle/pwine
@@ -254,7 +228,6 @@
 	icon_state = "pwinebottle"
 	item_state = "pwinebottle"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/pwine)
 	rag_underlay = "rag_tall"
 
 //////////////////////////PREMIUM ALCOHOL ///////////////////////
@@ -264,7 +237,6 @@
 	icon_state = "premiumvodka"
 	item_state = "premiumvodka"
 	center_of_mass = "x=17;y=3"
-	startswith = list(/datum/reagent/ethanol/vodka/premium)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/premiumvodka/Initialize()
@@ -279,7 +251,6 @@
 	icon_state = "premiumwine"
 	item_state = "premiumwine"
 	center_of_mass = "x=16;y=4"
-	startswith = list(/datum/reagent/ethanol/wine/premium)
 	rag_underlay = "rag_tall"
 
 /obj/item/reagent_containers/vessel/bottle/premiumwine/Initialize()
@@ -296,7 +267,6 @@
 	icon_state = "beer"
 	item_state = "beer"
 	center_of_mass = "x=16;y=12"
-	startswith = list(/datum/reagent/ethanol/beer = 300)
 
 /obj/item/reagent_containers/vessel/bottle/small/ale
 	name = "\improper Magm-Ale"
@@ -304,7 +274,6 @@
 	icon_state = "alebottle"
 	item_state = "alebottle"
 	center_of_mass = "x=16;y=10"
-	startswith = list(/datum/reagent/ethanol/ale = 300)
 
 /obj/item/reagent_containers/vessel/bottle/small/darkbeer
 	name = "Dark Space Beer"
@@ -312,4 +281,3 @@
 	icon_state = "darkbeer"
 	item_state = "darkbeer"
 	center_of_mass = "x=16;y=12"
-	startswith = list(/datum/reagent/ethanol/beer/dark = 300)

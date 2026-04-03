@@ -39,21 +39,3 @@
 		return FALSE
 
 	return TRUE
-
-/proc/has_robot_module(module_type, mob/M, intentional)
-	if(!isrobot(M))
-		return FALSE
-
-	var/mob/living/silicon/robot/R = M
-	if(!istype(R.module, module_type))
-		if(intentional)
-			to_chat(R, SPAN_NOTICE("You do not have the required module for this emote."))
-		return FALSE
-
-	return TRUE
-
-/proc/is_synth_or_robot(mob/living/M, intentional)
-	if(!istype(M) || !M.isSynthetic())
-		return FALSE
-
-	return TRUE

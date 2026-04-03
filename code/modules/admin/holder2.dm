@@ -13,13 +13,9 @@ var/list/admin_datums = list()
 	var/weakref/marked_datum_weak
 
 	var/admincaster_screen = 0	//See newscaster.dm under machinery for a full description
-	var/datum/feed_message/admincaster_feed_message = new /datum/feed_message   //These two will act as holders.
-	var/datum/feed_channel/admincaster_feed_channel = new /datum/feed_channel
 	var/admincaster_signature	//What you'll sign the newsfeeds as
 
 	// UI stuff
-	var/datum/follow_panel/follow_panel = new()
-	var/datum/events_panel/events_panel = new()
 	var/list/events_windows = list()
 	var/datum/bloom_edit/debug_bloom
 
@@ -152,7 +148,6 @@ NOTE: It checks usr by default. Supply the "user" argument if you wish to check 
 	else
 		to_chat(src, "<span class='notice'>You are no longer stealthed.</span>")
 	log_and_message_admins("has turned stealth mode [holder.stealthy_ ? "ON" : "OFF"]")
-	feedback_add_details("admin_verb","SM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 #undef STEALTH_OFF
 #undef STEALTH_MANUAL

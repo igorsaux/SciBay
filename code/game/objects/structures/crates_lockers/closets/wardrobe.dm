@@ -91,7 +91,6 @@
 	new /obj/item/storage/backpack/cultpack (src)
 	new /obj/item/storage/fancy/candle_box(src)
 	new /obj/item/storage/fancy/candle_box(src)
-	new /obj/item/deck/tarot(src)
 	return
 
 
@@ -142,9 +141,6 @@
 	new /obj/item/clothing/shoes/orange(src)
 	new /obj/item/clothing/shoes/orange(src)
 	new /obj/item/clothing/shoes/orange(src)
-	new /obj/item/device/radio/headset(src)
-	new /obj/item/device/radio/headset(src)
-	new /obj/item/device/radio/headset(src)
 	return
 
 

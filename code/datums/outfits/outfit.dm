@@ -144,12 +144,6 @@ var/list/outfits_decls_by_type_
 		H.equip_to_slot_or_del(new mask(H),slot_wear_mask)
 	if(head)
 		H.equip_to_slot_or_del(new head(H),slot_head)
-	if(l_ear)
-		var/l_ear_path = (OUTFIT_ADJUSTMENT_PLAIN_HEADSET & equip_adjustments) && ispath(l_ear, /obj/item/device/radio/headset) ? /obj/item/device/radio/headset : l_ear
-		H.equip_to_slot_or_del(new l_ear_path(H),slot_l_ear)
-	if(r_ear)
-		var/r_ear_path = (OUTFIT_ADJUSTMENT_PLAIN_HEADSET & equip_adjustments) && ispath(r_ear, /obj/item/device/radio/headset) ? /obj/item/device/radio/headset : r_ear
-		H.equip_to_slot_or_del(new r_ear_path(H),slot_r_ear)
 	if(glasses)
 		H.equip_to_slot_or_del(new glasses(H),slot_glasses)
 	if(id)
@@ -215,10 +209,6 @@ var/list/outfits_decls_by_type_
 		return
 	if(OUTFIT_ADJUSTMENT_SKIP_ID_PDA & equip_adjustments)
 		return
-	var/obj/item/device/pda/heads/pda = new pda_type(H)
-	pda.set_owner_rank_job(H.real_name, rank, assignment)
-	if(H.equip_to_slot_or_store_or_drop(pda, pda_slot))
-		return pda
 
 /decl/hierarchy/outfit/dd_SortValue()
 	return name

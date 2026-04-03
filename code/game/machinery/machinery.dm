@@ -92,13 +92,7 @@ Class Procs:
 	var/stat = 0
 	var/emagged = 0
 	var/malf_upgraded = 0
-	var/use_power = POWER_USE_IDLE
-		//0 = dont run the auto
-		//1 = run auto, use idle
-		//2 = run auto, use active
-	var/idle_power_usage = 0 WATTS
-	var/active_power_usage = 0 WATTS
-	var/power_channel = STATIC_EQUIP //STATIC_EQUIP, STATIC_ENVIRON or STATIC_LIGHT
+
 	/* List of types that should be spawned as component_parts for this machine.
 		Structure:
 			type -> num_objects
@@ -123,9 +117,6 @@ Class Procs:
 	var/life_tick = 0		// O P T I M I Z A T I O N
 	var/beep_last_played = 0
 	var/list/beepsounds = null
-
-	var/current_power_usage = 0 WATTS // How much power are we currently using, dont change by hand, change power_usage vars and then use set_power_use
-	var/area/current_power_area // What area are we powering currently
 
 	rad_resist_type = /datum/rad_resist/machinery
 
@@ -154,21 +145,15 @@ Class Procs:
 		if(length(component_parts))
 			RefreshParts()
 
-	if(!mapload)
-		power_change()
-
 	START_PROCESSING(SSmachines, src) // It's safe to remove machines from here.
 
 /obj/machinery/Destroy()
 	SSmachines.machinery.Remove(src)
-	set_power_use(NO_POWER_USE)
 	STOP_PROCESSING(SSmachines, src)
 	if(component_parts)
 		QDEL_NULL_LIST(component_parts)
 	component_parts = null
-	current_power_area = null
 	return ..()
-
 
 /obj/machinery/proc/play_beep()
 	if (isnull(beepsounds))
@@ -180,21 +165,6 @@ Class Procs:
 
 /obj/machinery/Process()
 	return PROCESS_KILL // Only process if you need to.
-
-/obj/machinery/emp_act(severity)
-	if(use_power && stat == 0)
-		use_power_oneoff(7500/severity)
-
-		var/obj/effect/overlay/pulse2 = new /obj/effect/overlay(loc)
-		pulse2.icon = 'icons/effects/effects.dmi'
-		pulse2.icon_state = "empdisable"
-		pulse2.SetName("emp sparks")
-		pulse2.anchored = 1
-		pulse2.set_dir(pick(GLOB.cardinal))
-
-		spawn(10)
-			qdel(pulse2)
-	..()
 
 /obj/machinery/ex_act(severity)
 	switch(severity)
@@ -209,14 +179,6 @@ Class Procs:
 			if (prob(25))
 				qdel(src)
 				return
-
-/obj/machinery/blob_act()
-	if(stat & BROKEN)
-		qdel(src)
-		return
-
-	if(prob(10))
-		set_broken(TRUE)
 
 /obj/machinery/proc/set_broken(new_state)
 	if(new_state && !(stat & BROKEN))
@@ -238,26 +200,14 @@ Class Procs:
 	return (stat & (POWEROFF|NOPOWER|BROKEN|additional_flags))
 
 /obj/machinery/proc/grab_container(mob/user, obj/item/reagent_containers/container, atom/drop_loc = loc)
-	if(!issilicon(user))
-		if(!user.Adjacent(get_turf(src)))
-			return FALSE
-	else
-		if(inoperable())
-			to_chat(user, SPAN("notice", "\The [src] is not functional"))
-			return FALSE
+	if(!user.Adjacent(get_turf(src)))
+		return FALSE
 
 	if(!can_use(user))
 		to_chat(user, SPAN("notice", "You cannot remove [container.name]."))
 		return FALSE
 
-	if(!*container)
-		to_chat(user, SPAN("notice", "\The [src] does not have a [istype(src, /obj/machinery/chemical_dispenser) ? "container" : "beaker"] in it."))
-		return FALSE
-
-	if(issilicon(user))
-		container.dropInto(drop_loc)
-	else
-		user.pick_or_drop(*container, get_turf(user))
+	user.pick_or_drop(*container, get_turf(user))
 
 	to_chat(user, SPAN("notice", "You remove [container.name] from \the [src]"))
 
@@ -272,7 +222,7 @@ Class Procs:
 /obj/machinery/proc/can_use(mob/user)
 	if(user.stat || user.restrained() || user.paralysis || user.stunned || user.weakened)
 		return FALSE
-	if(issilicon(user) || Adjacent(user))
+	if(Adjacent(user))
 		return TRUE
 	else
 		return FALSE
@@ -308,15 +258,6 @@ Class Procs:
 		user.unset_machine()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-/obj/machinery/attack_ai(mob/user)
-	if(isrobot(user))
-		// For some reason attack_robot doesn't work
-		// This is to stop robots from using cameras to remotely control machines.
-		if(user.client && user.client.eye == user)
-			return src.attack_hand(user)
-	else
-		return src.attack_hand(user)
 
 /obj/machinery/attack_hand(mob/user)
 	if(inoperable(MAINT))
@@ -479,33 +420,3 @@ Class Procs:
 
 	if(component_parts && hasHUD(user, HUD_SCIENCE))
 		. += "[get_parts_infotext()]"
-
-/obj/machinery/proc/update_power_use()
-	set_power_use(use_power)
-
-// The main proc that controls power usage of a machine, change use_power only with this proc
-/obj/machinery/proc/set_power_use(new_use_power)
-	if(current_power_usage && current_power_area) // We are tracking the area that is powering us so we can remove power from the right one if we got moved or something
-		current_power_area.removeStaticPower(current_power_usage, power_channel)
-		current_power_area = null
-
-	current_power_usage = 0 WATTS
-	use_power = new_use_power
-
-	var/area/A = get_area(src)
-	if(!A || !anchored || stat & NOPOWER) // Unwrenched machines aren't plugged in, unpowered machines don't use power
-		return
-
-	if(use_power == IDLE_POWER_USE && idle_power_usage)
-		current_power_area = A
-		current_power_usage = idle_power_usage
-		current_power_area.addStaticPower(current_power_usage, power_channel)
-	else if(use_power == ACTIVE_POWER_USE && active_power_usage)
-		current_power_area = A
-		current_power_usage = active_power_usage
-		current_power_area.addStaticPower(current_power_usage, power_channel)
-
-
-// Unwrenching = unpluging from a power source
-/obj/machinery/wrenched_change()
-	update_power_use()

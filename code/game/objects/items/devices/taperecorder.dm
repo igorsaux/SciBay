@@ -116,16 +116,6 @@
 	if(mytape && recording)
 		mytape.record_noise("[strip_html_properly(recordedtext)]")
 
-/obj/item/device/taperecorder/emag_act(remaining_charges, mob/user)
-	if(emagged == 0)
-		emagged = 1
-		recording = 0
-		to_chat(user, "<span class='warning'>PZZTTPFFFT</span>")
-		update_icon()
-		return 1
-	else
-		to_chat(user, "<span class='warning'>It is already emagged!</span>")
-
 /obj/item/device/taperecorder/proc/explode()
 	var/turf/T = get_turf(loc)
 	if(ismob(loc))

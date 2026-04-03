@@ -63,19 +63,15 @@
 		/obj/item/device/flashlight,
 		/obj/item/stack/cable_coil,
 		/obj/item/device/t_scanner,
-		/obj/item/device/analyzer,
 		/obj/item/taperoll/engineering,
-		/obj/item/device/robotanalyzer,
 		/obj/item/material/minihoe,
 		/obj/item/material/hatchet,
-		/obj/item/device/analyzer/plant_analyzer,
 		/obj/item/taperoll,
 		/obj/item/extinguisher/mini,
 		/obj/item/marshalling_wand,
 		/obj/item/combotool/advtool,
 		/obj/item/device/geiger,
 		/obj/item/device/lightreplacer,
-		/obj/item/device/robotanalyzer
 		)
 
 
@@ -115,7 +111,6 @@
 	icon_state = "medicalbelt"
 	item_state = "medical"
 	can_hold = list(
-		/obj/item/device/healthanalyzer,
 		/obj/item/reagent_containers/dropper,
 		/obj/item/reagent_containers/vessel/beaker,
 		/obj/item/reagent_containers/vessel/bottle/chemical,
@@ -135,7 +130,6 @@
 		/obj/item/device/flashlight,
 		/obj/item/taperoll,
 		/obj/item/extinguisher/mini,
-		/obj/item/device/antibody_scanner
 		)
 
 /obj/item/storage/belt/medical/emt
@@ -151,55 +145,22 @@
 	item_state = "security"
 	can_hold = list(
 		/obj/item/crowbar,
-		/obj/item/grenade,
 		/obj/item/reagent_containers/spray/pepper,
 		/obj/item/handcuffs,
 		/obj/item/device/flash,
 		/obj/item/clothing/glasses,
-		/obj/item/ammo_casing/shotgun,
-		/obj/item/ammo_magazine,
-		/obj/item/reagent_containers/food/donut/,
 		/obj/item/melee/baton,
-		/obj/item/gun/energy/taser,
-		/obj/item/gun/energy/stunrevolver,
 		/obj/item/flame/lighter,
 		/obj/item/clothing/glasses/hud,
 		/obj/item/device/flashlight,
-		/obj/item/device/pda,
-		/obj/item/device/radio/headset,
 		/obj/item/device/hailer,
 		/obj/item/device/megaphone,
 		/obj/item/melee,
-		/obj/item/gun/projectile/pistol/vp78,
 		/obj/item/taperoll,
-		/obj/item/device/holowarrant,
-		/obj/item/rcd_ammo/magnetic_ammo,
-		/obj/item/device/radio,
 		/obj/item/material/knife,
 		/obj/item/material/butterfly,
 		/obj/item/material/hatchet/tacknife,
-		/obj/item/cell/ammo/charge,
-		/obj/item/ammo_casing/grenade
 		)
-
-/obj/item/storage/belt/soulstone
-	name = "soul stone belt"
-	desc = "Designed for ease of access to the shards during a fight, as to not let a single enemy spirit slip away."
-	icon_state = "soulstonebelt"
-	item_state = "soulstonebelt"
-	storage_slots = 6
-	can_hold = list(
-		/obj/item/device/soulstone
-		)
-
-/obj/item/storage/belt/soulstone/full/New()
-	..()
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
-	new /obj/item/device/soulstone(src)
 
 
 /obj/item/storage/belt/champion
@@ -254,16 +215,9 @@
 		/obj/item/weldingtool,
 		/obj/item/wirecutters,
 		/obj/item/wrench,
-		/obj/item/resonator,
-		/obj/item/oreportal,
-		/obj/item/oremagnet,
-		/obj/item/ore_radar,
 		/obj/item/device/flashlight,
 		/obj/item/stack/cable_coil,
-		/obj/item/stack/flag,
-		/obj/item/device/analyzer,
 		/obj/item/extinguisher/mini,
-		/obj/item/device/radio,
 		/obj/item/clothing/gloves,
 		/obj/item/clothing/glasses/hud,
 		/obj/item/stack/material/animalhide,
@@ -272,13 +226,9 @@
 		/obj/item/reagent_containers/vessel/bottle,
 		/obj/item/stack/medical,
 		/obj/item/reagent_containers/hypospray,
-		/obj/item/device/gps,
-		/obj/item/storage/ore,
 		/obj/item/reagent_containers/pill,
 		/obj/item/storage/pill_bottle,
-		/obj/item/ore,
 		/obj/item/reagent_containers/vessel/can,
-		/obj/item/storage/plants
 		)
 
 /obj/item/storage/belt/military
@@ -290,31 +240,18 @@
 	max_w_class = 3
 	max_storage_space  = 28
 	can_hold = list(
-		/obj/item/grenade,
 		/obj/item/handcuffs,
 		/obj/item/device/flash,
 		/obj/item/clothing/glasses,
-		/obj/item/ammo_casing/shotgun,
-		/obj/item/ammo_magazine,
 		/obj/item/melee/baton,
 		/obj/item/device/flashlight,
-		/obj/item/device/pda,
-		/obj/item/device/radio/headset,
 		/obj/item/melee,
-		/obj/item/shield/energy,
-		/obj/item/pinpointer,
 		/obj/item/plastique,
-		/obj/item/gun/projectile/pistol,
 		/obj/item/gun/energy/crossbow,
-		/obj/item/ammo_casing/a145,
-		/obj/item/device/radio/uplink,
-		/obj/item/card/emag,
 		/obj/item/device/multitool/hacktool,
-		/obj/item/stack/telecrystal,
 		/obj/item/material/knife,
 		/obj/item/material/butterfly,
 		/obj/item/material/hatchet/tacknife,
-		/obj/item/cell/ammo/charge
 		)
 
 /obj/item/storage/belt/janitor
@@ -326,7 +263,6 @@
 	w_class = 3
 	max_w_class = 3
 	can_hold = list(
-		/obj/item/grenade/chem_grenade/cleaner,
 		/obj/item/device/lightreplacer,
 		/obj/item/device/flashlight,
 		/obj/item/reagent_containers/spray,

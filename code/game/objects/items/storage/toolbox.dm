@@ -32,7 +32,7 @@
 	startswith = list(
 		/obj/item/crowbar/red,
 		/obj/item/extinguisher/mini,
-		/obj/item/device/radio)
+	)
 
 /obj/item/storage/toolbox/emergency/Initialize()
 	. = ..()
@@ -51,7 +51,7 @@
 		/obj/item/weldingtool,
 		/obj/item/crowbar,
 		/obj/item/wirecutters,
-		/obj/item/device/analyzer)
+	)
 
 /obj/item/storage/toolbox/electrical
 	name = "electrical toolbox"
@@ -92,6 +92,5 @@
 		/obj/item/weldingtool,
 		/obj/item/crowbar,
 		/obj/item/wirecutters,
-		/obj/item/device/analyzer,
 		/obj/item/clothing/gloves/insulated,
 		/obj/item/clothing/glasses/welding)

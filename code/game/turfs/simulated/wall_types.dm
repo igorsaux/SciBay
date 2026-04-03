@@ -6,13 +6,6 @@
 /turf/simulated/wall/r_wall/Initialize(mapload)
 	. = ..(mapload, MATERIAL_PLASTEEL, MATERIAL_PLASTEEL) //3strong
 
-/turf/simulated/wall/r_wall/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.canRturf || the_rcd.construction_mode == RCD_WALLFRAME)
-		return ..()
-
-/turf/simulated/wall/r_wall/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(the_rcd.canRturf || rcd_data["[RCD_DESIGN_MODE]"] == RCD_WALLFRAME)
-		return ..()
 /turf/simulated/wall/ocp_wall
 	icon_state = "rgeneric"
 
@@ -37,10 +30,6 @@
 
 /turf/simulated/wall/cult/reinf/Initialize(mapload, reinforce)
 	. = ..(mapload, 1)
-
-/turf/simulated/wall/cult/dismantle_wall(devastated, explode, no_product)
-	GLOB.cult.remove_cultiness(CULTINESS_PER_TURF)
-	..()
 
 /turf/unsimulated/wall/cult
 	name = "cult wall"

@@ -10,25 +10,6 @@
 /datum/tgui_trait_validator/New(datum/preferences/P)
 	pref = P
 
-/datum/tgui_trait_validator/proc/is_FBP()
-	if(!pref.organ_data || pref.organ_data[BP_CHEST] != "cyborg")
-		return FALSE
-	return TRUE
-
-/datum/tgui_trait_validator/proc/get_FBP_type()
-	if(!is_FBP())
-		return 0
-	var/result = "cyborg"
-	if(BP_BRAIN in pref.organ_data)
-		switch(pref.organ_data[BP_BRAIN])
-			if("assisted")
-				result = "cyborg"
-			if("mechanical")
-				result = "posi"
-			if("digital")
-				result = "software"
-	return result
-
 /datum/character_setup
 	var/datum/preferences/pref
 	var/preview_dir = SOUTH
@@ -39,8 +20,6 @@
 	var/hide_unavailable_gear = FALSE
 	var/hide_donate_gear = FALSE
 	var/slot_filter
-	// Augmentation state
-	var/selected_organ = BP_CHEST
 	// Undo stack — list of assoc lists (character snapshots), most recent last
 	var/list/undo_stack = list()
 
@@ -265,63 +244,6 @@
 		list("slotId" = slot_tie, "name" = "Accessory")
 	)
 
-	// === AUGMENTATION DATA ===
-	// Robolimb brands
-	var/list/robolimb_data = list()
-	for(var/company in GLOB.chargen_robolimbs)
-		var/datum/robolimb/R = GLOB.chargen_robolimbs[company]
-		// Resolve icon path — use racial_icons if species has one, else default
-		var/rlimb_icon = "[R.icon]"
-		if(R.racial_icons && R.racial_icons[pref.species])
-			rlimb_icon = "[R.racial_icons[pref.species]]"
-		robolimb_data += list(list(
-			"company" = R.company,
-			"desc" = R.desc,
-			"icon" = rlimb_icon,
-			"species_cannot_use" = R.species_cannot_use,
-			"restricted_to" = R.restricted_to,
-			"applies_to_part" = R.applies_to_part
-		))
-	data["robolimb_brands"] = robolimb_data
-
-	// Organ modules available at chargen — cached to avoid repeated instantiation
-	var/static/list/cached_module_data
-	if(!cached_module_data)
-		cached_module_data = list()
-		for(var/mod_type in subtypesof(/obj/item/organ_module))
-			var/obj/item/organ_module/M = mod_type
-			if(!initial(M.available_in_charsetup))
-				continue
-			if(!initial(M.name))
-				continue
-			var/obj/item/organ_module/mod = new mod_type(null)
-			var/list/role_names = list()
-			var/list/roles = mod.allowed_roles
-			if(!length(roles))
-				roles = mod.allowed_jobs
-			if(islist(roles))
-				for(var/role_type in roles)
-					if(ispath(role_type, /datum/job) && job_master)
-						var/datum/job/J = job_master.occupations_by_type[role_type]
-						if(J)
-							role_names += J.title
-			cached_module_data += list(list(
-				"path" = "[mod_type]",
-				"name" = mod.name,
-				"desc" = mod.desc,
-				"allowed_organs" = mod.allowed_organs.Copy(),
-				"module_type" = mod.module_type,
-				"module_flags" = mod.module_flags,
-				"augment_cost" = mod.augment_cost,
-				"loadout_cost" = mod.loadout_cost,
-				"cpu_power" = mod.cpu_power,
-				"cpu_load" = mod.cpu_load,
-				"w_class" = mod.w_class,
-				"allowed_roles" = role_names
-			))
-			qdel(mod)
-	data["organ_modules_available"] = cached_module_data
-
 	// Body part info for the augmentation UI
 	data["body_parts"] = list(
 		list("tag" = BP_HEAD, "name" = "Head", "type" = "external"),
@@ -346,7 +268,6 @@
 	// === CAREER DATA ===
 	if(job_master)
 		var/list/job_list = list()
-		var/datum/species/pref_species = all_species[pref.species ? pref.species : SPECIES_HUMAN]
 		for(var/datum/job/J in job_master.occupations)
 			if(!J.show_in_setup)
 				continue
@@ -362,22 +283,13 @@
 				for(var/alt_name in J.alt_titles)
 					alt_names += alt_name
 				job_entry["alt_titles"] = alt_names
-			var/banned = jobban_isbanned(user, J.title)
-			if(banned == "Whitelisted Job")
-				job_entry["status"] = "whitelist"
-			else if(banned)
-				job_entry["status"] = "banned"
-			else if(J.total_positions == 0 && J.spawn_positions == 0)
+			if(J.total_positions == 0 && J.spawn_positions == 0)
 				job_entry["status"] = "unavailable"
 			else if(!J.player_old_enough(user.client))
 				job_entry["status"] = "too_young_player"
 				job_entry["available_in_days"] = J.available_in_days(user.client)
 			else if(J.minimum_character_age && pref.age < J.minimum_character_age)
 				job_entry["status"] = "too_young_char"
-			else if(pref_species && !J.is_species_allowed(pref_species))
-				job_entry["status"] = "species_restricted"
-			else if(J.faction_restricted && pref.background != GLOB.using_map.company_name)
-				job_entry["status"] = "faction_restricted"
 			else
 				job_entry["status"] = "available"
 			job_list += list(job_entry)
@@ -408,78 +320,6 @@
 		))
 	data["trait_list"] = trait_list
 	data["trait_categories"] = trait_categories
-
-	// Antagonist roles
-	var/list/antag_roles = list()
-	for(var/antag_type in GLOB.all_antag_types_)
-		var/datum/antagonist/A = GLOB.all_antag_types_[antag_type]
-		var/banned = jobban_isbanned(user, A.id)
-		antag_roles += list(list(
-			"id" = A.id,
-			"name" = A.role_text,
-			"status" = banned ? (banned == "Whitelisted Job" ? "whitelist" : "banned") : "available"
-		))
-	data["antag_roles"] = antag_roles
-
-	// Ghost roles
-	var/list/ghost_role_list = list()
-	var/list/ghost_traps = get_ghost_traps()
-	for(var/ghost_trap_key in ghost_traps)
-		var/datum/ghosttrap/GT = ghost_traps[ghost_trap_key]
-		if(!GT.list_as_special_role)
-			continue
-		var/banned = FALSE
-		for(var/ban_type in GT.ban_checks)
-			if(jobban_isbanned(user, ban_type))
-				banned = TRUE
-				break
-		ghost_role_list += list(list(
-			"id" = GT.pref_check,
-			"name" = GT.ghost_trap_role,
-			"status" = banned ? "banned" : "available"
-		))
-	data["ghost_roles"] = ghost_role_list
-
-	// Uplink sources
-	var/list/uplink_list = list()
-	var/bos_ul = decls_repository.get_decls_of_subtype(/decl/uplink_source)
-	for(var/ul_type in bos_ul)
-		var/decl/uplink_source/US = bos_ul[ul_type]
-		uplink_list += list(list(
-			"name" = US.name,
-			"desc" = US.desc
-		))
-	data["uplink_sources_available"] = uplink_list
-
-	// === BACKGROUND DATA ===
-	// Company alignments
-	data["company_alignments"] = COMPANY_ALIGNMENTS
-	data["company_name"] = GLOB.using_map.company_name
-
-	// Home systems
-	var/list/home_systems = GLOB.using_map.home_system_choices.Copy()
-	home_systems.Insert(1, "Unset")
-	home_systems += "Other"
-	data["home_systems"] = home_systems
-
-	// Backgrounds/factions
-	var/list/backgrounds = GLOB.using_map.background_choices.Copy()
-	backgrounds.Insert(1, "Unset")
-	backgrounds += "Other"
-	data["backgrounds"] = backgrounds
-
-	// Religions
-	var/list/religions = GLOB.using_map.religion_choices.Copy()
-	religions.Insert(1, "None")
-	religions += "Other"
-	data["religions"] = religions
-
-	// Bank security options
-	data["bank_security_options"] = list(
-		list("value" = BANK_SECURITY_MINIMUM, "label" = "Minimum", "desc" = "Auto-identify from worn ID, require only account number"),
-		list("value" = BANK_SECURITY_MODERATE, "label" = "Moderate", "desc" = "Require manual login/account number and PIN"),
-		list("value" = BANK_SECURITY_MAXIMUM, "label" = "Maximum", "desc" = "Require card and manual login")
-	)
 
 	// Flavor text body parts
 	data["flavor_text_parts"] = list("general", "head", "face", "eyes", "torso", "arms", "hands", "legs", "feet", "action")
@@ -521,9 +361,6 @@
 			"desc" = initial(R.desc)
 		))
 	data["relation_types"] = relation_types_list
-
-	// Records banned check (use owner mob)
-	data["records_banned"] = !!jobban_isbanned(user, "Records")
 
 	// === SETTINGS DATA ===
 	// Client preferences grouped by category
@@ -751,29 +588,6 @@
 	data["patronTier"] = user.client?.donator_info?.get_full_patron_tier()
 	data["currentOpyxes"] = user.client?.donator_info ? round(user.client.donator_info.opyxes) : 0
 
-	// === AUGMENTATION DYNAMIC DATA ===
-	data["organ_data"] = pref.organ_data
-	data["rlimb_data"] = pref.rlimb_data
-	data["selected_organ"] = selected_organ
-
-	var/list/installed_modules = list()
-	if(islist(pref.organ_modules))
-		for(var/organ_tag in pref.organ_modules)
-			var/list/mods = pref.organ_modules[organ_tag]
-			if(islist(mods))
-				var/list/mod_paths = list()
-				for(var/mod_path in mods)
-					mod_paths += "[mod_path]"
-				installed_modules[organ_tag] = mod_paths
-	data["installed_modules"] = installed_modules
-
-	// Augmentation points — ensure max is initialized and recalculate total
-	if(!pref.max_augmentation_points)
-		pref.max_augmentation_points = config.character_setup.max_augmentation_points
-	pref.get_aug_cost()
-	data["total_aug_points"] = pref.total_aug_points
-	data["max_aug_points"] = pref.max_augmentation_points
-
 	// === CAREER DYNAMIC DATA ===
 	data["job_high"] = pref.job_high
 	data["job_medium"] = pref.job_medium
@@ -783,30 +597,10 @@
 
 	// === PERSONALITY DYNAMIC DATA ===
 	data["traits"] = pref.traits
-	data["be_special_role"] = pref.be_special_role
-	data["may_be_special_role"] = pref.may_be_special_role
-
-	var/list/uplink_order = list()
-	if(islist(pref.uplink_sources))
-		for(var/entry in pref.uplink_sources)
-			var/decl/uplink_source/US = entry
-			uplink_order += US.name
-	data["uplink_source_order"] = uplink_order
 
 	// === BACKGROUND DYNAMIC DATA ===
-	data["nanotrasen_relation"] = pref.nanotrasen_relation
-	data["home_system"] = pref.home_system
-	data["background"] = pref.background
-	data["religion"] = pref.religion
-	data["bank_security"] = pref.bank_security
-	data["bank_pin"] = pref.bank_pin
-	data["med_record"] = pref.med_record
-	data["gen_record"] = pref.gen_record
-	data["sec_record"] = pref.sec_record
-	data["exploit_record"] = pref.exploit_record
 	data["memory"] = pref.memory
 	data["flavor_texts"] = pref.flavor_texts
-	data["flavour_texts_robot"] = pref.flavour_texts_robot
 	data["alternate_languages"] = pref.alternate_languages
 	data["relations"] = pref.relations
 	data["relations_info"] = pref.relations_info
@@ -1565,82 +1359,6 @@
 				slot_filter = new_filter
 			return TRUE
 
-		// === AUGMENTATION ACTIONS ===
-		if("selectOrgan")
-			var/organ = params["organ"]
-			if(organ)
-				selected_organ = organ
-			return TRUE
-
-		if("setOrganStatus")
-			var/organ = params["organ"]
-			var/organ_action = params["action"]
-			if(!organ || !organ_action)
-				return TRUE
-			// External limbs
-			if(organ in BP_ALL_LIMBS)
-				update_external_organ(organ, organ_action)
-			// Internal organs
-			else if(organ in BP_INTERNAL_ORGANS)
-				update_internal_organ(organ, organ_action)
-			mark_preview_dirty()
-			return TRUE
-
-		if("toggleOrganModule")
-			var/organ = params["organ"]
-			var/mod_path_text = params["module"]
-			if(!organ || !mod_path_text)
-				return TRUE
-			if(!((organ in BP_ALL_LIMBS) || (organ in BP_INTERNAL_ORGANS)))
-				return TRUE
-			var/mod_path = text2path(mod_path_text)
-			if(!ispath(mod_path, /obj/item/organ_module))
-				return TRUE
-			LAZYINITLIST(pref.organ_modules)
-			LAZYINITLIST(pref.organ_modules[organ])
-			var/list/modules = pref.organ_modules[organ]
-			if(mod_path in modules)
-				modules -= mod_path
-			else
-				// Validate before adding
-				var/obj/item/organ_module/M = mod_path
-
-				// Validate module_flags vs organ state
-				var/is_robotic = (pref.organ_data[organ] == "cyborg" || pref.organ_data[organ] == "mechanical")
-				if(is_robotic)
-					if(!(initial(M.module_flags) & OM_FLAG_MECHANICAL))
-						return TRUE
-				else
-					if(!(initial(M.module_flags) & OM_FLAG_BIOLOGICAL))
-						return TRUE
-
-				// Validate module_type placement
-				if(initial(M.module_type) == OM_TYPE_PROCESSOR && organ != BP_HEAD)
-					return TRUE
-				if(initial(M.module_type) == OM_TYPE_ACTUATOR)
-					if(organ == BP_HEAD || pref.organ_data[organ] == "cyborg" || !(organ in list(BP_L_ARM, BP_R_ARM, BP_L_HAND, BP_R_HAND)))
-						return TRUE
-
-				// Eyes need to be mechanical
-				if(organ == BP_EYES && pref.organ_data[BP_EYES] != "mechanical")
-					return TRUE
-
-				if(initial(M.augment_cost) > 0)
-					// Check aug point budget
-					var/current_cost = pref.get_aug_cost()
-					if((current_cost + initial(M.augment_cost)) > pref.max_augmentation_points)
-						return TRUE
-				// Check module type exclusivity (one processor/actuator per organ)
-				if(initial(M.module_type))
-					for(var/existing in modules)
-						var/obj/item/organ_module/E = existing
-						if(initial(E.module_type) == initial(M.module_type))
-							modules -= existing
-							break
-				modules += mod_path
-			mark_preview_dirty()
-			return TRUE
-
 		// === CAREER ACTIONS ===
 		if("switchJobPriority")
 			if(!job_master)
@@ -1752,161 +1470,13 @@
 			mark_preview_dirty()
 			return TRUE
 
-		if("setAntagPriority")
-			var/role_id = params["role"]
-			var/priority = params["priority"]
-			if(!role_id || !priority)
-				return TRUE
-			switch(priority)
-				if("high")
-					pref.be_special_role |= role_id
-					pref.may_be_special_role -= role_id
-				if("low")
-					pref.be_special_role -= role_id
-					pref.may_be_special_role |= role_id
-				if("never")
-					pref.be_special_role -= role_id
-					pref.may_be_special_role -= role_id
-			return TRUE
-
-		if("setAllAntagPriority")
-			var/priority = params["priority"]
-			if(!priority)
-				return TRUE
-			// Apply to all antag roles
-			for(var/antag_type in GLOB.all_antag_types_)
-				var/datum/antagonist/A = GLOB.all_antag_types_[antag_type]
-				switch(priority)
-					if("high")
-						pref.be_special_role |= A.id
-						pref.may_be_special_role -= A.id
-					if("low")
-						pref.be_special_role -= A.id
-						pref.may_be_special_role |= A.id
-					if("never")
-						pref.be_special_role -= A.id
-						pref.may_be_special_role -= A.id
-			return TRUE
-
-		if("addUplinkSource")
-			var/source_name = params["name"]
-			if(!source_name)
-				return TRUE
-			var/bos_ul = decls_repository.get_decls_of_subtype(/decl/uplink_source)
-			for(var/ul_type in bos_ul)
-				var/decl/uplink_source/US = bos_ul[ul_type]
-				if(US.name == source_name)
-					if(!(US in pref.uplink_sources))
-						pref.uplink_sources += US
-					break
-			return TRUE
-
-		if("removeUplinkSource")
-			var/source_name = params["name"]
-			if(!source_name)
-				return TRUE
-			for(var/entry in pref.uplink_sources)
-				var/decl/uplink_source/US = entry
-				if(US.name == source_name)
-					pref.uplink_sources -= US
-					break
-			return TRUE
-
-		if("moveUplinkSource")
-			var/source_name = params["name"]
-			var/direction = params["direction"]
-			if(!source_name || !direction)
-				return TRUE
-			for(var/i in 1 to length(pref.uplink_sources))
-				var/decl/uplink_source/US = pref.uplink_sources[i]
-				if(US.name == source_name)
-					if(direction == "up" && i > 1)
-						pref.uplink_sources.Swap(i, i - 1)
-					else if(direction == "down" && i < length(pref.uplink_sources))
-						pref.uplink_sources.Swap(i, i + 1)
-					break
-			return TRUE
-
 		// === BACKGROUND ACTIONS ===
-		if("setRelation")
-			var/new_relation = params["value"]
-			if(new_relation in COMPANY_ALIGNMENTS)
-				pref.nanotrasen_relation = new_relation
-			return TRUE
-
-		if("setHomeSystem")
-			var/new_home = params["value"]
-			if(!new_home)
-				return TRUE
-			if(new_home == "Other")
-				var/custom = sanitize(tgui_input_text(owner, "Enter your home system:", "Home System", pref.home_system, MAX_NAME_LEN))
-				if(custom)
-					push_undo_state()
-					pref.home_system = custom
-			else
-				push_undo_state()
-				pref.home_system = new_home
-			return TRUE
-
-		if("setBackground")
-			var/new_bg = params["value"]
-			if(!new_bg)
-				return TRUE
-			if(new_bg == "Other")
-				var/custom = sanitize(tgui_input_text(owner, "Enter your background:", "Background", pref.background, MAX_NAME_LEN))
-				if(custom)
-					push_undo_state()
-					pref.background = custom
-			else
-				push_undo_state()
-				pref.background = new_bg
-			return TRUE
-
-		if("setReligion")
-			var/new_rel = params["value"]
-			if(!new_rel)
-				return TRUE
-			if(new_rel == "Other")
-				var/custom = sanitize(tgui_input_text(owner, "Enter your religion:", "Religion", pref.religion))
-				if(custom)
-					push_undo_state()
-					pref.religion = custom
-			else
-				push_undo_state()
-				pref.religion = new_rel
-			return TRUE
-
-		if("setBankSecurity")
-			var/new_sec = text2num(params["value"])
-			if(!isnull(new_sec) && new_sec >= BANK_SECURITY_MINIMUM && new_sec <= BANK_SECURITY_MAXIMUM)
-				pref.bank_security = new_sec
-			return TRUE
-
-		if("setBankPin")
-			var/new_pin = text2num(params["value"])
-			if(!isnull(new_pin))
-				if(new_pin == 0)
-					pref.bank_pin = 0 // Random each round
-				else
-					pref.bank_pin = clamp(round(new_pin), 1111, 9999)
-			return TRUE
-
 		if("setRecord")
 			var/record_type = params["type"]
 			var/new_text = sanitize(params["text"])
 			if(!record_type)
 				return TRUE
-			if(jobban_isbanned(owner, "Records") && record_type != "memory")
-				return TRUE
 			switch(record_type)
-				if("medical")
-					pref.med_record = new_text
-				if("general")
-					pref.gen_record = new_text
-				if("security")
-					pref.sec_record = new_text
-				if("exploit")
-					pref.exploit_record = new_text
 				if("memory")
 					pref.memory = new_text
 			return TRUE
@@ -1915,18 +1485,8 @@
 			var/record_type = params["type"]
 			if(!record_type)
 				return TRUE
-			if(jobban_isbanned(owner, "Records") && record_type != "memory")
-				return TRUE
 			var/current_value
 			switch(record_type)
-				if("medical")
-					current_value = pref.med_record
-				if("general")
-					current_value = pref.gen_record
-				if("security")
-					current_value = pref.sec_record
-				if("exploit")
-					current_value = pref.exploit_record
 				if("memory")
 					current_value = pref.memory
 				else
@@ -1937,14 +1497,6 @@
 			push_undo_state()
 			new_text = sanitize(new_text)
 			switch(record_type)
-				if("medical")
-					pref.med_record = new_text
-				if("general")
-					pref.gen_record = new_text
-				if("security")
-					pref.sec_record = new_text
-				if("exploit")
-					pref.exploit_record = new_text
 				if("memory")
 					pref.memory = new_text
 			return TRUE
@@ -1956,32 +1508,6 @@
 				return TRUE
 			if(part in list("general", "head", "face", "eyes", "torso", "arms", "hands", "legs", "feet", "action"))
 				pref.flavor_texts[part] = new_text
-			return TRUE
-
-		if("setRobotFlavorText")
-			var/module = params["module"]
-			var/new_text = sanitize(params["text"], extra = 0)
-			if(!module || (module != "Default" && !(module in GLOB.robot_module_types)))
-				return TRUE
-			pref.flavour_texts_robot[module] = new_text
-			return TRUE
-
-		if("addLanguage")
-			var/lang_name = params["language"]
-			if(!lang_name)
-				return TRUE
-			var/datum/language/lang = all_languages[lang_name]
-			if(!lang)
-				return TRUE
-			if(!(lang_name in pref.alternate_languages))
-				if(pref.alternate_languages.len < current_species.num_alternate_languages)
-					pref.alternate_languages += lang_name
-			return TRUE
-
-		if("removeLanguage")
-			var/lang_name = params["language"]
-			if(lang_name && (lang_name in pref.alternate_languages))
-				pref.alternate_languages -= lang_name
 			return TRUE
 
 		if("toggleRelation")
@@ -2287,8 +1813,6 @@
 		return "contents"
 	if(istype(tweak, /datum/gear_tweak/reagents))
 		return "reagents"
-	if(istype(tweak, /datum/gear_tweak/custom))
-		return "custom"
 	return "unknown"
 
 /datum/character_setup/proc/gear_allowed_to_see(datum/gear/G, mob/user)
@@ -2313,109 +1837,6 @@
 	if(G.whitelisted && !(pref.species in G.whitelisted))
 		return FALSE
 	return TRUE
-
-// ============================================================
-// AUGMENTATION HELPER PROCS
-// ============================================================
-/datum/character_setup/proc/update_internal_organ(organ, action)
-	LAZYINITLIST(pref.organ_data)
-	switch(action)
-		if("nothing")
-			pref.organ_data[organ] = null
-			if(organ == BP_EYES)
-				LAZYINITLIST(pref.organ_modules)
-				pref.organ_modules[organ] = null
-		if("assisted")
-			pref.organ_data[organ] = "assisted"
-			if(organ == BP_EYES)
-				LAZYINITLIST(pref.organ_modules)
-				pref.organ_modules[organ] = null
-		if("mechanical")
-			pref.organ_data[organ] = "mechanical"
-
-/datum/character_setup/proc/update_external_organ(organ, action)
-	LAZYINITLIST(pref.organ_data)
-	LAZYINITLIST(pref.rlimb_data)
-	switch(action)
-		if("nothing")
-			pref.organ_data[organ] = null
-			pref.rlimb_data[organ] = null
-			// Cascade: arm ↔ hand, leg ↔ foot
-			switch(organ)
-				if(BP_L_ARM)
-					pref.organ_data[BP_L_HAND] = null
-					pref.rlimb_data[BP_L_HAND] = null
-				if(BP_R_ARM)
-					pref.organ_data[BP_R_HAND] = null
-					pref.rlimb_data[BP_R_HAND] = null
-				if(BP_L_LEG)
-					pref.organ_data[BP_L_FOOT] = null
-					pref.rlimb_data[BP_L_FOOT] = null
-				if(BP_R_LEG)
-					pref.organ_data[BP_R_FOOT] = null
-					pref.rlimb_data[BP_R_FOOT] = null
-				if(BP_CHEST, BP_HEAD, BP_GROIN)
-					// Full-body reset
-					for(var/limb in BP_ALL_LIMBS)
-						pref.organ_data[limb] = null
-						pref.rlimb_data[limb] = null
-					for(var/internal in BP_INTERNAL_ORGANS)
-						pref.organ_data[internal] = null
-		if("amputated")
-			if(organ in list(BP_CHEST, BP_HEAD, BP_GROIN))
-				return // Can't amputate chest, head or groin
-			pref.organ_data[organ] = "amputated"
-			pref.rlimb_data[organ] = null
-			// Cascade amputation
-			switch(organ)
-				if(BP_L_ARM)
-					pref.organ_data[BP_L_HAND] = "amputated"
-					pref.rlimb_data[BP_L_HAND] = null
-				if(BP_R_ARM)
-					pref.organ_data[BP_R_HAND] = "amputated"
-					pref.rlimb_data[BP_R_HAND] = null
-				if(BP_L_LEG)
-					pref.organ_data[BP_L_FOOT] = "amputated"
-					pref.rlimb_data[BP_L_FOOT] = null
-				if(BP_R_LEG)
-					pref.organ_data[BP_R_FOOT] = "amputated"
-					pref.rlimb_data[BP_R_FOOT] = null
-		else
-			// Robolimb brand assignment
-			if(!(action in GLOB.chargen_robolimbs))
-				return
-			var/datum/robolimb/R = GLOB.chargen_robolimbs[action]
-			if(pref.species in R.species_cannot_use)
-				return
-			if(length(R.restricted_to) && !(pref.species in R.restricted_to))
-				return
-			if(length(R.applies_to_part) && !(organ in R.applies_to_part))
-				return
-			pref.organ_data[organ] = "cyborg"
-			pref.rlimb_data[organ] = action
-			// Cascade for paired limbs
-			switch(organ)
-				if(BP_L_ARM)
-					pref.organ_data[BP_L_HAND] = "cyborg"
-					pref.rlimb_data[BP_L_HAND] = action
-				if(BP_R_ARM)
-					pref.organ_data[BP_R_HAND] = "cyborg"
-					pref.rlimb_data[BP_R_HAND] = action
-				if(BP_L_LEG)
-					pref.organ_data[BP_L_FOOT] = "cyborg"
-					pref.rlimb_data[BP_L_FOOT] = action
-				if(BP_R_LEG)
-					pref.organ_data[BP_R_FOOT] = "cyborg"
-					pref.rlimb_data[BP_R_FOOT] = action
-				if(BP_CHEST, BP_HEAD, BP_GROIN)
-					// Full-body prosthetic
-					for(var/limb in BP_ALL_LIMBS)
-						pref.organ_data[limb] = "cyborg"
-						pref.rlimb_data[limb] = action
-					if(!pref.organ_data[BP_BRAIN])
-						pref.organ_data[BP_BRAIN] = "assisted"
-					for(var/internal in list(BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS))
-						pref.organ_data[internal] = "mechanical"
 
 // ============================================================
 // LOADOUT HELPERS

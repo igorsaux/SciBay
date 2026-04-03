@@ -10,8 +10,6 @@
 	layer = ABOVE_HUMAN_LAYER // this needs to be fairly high so it displays over most things, but it needs to be under lighting
 
 	var/on = 0
-	idle_power_usage = 20 WATTS
-	active_power_usage = 200 WATTS
 	clicksound = 'sound/machines/buttonbeep.ogg'
 	clickvol = 30
 
@@ -27,7 +25,6 @@
 
 	component_types = list(
 		/obj/item/circuitboard/cryo_cell,
-		/obj/item/device/healthanalyzer,
 		/obj/item/stock_parts/scanning_module,
 		/obj/item/stock_parts/matter_bin,
 		/obj/item/stock_parts/manipulator = 3,
@@ -89,7 +86,6 @@
 /obj/machinery/atmospherics/unary/cryo_cell/Process()
 	if(stat & (BROKEN|NOPOWER))
 		stop_operating_sound()
-		update_use_power(0)
 		update_icon()
 	..()
 	if(!node)
@@ -121,83 +117,6 @@
 	if(occupant == user && !user.stat)
 		go_out()
 
-/obj/machinery/atmospherics/unary/cryo_cell/attack_hand(mob/user)
-	ui_interact(user)
-	return 1
-
- /**
-  * The ui_interact proc is used to open and update Nano UIs
-  * If ui_interact is not used then the UI will not update correctly
-  * ui_interact is currently defined for /atom/movable (which is inherited by /obj and /mob)
-  *
-  * @param user /mob The mob who is interacting with this ui
-  * @param ui_key string A string key to use for this ui. Allows for multiple unique uis on one obj/mob (defaut value "main")
-  * @param ui /datum/nanoui This parameter is passed by the nanoui process() proc when updating an open ui
-  *
-  * @return nothing
-  */
-/obj/machinery/atmospherics/unary/cryo_cell/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
-	if(user == occupant || user.stat)
-		return
-
-	// this is the data which will be sent to the ui
-	var/data[0]
-	data["isOperating"] = on
-	data["hasOccupant"] = occupant ? 1 : 0
-	data["notFunctional"] = 0
-	if(stat & (BROKEN|NOPOWER))
-		data["notFunctional"] = 1
-	if(occupant)
-		var/cloneloss = "none"
-		var/amount = occupant.getCloneLoss()
-		if(amount > 50)
-			cloneloss = "severe"
-		else if(amount > 25)
-			cloneloss = "significant"
-		else if(amount > 10)
-			cloneloss = "moderate"
-		else if(amount && !emagged)
-			cloneloss = "minor"
-		var/scan = medical_scan_results(occupant)
-		scan += "<br>Genetic degradation: [cloneloss]"
-		scan = replacetext(scan,"'notice'","'white'")
-		scan = replacetext(scan,"'warning'","'average'")
-		scan = replacetext(scan,"'danger'","'bad'")
-		if (occupant.bodytemperature >= 170)
-			scan += "<br><span class='average'>Warning: Patient's body temperature is not suitable.</span>"
-		scan += "<br>Cryostasis factor: [occupant.stasis_value]x"
-		data["occupant"] = scan
-
-	data["cellTemperature"] = round(air_contents.temperature)
-	data["cellTemperatureStatus"] = "good"
-	if(air_contents.temperature > (0 CELSIUS))
-		data["cellTemperatureStatus"] = "bad"
-	else if(air_contents.temperature > (170 KELVIN))
-		data["cellTemperatureStatus"] = "average"
-
-	data["isBeakerLoaded"] = beaker ? 1 : 0
-
-	data["beakerLabel"] = null
-	data["beakerVolume"] = 0
-	if(beaker)
-		data["beakerLabel"] = beaker.name
-		data["beakerVolume"] = beaker.reagents.total_volume
-
-	data["biochemicalStasis"] = biochemical_stasis
-
-	// update the ui if it exists, returns null if no ui is passed/found
-	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
-	if(!ui)
-		// the ui does not exist, so we'll create a new() one
-		// for a list of parameters and their descriptions see the code docs in \code\modules\nano\nanoui.dm
-		ui = new(user, src, ui_key, "cryo.tmpl", "Cryo Cell Control System", 520, 630)
-		// when the ui is first opened this is the data it will use
-		ui.set_initial_data(data)
-		// open the new ui window
-		ui.open()
-		// auto update every Master Controller tick
-		ui.set_auto_update(1)
-
 /obj/machinery/atmospherics/unary/cryo_cell/OnTopic(user, href_list)
 	if(user == occupant)
 		return STATUS_CLOSE
@@ -221,7 +140,7 @@
 		return TOPIC_REFRESH
 
 	if(href_list["ejectOccupant"])
-		if(!occupant || ismetroid(user) || ispAI(user))
+		if(!occupant)
 			return TOPIC_HANDLED // don't update UIs attached to this object
 		go_out()
 		return TOPIC_REFRESH
@@ -266,10 +185,7 @@
 	else if(istype(G, /obj/item/grab))
 		if(!ismob(G:affecting))
 			return
-		for(var/mob/living/carbon/metroid/M in range(1, G:affecting))
-			if(M.Victim == G:affecting)
-				to_chat(usr, "[G:affecting:name] will not fit into the cryo because they have a metroid latched onto their head.")
-				return
+
 		user.visible_message(SPAN("notice", "\The [user] begins placing \the [G:affecting] into \the [src]."), SPAN("notice", "You start placing \the [G:affecting] into \the [src]."))
 		if(!do_after(user, 30, src))
 			return
@@ -314,43 +230,7 @@
 	AddOverlays(I)
 
 /obj/machinery/atmospherics/unary/cryo_cell/proc/process_occupant()
-	if(air_contents.total_moles < 10)
-		return
-	if(occupant)
-		if(occupant.is_ic_dead())
-			return
-
-		// Just empty a cryo if occupant isn't here
-		if(!(occupant in src))
-			go_out(force_move=FALSE)
-			return
-
-		occupant.set_stat(UNCONSCIOUS)
-		var/has_cryo_medicine = occupant.reagents.has_any_reagent(list(/datum/reagent/cryoxadone, /datum/reagent/clonexadone)) >= REM
-		if(beaker && !has_cryo_medicine && !emagged)
-			beaker.reagents.trans_to_mob(occupant, REM, CHEM_BLOOD)
-		if(occupant.InStasis() && !biochemical_stasis)
-			occupant.handle_chemicals_in_body(handle_ingested = FALSE, handle_digested = FALSE)
-		if(emagged)
-			if(prob(5))
-				to_chat(occupant, SPAN("notice", "You feel strange."))
-			else if(prob(3))
-				to_chat(occupant, SPAN("notice", "Your skin is itching."))
-
-			if(beaker)
-				if (beaker.reagents.has_reagent(/datum/reagent/cryoxadone))
-					occupant.adjustCloneLoss(0.6)
-					beaker.reagents.remove_reagent(/datum/reagent/cryoxadone,REM)
-					occupant.add_chemical_effect(CE_CRYO, 1)
-				else if (beaker.reagents.has_reagent(/datum/reagent/clonexadone))
-					occupant.adjustCloneLoss(1)
-					beaker.reagents.remove_reagent(/datum/reagent/clonexadone,REM)
-					occupant.add_chemical_effect(CE_CRYO, 1)
-				else
-					occupant.adjustCloneLoss(0.3)
-			else
-				occupant.adjustCloneLoss(0.3)
-
+	return
 
 /obj/machinery/atmospherics/unary/cryo_cell/proc/heat_gas_contents()
 	if(air_contents.total_moles < 1)
@@ -382,7 +262,6 @@
 		occupant.bodytemperature = 261									  // Changed to 70 from 140 by Zuhayr due to reoccurance of bug.
 	occupant = null
 	current_heat_capacity = initial(current_heat_capacity)
-	update_use_power(POWER_USE_IDLE)
 	update_icon()
 	return
 /obj/machinery/atmospherics/unary/cryo_cell/proc/put_mob(mob/living/carbon/M as mob)
@@ -411,10 +290,6 @@
 		to_chat(M, SPAN("notice", "<b>You feel a cold liquid surround you. Your skin starts to freeze up.</b>"))
 	occupant = M
 	current_heat_capacity = HEAT_CAPACITY_HUMAN
-	update_use_power(POWER_USE_ACTIVE)
-
-	for(var/obj/item/clothing/mask/smokable/cig in M.contents)
-		cig.die(nomessage = TRUE, nodestroy = TRUE)
 
 	add_fingerprint(usr)
 	occupant.update_icon()
@@ -467,10 +342,7 @@
 	set name = "Move Inside"
 	set category = "Object"
 	set src in oview(1)
-	for(var/mob/living/carbon/metroid/M in range(1,usr))
-		if(M.Victim == usr)
-			to_chat(usr, "You're too busy getting your life sucked out of you.")
-			return
+
 	if (usr.stat != 0)
 		return
 	put_mob(usr)
@@ -501,14 +373,3 @@
 
 /datum/data/function/proc/display()
 	return
-
-/obj/machinery/atmospherics/unary/cryo_cell/emag_act(remaining_charges, mob/user)
-	if(emagged)
-		return
-	playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-	emagged = 1
-	to_chat(user, SPAN("danger", "You short out \the [src]'s circuits."))
-	var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-	spark_system.set_up(5, 0, src.loc)
-	spark_system.start()
-	return 1

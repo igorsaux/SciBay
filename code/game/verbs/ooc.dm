@@ -2,10 +2,6 @@
 	set name = "OOC"
 	set category = "OOC"
 
-	if(src.mob && jobban_isbanned(src.mob, "OOC"))
-		to_chat(src, "<span class='danger'>You have been banned from OOC.</span>")
-		return
-
 	var/sanitizedMessage = sanitize(message)
 	mob.log_message("[key]: [sanitizedMessage]", INDIVIDUAL_OOC_LOG)
 	communicate(/decl/communication_channel/ooc, src, sanitizedMessage)
@@ -14,10 +10,6 @@
 	set name = "LOOC"
 	set desc = "Local OOC, seen only by those in view. Remember: Just because you see someone that doesn't mean they see you."
 	set category = "OOC"
-
-	if(jobban_isbanned(src.mob, "LOOC"))
-		to_chat(src, "<span class='danger'>You have been banned from LOOC.</span>")
-		return
 
 	sanitize_and_communicate(/decl/communication_channel/ooc/looc, src, message)
 
@@ -30,12 +22,3 @@
 		return
 
 	sound_to(mob, sound(null))
-
-/client/verb/info_storyteller()
-	set name = "Storyteller info"
-	set category = "OOC"
-
-	if(!SSstoryteller.character)
-		to_chat(src, "<b>Current Storyteller:</b> N/A")
-	else
-		to_chat(src, "<b>Current Storyteller:</b> [SSstoryteller.character.name] - [SSstoryteller.character.desc]")

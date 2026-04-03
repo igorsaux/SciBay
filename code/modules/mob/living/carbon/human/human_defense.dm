@@ -5,98 +5,6 @@ ex_act
 meteor_act
 */
 
-/mob/living/carbon/human/bullet_act(obj/item/projectile/P, def_zone)
-	if(status_flags & GODMODE)
-		return 0
-
-	// Checking for hit zone; may result in a miss
-	def_zone = check_zone(def_zone)
-	if(!has_organ(def_zone))
-		return PROJECTILE_FORCE_MISS //if they don't have the organ in question then the projectile just passes by.
-
-	// Checking for shields as they obviously have greater priority than armor
-	var/shield_check = check_shields(P.damage, P, null, def_zone, "the [P.name]")
-	if(shield_check)
-		return shield_check
-
-	var/obj/item/organ/external/organ = get_organ(def_zone)
-
-	// Shooting peoples' hands may get them disarmed
-	var/disarm_slot
-	switch(def_zone)
-		if(BP_L_HAND)
-			disarm_slot = slot_l_hand
-		if(BP_R_HAND)
-			disarm_slot = slot_r_hand
-	if(disarm_slot)
-		var/obj/item/D = get_equipped_item(disarm_slot)
-		if(D && (P.damage || P.agony))
-			var/disarm_chance = sqrt(P.damage+P.agony)*10        // Agony goes into consideration because rubber bullets/stunspheres/etc. are supposed to be disabling ammunition
-			disarm_chance = disarm_chance * (D.w_class/5 + 0.4)  // The bigger an item is, the higher probability of it getting shot
-			if(prob(disarm_chance))
-				playsound(src.loc, 'sound/effects/fighting/Genhit.ogg', 50, 1)
-				D.shot_out(src, P)
-				if(D.w_class > 2)
-					return PROJECTILE_FORCE_BLOCK // Small items don't block the projectile while getting shot out
-
-	// Unobviously, the external damage applies here
-	var/blocked = ..(P, def_zone) // <------------'
-
-	// Fullblock, only poise damage required
-	if(blocked >= 100)
-		projectile_affect_poise(P, P.poisedamage / 3, def_zone)
-		return PROJECTILE_FORCE_ARMORBLOCK
-
-	var/blocked_multiplier = blocked_mult(blocked)
-
-	// Internal damage
-	// Some day we should make internals deal with blunt and sharp damage differently, but for now it's like this, if 'blocked' is non-zero, then the projectile's already lost its SHARP/EDGE flags and thus we cut the damage accordingly
-	if(length(organ.internal_organs))
-		var/internal_damage_prob = 100 * blocked_multiplier // 100% for a naked dude/armor fail, 50% if one armor layer's succeeded, etc. The real chance is still a bit lower, though, since each organ has a chance of being damaged.
-		if(organ && P.damage_type == BRUTE)
-			internal_damage_prob *= organ.brute_mod
-
-		// If our bodypart is a pile of shredded meat then it doesn't protect organs well
-		var/organ_total_damage = organ.get_damage()
-		if(organ_total_damage > organ.max_damage)
-			internal_damage_prob *= organ_total_damage / organ.max_damage * 2
-
-		if(prob(internal_damage_prob))
-			var/penetrating_damage = P.damage * P.penetration_modifier * PROJECTILE_INTERNAL_DAMAGE_MULT * blocked_multiplier
-			if(organ.encased && !(organ.status & ORGAN_BROKEN))
-				penetrating_damage *= 0.75 // Ribs and skulls somewhat protect
-
-			var/list/victims = list()
-			var/list/possible_victims = shuffle(organ.internal_organs)
-
-			for(var/obj/item/organ/internal/I in possible_victims)
-				if(I.damage < I.max_damage && (prob((sqrt(I.relative_size) * 10) * (1 / max(1, victims.len)))))
-					victims += I
-
-			if(length(victims))
-				for(var/obj/item/organ/internal/victim in victims)
-					victim.take_internal_damage(penetrating_damage / victims.len, is_traumatic = TRUE)
-
-	// Embed or sever artery, only happens if the projectile's successfully bypassed armor
-	if(!blocked && P.damage_type == BRUTE && prob(PROJECTILE_EMBED_CHANCE))
-		// Lower cal. bullets tend to embed, while higher cal. bullets are more likely to make things bloody
-		var/embed_odds = P.damage * 1.3 * organ.brute_mod
-
-		if(prob(embed_odds))
-			organ.sever_artery()
-		else if(P.can_embed() && (organ.limb_flags & ORGAN_FLAG_CAN_EMBED))
-			var/obj/item/material/shard/shrapnel/SP = new()
-			SP.SetName((P.name != "shrapnel")? "[P.name] shrapnel" : "shrapnel")
-			SP.desc = "[SP.desc] It looks like it was fired from [P.shot_from]."
-			organ.embed(SP)
-
-	// Poise damage, the last actual harmful thing to happen
-	projectile_affect_poise(P, P.poisedamage * blocked_multiplier, def_zone)
-	// Spawning blood if necessary
-	projectile_hit_bloody(P, P.damage * blocked_multiplier, def_zone)
-
-	return blocked
-
 /mob/living/carbon/human/stun_effect_act(stun_amount, agony_amount, def_zone, used_weapon = null)
 	var/obj/item/organ/external/affected = get_organ(check_zone(def_zone))
 	if(!affected)
@@ -297,9 +205,6 @@ meteor_act
 /mob/living/carbon/human/proc/check_shields(damage = 0, atom/damage_source = null, mob/attacker = null, def_zone = null, attack_text = "the attack")
 	var/obj/item/shield = null
 	var/shield_mod_shield = 0
-	if(istype(buckled, /obj/effect/dummy/immaterial_form))
-		if(prob(80))
-			return PROJECTILE_CONTINUE
 
 	for(var/obj/item/I in list(l_hand, r_hand, wear_suit))
 		if(!I) continue
@@ -836,59 +741,6 @@ meteor_act
 			if(BP_CHEST)
 				bloody_body(src)
 
-/mob/living/carbon/human/proc/projectile_hit_bloody(obj/item/projectile/P, effective_force, hit_zone)
-	if(P.damage_type != BRUTE || P.nodamage)
-		return
-
-	if(!(P.sharp || prob(effective_force*4)))
-		return
-
-	if(prob(effective_force))
-		var/turf/location = loc
-		if(istype(location, /turf/simulated))
-			location.add_blood(src)
-
-		var/angle = (P.Angle + 180) % 360
-		new /obj/effect/temporary/bloodsplatter(loc, (0.5 SECONDS), 'icons/effects/blood.dmi', null, angle, species.get_blood_colour(src))
-
-		switch(hit_zone)
-			if(BP_HEAD)
-				if(wear_mask)
-					wear_mask.add_blood(src)
-					update_inv_wear_mask(0)
-				if(head)
-					head.add_blood(src)
-					update_inv_head(0)
-				if(glasses && prob(33))
-					glasses.add_blood(src)
-					update_inv_glasses(0)
-			if(BP_CHEST)
-				bloody_body(src)
-
-/mob/living/carbon/human/proc/projectile_affect_poise(obj/item/projectile/P, poisedamage, hit_zone)
-	if(!poisedamage)
-		return 0 //save a couple of nanoseconds
-
-	if(status_flags & GODMODE)
-		return 0 //godmode
-
-	var/pd_mult = 1.0
-	switch(hit_zone)
-		if(BP_HEAD)
-			pd_mult = 1.35
-		if(BP_CHEST)
-			pd_mult = 1.0
-		if(BP_GROIN)
-			pd_mult = 1.15
-		else
-			pd_mult = 0.75
-
-	damage_poise(poisedamage * pd_mult)
-	if(poise <= 25 && !prob(poise * 3))
-		apply_effect(max(3, (poisedamage * pd_mult / 4)), WEAKEN)
-		if(!lying)
-			visible_message(SPAN("danger", "[src] goes down under the impact of \the [P]!"))
-
 /mob/living/carbon/human/proc/attack_joint(obj/item/organ/external/organ, obj/item/W, effective_force, dislocate_mult, blocked)
 	if(!organ || (organ.dislocated == 2) || (organ.dislocated == -1) || blocked >= 100)
 		return 0
@@ -903,24 +755,9 @@ meteor_act
 		return 1
 	return 0
 
-/mob/living/carbon/human/emag_act(remaining_charges, mob/user, emag_source)
-	var/obj/item/organ/external/affecting = get_organ(user.zone_sel.selecting)
-	if(!affecting || !BP_IS_ROBOTIC(affecting))
-		to_chat(user, SPAN("warning", "That limb isn't robotic."))
-		return -1
-	if(affecting.status & ORGAN_SABOTAGED)
-		to_chat(user, SPAN("warning", "[src]'s [affecting.name] is already sabotaged!"))
-		return -1
-	to_chat(user, SPAN("notice", "You sneakily slide [emag_source] into the dataport on [src]'s [affecting.name] and short out the safeties."))
-	affecting.status |= ORGAN_SABOTAGED
-	return 1
-
 //this proc handles being hit by a thrown atom
 /mob/living/carbon/human/hitby(atom/movable/AM, datum/thrownthing/TT, nomsg = TRUE)
 	..()
-
-	if(!aura_check(AURA_TYPE_THROWN, AM, TT.speed))
-		return
 
 	if(!isobj(AM))
 		return
@@ -1014,20 +851,19 @@ meteor_act
 	//thrown weapon embedded object code.
 	if(dtype == BRUTE && istype(O, /obj/item))
 		var/obj/item/I = O
-		if(!is_robot_module(I))
-			var/sharp = is_sharp(I)
-			var/damage = throw_damage //the effective damage used for embedding purposes, no actual damage is dealt here
-			if(armor)
-				damage *= blocked_mult(armor)
+		var/sharp = is_sharp(I)
+		var/damage = throw_damage //the effective damage used for embedding purposes, no actual damage is dealt here
+		if(armor)
+			damage *= blocked_mult(armor)
 
-			//blunt objects should really not be embedding in things unless a huge amount of force is involved
-			var/embed_chance = sharp? (damage / I.w_class) : (damage / (I.w_class * 3))
-			var/embed_threshold = sharp? (5 * I.w_class) : (15 * I.w_class)
+		//blunt objects should really not be embedding in things unless a huge amount of force is involved
+		var/embed_chance = sharp? (damage / I.w_class) : (damage / (I.w_class * 3))
+		var/embed_threshold = sharp? (5 * I.w_class) : (15 * I.w_class)
 
-			//Sharp objects will always embed if they do enough damage.
-			//Thrown sharp objects have some momentum already and have a small chance to embed even if the damage is below the threshold
-			if((sharp && prob(damage / (10 * I.w_class) * 100)) || (damage > embed_threshold && prob(embed_chance)))
-				affecting.embed(I)
+		//Sharp objects will always embed if they do enough damage.
+		//Thrown sharp objects have some momentum already and have a small chance to embed even if the damage is below the threshold
+		if((sharp && prob(damage / (10 * I.w_class) * 100)) || (damage > embed_threshold && prob(embed_chance)))
+			affecting.embed(I)
 
 	process_momentum(AM, TT)
 
@@ -1063,11 +899,6 @@ meteor_act
 
 	// Tox and oxy don't matter to suits.
 	if(damtype != BURN && damtype != BRUTE) return
-
-	// The rig might soak this hit, if we're wearing one.
-	if(back && istype(back,/obj/item/rig))
-		var/obj/item/rig/rig = back
-		rig.take_hit(damage)
 
 	// We may also be taking a suit breach.
 	if(!wear_suit) return

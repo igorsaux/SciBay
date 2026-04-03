@@ -54,9 +54,6 @@
 	storage_name = "Robotic Storage Control"
 	allow_items = 0
 
-/obj/machinery/computer/cryopod/attack_ai()
-	src.attack_hand()
-
 /obj/machinery/computer/cryopod/attack_hand(mob/user = usr)
 	if(stat & (NOPOWER|BROKEN))
 		return
@@ -209,7 +206,6 @@
 	var/mob/occupant = null       // Person waiting to be despawned.
 	var/time_till_despawn = 9000  // Down to 15 minutes //30 minutes-ish is too long
 	var/time_entered = 0          // Used to keep track of the safe period.
-	var/obj/item/device/radio/intercom/announce //
 
 	var/obj/machinery/computer/cryopod/control_computer
 	var/last_no_computer_message = 0
@@ -218,35 +214,13 @@
 
 	// These items are preserved when the process() despawn proc occurs.
 	var/list/preserve_items = list(
-		/obj/item/integrated_circuit/manipulation/bluespace_rift,
-		/obj/item/integrated_circuit/input/teleporter_locator,
 		/obj/item/card/id/captains_spare,
-		/obj/item/aicard,
-		/obj/item/organ/internal/cerebrum/mmi,
-		/obj/item/device/paicard,
 		/obj/item/gun,
-		/obj/item/pinpointer,
 		/obj/item/clothing/suit,
 		/obj/item/clothing/shoes/magboots,
-		/obj/item/blueprints,
 		/obj/item/clothing/head/helmet/space,
 		/obj/item/storage/internal
 	)
-
-/obj/machinery/cryopod/robot
-	name = "robotic storage unit"
-	desc = "A storage unit for robots."
-	icon = 'icons/obj/robot_storage.dmi'
-	icon_state = "pod_0"
-	base_icon_state = "pod_0"
-	occupied_icon_state = "pod_1"
-	on_store_message = "has entered robotic storage."
-	on_store_name = "Robotic Storage Oversight"
-	on_enter_occupant_message = "The storage unit broadcasts a sleep signal to you. Your systems start to shut down, and you enter low-power mode."
-	allow_occupant_types = list(/mob/living/silicon/robot)
-	disallow_occupant_types = list(/mob/living/silicon/robot/drone)
-	applies_stasis = 0
-	req_one_access = list(access_robotics, access_security)
 
 /obj/machinery/cryopod/lifepod
 	name = "life pod"
@@ -289,13 +263,6 @@
 	playsound(loc,'sound/effects/rocket.ogg',100)
 	forceMove(nloc)
 
-//Don't use these for in-round leaving
-/obj/machinery/cryopod/lifepod/Process()
-	if(evacuation_controller && evacuation_controller.state >= EVAC_LAUNCHING)
-		if(occupant && !launched)
-			launch()
-		..()
-
 /obj/machinery/cryopod/Destroy()
 	if(occupant)
 		occupant.forceMove(loc)
@@ -305,7 +272,6 @@
 /obj/machinery/cryopod/Initialize()
 	. = ..()
 	find_control_computer()
-	announce = new /obj/item/device/radio/intercom(src)
 
 /obj/machinery/cryopod/examine(mob/user, infix)
 	. = ..()
@@ -315,13 +281,6 @@
 
 	if(occupant)
 		. += "It has [SPAN_NOTICE("[occupant]")] inside."
-
-/obj/machinery/cryopod/emag_act(remaining_charges, mob/user)
-	if(!emagged)
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		to_chat(user, SPAN_NOTICE("The locking mechanism has been disabled."))
-		emagged = TRUE
-		return TRUE
 
 /obj/machinery/cryopod/proc/find_control_computer(urgent=0)
 	// Workaround for http://www.byond.com/forum/?post=2007448
@@ -374,21 +333,6 @@
 
 // This function can not be undone; do not call this unless you are sure
 // Also make sure there is a valid control computer
-/obj/machinery/cryopod/robot/despawn_occupant()
-	var/mob/living/silicon/robot/R = occupant
-	if(!istype(R)) return ..()
-
-	qdel(R.mmi)
-	for(var/obj/item/I in R.module) // the tools the borg has; metal, glass, guns etc
-		for(var/obj/item/O in I) // the things inside the tools, if anything; mainly for janiborg trash bags
-			O.forceMove(R)
-		qdel(I)
-	qdel(R.module)
-
-	return ..()
-
-// This function can not be undone; do not call this unless you are sure
-// Also make sure there is a valid control computer
 /obj/machinery/cryopod/proc/despawn_occupant()
 	set waitfor = 0
 
@@ -413,23 +357,14 @@
 	//Delete all items not on the preservation list.
 	var/list/items = contents.Copy()
 	items -= occupant // Don't delete the occupant
-	items -= announce // or the autosay radio.
 
 	for(var/obj/item/I in items)
 
 		var/preserve = null
-		// Snowflaaaake.
-		if(istype(I, /obj/item/organ/internal/cerebrum/mmi))
-			var/obj/item/organ/internal/cerebrum/mmi/brain = I
-			if(brain.brainmob && brain.brainmob.client && brain.brainmob.key)
+		for(var/T in preserve_items)
+			if(istype(I, T))
 				preserve = 1
-			else
-				continue
-		else
-			for(var/T in preserve_items)
-				if(istype(I, T))
-					preserve = 1
-					break
+				break
 
 		if(!preserve)
 			qdel(I)
@@ -440,25 +375,10 @@
 			else
 				I.dropInto(loc)
 
-	//Update any existing objectives involving this mob.
-	for(var/datum/antag_contract/AC in GLOB.all_contracts)
-		AC.on_mob_despawned(occupant.mind)
-	for(var/datum/objective/O in all_objectives)
-		// We don't want revs to get objectives that aren't for heads of staff. Letting
-		// them win or lose based on cryo is silly so we remove the objective.
-		if(O.target == occupant.mind)
-			if(O.owner && O.owner.current)
-				to_chat(O.owner.current, "<span class='warning'>You get the feeling your target is no longer within your reach...</span>")
-			qdel(O)
-
 	//Handle job slot/tater cleanup.
 	if(occupant.mind)
 		var/job = occupant.mind.assigned_role
 		job_master.FreeRole(job)
-
-		if(occupant.mind.objectives.len)
-			occupant.mind.objectives = null
-			occupant.mind.special_role = null
 
 	// Delete them from datacore.
 	var/datum/computer_file/crew_record/R = get_crewmember_record(occupant.real_name)
@@ -481,7 +401,6 @@
 		control_computer._admin_logs += "[key_name(occupant)] ([role_alt_title]) at [stationtime2text()]"
 	log_and_message_admins("[key_name(occupant)] ([role_alt_title]) entered cryostorage.")
 
-	announce.autosay("[occupant.real_name], [role_alt_title], [on_store_message]", "[on_store_name]")
 	visible_message("<span class='notice'>\The [initial(name)] hums and hisses as it moves [occupant.real_name] into storage.</span>")
 
 	//This should guarantee that ghosts don't spawn.
@@ -534,7 +453,6 @@
 	//Eject any items that aren't meant to be in the pod.
 	var/list/items = src.contents
 	if(occupant) items -= occupant
-	if(announce) items -= announce
 
 	for(var/obj/item/I in items)
 		I.forceMove(get_turf(src))
@@ -567,10 +485,6 @@
 		return
 	if(name == "cryogenic freezer" && M.is_ic_dead())
 		to_chat(user, "<span class='warning'>\The [src]s are not designed to store bodies. Contact the medical unit.</span>")
-		var/area/t = get_area(M)
-		var/location = t.name
-		for(var/channel in list("Security", "Medical"))
-			GLOB.global_headset.autosay("Someone is trying to store a dead body in [name] at [location]!", ("[name] warning"), channel)
 		return
 	if(M == user)
 		visible_message("\The [user] starts climbing into \the [src].")
@@ -637,10 +551,6 @@
 	if(target.buckled)
 		to_chat(user, "<span class='warning'>Unbuckle [target == user ? "yourself" : target] first.</span>")
 		return
-	for(var/mob/living/carbon/metroid/M in range(1,target))
-		if(M.Victim == target)
-			to_chat(user, "[target.name] will not fit into the [src] because they have a metroid latched onto their head.")
-			return
 	return TRUE
 
 /obj/machinery/cryopod/relaymove(mob/user)

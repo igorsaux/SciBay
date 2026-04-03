@@ -16,40 +16,12 @@
 	var/obj/item/device/lightreplacer/myreplacer = null
 	var/signs = 0	//maximum capacity hardcoded below
 
-
-/obj/structure/janitorialcart/Initialize()
-	. = ..()
-	create_reagents(1.8 LITERS)
-
-
-/obj/structure/janitorialcart/examine(mob/user, infix)
-	. = ..()
-
-	if(get_dist(src, user) <= 1)
-		. += "[src] \icon[src] contains [reagents.total_volume] ml of liquid!"
-
-
 /obj/structure/janitorialcart/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/storage/bag/trash) && !mybag && user.drop(I, src))
 		mybag = I
 		update_icon()
 		updateUsrDialog()
 		to_chat(user, SPAN_NOTICE("You put [I] into [src]."))
-
-	else if(istype(I, /obj/item/mop))
-		if(I.reagents.total_volume < I.reagents.maximum_volume)	//if it's not completely soaked we assume they want to wet it, otherwise store it
-			if(reagents.total_volume < 1)
-				to_chat(user, SPAN_WARNING("[src] is out of water!"))
-			else
-				reagents.trans_to_obj(I, I.reagents.maximum_volume)
-				to_chat(user, SPAN_NOTICE("You wet [I] in [src]."))
-				playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
-				return
-		if(!mymop && user.drop(I, src))
-			mymop = I
-			update_icon()
-			updateUsrDialog()
-			to_chat(user, SPAN_NOTICE("You put [I] into [src]."))
 
 	else if(istype(I, /obj/item/reagent_containers/spray) && !myspray && user.drop(I, src))
 		myspray = I
@@ -185,37 +157,6 @@
 	var/callme = "pimpin' ride"	//how do people refer to it?
 
 
-/obj/structure/bed/chair/janicart/Initialize()
-	. = ..()
-	create_reagents(1 LITER)
-
-
-/obj/structure/bed/chair/janicart/examine(mob/user, infix)
-	. = ..()
-
-	if(get_dist(src, user) > 1)
-		return
-
-	. += "\icon[src] This [callme] contains [reagents.total_volume] ml of water!"
-	if(mybag)
-		. += "\A [mybag] is hanging on the [callme]."
-
-
-/obj/structure/bed/chair/janicart/attackby(obj/item/I, mob/user)
-	if(istype(I, /obj/item/mop))
-		if(reagents.total_volume > 1)
-			reagents.trans_to_obj(I, 2)
-			to_chat(user, SPAN_NOTICE("You wet [I] in the [callme]."))
-			playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
-		else
-			to_chat(user, SPAN_NOTICE("This [callme] is out of water!"))
-	else if(istype(I, /obj/item/key))
-		to_chat(user, "Hold [I] in one of your hands while you drive this [callme].")
-	else if(istype(I, /obj/item/storage/bag/trash) && !mybag && user.drop(I, src))
-		to_chat(user, SPAN_NOTICE("You hook the trashbag onto the [callme]."))
-		mybag = I
-
-
 /obj/structure/bed/chair/janicart/attack_hand(mob/user)
 	if(mybag)
 		user.pick_or_drop(mybag, loc)
@@ -282,14 +223,6 @@
 			if(EAST)
 				buckled_mob.pixel_x = -13
 				buckled_mob.pixel_y = 7
-
-
-/obj/structure/bed/chair/janicart/bullet_act(obj/item/projectile/Proj)
-	if(buckled_mob)
-		if(prob(85))
-			return buckled_mob.bullet_act(Proj)
-	visible_message(SPAN_WARNING("[Proj] ricochets off the [callme]!"))
-
 
 /obj/item/key
 	name = "key"

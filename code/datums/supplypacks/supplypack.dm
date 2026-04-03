@@ -1,27 +1,31 @@
 var/decl/hierarchy/supply_pack/cargo_supply_pack_root = new()
-var/list/decl/hierarchy/supply_pack/cargo_supply_packs	// Non-category supply packs
+var/list/decl/hierarchy/supply_pack/cargo_supply_packs
 
 /decl/hierarchy/supply_pack
 	name = "Supply Packs"
+	/// Default vendor name
+	var/vendor = "Resident Consignment"
 	var/list/contains = list()
 	var/manifest = ""
 	var/cost = null
 	var/containertype = /obj/structure/closet/crate
 	var/containername = null
 	var/access = null
-	var/hidden = 0
-	var/contraband = 0
-	var/num_contained = 0 //number of items picked to be contained in a randomised crate
+	var/num_contained = 0
 	var/supply_method = /decl/supply_method
 	var/decl/security_level/security_level
 
 /decl/hierarchy/supply_pack/New()
 	..()
 	if(is_hidden_category())
-		return	// Don't init the manifest for category entries
+		// Don't init the manifest for category entries
+		return
 
-	if(!cargo_supply_packs) cargo_supply_packs = list()
-	dd_insertObjectList(cargo_supply_packs, src)	// Add all non-category supply packs to the list
+	if(!cargo_supply_packs)
+		cargo_supply_packs = list()
+	
+	// Add all non-category supply packs to the list
+	dd_insertObjectList(cargo_supply_packs, src)
 
 	if(!num_contained)
 		for(var/entry in contains)
@@ -30,34 +34,23 @@ var/list/decl/hierarchy/supply_pack/cargo_supply_packs	// Non-category supply pa
 	var/decl/supply_method/sm = get_supply_method(supply_method)
 	manifest = sm.setup_manifest(src)
 
-/decl/hierarchy/supply_pack/proc/sec_available()
-	if(isnull(security_level))
-		return TRUE
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
-	switch(security_level)
-		if(SUPPLY_SECURITY_ELEVATED)
-			if(security_state.all_security_levels.len > 1)
-				security_level = security_state.all_security_levels[2]
-			else
-				security_level = security_state.high_security_level
-		if(SUPPLY_SECURITY_HIGH)
-			security_level = security_state.high_security_level
-	if(!istype(security_level))
-		return TRUE
-	return security_state.current_security_level_is_same_or_higher_than(security_level)
+/decl/hierarchy/supply_pack/proc/get_cost()
+	if(cost == null && num_contained > 0)
+		cost = 0
+
+		for(var/entry in contains)
+			var/atom/A = new entry()
+			var/count = contains[entry] || 1
+
+			cost += get_buy_price(A) * count
+
+			qdel(A)
+	
+	return cost
 
 /decl/hierarchy/supply_pack/proc/spawn_contents(location)
 	var/decl/supply_method/sm = get_supply_method(supply_method)
 	return sm.spawn_contents(src, location)
-
-/*
-//SUPPLY PACKS
-//NOTE: only secure crate types use the access var (and are lockable)
-//NOTE: hidden packs only show up when the computer has been hacked.
-//ANOTER NOTE: Contraband is obtainable through modified supplycomp circuitboards.
-//BIG NOTE: Don't add living things to crates, that's bad, it will break the shuttle.
-//NEW NOTE: Do NOT set the price of any crates below 7 points. Doing so allows infinite points.
-*/
 
 var/list/supply_methods_
 /proc/get_supply_method(method_type)

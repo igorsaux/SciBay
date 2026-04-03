@@ -26,12 +26,6 @@
 	light_color =         initial(owner.light_color)
 	set_light(light_max_bright, light_inner_range, light_outer_range, light_falloff_curve, light_color)
 
-/obj/effect/projectile/singularity_pull()
-	return
-
-/obj/effect/projectile/singularity_act()
-	return
-
 /obj/effect/projectile/proc/scale_to(nx,ny,override=TRUE)
 	var/matrix/M
 	if(override)

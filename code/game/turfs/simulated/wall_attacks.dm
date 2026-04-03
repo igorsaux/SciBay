@@ -162,21 +162,6 @@
 			thermitemelt(user)
 			return
 
-		else if(istype(W, /obj/item/gun/energy/plasmacutter))
-			thermitemelt(user)
-			return
-
-		else if( istype(W, /obj/item/melee/energy/blade) )
-			var/obj/item/melee/energy/blade/EB = W
-
-			EB.spark_system.start()
-			to_chat(user, SPAN("notice","You slash \the [src] with \the [EB]; the thermite ignites!"))
-			playsound(src, SFX_SPARK, 50, 1)
-			playsound(src, 'sound/weapons/blade1.ogg', 50, 1)
-
-			thermitemelt(user)
-			return
-
 	var/turf/T = user.loc	//get user's location for delay checks
 
 	if(damage && isWelder(W))
@@ -213,16 +198,6 @@
 			dismantle_wall()
 			user.visible_message(SPAN("warning","\The [src] was torn open by [user]!"))
 			return
-
-		else if(istype(W,/obj/item/melee/energy/blade))
-			dismantle_sound = "spark"
-			dismantle_verb = "slicing"
-			cut_delay *= 0.5
-		else if(istype(W, /obj/item/pickaxe/drill))
-			var/obj/item/pickaxe/drill/D = W
-			dismantle_verb = D.drill_verb
-			dismantle_sound = D.drill_sound
-			cut_delay -= D.digspeed
 
 		if(dismantle_verb)
 
@@ -288,20 +263,6 @@
 					to_chat(user, SPAN("notice","You press firmly on the cover, dislodging it."))
 					return
 
-				else if (istype(W, /obj/item/gun/energy/plasmacutter))
-					to_chat(user, SPAN("notice","You begin slicing through the metal cover."))
-					playsound(src, 'sound/items/Welder.ogg', 100, 1)
-					if(!do_after(user, 60, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 4)
-						return
-
-					if(QDELETED(src))
-						return
-
-					to_chat(user, SPAN("notice","You press firmly on the cover, dislodging it."))
-					construction_stage = 3
-					update_icon()
-					return
-
 			if(3)
 				if(isCrowbar(W))
 					to_chat(user, SPAN("notice","You struggle to pry off the cover."))
@@ -338,21 +299,6 @@
 					to_chat(user, SPAN("notice","The support rods drop out as you cut them loose from the frame."))
 					return
 
-				else if(istype(W, /obj/item/gun/energy/plasmacutter))
-					to_chat(user, SPAN("notice","You begin slicing through the support rods."))
-					playsound(src, 'sound/items/Welder.ogg', 100, 1)
-					if(!do_after(user, 70, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 1)
-						return
-
-					if(QDELETED(src))
-						return
-
-					construction_stage = 0
-					update_icon()
-					new /obj/item/stack/rods(src)
-					to_chat(user, SPAN("notice","The support rods drop out as you cut them loose from the frame."))
-					return
-
 			if(0)
 				if(isCrowbar(W))
 					to_chat(user, SPAN("notice","You struggle to pry off the outer sheath."))
@@ -368,7 +314,7 @@
 		F.try_build(src)
 		return
 
-	else if(!istype(W,/obj/item/construction/rcd) && !istype(W, /obj/item/reagent_containers))
+	else if(!istype(W, /obj/item/reagent_containers))
 		if(!W.force)
 			return attack_hand(user)
 		var/dam_threshhold = material.integrity

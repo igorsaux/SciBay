@@ -26,7 +26,7 @@
 	// Are we placing or stripping?
 	var/stripping = FALSE
 	var/obj/item/held = user.get_active_hand()
-	if(!istype(held) || is_robot_module(held))
+	if(!istype(held))
 		stripping = TRUE
 
 	switch(slot_to_strip_text)
@@ -115,8 +115,6 @@
 				if(M == src)
 					to_chat(user, SPAN("warning", "[src] is way too physical to be fractalized like that."))
 					return
-		else if(istype(held, /obj/item/grenade) && text2num(slot_to_strip_text) == slot_wear_mask)
-			visible_message("<span class='danger'>\The [user] is trying to put \a [held] in \the [src]'s mouth!</span>")
 		else
 			visible_message("<span class='danger'>\The [user] is trying to put \a [held] on \the [src]!</span>")
 

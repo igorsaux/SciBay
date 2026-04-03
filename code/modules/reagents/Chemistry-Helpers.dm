@@ -10,10 +10,6 @@
 /atom/movable/proc/can_be_injected_by(atom/injector)
 	if(!Adjacent(get_turf(injector)))
 		return FALSE
-	if(!reagents)
-		return FALSE
-	if(!reagents.get_free_space())
-		return FALSE
 	return TRUE
 
 /obj/can_be_injected_by(atom/injector)

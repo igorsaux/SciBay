@@ -7,7 +7,6 @@
 		return
 	if( !ismob(M) || !M.client )	return
 	cmd_admin_pm(M.client,null)
-	feedback_add_details("admin_verb","APMM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 //shows a list of clients we could send PMs to, then forwards our choice to cmd_admin_pm
 /client/proc/cmd_admin_pm_panel()
@@ -30,8 +29,6 @@
 	var/list/sorted = sortList(targets)
 	var/target = input(src,"To whom shall we send a message?","Admin PM",null) in sorted|null
 	cmd_admin_pm(targets[target],null)
-	feedback_add_details("admin_verb","APM") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
 
 //takes input from cmd_admin_pm_context, cmd_admin_pm_panel or /client/Topic and sends them a PM.
 //Fetching a message if needed. src is the sender and C is the target client
@@ -126,7 +123,7 @@
 	var/sender_message = "<span class='pm'><span class='out'>" + create_text_tag("pm_out_alt", "PM") + " to <span class='name'>[get_options_bar(C, holder ? 1 : 0, holder ? 1 : 0, 1)]</span>"
 	if(holder)
 		sender_message += " (<a href='?_src_=holder;take_ticket=\ref[ticket]'>[(ticket.status == TICKET_OPEN) ? "TAKE" : "JOIN"]</a>) (<a href='?src=\ref[usr];close_ticket=\ref[ticket]'>CLOSE</a>)"
-		sender_message += ": <span class='message linkify'>[generate_ahelp_key_words(mob, msg)]</span>"
+		sender_message += ": <span class='message linkify'>[msg]</span>"
 	else
 		sender_message += ": <span class='message linkify'>[msg]</span>"
 	sender_message += "</span></span>"
@@ -135,7 +132,7 @@
 	var/receiver_message = "<span class='pm'><span class='in'>" + create_text_tag("pm_in", "") + " <b>\[[recieve_pm_type] PM\]</b> <span class='name'>[get_options_bar(src, C.holder ? 1 : 0, C.holder ? 1 : 0, 1)]</span>"
 	if(C.holder)
 		receiver_message += " (<a href='?_src_=holder;take_ticket=\ref[ticket]'>[(ticket.status == TICKET_OPEN) ? "TAKE" : "JOIN"]</a>) (<a href='?src=\ref[usr];close_ticket=\ref[ticket]'>CLOSE</a>)"
-		receiver_message += ": <span class='message linkify'>[generate_ahelp_key_words(C.mob, msg)]</span>"
+		receiver_message += ": <span class='message linkify'>[msg]</span>"
 	else
 		receiver_message += ": <span class='message linkify'>[msg]</span>"
 	receiver_message += "</span></span>"
@@ -146,7 +143,6 @@
 		sound_to(C, sound('sound/effects/adminhelp.ogg'))
 
 	log_admin("PM: [key_name(src)]->[key_name(C)]: [msg]")
-	GLOB.indigo_bot.chat_webhook(config.indigo_bot.ahelp_webhook, "**[src.key]** -> **[C.key]:** [msg]")
 
 	ticket.msgs += new /datum/ticket_msg(src.ckey, C.ckey, msg)
 	update_ticket_panels()

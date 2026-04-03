@@ -195,14 +195,7 @@
 	var/obj/structure/window_frame/recursive_tint_origin = null // Used by the recursive_tint() proc.
 	var/last_recursion = 0
 
-	var/list/mobs_can_pass = list(
-		/mob/living/bot,
-		/mob/living/carbon/metroid,
-		/mob/living/simple_animal/mouse,
-		/mob/living/simple_animal/lizard,
-		/mob/living/simple_animal/hamster,
-		/mob/living/silicon/robot/drone
-		)
+	var/list/mobs_can_pass = list()
 
 /datum/rad_resist/window
 	alpha_particle_resist = 100 MEGA ELECTRONVOLT
@@ -221,11 +214,6 @@
 	explosion_block = EXPLOSION_BLOCK_PROC
 	update_nearby_tiles(need_rebuild = TRUE)
 	update_nearby_icons()
-	add_debris_element()
-
-/obj/structure/window_frame/add_debris_element()
-	AddElement(/datum/element/debris, DEBRIS_GLASS, -10, 5)
-
 
 /obj/structure/window_frame/GetExplosionBlock()
 	. += outer_pane?.explosion_block
@@ -235,7 +223,6 @@
 	QDEL_NULL(outer_pane)
 	QDEL_NULL(inner_pane)
 	recursive_tint_origin = null
-	QDEL_NULL(signaler)
 	update_nearby_icons()
 	update_nearby_tiles()
 	. = ..()
@@ -257,7 +244,6 @@
 			else if(inner_pane)
 				inner_pane.shatter(FALSE)
 			else
-				signaler?.forceMove(get_turf(src))
 				qdel(src) // Poor frame gets murdered here if not protected by windowpanes.
 		if(EXPLODE_LIGHT)
 			if(prob(50))
@@ -360,9 +346,6 @@
 		var/image/I = OVERLAY(icon, "[icon_base]_cable", color = cable_color)
 		AddOverlays(I)
 
-	if(signaler)
-		AddOverlays(OVERLAY(icon, "winframe_signaler"))
-
 	if(inner_pane)
 		var/connections = 0
 		for(var/I in GLOB.cardinal)
@@ -445,9 +428,6 @@
 
 	if(inner_pane)
 		. += "It has an inner [inner_pane.name] installed. [inner_pane.get_damage_desc()]"
-
-	if(signaler)
-		. += "There is a signaler attached to the wiring."
 
 /obj/structure/window_frame/Bumped(atom/user)
 	if(ismob(user))
@@ -712,9 +692,6 @@
 			if(FRAME_ELECTRIC, FRAME_RELECTRIC)
 				set_state((frame_state == FRAME_ELECTRIC) ? FRAME_NORMAL : FRAME_REINFORCED)
 				visible_message(SPAN("notice", "[user] removes the wiring from \the [src]."))
-				if(signaler)
-					signaler.forceMove(get_turf(src))
-					signaler = null
 				new /obj/item/stack/cable_coil(get_turf(src), 1, cable_color)
 				outer_pane?.set_tint(FALSE)
 		update_nearby_icons()
@@ -775,16 +752,6 @@
 			to_chat(user, SPAN("notice", "\The [src] will[electrochromic ? " " : " no longer "]toggle its tint when signalled now."))
 			return
 
-	if(istype(W, /obj/item/device/assembly/signaler))
-		if(signaler)
-			to_chat(user, SPAN("notice", "\The [src] already has another [signaler] attached."))
-			return
-		to_chat(user, SPAN("notice", "You've attached \the [W] to \the [src]."))
-		user.drop(W, src)
-		signaler = W
-		update_icon()
-		return
-
 	if((isScrewdriver(W)) && (istype(loc, /turf/simulated) || anchored))
 		if(shock(user, 90))
 			to_chat(user, SPAN("danger", "You try to [anchored ? "unfasten" : "fasten"] \the [src] and get electrocuted!"))
@@ -818,9 +785,6 @@
 				update_nearby_icons()
 			if(FRAME_ELECTRIC, FRAME_RELECTRIC)
 				new /obj/item/stack/rods(get_turf(src), rand(1, frame_state + 1))
-				if(signaler)
-					signaler.forceMove(get_turf(src))
-					signaler = null
 				new /obj/item/stack/cable_coil/single(get_turf(src))
 				qdel(src)
 			else
@@ -886,56 +850,6 @@
 		hitby_sound = SFX_GLASS_HIT
 	..()
 
-/obj/structure/window_frame/bullet_act(obj/item/projectile/Proj)
-	if(!Proj)
-		return
-
-	//Flimsy grilles aren't so great at stopping projectiles. However they can absorb some of the impact
-	var/damage = Proj.get_structure_damage()
-	var/passthrough = 0
-
-	if(!damage)
-		return
-
-	if(outer_pane)
-		..()
-		outer_pane.take_damage(damage)
-		return
-	else if(inner_pane)
-		..()
-		inner_pane.take_damage(damage)
-		return
-
-	if(frame_state != FRAME_GRILLE)
-		Proj.damage *= between(0, Proj.damage / 60, 1)
-		passthrough = TRUE
-	else
-		//20% chance that the grille provides a bit more cover than usual. Support structure for example might take up 20% of the grille's area.
-		//If they click on the grille itself then we assume they are aiming at the grille itself and the extra cover behaviour is always used.
-		switch(Proj.damage_type)
-			if(BRUTE)
-				//bullets
-				if(Proj.original == src || prob(20))
-					Proj.damage *= between(0, Proj.damage / 60, 0.5)
-					if(prob(max((damage - 10) / 25, 0)) * 100)
-						passthrough = TRUE
-				else
-					Proj.damage *= between(0, Proj.damage / 60, 1)
-					passthrough = TRUE
-			if(BURN)
-				// beams and other projectiles are either blocked completely by grilles or stop half the damage.
-				if(!(Proj.original == src || prob(20)))
-					Proj.damage *= 0.5
-					passthrough = TRUE
-
-		if(passthrough)
-			. = PROJECTILE_CONTINUE
-			damage = between(0, (damage - Proj.damage) * (Proj.damage_type == BRUTE? 0.4 : 1), 10) //if the bullet passes through then the grille avoids most of the damage
-
-	health -= damage * 0.2
-	spawn()
-		healthcheck() //spawn to make sure we return properly if the grille is deleted
-
 /obj/structure/window_frame/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(outer_pane)
 		if(exposed_temperature > outer_pane.max_heat)
@@ -947,28 +861,6 @@
 		health -= 1
 		healthcheck()
 	..()
-
-/obj/structure/window_frame/blob_act(damage)
-	if(outer_pane)
-		outer_pane.take_damage(damage * pane_melee_mult)
-	else if(inner_pane)
-		inner_pane.take_damage(damage * pane_melee_mult)
-	else
-		health -= damage
-		healthcheck()
-
-/obj/structure/window_frame/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 2 SECONDS, "cost" = 5)
-
-	return FALSE
-
-/obj/structure/window_frame/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
-		qdel_self()
-		return TRUE
-
-	return FALSE
 
 /obj/structure/window_frame/proc/toggle_tint()
 	if(frame_state != FRAME_ELECTRIC && frame_state != FRAME_RELECTRIC)
@@ -1014,7 +906,6 @@
 	toggle_tint()
 
 /obj/machinery/button/window_frame_tint/proc/toggle_tint()
-	use_power_oneoff(5)
 	var/area/my_area = get_area(src)
 	for(var/obj/structure/window_frame/WF in range(src, range))
 		if(get_area(WF) == my_area)
@@ -1039,12 +930,6 @@
 	pane_melee_mult = 0.9
 
 	rad_resist_type = /datum/rad_resist/none
-
-/obj/structure/window_frame/reinforced/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 3 SECONDS, "cost" = 10)
-
-	return FALSE
 
 // Pretty much the same as the old grille, but smarter.
 /obj/structure/window_frame/grille

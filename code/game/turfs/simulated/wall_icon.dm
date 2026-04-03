@@ -30,10 +30,6 @@
 	update_connections(1)
 	update_icon()
 
-	if(material.reagent_path)
-		create_reagents(2 * REAGENTS_PER_MATERIAL_SHEET)
-		reagents.add_reagent(material.reagent_path, 2 * REAGENTS_PER_MATERIAL_SHEET)
-
 /turf/simulated/wall/proc/set_material(material/newmaterial, material/newrmaterial)
 	material = newmaterial
 	reinf_material = newrmaterial

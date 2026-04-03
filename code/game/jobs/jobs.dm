@@ -36,9 +36,9 @@ GLOBAL_LIST_EMPTY(exploration_positions)
 
 GLOBAL_LIST_EMPTY(unsorted_positions) // for nano manifest
 
-GLOBAL_LIST_INIT(commandjobs, list("Captain", "Head of Provisioning", "Head of Security", "Chief Engineer", "Chief Medical Officer", "Research Director"))
+GLOBAL_LIST_INIT(commandjobs, list(JOB_ID_CEO, "Head of Provisioning", "Head of Security", "Chief Engineer", "Chief Medical Officer", "Research Director"))
 
-GLOBAL_LIST_INIT(whitejobs, list("Captain", "Head of Provisioning", "Head of Security", "Chief Engineer", "Chief Medical Officer", "Research Director", "AI"))
+GLOBAL_LIST_INIT(whitejobs, list(JOB_ID_CEO, "Head of Provisioning", "Head of Security", "Chief Engineer", "Chief Medical Officer", "Research Director", "AI"))
 
 /proc/guest_jobbans(job)
 	return (job in GLOB.whitejobs) //rot beycev ebal
@@ -63,3 +63,21 @@ GLOBAL_LIST_INIT(whitejobs, list("Captain", "Head of Provisioning", "Head of Sec
 			titles = J.alt_titles
 
 	return titles
+
+/datum/job/assistant
+	title = "Assistant"
+	department = "Civilian"
+	department_flag = CIV
+
+	total_positions = -1
+	spawn_positions = -1
+	selection_color = "#515151"
+	economic_modifier = 1
+	access = list()
+	minimal_access = list()
+	alt_titles = list("Medical Intern","Research Assistant")
+	outfit_type = /decl/hierarchy/outfit/job/assistant
+	can_be_hired = FALSE
+
+/datum/job/assistant/get_access()
+	return list()

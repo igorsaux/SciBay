@@ -84,8 +84,6 @@
 				spam_flag = FALSE
 				return TRUE
 
-		if(pill.reagents.total_volume)
-			pill.reagents.trans_to_mob(M, pill.reagents.total_volume, CHEM_INGEST)
 		qdel(pill)
 		spam_flag = FALSE
 		return TRUE
@@ -116,15 +114,11 @@
 
 		remove_from_storage(pill, get_turf(H))
 		user.visible_message(SPAN("warning", "[user] forces [H] to swallow pills from \the [src]."))
-		var/contained = pill.reagentlist()
-		admin_attack_log(user, H, "Fed the victim with [pill] (Reagents: [contained])", "Was fed with [pill] (Reagents: [contained])", "used [pill] (Reagents: [contained]) to feed")
 
 		if(H.ingest(pill, TRUE))
 			spam_flag = FALSE
 			return TRUE
 
-		if(pill.reagents.total_volume)
-			pill.reagents.trans_to_mob(H, pill.reagents.total_volume, CHEM_INGEST)
 		qdel(pill)
 		spam_flag = FALSE
 		return TRUE

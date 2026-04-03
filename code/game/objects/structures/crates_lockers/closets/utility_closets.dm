@@ -294,7 +294,6 @@
 	new /obj/item/material/hatchet(src)
 	if (prob(40))
 		new /obj/item/device/flashlight(src)
-	new /obj/item/device/radio(src)
 	new /obj/item/storage/box/survival
 	new /obj/item/storage/box/survival
 

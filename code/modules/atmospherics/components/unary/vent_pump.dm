@@ -14,8 +14,6 @@
 
 	name = "Air Vent"
 	desc = "Has a valve and pump attached to it."
-	use_power = POWER_USE_OFF
-	idle_power_usage = 150 WATTS //internal circuitry, friction losses and stuff
 	power_rating = 7500			//7500 W ~ 10 HP
 
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_SUPPLY //connects to regular and supply pipes
@@ -51,18 +49,15 @@
 	var/radio_filter_in
 
 /obj/machinery/atmospherics/unary/vent_pump/on
-	use_power = POWER_USE_IDLE
 	icon_state = "map_vent_out"
 
 /obj/machinery/atmospherics/unary/vent_pump/siphon
 	pump_direction = 0
 
 /obj/machinery/atmospherics/unary/vent_pump/siphon/on
-	use_power = POWER_USE_IDLE
 	icon_state = "map_vent_in"
 
 /obj/machinery/atmospherics/unary/vent_pump/siphon/on/atmos
-	use_power = POWER_USE_IDLE
 	icon_state = "map_vent_in"
 	external_pressure_bound = 0
 	external_pressure_bound_default = 0
@@ -79,14 +74,11 @@
 /obj/machinery/atmospherics/unary/vent_pump/Destroy()
 	SSradio.remove_object(src, frequency)
 	if(initial_loc)
-		initial_loc.air_vent_info -= id_tag
-		initial_loc.air_vent_names -= id_tag
 		initial_loc = null
 	. = ..()
 
 /obj/machinery/atmospherics/unary/vent_pump/high_volume
 	name = "Large Air Vent"
-	power_channel = STATIC_EQUIP
 	power_rating = 15000	//15 kW ~ 20 HP
 
 /obj/machinery/atmospherics/unary/vent_pump/high_volume/Initialize()
@@ -95,7 +87,6 @@
 
 /obj/machinery/atmospherics/unary/vent_pump/engine
 	name = "Engine Core Vent"
-	power_channel = STATIC_EQUIP
 	power_rating = 30000	//15 kW ~ 20 HP
 
 /obj/machinery/atmospherics/unary/vent_pump/engine/Initialize()
@@ -129,10 +120,8 @@
 				vent_icon += "broken"
 	else if(welded)
 		vent_icon += "weld"
-	else if(!powered())
-		vent_icon += "off"
 	else
-		vent_icon += "[use_power ? "[pump_direction ? "out" : "in"]" : "off"]"
+		vent_icon += "[pump_direction ? "out" : "in"]"
 
 	AddOverlays(icon_manager.get_atmos_icon("device", , , vent_icon))
 
@@ -157,8 +146,6 @@
 /obj/machinery/atmospherics/unary/vent_pump/proc/can_pump()
 	if(stat & (NOPOWER|BROKEN))
 		return 0
-	if(!use_power)
-		return 0
 	if(welded)
 		return 0
 	if(broken)
@@ -171,8 +158,6 @@
 	if(hibernate > world.time)
 		return 1
 
-	if(!node)
-		update_use_power(POWER_USE_OFF)
 	if(!can_pump())
 		return 0
 
@@ -204,7 +189,6 @@
 
 	if (power_draw >= 0)
 		last_power_draw = power_draw
-		use_power_oneoff(power_draw)
 		if(network)
 			network.update = 1
 
@@ -235,7 +219,6 @@
 		"area" = src.area_uid,
 		"tag" = src.id_tag,
 		"device" = "AVP",
-		"power" = use_power,
 		"direction" = pump_direction?("release"):("siphon"),
 		"checks" = pressure_checks,
 		"internal" = internal_pressure_bound,
@@ -245,13 +228,6 @@
 		"power_draw" = last_power_draw,
 		"flow_rate" = last_flow_rate,
 	)
-
-	if(!initial_loc.air_vent_names[id_tag])
-		var/new_name = "[initial_loc.name] Vent Pump #[initial_loc.air_vent_names.len+1]"
-		initial_loc.air_vent_names[id_tag] = new_name
-		src.SetName(new_name)
-
-	initial_loc.air_vent_info[id_tag] = data
 
 	var/datum/signal/signal = new(data)
 	radio_connection.post_signal(src, signal, radio_filter_out)
@@ -290,12 +266,6 @@
 	if(signal.data["stabalize"] != null)
 		pressure_checks |= 1
 		pump_direction = 1
-
-	if(signal.data["power"] != null)
-		update_use_power(sanitize_integer(text2num(signal.data["power"]), POWER_USE_OFF, POWER_USE_ACTIVE, use_power))
-
-	if(signal.data["power_toggle"] != null)
-		update_use_power(!use_power)
 
 	if(signal.data["checks"] != null)
 		if (signal.data["checks"] == "default")
@@ -416,7 +386,7 @@
 /obj/machinery/atmospherics/unary/vent_pump/attackby(obj/item/W as obj, mob/user as mob)
 	if(!isWrench(W))
 		return ..()
-	if (!(stat & NOPOWER) && use_power)
+	if (!(stat & NOPOWER))
 		to_chat(user, "<span class='warning'>You cannot unwrench \the [src], turn it off first.</span>")
 		return 1
 	var/turf/T = src.loc

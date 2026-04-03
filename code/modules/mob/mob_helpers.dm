@@ -1,10 +1,3 @@
-// fun if you want to typecast humans/monkeys/etc without writing long path-filled lines.
-/proc/isxenomorph(A)
-	if(istype(A, /mob/living/carbon/human))
-		var/mob/living/carbon/human/H = A
-		return istype(H.species, /datum/species/xenos)
-	return 0
-
 /proc/issmall(A)
 	if(A && istype(A, /mob/living))
 		var/mob/living/L = A
@@ -19,27 +12,6 @@
 	if(W.w_class >= ITEM_SIZE_LARGE && issmall(src))
 		return FALSE //M is too small to wield this
 	return TRUE
-
-/mob/living/proc/isSynthetic()
-	return 0
-
-/mob/living/carbon/human/isSynthetic()
-	if(isnull(full_prosthetic))
-		robolimb_count = 0
-		for(var/obj/item/organ/external/E in external_organs)
-			if(BP_IS_ROBOTIC(E))
-				robolimb_count++
-		full_prosthetic = (robolimb_count == external_organs.len)
-	return full_prosthetic
-
-/mob/living/silicon/isSynthetic()
-	return 1
-
-/proc/isMonkey(A)
-	if (istype(A,/mob/living/carbon/human))
-		var/mob/living/carbon/human/H = A
-		return istype(H.species, /datum/species/monkey)
-	return 0
 
 /proc/isdeaf(A)
 	if(isliving(A))
@@ -306,7 +278,7 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 	logging[message_type] += timestamped_message
 
 /proc/shake_camera(mob/M, duration, strength=1)
-	if(!M || !M.client || M.shakecamera || M.stat || isEye(M) || isAI(M))
+	if(!M || !M.client || M.shakecamera || M.stat || isEye(M))
 		return
 	M.shakecamera = 1
 	spawn(1)
@@ -315,8 +287,6 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 
 		var/atom/oldeye=M.client.eye
 		var/aiEyeFlag = 0
-		if(istype(oldeye, /mob/observer/eye/aiEye))
-			aiEyeFlag = 1
 
 		var/x
 		for(x=0; x<duration, x++)
@@ -369,7 +339,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	set name = "a-intent"
 	set hidden = 1
 
-	if(ishuman(src) || isbrain(src) || ismetroid(src))
+	if(ishuman(src) || isbrain(src))
 		switch(input)
 			if(I_HELP,I_DISARM,I_GRAB,I_HURT)
 				a_intent = input
@@ -383,24 +353,6 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 		if(hud_used && hud_used.action_intent)
 			hud_used.action_intent.icon_state = "intent_[a_intent]"
-
-	else if(isrobot(src))
-		switch(input)
-			if(I_HELP)
-				a_intent = I_HELP
-			if(I_HURT)
-				a_intent = I_HURT
-			if("right","left")
-				a_intent = intent_numeric(intent_numeric(a_intent) - 3)
-
-		if(is_pacifist(src))
-			a_intent = I_HELP
-
-		if(hud_used && hud_used.action_intent)
-			if(a_intent == I_HURT)
-				hud_used.action_intent.icon_state = I_HURT
-			else
-				hud_used.action_intent.icon_state = I_HELP
 
 /proc/is_blind(A)
 	if(istype(A, /mob/living/carbon))
@@ -464,19 +416,6 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 			message = "<span class='name'>[name]</span> no longer [pick("skulks","lurks","prowls","creeps","stalks")] in the realm of the dead. [message]"
 		communicate(/decl/communication_channel/dsay, C || O, message, /decl/dsay_communication/direct)
 
-/mob/proc/switch_to_camera(obj/machinery/camera/C)
-	if (!C.can_use() || stat || (get_dist(C, src) > 1 || machine != src || blinded))
-		return 0
-	check_eye(src)
-	return 1
-
-/mob/living/silicon/ai/switch_to_camera(obj/machinery/camera/C)
-	if(!C.can_use() || !is_in_chassis())
-		return 0
-
-	eyeobj.setLoc(C)
-	return 1
-
 // Returns true if the mob has a client which has been active in the last given X minutes.
 /mob/proc/is_client_active(active = 1)
 	return client && client.inactivity < active MINUTES
@@ -487,73 +426,6 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 /mob/proc/can_force_feed()
 	return 1
 
-#define SAFE_PERP -50
-/mob/living/proc/assess_perp(obj/access_obj, check_access, auth_weapons, check_records, check_arrest)
-	if(is_ooc_dead())
-		return SAFE_PERP
-
-	return 0
-
-/mob/living/carbon/assess_perp(obj/access_obj, check_access, auth_weapons, check_records, check_arrest)
-	if(handcuffed)
-		return SAFE_PERP
-
-	return ..()
-
-/mob/living/carbon/human/assess_perp(obj/access_obj, check_access, auth_weapons, check_records, check_arrest)
-	var/threatcount = ..()
-	if(. == SAFE_PERP)
-		return SAFE_PERP
-
-	//Agent cards lower threatlevel.
-	var/obj/item/card/id/id = get_id_card()
-	if(id && istype(id, /obj/item/card/id/syndicate))
-		threatcount -= 2
-	// A proper	CentCom id is hard currency.
-	else if(id && istype(id, /obj/item/card/id/centcom))
-		return SAFE_PERP
-
-	if(check_access && !access_obj.allowed(src))
-		threatcount += 4
-
-	if(auth_weapons && !access_obj.allowed(src))
-		if(istype(l_hand, /obj/item/gun) || istype(l_hand, /obj/item/melee))
-			threatcount += 4
-
-		if(istype(r_hand, /obj/item/gun) || istype(r_hand, /obj/item/melee))
-			threatcount += 4
-
-		if(istype(belt, /obj/item/gun) || istype(belt, /obj/item/melee))
-			threatcount += 2
-
-		if(species.name != SPECIES_HUMAN)
-			threatcount += 2
-
-	if(check_records || check_arrest)
-		var/perpname = name
-		if(id)
-			perpname = id.registered_name
-
-		var/datum/computer_file/crew_record/CR = get_crewmember_record(perpname)
-		if(check_records && !CR && !isMonkey(src))
-			threatcount += 4
-
-		if(check_arrest && CR && (CR.get_criminalStatus() == GLOB.arrest_security_status))
-			threatcount += 4
-
-	return threatcount
-
-/mob/living/simple_animal/hostile/assess_perp(obj/access_obj, check_access, auth_weapons, check_records, check_arrest)
-	var/threatcount = ..()
-	if(. == SAFE_PERP)
-		return SAFE_PERP
-
-	if(!istype(src, /mob/living/simple_animal/hostile/retaliate/goat))
-		threatcount += 4
-	return threatcount
-
-#undef SAFE_PERP
-
 /mob/proc/get_multitool(obj/item/device/multitool/P)
 	if(istype(P))
 		return P
@@ -563,12 +435,6 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 /mob/living/carbon/human/get_multitool()
 	return ..(get_active_hand())
-
-/mob/living/silicon/robot/get_multitool()
-	return ..(get_active_hand())
-
-/mob/living/silicon/ai/get_multitool()
-	return ..(aiMulti)
 
 /proc/get_both_hands(mob/living/carbon/M)
 	if(!istype(M))
@@ -618,9 +484,6 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 /mob/living/carbon/human/jittery_damage()
 	var/mob/living/carbon/human/H = src
 	var/obj/item/organ/internal/heart/L = H.internal_organs_by_name[BP_HEART]
-	if(L && istype(L))
-		if(BP_IS_ROBOTIC(L))
-			return 0//Robotic hearts don't get jittery.
 	if(src.jitteriness >= 400 && prob(5)) //Kills people if they have high jitters.
 		if(prob(1))
 			L.take_internal_damage(L.max_damage / 2, 0)

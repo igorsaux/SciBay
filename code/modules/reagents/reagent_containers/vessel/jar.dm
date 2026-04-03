@@ -17,14 +17,3 @@
 	unacidable = TRUE
 	lid_type = null
 	brittle = TRUE
-
-/obj/item/reagent_containers/vessel/jar/on_reagent_change()
-	if (reagents.reagent_list.len > 0)
-		icon_state ="jar_what"
-		SetName("jar of something")
-		desc = "You can't really tell what this is."
-	else
-		icon_state = initial(icon_state)
-		SetName(initial(name))
-		desc = "A jar. You're not sure what it's supposed to hold."
-		return

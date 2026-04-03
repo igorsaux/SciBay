@@ -48,10 +48,3 @@
 	else
 		to_chat(src, "<span class='warning'>The Discord URL is not set in the server configuration.</span>")
 	return
-
-/client/verb/bugreport()
-	set name = "Report Bug"
-	set desc = "Create bug report to developers."
-	set hidden = 1
-
-	mob?.report_bug() // As per byond documentation verbs are slower than procs, so we execute minimal amount of code here.

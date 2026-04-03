@@ -41,22 +41,6 @@
 		to_chat(user, SPAN_WARNING("Wrong access!"))
 		return
 
-	if(istype(W, /obj/item/melee/energy))
-		var/obj/item/melee/energy/WS = W
-		if(broken)
-			to_chat(user, SPAN_WARNING("[src] already broken!"))
-			return
-		if(WS.active)
-			emag_act(INFINITY, user, W, "The locker has been sliced open by [user] with an energy blade!", "You hear metal being sliced and sparks flying.")
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, loc)
-			spark_system.start()
-			playsound(loc, 'sound/weapons/blade1.ogg', 50, 1)
-			playsound(loc, SFX_SPARK, 50, 1)
-			broken = !broken
-			update_icon()
-			return
-
 	if(!locked)
 		return ..()
 
@@ -94,45 +78,6 @@
 		return
 	..()
 
-/obj/item/storage/lockbox/emag_act(remaining_charges, mob/user, emag_source, visual_feedback = "", audible_feedback = "")
-	if(!broken)
-		if(visual_feedback)
-			visual_feedback = SPAN_WARNING("[visual_feedback]")
-		else
-			visual_feedback = SPAN_WARNING("The locker has been sliced open by [user] with an electromagnetic card!")
-		if(audible_feedback)
-			audible_feedback = SPAN_WARNING("[audible_feedback]")
-		else
-			audible_feedback = SPAN_WARNING("You hear a faint electrical spark.")
-		on_hack_behavior()
-		broken = TRUE
-		locked = FALSE
-		desc = "It appears to be broken."
-		update_icon()
-		visible_message(visual_feedback, audible_feedback)
-		return TRUE
-
-/obj/item/storage/lockbox/loyalty
-	name = "lockbox of loyalty implants"
-	req_access = list(access_security)
-
-/obj/item/storage/lockbox/loyalty/Initialize()
-	. = ..()
-	new /obj/item/implantcase/loyalty(src)
-	new /obj/item/implantcase/loyalty(src)
-	new /obj/item/implantcase/loyalty(src)
-	new /obj/item/implanter/loyalty(src)
-
-
-/obj/item/storage/lockbox/clusterbang
-	name = "lockbox of clusterbangs"
-	desc = "You have a bad feeling about opening this."
-	req_access = list(access_security)
-
-/obj/item/storage/lockbox/clusterbang/Initialize()
-	. = ..()
-	new /obj/item/grenade/flashbang/clusterbang(src)
-
 /obj/item/storage/lockbox/proc/on_hack_behavior()
 	var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
 	spark_system.set_up(5, 0, loc)
@@ -142,4 +87,3 @@
 	broken = !broken
 	update_icon()
 	return
-

@@ -759,7 +759,7 @@
 			if(istype(A, /atom/movable/lighting_overlay) && lighting) // Special case for lighting
 				atoms.Add(A)
 				continue
-			if(isghost(A) && (prob(1 + GLOB.cult.cult_rating * 0.1) || see_ghosts))
+			if(isghost(A) && see_ghosts)
 				atoms.Add(A)
 				continue
 			if(A.invisibility)

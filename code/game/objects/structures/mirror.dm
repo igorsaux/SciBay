@@ -28,10 +28,6 @@
 	if(shattered)	return
 
 	if(ishuman(user))
-		if(jobban_isbanned(user, "APPEARANCE"))
-			to_chat(src, "<span class='danger'>This is useless for you.</span>")
-			return
-
 		var/datum/nano_module/appearance_changer/AC = ui_users[user]
 		if(!AC)
 			AC = new(src, user)
@@ -50,15 +46,6 @@
 	if(istype(reflection))
 		reflection.alpha_icon_state = "mirror_mask_broken"
 		reflection.update_mirror_filters()
-
-/obj/structure/mirror/bullet_act(obj/item/projectile/Proj)
-
-	if(prob(Proj.get_structure_damage() * 2))
-		if(!shattered)
-			shatter()
-		else
-			playsound(src, 'sound/effects/hit_on_shattered_glass.ogg', 70, 1)
-	..()
 
 /obj/structure/mirror/attackby(obj/item/I as obj, mob/user as mob)
 	if(shattered)
@@ -101,34 +88,6 @@
 		ref = null
 	return ..()
 
-// The following mirror is ~special~.
-/obj/structure/mirror/raider
-	name = "cracked mirror"
-	desc = "Something seems strange about this old, dirty mirror. Your reflection doesn't look like you remember it."
-	icon_state = "mirrormagic_broke"
-	shattered = 1
-
-/obj/structure/mirror/raider/attack_hand(mob/living/carbon/human/user)
-	if(istype(get_area(src),/area/syndicate_mothership))
-		if(istype(user) && user.mind && user.mind.special_role == "Raider" && user.species.name != SPECIES_VOX && is_alien_whitelisted(user, SPECIES_VOX))
-			var/choice = input("Do you wish to become a true Vox of the Shoal? This is not reversible.") as null|anything in list("No","Yes")
-			if(choice && choice == "Yes")
-				var/mob/living/carbon/human/vox/vox = new(get_turf(src),SPECIES_VOX)
-				vox.gender = user.gender
-				GLOB.raiders.equip(vox)
-				if(user.mind)
-					user.mind.transfer_to(vox)
-				spawn(1)
-					var/newname = sanitizeSafe(input(vox,"Enter a name, or leave blank for the default name.", "Name change","") as text, MAX_NAME_LEN)
-					if(!newname || newname == "")
-						var/datum/language/L = all_languages[vox.species.default_language]
-						newname = L.get_random_name()
-					vox.real_name = newname
-					vox.SetName(vox.real_name)
-					GLOB.raiders.update_access(vox)
-				qdel(user)
-	..()
-
 /obj/structure/mirror/magic
 	name = "magic mirror"
 	desc = "Something seems strange about this mirror. Your reflection doesn't look like you remember it."
@@ -156,10 +115,6 @@
 
 /obj/item/mirror/attack_self(mob/user as mob)
 	if(ishuman(user))
-		if(jobban_isbanned(user, "APPEARANCE"))
-			to_chat(src, "<span class='danger'>This is useless for you.</span>")
-			return
-
 		var/datum/nano_module/appearance_changer/AC = ui_users[user]
 		if(!AC)
 			AC = new(src, user)
@@ -193,8 +148,6 @@
 
 /obj/effect/reflection/proc/setup_visuals(target)
 	mirror = target
-	register_signal(mirror.loc, SIGNAL_ENTERED, nameof(.proc/check_vampire_enter))
-	register_signal(mirror.loc, SIGNAL_EXITED, nameof(.proc/check_vampire_exit))
 
 	if(mirror.pixel_x > 0)
 		dir = WEST
@@ -231,31 +184,5 @@
 	transform = M
 
 	filters += filter("type" = "alpha", "icon" = icon(alpha_icon, alpha_icon_state), "x" = 0, "y" = 0)
-	for(var/mob/living/carbon/human/H in loc)
-		check_vampire_enter(H.loc, H)
 
 	vis_contents += get_turf(mirror)
-
-/obj/effect/reflection/proc/check_vampire_enter(turf/T, mob/living/carbon/human/H)
-	if(!istype(H))
-		return
-	if (!H.mind)
-		return
-	var/datum/vampire/V = H.mind.vampire
-	if(V)
-		if(V.vamp_status & VAMP_ISTHRALL)
-			filters += blur_filter
-		else
-			H.vis_flags |= VIS_HIDE
-
-/obj/effect/reflection/proc/check_vampire_exit(turf/T, mob/living/carbon/human/H)
-	if(!istype(H))
-		return
-	if (!H.mind)
-		return
-	var/datum/vampire/V = H.mind.vampire
-	if(V)
-		if(V.vamp_status & VAMP_ISTHRALL)
-			filters -= blur_filter
-		else
-			H.vis_flags &= ~VIS_HIDE

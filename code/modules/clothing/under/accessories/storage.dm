@@ -39,11 +39,6 @@
 	if(hold)
 		return hold.attackby(W, user)
 
-/obj/item/clothing/accessory/storage/emp_act(severity)
-	if(hold)
-		hold.emp_act(severity)
-		..()
-
 /obj/item/clothing/accessory/storage/attack_self(mob/user as mob)
 	to_chat(user, "<span class='notice'>You empty [src].</span>")
 	var/turf/T = get_turf(src)
@@ -117,60 +112,3 @@
 	name = "white drop pouches"
 	desc = "Durable white synthcotton bags to hold whatever you need, but cannot hold in hands."
 	icon_state = "thigh_white"
-
-/obj/item/clothing/accessory/storage/knifeharness
-	name = "decorated harness"
-	desc = "A heavily decorated harness of sinew and leather with two knife-loops."
-	icon_state = "unathiharness2"
-	slots = 2
-	max_w_class = ITEM_SIZE_NORMAL //for knives
-
-/obj/item/clothing/accessory/storage/knifeharness/New()
-	..()
-	hold.can_hold = list(
-		/obj/item/material/hatchet,
-		/obj/item/material/kitchen/utensil/knife,
-		/obj/item/material/knife,
-		/obj/item/material/butterfly,
-	)
-
-	new /obj/item/material/kitchen/utensil/knife/unathiknife(hold)
-	new /obj/item/material/kitchen/utensil/knife/unathiknife(hold)
-
-/obj/item/clothing/accessory/storage/bandolier
-	name = "bandolier"
-	desc = "A lightweight synthethic bandolier with straps for holding ammunition or other small objects."
-	icon_state = "bandolier"
-	slots = 10
-	max_w_class = ITEM_SIZE_NORMAL
-
-/obj/item/clothing/accessory/storage/bandolier/New()
-	..()
-	hold.can_hold = list(
-		/obj/item/ammo_casing,
-		/obj/item/grenade,
-		/obj/item/material/hatchet/tacknife,
-		/obj/item/material/kitchen/utensil/knife,
-		/obj/item/material/knife,
-		/obj/item/material/star,
-		/obj/item/rcd_ammo,
-		/obj/item/reagent_containers/syringe,
-		/obj/item/reagent_containers/hypospray,
-		/obj/item/reagent_containers/hypospray/autoinjector,
-		/obj/item/syringe_cartridge,
-		/obj/item/plastique,
-		/obj/item/clothing/mask/smokable,
-		/obj/item/screwdriver,
-		/obj/item/device/multitool,
-		/obj/item/rcd_ammo/magnetic_ammo,
-		/obj/item/ammo_magazine,
-		/obj/item/net_shell,
-		/obj/item/reagent_containers/vessel/beaker/vial,
-		/obj/item/ammo_casing/grenade
-	)
-
-/obj/item/clothing/accessory/storage/bandolier/safari/New()
-	..()
-
-	for(var/i = 0, i < slots, i++)
-		new /obj/item/net_shell(hold)

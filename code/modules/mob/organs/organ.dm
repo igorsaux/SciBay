@@ -27,14 +27,10 @@ var/list/organ_cache = list()
 	var/no_pain = FALSE
 
 	var/death_time
-	var/start_robotized = FALSE
 
 	var/food_organ_type				  // path of food made from organ, ex.
-	var/obj/item/reagent_containers/food/food_organ
 	var/disable_food_organ = FALSE // used to override food_organ's creation and using
 
-	/// Currently implanted objects.
-	var/list/implants = list()
 	/// List of installed augmentations.
 	var/list/organ_modules = list()
 	/// Types of modules without which this organ will not work. Applies ONLY to prosthetic limbs.
@@ -66,22 +62,11 @@ var/list/organ_cache = list()
 		species = all_species[SPECIES_HUMAN]
 		log_debug("[src] spawned in [owner] without a proper DNA.")
 
-	create_reagents(50 * (w_class-1)**2)
-	reagents.add_reagent(/datum/reagent/nutriment/protein, reagents.maximum_volume)
-
-	if(food_organ_type && !disable_food_organ)
-		food_organ = new food_organ_type(src)
-
-	if(start_robotized)
-		robotize()
-
 /obj/item/organ/Destroy()
 	owner = null
 	dna = null
 
-	QDEL_NULL(food_organ)
 	QDEL_NULL_LIST(organ_modules)
-	QDEL_NULL_LIST(implants)
 
 	if(ismob(loc))
 		var/mob/M = loc
@@ -98,48 +83,26 @@ var/list/organ_cache = list()
 		return
 
 	//Process infections
-	if(BP_IS_ROBOTIC(src) || (owner?.species?.species_flags & SPECIES_FLAG_IS_PLANT))
+	if((owner?.species?.species_flags & SPECIES_FLAG_IS_PLANT))
 		// If `think()` is called not by the owner in `handle_organs()` but on his own.
 		if(NEXT_THINK)
 			set_next_think(world.time + 1 SECOND)
 		return
 
 	if(owner)
-		if(isundead(owner))
-			if(NEXT_THINK)
-				set_next_think(world.time + 1 SECOND)
-			return
 		if(owner.bodytemperature >= 170)
 			handle_rejection()
-	else if(reagents && !is_preserved()) // Disbloodied or frozen organs don't decay.
-		var/datum/reagent/blood/B = locate(/datum/reagent/blood) in reagents.reagent_list
-		if(B && prob(40))
-			reagents.remove_reagent(/datum/reagent/blood, 0.1)
-			blood_splatter(src, B, 1)
-		if(config.health.organs_can_decay)
-			take_general_damage(rand(1, 3))
 
 	//check if we've hit max_damage
 	if(damage >= max_damage)
 		die()
 
-	if(food_organ)
-		update_food_from_organ()
-
 	// If `think()` is called not by the owner in `handle_organs()` but on his own.
 	if(NEXT_THINK)
 		set_next_think(world.time + 1 SECOND)
 
-/obj/item/organ/return_item()
-	return food_organ
-
 /obj/item/organ/proc/organ_eaten(mob/user)
 	qdel(src)
-
-/obj/item/organ/proc/update_food_from_organ()
-	food_organ.SetName(name)
-	food_organ.appearance = src
-	reagents.trans_to(food_organ, reagents.total_volume)
 
 /obj/item/organ/proc/is_broken()
 	return (damage >= min_broken_damage || (status & ORGAN_CUT_AWAY) || (status & ORGAN_BROKEN))
@@ -172,8 +135,8 @@ var/list/organ_cache = list()
 	if(istype(loc,/obj/item/organ))
 		var/obj/item/organ/O = loc
 		return O.is_preserved()
-	else
-		return (istype(loc,/obj/item/organ/internal/cerebrum/mmi) || istype(loc,/obj/structure/closet/body_bag/cryobag) || istype(loc,/obj/structure/closet/crate/freezer) || istype(loc,/obj/item/storage/box/freezer) || istype(loc,/mob/living/simple_animal/hostile/little_changeling))
+
+	return FALSE
 
 /obj/item/organ/examine(mob/user, infix)
 	. = ..()
@@ -183,31 +146,13 @@ var/list/organ_cache = list()
 	if(get_dist(src, user) > 1)
 		return
 
-	. += food_organ.get_bitecount()
-
 /obj/item/organ/proc/show_decay_status(mob/user)
 	if(status & ORGAN_DEAD)
 		return SPAN_NOTICE("\The [src] looks severely damaged.")
 
 /obj/item/organ/proc/handle_rejection()
-	// Process unsuitable transplants. TODO: consider some kind of
-	// immunosuppressant that changes transplant data to make it match.
-	if(owner.virus_immunity() < 10) //for now just having shit immunity will suppress it
-		if(rejecting)
-			rejecting--
-		return FALSE
-
-	if(BP_IS_ROBOTIC(src))
-		return FALSE
-
 	if(!dna)
 		return FALSE
-
-	if(!rejecting)
-		if(owner.blood_incompatible(dna.b_type, species))
-			rejecting = 1
-	else
-		rejecting++
 
 	return TRUE
 
@@ -220,34 +165,12 @@ var/list/organ_cache = list()
 /obj/item/organ/proc/rejuvenate(ignore_prosthetic_prefs = FALSE)
 	damage = 0
 	status = 0
-	if(!ignore_prosthetic_prefs && owner && owner.client && owner.client.prefs && owner.client.prefs.real_name == owner.real_name)
-		var/status = owner.client.prefs.organ_data[organ_tag]
-		if(status == "assisted")
-			mechassist()
-		else if(status == "mechanical")
-			robotize()
 
 /obj/item/organ/proc/take_general_damage(amount, silent = FALSE)
 	CRASH("Not Implemented")
 
 /obj/item/organ/proc/heal_damage(amount)
 	damage = between(0, damage - round(amount, 0.1), max_damage)
-
-
-/obj/item/organ/proc/robotize(company) //Being used to make robutt hearts, etc
-	if(BP_IS_ROBOTIC(src))
-		return FALSE
-
-	status = ORGAN_ROBOTIC
-	no_pain = TRUE
-	if(owner?.isSynthetic()) // If owner becomes fully synthetic - he receives all corresponding emotes.
-		owner.add_synth_emotes()
-
-	return TRUE
-
-
-/obj/item/organ/proc/mechassist() //Used to add things like pacemakers, etc
-	status = ORGAN_ASSISTED
 
 /**
  *  Remove an organ
@@ -266,18 +189,11 @@ var/list/organ_cache = list()
 	// Start processing the organ on his own
 	set_next_think(world.time)
 	rejecting = null
-	if(!BP_IS_ROBOTIC(src))
-		var/datum/reagent/blood/organ_blood = locate(/datum/reagent/blood) in reagents.reagent_list //TODO fix this and all other occurences of locate(/datum/reagent/blood) horror
-		if(!organ_blood || !organ_blood.data["blood_DNA"])
-			owner.vessel.trans_to(src, 5, 1, 1)
 
 	if(owner && vital)
 		if(user)
 			admin_attack_log(user, owner, "Removed a vital organ ([src]).", "Had a vital organ ([src]) removed.", "removed a vital organ ([src]) from")
 		owner.death()
-
-	for(var/obj/item/organ_module/module in organ_modules)
-		module.organ_removed(src, owner)
 
 	owner = null
 
@@ -287,22 +203,17 @@ var/list/organ_cache = list()
 		return FALSE
 	owner = target
 	forceMove(owner) //just in case
-	if(BP_IS_ROBOTIC(src))
-		set_dna(owner.dna)
-	for(var/obj/item/organ_module/module in organ_modules)
-		module.organ_installed(src, owner)
+
 	return TRUE
 
 /obj/item/organ/attack(mob/target, mob/user)
 	if(status & ORGAN_ROBOTIC || !istype(target) || !istype(user) || (user != target && user.a_intent == I_HELP))
 		return ..()
 
-	if(food_organ.bitecount == 0)
-		if(alert("Do you really want to use this organ as food? It will be useless for anything else afterwards.",,"Ew, no.","Bon appetit!") == "Ew, no.")
-			to_chat(user, SPAN_NOTICE("You successfully repress your cannibalistic tendencies."))
-			return
-		update_food_from_organ()
-		cook_organ()
+	if(alert("Do you really want to use this organ as food? It will be useless for anything else afterwards.",,"Ew, no.","Bon appetit!") == "Ew, no.")
+		to_chat(user, SPAN_NOTICE("You successfully repress your cannibalistic tendencies."))
+		return
+	cook_organ()
 
 	if(QDELETED(src))
 		return
@@ -320,10 +231,6 @@ var/list/organ_cache = list()
 
 /obj/item/organ/proc/get_scan_results()
 	. = list()
-	if(BP_IS_ASSISTED(src))
-		. += "Assisted"
-	else if(BP_IS_ROBOTIC(src))
-		. += "Mechanical"
 
 	if(status & ORGAN_CUT_AWAY)
 		. += "Severed"
@@ -338,17 +245,6 @@ var/list/organ_cache = list()
 	if(rejecting)
 		. += "Transplant Rejection"
 
-	if(!istype(src, /obj/item/organ/external) && length(implants))
-		var/unknown_body = 0
-		for(var/I in implants)
-			var/obj/item/implant/imp = I
-			if(istype(imp) && imp.known)
-				. += "[capitalize(imp.name)] implanted"
-			else
-				unknown_body++
-		if(unknown_body)
-			. += "Unknown body present"
-
 //used by stethoscope
 /obj/item/organ/proc/listen()
 	return
@@ -356,12 +252,9 @@ var/list/organ_cache = list()
 /obj/item/organ/proc/get_contents()
 	. = list()
 
-	LAZYDISTINCTADD(., implants)
 	LAZYDISTINCTADD(., organ_modules) // Should be covered by the above, but let's make sure.
 	LAZYDISTINCTADD(., contents)
 
 /obj/item/organ/proc/apply_snowflake(flags)
-	if(flags & ORGAN_SNOWFLAKE_ROBOTIC)
-		robotize()
 	if(flags & ORGAN_SNOWFLAKE_NO_PAIN)
 		no_pain = TRUE

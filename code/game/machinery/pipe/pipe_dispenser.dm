@@ -165,7 +165,6 @@
 				src.anchored = 1
 				src.stat &= ~MAINT
 				src.unwrenched = 0
-				power_change()
 	else
 		return ..()
 

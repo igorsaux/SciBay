@@ -36,16 +36,6 @@
 			new /obj/item/stack/cable_coil(src.loc, 1)
 			wired = 0
 
-	else if(istype(C, /obj/item/airalarm_electronics) && wired)
-		if(anchored)
-			playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-			user.visible_message("<span class='warning'>[user] has inserted a circuit into \the [src]!</span>",
-								  "You have inserted the circuit into \the [src]!")
-			new /obj/machinery/door/firedoor(src.loc)
-			qdel(C)
-			qdel(src)
-		else
-			to_chat(user, "<span class='warning'>You must secure \the [src] first!</span>")
 	else if(isWrench(C))
 		anchored = !anchored
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
@@ -68,26 +58,3 @@
 		qdel(src)
 	else
 		..(C, user)
-
-/obj/structure/firedoor_assembly/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
-		return list("delay" = 5 SECONDS, "cost" = 16)
-
-	else if(the_rcd.upgrade & RCD_UPGRADE_SIMPLE_CIRCUITS)
-		return list("delay" = 2 SECONDS, "cost" = 1)
-
-	return FALSE
-
-/obj/structure/firedoor_assembly/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
-	switch(rcd_data["[RCD_DESIGN_MODE]"])
-		if(RCD_UPGRADE_SIMPLE_CIRCUITS)
-			show_splash_text(user, "circuit installed", SPAN("notice", "You install the circuit into \the [src]!"))
-			new /obj/machinery/door/firedoor(get_turf(src))
-			qdel_self()
-			return TRUE
-
-		if(RCD_DECONSTRUCT)
-			qdel_self()
-			return TRUE
-
-	return FALSE

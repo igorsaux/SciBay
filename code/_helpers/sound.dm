@@ -86,9 +86,7 @@ var/const/FALLOFF_SOUNDS = 0.5
 				if(HIGH_VOLUME)
 					return
 
-			if (istype(M) && M.hallucination_power > 50 && M.chem_effects[CE_MIND] < 1)
-				S.environment = PSYCHOTIC
-			else if (M.druggy)
+			if (M.druggy)
 				S.environment = DRUGGED
 			else if (M.drowsyness)
 				S.environment = DIZZY

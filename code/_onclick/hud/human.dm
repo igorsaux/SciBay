@@ -269,46 +269,37 @@
 		mymob.bodytemp.screen_loc = ui_temp
 		infodisplay |= mymob.bodytemp
 
-	if(target.isSynthetic())
-		target.cells = new /atom/movable/screen()
-		target.cells.icon = 'icons/hud/mob/screen_robot.dmi'
-		target.cells.icon_state = "charge-empty"
-		target.cells.SetName("cell")
-		target.cells.screen_loc = ui_nutrition
-		infodisplay |= target.cells
+	if(hud_data.has_nutrition)
+		mymob.nutrition_icon = new /atom/movable/screen()
+		mymob.nutrition_icon.icon = ui_style
+		mymob.nutrition_icon.icon_state = "nutrition0"
+		mymob.nutrition_icon.SetName("nutrition")
+		mymob.nutrition_icon.screen_loc = ui_nutrition
+		infodisplay |= mymob.nutrition_icon
 
-	else
-		if(hud_data.has_nutrition)
-			mymob.nutrition_icon = new /atom/movable/screen()
-			mymob.nutrition_icon.icon = ui_style
-			mymob.nutrition_icon.icon_state = "nutrition0"
-			mymob.nutrition_icon.SetName("nutrition")
-			mymob.nutrition_icon.screen_loc = ui_nutrition
-			infodisplay |= mymob.nutrition_icon
+	if(hud_data.has_hydration)
+		mymob.hydration_icon = new /atom/movable/screen()
+		mymob.hydration_icon.icon = ui_style
+		mymob.hydration_icon.icon_state = "hydration0"
+		mymob.hydration_icon.SetName("hydration")
+		mymob.hydration_icon.screen_loc = ui_nutrition
+		infodisplay |= mymob.hydration_icon
 
-		if(hud_data.has_hydration)
-			mymob.hydration_icon = new /atom/movable/screen()
-			mymob.hydration_icon.icon = ui_style
-			mymob.hydration_icon.icon_state = "hydration0"
-			mymob.hydration_icon.SetName("hydration")
-			mymob.hydration_icon.screen_loc = ui_nutrition
-			infodisplay |= mymob.hydration_icon
+	if(hud_data.has_bladder)
+		mymob.bladder_icon = new /atom/movable/screen()
+		mymob.bladder_icon.icon = ui_style
+		mymob.bladder_icon.icon_state = "bladder0"
+		mymob.bladder_icon.SetName("bladder")
+		mymob.bladder_icon.screen_loc = ui_bladder
+		infodisplay |= mymob.bladder_icon
 
-		if(hud_data.has_bladder)
-			mymob.bladder_icon = new /atom/movable/screen()
-			mymob.bladder_icon.icon = ui_style
-			mymob.bladder_icon.icon_state = "bladder0"
-			mymob.bladder_icon.SetName("bladder")
-			mymob.bladder_icon.screen_loc = ui_bladder
-			infodisplay |= mymob.bladder_icon
-
-		if(hud_data.has_bowels)
-			mymob.bowels_icon = new /atom/movable/screen()
-			mymob.bowels_icon.icon = ui_style
-			mymob.bowels_icon.icon_state = "bowels0"
-			mymob.bowels_icon.SetName("bowels")
-			mymob.bowels_icon.screen_loc = ui_bladder
-			infodisplay |= mymob.bowels_icon
+	if(hud_data.has_bowels)
+		mymob.bowels_icon = new /atom/movable/screen()
+		mymob.bowels_icon.icon = ui_style
+		mymob.bowels_icon.icon_state = "bowels0"
+		mymob.bowels_icon.SetName("bowels")
+		mymob.bowels_icon.screen_loc = ui_bladder
+		infodisplay |= mymob.bowels_icon
 
 	if(hud_data.has_poise)
 		mymob.poise_icon = new /atom/movable/screen()
@@ -329,27 +320,5 @@
 	mymob.zone_sel.ClearOverlays()
 	mymob.zone_sel.AddOverlays(image('icons/hud/common/screen_zone_sel.dmi', "[mymob.zone_sel.selecting]"))
 	static_inventory |= mymob.zone_sel
-
-	//Handle the gun settings buttons
-	mymob.gun_setting_icon = new /atom/movable/screen/gun/mode(null)
-	mymob.gun_setting_icon.icon = ui_style
-	mymob.gun_setting_icon.color = ui_color
-	mymob.gun_setting_icon.alpha = ui_alpha
-	static_inventory |= mymob.gun_setting_icon
-
-	mymob.item_use_icon = new /atom/movable/screen/gun/item(null)
-	mymob.item_use_icon.icon = ui_style
-	mymob.item_use_icon.color = ui_color
-	mymob.item_use_icon.alpha = ui_alpha
-
-	mymob.gun_move_icon = new /atom/movable/screen/gun/move(null)
-	mymob.gun_move_icon.icon = ui_style
-	mymob.gun_move_icon.color = ui_color
-	mymob.gun_move_icon.alpha = ui_alpha
-
-	mymob.radio_use_icon = new /atom/movable/screen/gun/radio(null)
-	mymob.radio_use_icon.icon = ui_style
-	mymob.radio_use_icon.color = ui_color
-	mymob.radio_use_icon.alpha = ui_alpha
 
 	inventory_shown = FALSE

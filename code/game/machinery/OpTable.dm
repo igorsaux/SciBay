@@ -9,8 +9,6 @@
 	density = 1
 	anchored = 1.0
 	turf_height_offset = 2
-	idle_power_usage = 1 WATTS
-	active_power_usage = 5 WATTS
 	var/strapped = 0.0
 	var/busy = FALSE
 	var/time_to_strip = 5 SECONDS
@@ -143,10 +141,6 @@
 		show_splash_text(usr, "no patient detected!")
 		return
 
-	if(istype(patient?.back, /obj/item/rig) && !patient?.back.can_be_unequipped_by(patient, slot_back, TRUE))
-		show_splash_text(usr, "manual undressing required!")
-		return
-
 	if(!locate(/obj/item/clothing) in patient?.contents)
 		show_splash_text(usr, "no clothes found!")
 		return
@@ -169,7 +163,6 @@
 				continue
 
 			patient?.drop(C)
-			use_power_oneoff(100)
 		usr.visible_message(SPAN_DANGER("[usr] successfully removes all clothing from [patient]."),
 							SPAN_NOTICE("You successfully remove all clothing from [patient]."))
 

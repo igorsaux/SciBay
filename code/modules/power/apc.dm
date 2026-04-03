@@ -72,7 +72,6 @@
 
 	icon_state = "apc0"
 	anchored = 1
-	use_power = POWER_USE_OFF
 	req_access = list(access_engine_equip)
 	clicksound = SFX_USE_SMALL_SWITCH
 	layer = ABOVE_WINDOW_LAYER
@@ -101,7 +100,6 @@
 	var/lastused_charging = 0
 	var/lastused_total = 0
 	var/main_status = 0
-	var/mob/living/silicon/ai/hacker = null // Malfunction var. If set AI hacked the APC and has full control.
 	var/wiresexposed = 0
 	powernet = 0		// set so that APCs aren't found as powernet nodes //Hackish, Horrible, was like this before I changed it :(
 	var/debug= 0
@@ -166,9 +164,6 @@
 	return drained_energy
 
 /obj/machinery/power/apc/Initialize(mapload, ndir, building=0)
-
-	wires = new(src)
-
 	GLOB.apc_list += src
 	// offset 24 pixels in direction of dir
 	// this allows the APC to be embedded in a wall, yet still inside an area
@@ -197,11 +192,6 @@
 /obj/machinery/power/apc/Destroy()
 	src.update()
 	area.apc = null
-	area.power_light = 0
-	area.power_equip = 0
-	area.power_environ = 0
-	area.power_change()
-	QDEL_NULL(wires)
 	QDEL_NULL(terminal)
 
 	if(!QDELETED(cell))
@@ -210,9 +200,6 @@
 	cell = null
 
 	GLOB.apc_list -= src
-	// Malf AI, removes the APC from AI's hacked APCs list.
-	if((hacker) && (hacker.hacked_apcs) && (src in hacker.hacked_apcs))
-		hacker.hacked_apcs -= src
 
 	return ..()
 
@@ -272,8 +259,6 @@
 		else
 			if (stat & MAINT)
 				. += "The cover is closed. Something wrong with it: it doesn't work."
-			else if (hacker && !hacker.hacked_apcs_hidden)
-				. += "The cover is locked."
 			else
 				. += "The cover is closed."
 
@@ -364,7 +349,7 @@
 			update_state |= UPDATE_OPENED1
 		if(opened==2)
 			update_state |= UPDATE_OPENED2
-	else if(emagged || (hacker && !hacker.hacked_apcs_hidden) || failure_timer)
+	else if(emagged || failure_timer)
 		update_state |= UPDATE_BLUESCREEN
 	else if(wiresexposed)
 		update_state |= UPDATE_WIREEXP
@@ -429,7 +414,7 @@
 		else if (opened!=2) //cover isn't removed
 			opened = 0
 			update_icon()
-	else if(isCrowbar(W) && !((stat & BROKEN) || (hacker && !hacker.hacked_apcs_hidden)) )
+	else if(isCrowbar(W) && !((stat & BROKEN)) )
 		if(coverlocked && !(stat & MAINT))
 			to_chat(user, "<span class='warning'>The cover is locked and cannot be opened.</span>")
 			return
@@ -480,7 +465,7 @@
 			to_chat(user, "The wires have been [wiresexposed ? "exposed" : "unexposed"]")
 			update_icon()
 
-	else if (istype(W, /obj/item/card/id)||istype(W, /obj/item/device/pda))			// trying to unlock the interface with an ID card
+	else if (istype(W, /obj/item/card/id))			// trying to unlock the interface with an ID card
 		if(emagged)
 			to_chat(user, "The interface is broken.")
 		else if(opened)
@@ -489,11 +474,8 @@
 			to_chat(user, "You must close the panel")
 		else if(stat & (BROKEN|MAINT))
 			to_chat(user, "Nothing happens.")
-		else if(hacker && !hacker.hacked_apcs_hidden)
-			playsound(src.loc, 'sound/signals/error31.ogg', 50)
-			to_chat(user, "<span class='warning'>Access denied.</span>")
 		else
-			if(src.allowed(usr) && !isWireCut(APC_WIRE_IDSCAN))
+			if(src.allowed(usr))
 				playsound(src.loc, 'sound/signals/warning9.ogg', 25)
 				locked = !locked
 				to_chat(user, "You [ locked ? "lock" : "unlock"] the APC interface.")
@@ -595,7 +577,7 @@
 			"<span class='notice'>You replace the damaged APC frontal panel with a new one.</span>")
 		qdel(W)
 		update_icon()
-	else if (istype(W, /obj/item/frame/apc) && opened && ((stat & BROKEN) || (hacker && !hacker.hacked_apcs_hidden)))
+	else if (istype(W, /obj/item/frame/apc) && opened && ((stat & BROKEN)))
 		if (has_electronics)
 			to_chat(user, "<span class='warning'>You cannot repair this APC until you remove the electronics still inside.</span>")
 			return
@@ -607,15 +589,11 @@
 				"You replace the damaged APC frame with new one.")
 			qdel(W)
 			set_broken(FALSE)
-			// Malf AI, removes the APC from AI's hacked APCs list.
-			if(hacker && hacker.hacked_apcs && (src in hacker.hacked_apcs))
-				hacker.hacked_apcs -= src
-				hacker = null
 			if (opened==2)
 				opened = 1
 			queue_icon_update()
 	else
-		if (((stat & BROKEN) || (hacker && !hacker.hacked_apcs_hidden)) \
+		if (((stat & BROKEN)) \
 				&& !opened \
 				&& W.force >= 5 \
 				&& W.w_class >= 3.0 \
@@ -628,7 +606,7 @@
 		else
 			if (istype(user, /mob/living/silicon))
 				return src.attack_hand(user)
-			if (!opened && wiresexposed && isMultitool(W) || isWirecutter(W) || istype(W, /obj/item/device/assembly/signaler))
+			if (!opened && wiresexposed && isMultitool(W) || isWirecutter(W))
 				return src.attack_hand(user)
 			user.visible_message("<span class='danger'>The [src.name] has been hit with the [W.name] by [user.name]!</span>", \
 				"<span class='danger'>You hit the [src.name] with your [W.name]!</span>", \
@@ -652,27 +630,6 @@
 
 // attack with hand - remove cell (if cover open) or interact with the APC
 
-/obj/machinery/power/apc/emag_act(remaining_charges, mob/user)
-	if (!(emagged || (hacker && !hacker.hacked_apcs_hidden)))		// trying to unlock with an emag card
-		if(opened)
-			to_chat(user, "You must close the cover to swipe an ID card.")
-		else if(wiresexposed)
-			to_chat(user, "You must close the panel first")
-		else if(stat & (BROKEN|MAINT))
-			to_chat(user, "Nothing happens.")
-		else
-			flick("apc-spark", src)
-			if (do_after(user,6,src, luck_check_type = LUCK_CHECK_ENG))
-				if(prob(50))
-					playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-					emagged = 1
-					locked = 0
-					to_chat(user, "<span class='notice'>You emag the APC interface.</span>")
-					update_icon()
-				else
-					to_chat(user, "<span class='warning'>You fail to [ locked ? "unlock" : "lock"] the APC interface.</span>")
-				return 1
-
 /obj/machinery/power/apc/attack_hand(mob/user)
 //	if (!can_use(user)) This already gets called in interact() and in topic()
 //		return
@@ -690,22 +647,19 @@
 			user.setClickCooldown(DEFAULT_WEAPON_COOLDOWN)
 			user.do_attack_animation(src)
 
-			var/allcut = wires.IsAllCut()
-
 			if(beenhit >= pick(3, 4) && wiresexposed != 1)
 				wiresexposed = 1
 				src.update_icon()
 				src.visible_message("<span class='warning'>\The The [src]'s cover flies open, exposing the wires!</span>")
 
-			else if(wiresexposed == 1 && allcut == 0)
-				wires.CutAll()
+			else if(wiresexposed == 1)
 				src.update_icon()
 				src.visible_message("<span class='warning'>\The [src]'s wires are shredded!</span>")
 			else
 				beenhit += 1
 			return
 
-	if(usr == user && opened && (!issilicon(user)))
+	if(usr == user && opened)
 		if(cell)
 			user.pick_or_drop(cell)
 			cell.add_fingerprint(user)
@@ -727,11 +681,7 @@
 	if(!user)
 		return
 
-	if(wiresexposed && !istype(user, /mob/living/silicon/ai))
-		wires.Interact(user)
-
 	return ui_interact(user)
-
 
 /obj/machinery/power/apc/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	if(!user)
@@ -805,33 +755,12 @@
 	return "[area.name] : [equipment]/[lighting]/[environ] ([lastused_equip+lastused_light+lastused_environ]) : [cell? CELL_PERCENT(cell) : "N/C"] ([charging])"
 
 /obj/machinery/power/apc/proc/update()
-	if(operating && !shorted && !failure_timer)
-
-		//prevent unnecessary updates to emergency lighting
-		var/new_power_light = (lighting >= POWERCHAN_ON)
-		if(area.power_light != new_power_light)
-			area.power_light = new_power_light
-			area.set_lighting_mode(LIGHTMODE_EMERGENCY, lighting == POWERCHAN_OFF_AUTO) //if lights go auto-off, emergency lights go on
-
-		area.power_equip = (equipment >= POWERCHAN_ON)
-		area.power_environ = (environ >= POWERCHAN_ON)
-	else
-		area.power_light = 0
-		area.power_equip = 0
-		area.power_environ = 0
-
-	area.power_change()
-
 	if(!cell || cell.charge <= 0)
 		if(needs_powerdown_sound == TRUE)
 			playsound(src, 'sound/machines/apc_nopower.ogg', 75, 0)
 			needs_powerdown_sound = FALSE
 		else
 			needs_powerdown_sound = TRUE
-
-/obj/machinery/power/apc/proc/isWireCut(wireIndex)
-	return wires.IsIndexCut(wireIndex)
-
 
 /obj/machinery/power/apc/can_use(mob/user as mob, loud = 0) //used by attack_hand() and Topic()
 	if (user.stat)
@@ -850,23 +779,8 @@
 		to_chat(user, "<span class='warning'>You must stand to use [src]!</span>")
 		return 0
 	autoflag = 5
-	if (istype(user, /mob/living/silicon))
-		var/permit = 0 // Malfunction variable. If AI hacks APC it can control it even without AI control wire.
-		var/mob/living/silicon/ai/AI = user
-		var/mob/living/silicon/robot/robot = user
-		if(hacker && !hacker.hacked_apcs_hidden)
-			if(hacker == AI)
-				permit = 1
-			else if(istype(robot) && robot.connected_ai && robot.connected_ai == hacker) // Cyborgs can use APCs hacked by their AI
-				permit = 1
-
-		if(aidisabled && !permit)
-			if(!loud)
-				to_chat(user, "<span class='danger'>\The [src] have AI control disabled!</span>")
-			return 0
-	else
-		if (!in_range(src, user) || !istype(src.loc, /turf))
-			return 0
+	if (!in_range(src, user) || !istype(src.loc, /turf))
+		return 0
 	var/mob/living/carbon/human/H = user
 	if (istype(H) && prob(H.getBrainLoss()))
 		to_chat(user, "<span class='danger'>You momentarily forget how to use [src].</span>")
@@ -976,19 +890,12 @@
 /obj/machinery/power/apc/Process()
 	if(stat & (BROKEN|MAINT))
 		return
-	if(!area.requires_power)
-		return PROCESS_KILL
 	if(failure_timer)
 		if (!--failure_timer)
 			update()
 			queue_icon_update()
 			force_update = 1
 		return
-
-	lastused_light = area.usage(STATIC_LIGHT)
-	lastused_equip = area.usage(STATIC_EQUIP)
-	lastused_environ = area.usage(STATIC_ENVIRON)
-	area.clear_usage()
 
 	lastused_total = lastused_light + lastused_equip + lastused_environ
 
@@ -1144,28 +1051,6 @@
 
 	return cur_state //leave unchanged
 
-
-// damage and destruction acts
-/obj/machinery/power/apc/emp_act(severity)
-	if(emp_hardened)
-		return
-	// Fail for 8-12 minutes (divided by severity)
-	// Division by 2 is required, because machinery ticks are every two seconds. Without it we would fail for 16-24 minutes.
-	if(is_critical)
-		// Critical APCs are considered EMP shielded and will be offline only for about half minute. Prevents AIs being one-shot disabled by EMP strike.
-		// Critical APCs are also more resilient to cell corruption/power drain.
-		energy_fail(rand(240, 360) / severity / CRITICAL_APC_EMP_PROTECTION)
-		if(cell)
-			cell.emp_act(severity+2)
-	else
-		// Regular APCs fail for normal time.
-		energy_fail(rand(240, 360) / severity)
-		if(cell)
-			cell.emp_act(severity+1)
-
-	update_icon()
-	..()
-
 /obj/machinery/power/apc/ex_act(severity)
 	switch(severity)
 		if(1.0)
@@ -1248,19 +1133,6 @@
 			if(2) return POWERCHAN_OFF_AUTO
 			if(1) return POWERCHAN_OFF_TEMP
 			else return POWERCHAN_OFF
-
-
-
-// Malfunction: Transfers APC under AI's control
-/obj/machinery/power/apc/proc/ai_hack(mob/living/silicon/ai/A = null)
-	if(!A || !A.hacked_apcs || hacker || aidisabled || A.is_ooc_dead())
-		return 0
-	src.hacker = A
-	A.hacked_apcs += src
-	locked = 1
-	update_icon()
-	return 1
-
 
 /obj/machinery/power/apc/proc/generate_overlays()
 	status_overlays_lock = new

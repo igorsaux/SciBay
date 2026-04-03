@@ -2,9 +2,6 @@
 /obj/machinery/ntnet_relay
 	name = "NTNet Quantum Relay"
 	desc = "A very complex router and transmitter capable of connecting electronic devices together. Looks fragile."
-	use_power = POWER_USE_ACTIVE
-	active_power_usage = 20 KILO WATTS // Apropriate for machine that keeps massive cross-Zlevel wireless network operational.
-	idle_power_usage = 100 WATTS
 	icon_state = "bus"
 	anchored = 1
 	density = 1
@@ -36,11 +33,6 @@
 		icon_state = "bus_off"
 
 /obj/machinery/ntnet_relay/Process()
-	if(operable())
-		update_use_power(POWER_USE_ACTIVE)
-	else
-		update_use_power(POWER_USE_IDLE)
-
 	if(dos_overload)
 		dos_overload = max(0, dos_overload - dos_dissipate)
 
@@ -111,9 +103,6 @@
 		ntnet_global.relays.Remove(src)
 		ntnet_global.add_log("Quantum relay connection severed. Current amount of linked relays: [NTNet.relays.len]")
 		NTNet = null
-	for(var/datum/computer_file/program/ntnet_dos/D in dos_sources)
-		D.target = null
-		D.error = "Connection to quantum relay severed"
 
 	return ..()
 

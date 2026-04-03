@@ -8,7 +8,3 @@
 	spray_size = 1
 	possible_transfer_amounts = "10;25"
 	volume = 0.5 LITERS
-
-/obj/item/reagent_containers/spray/luminol/Initialize()
-	. = ..()
-	reagents.add_reagent(/datum/reagent/luminol, 0.5 LITERS)

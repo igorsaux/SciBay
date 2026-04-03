@@ -1,79 +1,8 @@
-
-// This is a list of words which are ignored by the parser when comparing message contents for names. MUST BE IN LOWER CASE!
-var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","alien","as")
-
-/proc/generate_ahelp_key_words(mob/mob, msg)
-	var/list/surnames = list()
-	var/list/forenames = list()
-	var/list/ckeys = list()
-	var/pure_msg = msg
-
-	// explode the input msg into a list
-	var/list/msglist = splittext(msg, " ")
-
-	for(var/mob/M in SSmobs.mob_list)
-		var/list/indexing = list(M.real_name, M.name)
-		if(M.mind)	indexing += M.mind.name
-
-		for(var/string in indexing)
-			var/list/L = splittext(string, " ")
-			var/surname_found = 0
-			// surnames
-			for(var/i=L.len, i>=1, i--)
-				var/word = ckey(L[i])
-				if(word)
-					surnames[word] = M
-					surname_found = i
-					break
-			// forenames
-			for(var/i=1, i<surname_found, i++)
-				var/word = ckey(L[i])
-				if(word)
-					forenames[word] = M
-			// ckeys
-			ckeys[M.ckey] = M
-
-	var/ai_found = 0
-	msg = ""
-	var/list/mobs_found = list()
-	for(var/original_word in msglist)
-		var/word = ckey(original_word)
-		if(word)
-			if(!(word in adminhelp_ignored_words))
-				if(word == "ai" && !ai_found)
-					ai_found = 1
-					msg += "<b>[original_word] <A HREF='?_src_=holder;adminchecklaws=\ref[mob]'>(CL)</A></b> "
-					continue
-				else
-					var/mob/found = ckeys[word]
-					if(!found)
-						found = surnames[word]
-						if(!found)
-							found = forenames[word]
-					if(found)
-						if(!(found in mobs_found))
-							mobs_found += found
-							msg += "<b>[original_word] <A HREF='?_src_=holder;adminmoreinfo=\ref[found]'>(?)</A>"
-							if(!ai_found && isAI(found))
-								ai_found = 1
-								msg += " <A HREF='?_src_=holder;adminchecklaws=\ref[mob]'>(CL)</A>"
-							msg += "</b> "
-							continue
-			msg += "[original_word] "
-
-	msg = pure_msg
-	return msg
-
 /client/proc/adminhelp(msg)
 	// handle muting and automuting
 	if(prefs.muted & MUTE_ADMINHELP)
 		to_chat(src, "<font color='red'>Error: Admin-PM: You cannot send adminhelps (Muted).</font>")
 		return
-
-	if(src.mob)
-		if(jobban_isbanned(src.mob, "AHELP"))
-			to_chat(src, SPAN("danger", "You have been banned from Adminhelp."))
-			return
 
 	adminhelped = 1 // Determines if they get the message to reply by clicking the name.
 
@@ -88,9 +17,6 @@ var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","
 
 	if(!mob) // this doesn't happen
 		return
-
-	// generate keywords lookup
-	msg = generate_ahelp_key_words(mob, msg)
 
 	// handle ticket
 	var/datum/client_lite/client_lite = client_repository.get_lite_client(src)
@@ -137,9 +63,6 @@ var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","
 	var/admin_number_present = GLOB.admins.len - admin_number_afk
 	log_admin("HELP: [key_name(src)]: [original_msg] - heard by [admin_number_present] non-AFK admins.")
 
-	GLOB.indigo_bot.chat_webhook(config.indigo_bot.ahelp_webhook, "**[src.ckey]:** [original_msg] *(heard by [admin_number_present] non-AFK admins)*")
-
-	feedback_add_details("admin_verb","AH") // If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	return
 
 /client/verb/adminhelp_verb()
@@ -150,11 +73,6 @@ var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","
 	if(prefs.muted & MUTE_ADMINHELP)
 		to_chat(src, "<font color='red'>Error: Admin-PM: You cannot send adminhelps (Muted).</font>")
 		return
-
-	if(src.mob)
-		if(jobban_isbanned(src.mob, "AHELP"))
-			to_chat(src, SPAN("danger", "You have been banned from Adminhelp."))
-			return
 
 	var/klauza = input(usr, "Describe your problem:", "Admin, help!") as text|null
 	if(!klauza)

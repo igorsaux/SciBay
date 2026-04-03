@@ -52,17 +52,6 @@ var/global/datum/repository/crew/crew_repository = new()
 				var/mob/living/carbon/human/H = C.loc
 				if(H.w_uniform != C)
 					continue
-				var/pressure = H.get_blood_pressure()
-				var/blood_result = H.get_blood_oxygenation()
-				if(blood_result > 110)
-					blood_result = "increased"
-				else if(blood_result < 90)
-					blood_result = "low"
-				else if(blood_result < 60)
-					blood_result = "extremely low"
-				else
-					blood_result = "normal"
-				pressure += " ([blood_result] oxygenation)"
 
 				var/true_pulse = H.pulse()
 				var/pulse_span = "good"
@@ -80,7 +69,7 @@ var/global/datum/repository/crew/crew_repository = new()
 					if(PULSE_THREADY)
 						pulse_span = "bad"
 
-				var/list/crewmemberData = list("sensor_type" = C.sensor_mode, "stat"= H.stat, "span" = pulse_span, "pulse"= H.get_pulse(1), "pressure"= pressure, "bodytemp" = CONV_KELVIN_CELSIUS(H.bodytemperature), "area"="", "x"=-1, "y"=-1, "z"=-1, "ref" = "\ref[H]")
+				var/list/crewmemberData = list("sensor_type" = C.sensor_mode, "stat"= H.stat, "span" = pulse_span, "pulse"= H.get_pulse(1), "bodytemp" = CONV_KELVIN_CELSIUS(H.bodytemperature), "area"="", "x"=-1, "y"=-1, "z"=-1, "ref" = "\ref[H]")
 				if(!(run_queues(H, C, pos, crewmemberData) & MOD_SUIT_SENSORS_REJECTED))
 					crewmembers[++crewmembers.len] = crewmemberData
 

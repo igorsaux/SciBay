@@ -20,7 +20,6 @@
 	new /obj/item/cell/high(src)
 	new /obj/item/card/id/syndicate(src)
 	new /obj/item/device/multitool(src)
-	new /obj/item/shield/energy(src)
 	new /obj/item/clothing/shoes/magboots(src)
 
 
@@ -42,25 +41,12 @@
 /obj/structure/closet/syndicate/nuclear/Initialize()
 	. = ..()
 
-	new /obj/item/ammo_magazine/a10mm(src)
-	new /obj/item/ammo_magazine/a10mm(src)
-	new /obj/item/ammo_magazine/a10mm(src)
-	new /obj/item/ammo_magazine/a10mm(src)
-	new /obj/item/ammo_magazine/a10mm(src)
 	new /obj/item/storage/box/handcuffs(src)
-	new /obj/item/storage/box/flashbangs(src)
 	new /obj/item/gun/energy/gun(src)
 	new /obj/item/gun/energy/gun(src)
 	new /obj/item/gun/energy/gun(src)
 	new /obj/item/gun/energy/gun(src)
 	new /obj/item/gun/energy/gun(src)
-	new /obj/item/pinpointer/nukeop(src)
-	new /obj/item/pinpointer/nukeop(src)
-	new /obj/item/pinpointer/nukeop(src)
-	new /obj/item/pinpointer/nukeop(src)
-	new /obj/item/pinpointer/nukeop(src)
-	new /obj/item/device/pda/syndicate(src)
-	new /obj/item/device/radio/uplink(src)
 	return
 
 /obj/structure/closet/syndicate/resources/

@@ -52,12 +52,6 @@
 /obj/machinery/door/unpowered/simple/get_material_name()
 	return material.name
 
-/obj/machinery/door/unpowered/simple/bullet_act(obj/item/projectile/Proj)
-	var/damage = Proj.get_structure_damage()
-	if(damage)
-		//cap projectile damage so that there's still a minimum number of hits required to break the door
-		take_damage(min(damage, 100))
-
 /obj/machinery/door/unpowered/simple/on_update_icon()
 	if(density)
 		icon_state = "[icon_base]"
@@ -99,13 +93,6 @@
 /obj/machinery/door/unpowered/simple/deconstruct(mob/user, moved = FALSE)
 	material.place_dismantled_product(get_turf(src))
 	qdel(src)
-
-/obj/machinery/door/unpowered/simple/attack_ai(mob/user as mob) //those aren't machinery, they're just big fucking slabs of a mineral
-	if(isAI(user)) //so the AI can't open it
-		return
-	else if(isrobot(user)) //but cyborgs can
-		if(Adjacent(user)) //not remotely though
-			return attack_hand(user)
 
 /obj/machinery/door/unpowered/simple/ex_act(severity)
 	switch(severity)
@@ -161,7 +148,7 @@
 		return
 
 	//psa to whoever coded this, there are plenty of objects that need to call attack() on doors without bludgeoning them.
-	if(density && user.a_intent == I_HURT && !(istype(I, /obj/item/card) || istype(I, /obj/item/device/pda)))
+	if(density && user.a_intent == I_HURT && !(istype(I, /obj/item/card)))
 		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 		if(I.damtype == BRUTE || I.damtype == BURN)
 			user.do_attack_animation(src)
@@ -247,8 +234,6 @@
 	..(newloc, MATERIAL_RESIN, complexity)
 
 /obj/machinery/door/unpowered/simple/resin/allowed(mob/M)
-	if(istype(M, /mob/living/carbon/larva/xenomorph))
-		return TRUE
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
 		if(H.internal_organs_by_name[BP_HIVE])

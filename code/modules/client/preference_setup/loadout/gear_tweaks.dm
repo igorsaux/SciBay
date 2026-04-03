@@ -20,22 +20,6 @@
 	return description
 
 /*
-* Custom adjustment
-*/
-
-/datum/gear_tweak/custom
-	var/datum/custom_item/current_data
-
-/datum/gear_tweak/custom/New(datum/custom_item/data)
-	current_data = data
-
-/datum/gear_tweak/custom/tweak_item(obj/item/I, metadata)
-	current_data.apply_to_item(I)
-
-/datum/gear_tweak/custom/tweak_description(description, metadata)
-	return description
-
-/*
 * Color adjustment
 */
 
@@ -284,4 +268,3 @@
 		. = valid_reagents[pick(valid_reagents)]
 	else
 		. = valid_reagents[metadata]
-	I.reagents.add_reagent(., I.reagents.get_free_space())

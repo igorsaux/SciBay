@@ -164,22 +164,3 @@
 			if(is_chunk_generated(x, y, T.z))
 				var/datum/chunk/c = get_chunk(x, y, T.z)
 				call(c, proc_call)(arglist(proc_args))
-
-// Debug verb for VVing the chunk that the turf is in.
-/turf/proc/view_chunk()
-	set name = "View Chunk"
-	set category = "Debug"
-	set src in world
-
-	if(cameranet.is_chunk_generated(x, y, z))
-		var/datum/chunk/chunk = cameranet.get_chunk(x, y, z)
-		usr.client.debug_variables(chunk)
-
-/turf/proc/update_chunk()
-	set name = "Update Chunk"
-	set category = "Debug"
-	set src in world
-
-	if(cameranet.is_chunk_generated(x, y, z))
-		var/datum/chunk/chunk = cameranet.get_chunk(x, y, z)
-		chunk.visibility_changed(TRUE)

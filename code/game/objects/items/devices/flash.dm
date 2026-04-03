@@ -86,36 +86,12 @@
 			else
 				flashfail = 1
 
-	else if(isrobot(M))
-		var/mob/living/silicon/robot/R = M
-		if (R.sensor_mode != FLASH_PROTECTION_VISION)
-			M.Weaken(rand(str_min,9))
-		else
-			to_chat(user, "<span class='warning'>\The [src] doesn't seem to work on [M].</span>")
-
 	else
 		flashfail = 1
 
-	if(isrobot(user))
-		var/mob/living/silicon/S = user
-		if (S.sensor_mode != FLASH_PROTECTION_VISION)
-			spawn(0)
-				var/atom/movable/fake_overlay/animation = new(user.loc)
-				animation.plane = user.plane
-				animation.layer = user.layer + 0.01
-				animation.icon_state = "blank"
-				animation.icon = 'icons/mob/mob.dmi'
-				animation.master = user
-				flick("blspell", animation)
-				sleep(5)
-				qdel(animation)
-
 	if(!flashfail)
 		flick("[initial(icon_state)]_on", src)
-		if(!issilicon(M))
-			user.visible_message("<span class='disarm'>[user] blinds [M] with \the [src]!</span>")
-		else
-			user.visible_message("<span class='notice'>[user] overloads [M]'s sensors with \the [src]!</span>")
+		user.visible_message("<span class='disarm'>[user] blinds [M] with \the [src]!</span>")
 	else
 		user.visible_message("<span class='notice'>[user] fails to blind [M] with \the [src]!</span>")
 	return
@@ -148,19 +124,6 @@
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	playsound(src.loc, 'sound/weapons/flash.ogg', 100, 1)
 	flick("[initial(icon_state)]_on", src)
-	if(user && isrobot(user))
-		var/mob/living/silicon/robot/S = user
-		if (S.sensor_mode != FLASH_PROTECTION_VISION)
-			spawn(0)
-				var/atom/movable/fake_overlay/animation = new(user.loc)
-				animation.plane = user.plane
-				animation.layer = user.layer + 0.01
-				animation.icon_state = "blank"
-				animation.icon = 'icons/mob/mob.dmi'
-				animation.master = user
-				flick("blspell", animation)
-				sleep(5)
-				qdel(animation)
 
 	for(var/mob/living/carbon/M in oviewers(3, null))
 		var/safety = M.eyecheck()
@@ -170,28 +133,6 @@
 				M.eye_blurry += 2
 
 	return
-
-/obj/item/device/flash/emp_act(severity)
-	if(broken)
-		return
-	flash_recharge()
-	switch(times_used)
-		if(0 to 5)
-			if(prob(2*times_used))
-				broken = 1
-				icon_state = "[initial(icon_state)]_burnt"
-				return
-			times_used++
-			if(istype(loc, /mob/living/carbon))
-				var/mob/living/carbon/M = loc
-				var/safety = M.eyecheck()
-				if(safety < FLASH_PROTECTION_MODERATE)
-					M.Weaken(10)
-					M.Stun(5)
-					M.flash_eyes()
-					for(var/mob/O in viewers(M, null))
-						O.show_message("<span class='disarm'>[M] is blinded by the [name]!</span>")
-	..()
 
 /obj/item/device/flash/synthetic //not for regular use, weaker effects
 	name = "modified flash"

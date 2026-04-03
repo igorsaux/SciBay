@@ -76,16 +76,6 @@
 		qdel(CH)
 	return ..()
 
-/obj/item/modular_computer/emag_act(remaining_charges, mob/user)
-	if(computer_emagged)
-		to_chat(user, "\The [src] was already emagged.")
-		return NO_EMAG_ACT
-	else
-		playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
-		computer_emagged = 1
-		to_chat(user, "You emag \the [src]. It's screen briefly shows a \"OVERRIDE ACCEPTED: New software downloads available.\" message.")
-		return 1
-
 /obj/item/modular_computer/on_update_icon()
 	icon_state = icon_state_unpowered
 
@@ -117,25 +107,15 @@
 		return
 	if(tesla_link)
 		tesla_link.enabled = 1
-	var/issynth = issilicon(user) // Robots and AIs get different activation messages.
 	if(damage > broken_damage)
-		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src], but it responds with an error code. It must be damaged.")
-		else
-			to_chat(user, "You press the power button, but the computer fails to boot up, displaying variety of errors before shutting down again.")
+		to_chat(user, "You press the power button, but the computer fails to boot up, displaying variety of errors before shutting down again.")
 		return
 	if(processor_unit && (apc_power(0) || battery_power(0))) // Battery-run and charged or non-battery but powered by APC.
-		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src], turning it on")
-		else
-			to_chat(user, "You press the power button and start up \the [src]")
+		to_chat(user, "You press the power button and start up \the [src]")
 		enable_computer(user)
 
 	else // Unpowered
-		if(issynth)
-			to_chat(user, "You send an activation signal to \the [src] but it does not respond")
-		else
-			to_chat(user, "You press the power button but \the [src] does not respond")
+		to_chat(user, "You press the power button but \the [src] does not respond")
 
 // Relays kill program request to currently active program. Use this to quit current program.
 /obj/item/modular_computer/proc/kill_program(forced = 0)

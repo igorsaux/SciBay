@@ -71,17 +71,6 @@
 
 /obj/item/weldingtool/attack(mob/living/M, mob/living/user, target_zone)
 	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/external/S = H.external_organs_by_name[target_zone]
-
-		if(!S || !BP_IS_ROBOTIC(S) || user.a_intent != I_HELP)
-			return ..()
-		if(!welding)
-			to_chat(user, "<span class='warning'>You'll need to turn [src] on to patch the damage on [M]'s [S.name]!</span>")
-			return 1
-		if(S.robo_repair(15, BRUTE, "some dents", src, user))
-			remove_fuel(10, user)
-	else
 		return ..()
 
 /obj/item/weldingtool/attackby(obj/item/W as obj, mob/user as mob)
@@ -109,8 +98,6 @@
 		else
 			QDEL_NULL(src)
 		user.visible_message("<span class='notice'>\The [user] fits \the [W] to \the [src] as a crude barrel.</span>")
-		var/obj/item/boomstickframe/F = new /obj/item/boomstickframe(user.loc)
-		F.add_fingerprint(user)
 		return
 
 	if(istype(W, /obj/item/welder_tank))
@@ -154,48 +141,16 @@
 
 	set_next_think(world.time + 1 SECOND)
 
-/obj/item/weldingtool/afterattack(obj/O, mob/user, proximity)
-	if(!proximity)
-		return
-	if((istype(O, /obj/structure/reagent_dispensers/fueltank) || istype(O, /obj/item/backwear/reagent/welding)) && get_dist(src, O) <= 1 && !welding)
-		refuel_from_obj(O, user)
-		return
-	if(welding)
-		remove_fuel(10)
-		var/turf/location = get_turf(user)
-		if(isliving(O))
-			var/mob/living/L = O
-			L.IgniteMob()
-		if(istype(location, /turf))
-			location.hotspot_expose(700, 50, 1)
-	return
-
-
 /obj/item/weldingtool/attack_self(mob/user as mob)
 	setWelding(!welding, usr)
 	return
 
 /obj/item/weldingtool/proc/refuel_from_obj(obj/O, mob/user)
-	if(!O.reagents)
-		return
-	if(!tank)
-		to_chat(user, "\The [src] has no tank attached!")
-		return
-	var/amount = min((tank.max_fuel - tank.reagents.total_volume), O.reagents.total_volume)
-	if(!O.reagents.total_volume)
-		to_chat(user, SPAN("warning", "\The [O] is empty."))
-		return
-	if(!amount)
-		to_chat(user, SPAN("notice", "\The [src] is full."))
-		return
-	O.reagents.trans_to_obj(tank, amount)
-	to_chat(user, SPAN("notice", "You refill \the [src] with [amount] ml of fuel from \the [O]."))
-	playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 	return
 
 //Returns the amount of fuel in the welder
 /obj/item/weldingtool/proc/get_fuel()
-	return tank ? tank.reagents.get_reagent_amount(/datum/reagent/fuel) : 0
+	return 0
 
 //Removes fuel from the welding tool. If a mob is passed, it will perform an eyecheck on the mob. This should probably be renamed to use()
 /obj/item/weldingtool/proc/remove_fuel(amount = 1, mob/M)
@@ -213,27 +168,7 @@
 		return 0
 
 /obj/item/weldingtool/proc/burn_fuel(amount)
-	if(!tank)
-		return
-
-	var/mob/living/in_mob = null
-
-	//consider ourselves in a mob if we are in the mob's contents and not in their hands
-	if(isliving(src.loc))
-		var/mob/living/L = src.loc
-		if(!(L.l_hand == src || L.r_hand == src))
-			in_mob = L
-
-	if(in_mob)
-		amount = max(amount, 2)
-		tank.reagents.trans_type_to(in_mob, /datum/reagent/fuel, amount)
-		in_mob.IgniteMob()
-
-	else
-		tank.reagents.remove_reagent(/datum/reagent/fuel, amount)
-		var/turf/location = get_turf(src.loc)
-		if(location)
-			location.hotspot_expose(700, 5)
+	return
 
 //Returns whether or not the welding tool is currently on.
 /obj/item/weldingtool/is_tool_on()
@@ -313,7 +248,7 @@
 	if(istype(user, /mob/living/carbon/human))
 		var/mob/living/carbon/human/H = user
 		var/obj/item/organ/internal/eyes/E = H.internal_organs_by_name[BP_EYES]
-		if(!E || BP_IS_ROBOTIC(E))
+		if(!E)
 			return
 		var/safety = H.eyecheck()
 		switch(safety)
@@ -422,19 +357,6 @@
 	var/max_fuel = 0.2 LITERS
 	var/can_remove = 1
 
-/obj/item/welder_tank/Initialize()
-	create_reagents(max_fuel)
-	reagents.add_reagent(/datum/reagent/fuel, max_fuel)
-	. = ..()
-
-/obj/item/welder_tank/afterattack(obj/O as obj, mob/user as mob, proximity)
-	if(!proximity) return
-	if((istype(O, /obj/structure/reagent_dispensers/fueltank) || istype(O, /obj/item/backwear/reagent/welding)) && get_dist(src,O) <= 1)
-		O.reagents.trans_to_obj(src, max_fuel)
-		to_chat(user, "<span class='notice'>You refuel \the [src].</span>")
-		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
-		return
-
 /obj/item/weldingtool/mini
 	name = "miniature welding tool"
 	icon_state = "welder_s"
@@ -511,19 +433,6 @@
 	max_fuel = 0.4 LITERS
 	can_remove = 0
 	var/last_gen = 0
-
-/obj/item/welder_tank/experimental/Initialize()
-	. = ..()
-	set_next_think(world.time)
-
-/obj/item/welder_tank/experimental/think()
-	var/cur_fuel = reagents.get_reagent_amount(/datum/reagent/fuel)
-	if(cur_fuel < max_fuel)
-		var/gen_amount = ((world.time-last_gen) / 2.5)
-		reagents.add_reagent(/datum/reagent/fuel, gen_amount)
-		last_gen = world.time
-
-	set_next_think(world.time + 1 SECOND)
 
 /obj/item/weldingtool/old
 	name = "old welding tool"

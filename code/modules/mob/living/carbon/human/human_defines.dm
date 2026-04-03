@@ -46,11 +46,6 @@
 
 	var/datum/backpack_setup/backpack_setup
 
-	// General information
-	var/home_system = ""
-	var/personal_background = ""
-	var/religion = ""
-
 	//Equipment slots
 	var/obj/item/wear_suit = null
 	var/obj/item/w_uniform = null
@@ -86,8 +81,6 @@
 
 	var/gunshot_residue
 	var/pulling_punches    // Are you trying not to hurt your opponent?
-	var/full_prosthetic    // We are a robutt.
-	var/robolimb_count = 0 // Number of robot limbs.
 	var/last_attack = 0    // The world_time where an unarmed attack was done
 
 	mob_bump_flag = HUMAN
@@ -103,11 +96,6 @@
 	var/equipment_light_protection
 	var/list/equipment_overlays = list()	// Extra overlays from equipped items
 	var/list/limb_render_keys = list()
-
-	var/med_record = ""
-	var/sec_record = ""
-	var/gen_record = ""
-	var/exploit_record = ""
 
 	var/stance_damage = 0 //Whether this mob's ability to stand has been affected
 	var/stance_d_l = 0 // This system should be reworked (using arrays) once we add any non-humanoid species. But it's never gonna happen, so whatever. *shrug

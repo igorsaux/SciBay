@@ -13,7 +13,6 @@
 		/obj/item/clothing/under/rank/scientist,
 		/obj/item/clothing/suit/storage/toggle/labcoat/science,
 		/obj/item/clothing/shoes/white,
-		/obj/item/device/radio/headset/headset_sci,
 		/obj/item/clothing/glasses/hud/standard/science,
 		/obj/item/clothing/mask/gas,
 		/obj/item/clipboard
@@ -34,7 +33,6 @@
 		/obj/item/clothing/under/rank/scientist,
 		/obj/item/clothing/suit/storage/toggle/labcoat/science,
 		/obj/item/clothing/shoes/white,
-		/obj/item/device/radio/headset/headset_sci,
 		/obj/item/clothing/glasses/hud/standard/science,
 		/obj/item/clothing/mask/gas,
 		/obj/item/clothing/gloves/latex,
@@ -55,12 +53,8 @@
 		/obj/item/storage/garment/research_director,
 		/obj/item/clothing/suit/bio_suit/scientist,
 		/obj/item/clothing/head/bio_hood/scientist,
-		/obj/item/device/radio/headset/heads/rd,
-		/obj/item/cartridge/rd,
 		/obj/item/device/flash,
 		/obj/item/clipboard,
-		/obj/item/melee/telebaton,
-		/obj/item/paper/monitorkey
 	)
 
 /obj/structure/closet/secure_closet/animal
@@ -69,11 +63,5 @@
 
 /obj/structure/closet/secure_closet/animal/WillContain()
 	return list(
-		/obj/item/device/assembly/signaler,
-		/obj/item/device/radio/electropack = 3,
-		/obj/item/gun/launcher/syringe/rapid,
-		/obj/item/storage/box/syringegun,
 		/obj/item/storage/box/syringes,
-		/obj/item/reagent_containers/vessel/bottle/chemical/small/chloralhydrate,
-		/obj/item/reagent_containers/vessel/bottle/chemical/stoxin
 	)
