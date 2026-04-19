@@ -1,25 +1,25 @@
-/obj/machinery/computer/area_lease
+/obj/console/area_lease
 	name = "lease terminal"
 	desc = "A localized interface for signing short-term spatial lease agreements."
-	icon = 'icons/obj/computer.dmi'
 	icon_state = "tiny"
-	icon_keyboard = "tiny_keyboard"
-	icon_screen = "lift"
+	screen_state = "tiny_lift"
 	density = 0
 	turf_height_offset = 0
 	req_access = list(access_captain)
 
-/obj/machinery/computer/area_lease/attack_hand(user as mob)
-	if(..(user))
+/obj/console/area_lease/attack_hand(user as mob)
+	. = ..(user)
+
+	if(.)
 		return
 
 	if(!allowed(user))
 		to_chat(user, SPAN_WARNING("Access Denied."))
-		return 1
+		return TRUE
 
 	ui_interact(user)
 
-/obj/machinery/computer/area_lease/proc/get_ui_data()
+/obj/console/area_lease/proc/get_ui_data()
 	var/list/data = list()
 	
 	// Get the area where the console is currently located
@@ -44,7 +44,10 @@
 
 	return data
 
-/obj/machinery/computer/area_lease/OnTopic(user, href_list)
+/obj/console/area_lease/OnTopic(mob/user, href_list)
+	if(!user.Adjacent(src) || !allowed(user))
+		return TOPIC_NOACTION
+
 	if(href_list["purchase"])
 		var/area/private_space/current_area = get_area(src)
 		
@@ -72,7 +75,7 @@
 
 	return TOPIC_NOACTION
 
-/obj/machinery/computer/area_lease/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
+/obj/console/area_lease/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	var/list/data = get_ui_data()
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
