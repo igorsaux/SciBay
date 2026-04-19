@@ -413,6 +413,7 @@
 #include "code\datums\repositories\crew\vital.dm"
 #include "code\datums\repositories\crew\~defines.dm"
 #include "code\datums\supplypacks\consumables.dm"
+#include "code\datums\supplypacks\furniture.dm"
 #include "code\datums\supplypacks\reagents.dm"
 #include "code\datums\supplypacks\supplypack.dm"
 #include "code\datums\supplypacks\tools.dm"
