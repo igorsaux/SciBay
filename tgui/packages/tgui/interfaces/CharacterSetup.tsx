@@ -31,16 +31,6 @@ import {
 } from "../components";
 import { Window } from "../layouts";
 import { CharacterRenderConfig, getCompositor } from "../spriteCompositor";
-// Stamp images for ID card
-import stampCap from "../assets/stamps/stamp-cap.png";
-import stampCargo from "../assets/stamps/stamp-cargo.png";
-import stampCe from "../assets/stamps/stamp-ce.png";
-import stampCent from "../assets/stamps/stamp-cent.png";
-import stampCmo from "../assets/stamps/stamp-cmo.png";
-import stampHop from "../assets/stamps/stamp-hop.png";
-import stampHos from "../assets/stamps/stamp-hos.png";
-import stampOk from "../assets/stamps/stamp-ok.png";
-import stampRd from "../assets/stamps/stamp-rd.png";
 
 // UI theme preview images
 import uiPreviewBg from "../assets/settings/preview.png";
@@ -156,24 +146,6 @@ const UI_THEME_IMAGE: Record<string, string> = {
   White: uiWhite,
   "Old-noborder": uiOldNoborder,
   Minimalist: uiMinimalist,
-};
-
-// Map departments → department head stamp (always use the head's stamp)
-const DEPT_STAMP: Record<string, string> = {
-  Command: stampCap,
-  Security: stampHos,
-  Medical: stampCmo,
-  Engineering: stampCe,
-  Science: stampRd,
-  Cargo: stampCargo,
-  Civilian: stampHop,
-  Provisioning: stampHop,
-  Supply: stampCargo,
-};
-
-const getStampForJob = (job: JobInfo | null): string => {
-  if (!job) return stampCent;
-  return DEPT_STAMP[job.department] || stampOk;
 };
 
 interface SpeciesInfo {
@@ -297,37 +269,6 @@ interface SelectedGearDetail {
   equipped: boolean;
 }
 
-// Augmentation types
-interface RobolimbBrand {
-  company: string;
-  desc: string;
-  icon: string;
-  species_cannot_use: string[];
-  restricted_to: string[];
-  applies_to_part: string[];
-}
-
-interface OrganModuleDef {
-  path: string;
-  name: string;
-  desc: string;
-  allowed_organs: string[];
-  module_type: number;
-  module_flags: number;
-  augment_cost: number;
-  loadout_cost: number;
-  cpu_power: number;
-  cpu_load: number;
-  w_class: number;
-  allowed_roles: string[];
-}
-
-interface BodyPartDef {
-  tag: string;
-  name: string;
-  type: string;
-}
-
 // Career types
 interface JobInfo {
   title: string;
@@ -353,21 +294,10 @@ interface TraitDef {
   mutually_exclusive: string[];
 }
 
-interface AntagRole {
-  id: string;
-  name: string;
-  status: string;
-}
-
 interface GhostRole {
   id: string;
   name: string;
   status: string;
-}
-
-interface UplinkSourceDef {
-  name: string;
-  desc: string;
 }
 
 // Slot preview data — raw appearance fields for client-side rendering
@@ -445,19 +375,13 @@ interface CharacterData {
   // Loadout static
   loadout_categories: GearCategory[];
   loadout_slot_types: LoadoutSlotType[];
-  // Augmentation static
-  robolimb_brands: RobolimbBrand[];
-  organ_modules_available: OrganModuleDef[];
-  body_parts: BodyPartDef[];
   // Career static
   job_list: JobInfo[];
   fallback_options: FallbackOption[];
   // Personality static
   trait_list: TraitDef[];
   trait_categories: string[];
-  antag_roles: AntagRole[];
   ghost_roles: GhostRole[];
-  uplink_sources_available: UplinkSourceDef[];
   // Background static
   company_alignments: string[];
   company_name: string;
@@ -556,17 +480,6 @@ interface CharacterData {
   be_special_role: string[];
   may_be_special_role: string[];
   uplink_source_order: string[];
-  // Background dynamic
-  nanotrasen_relation: string;
-  home_system: string;
-  background: string;
-  religion: string;
-  bank_security: number;
-  bank_pin: number;
-  med_record: string;
-  gen_record: string;
-  sec_record: string;
-  exploit_record: string;
   memory: string;
   flavor_texts: Record<string, string>;
   flavour_texts_robot: Record<string, string>;
@@ -851,7 +764,6 @@ const CsButton = (props: {
 const CATEGORIES = [
   { id: "identity", label: "Identity", icon: "user" },
   { id: "wardrobe", label: "Loadout", icon: "tshirt" },
-  { id: "augmentations", label: "Augments", icon: "cog" },
   { id: "career", label: "Job", icon: "briefcase" },
   { id: "personality", label: "Persona", icon: "theater-masks" },
   { id: "background", label: "Lore", icon: "book" },
@@ -1548,8 +1460,6 @@ const CategoryPanel = (props: {
       return <IdentityPanel data={data} act={act} context={context} />;
     case "wardrobe":
       return <WardrobePanel data={data} act={act} context={context} />;
-    case "augmentations":
-      return <AugmentationPanel data={data} act={act} context={context} />;
     case "career":
       return <CareerPanel data={data} act={act} context={context} />;
     case "personality":
@@ -1618,19 +1528,19 @@ const IdentityPanel = (props: {
             style={{ color: "#fff" }}
           >
             <Icon name="atom" mr={0.75} />
-            NANOTRASEN CORPORATION
+            PASSENGER ID CARD
           </Box>
           <Box
             className="CharSetup__idCardStripeRight"
             style={{ color: "rgba(255,255,255,0.7)" }}
           >
-            NT-{cardNum}
+            ID-{cardNum}
           </Box>
         </Box>
 
         {/* Main card body */}
         <Box className="CharSetup__idCardBody">
-          {/* Left column: headshot + stamp */}
+          {/* Left column: headshot */}
           <Box className="CharSetup__idCardLeft">
             {/* Headshot photo */}
             <Box className="CharSetup__idCardPhoto">
@@ -1818,23 +1728,13 @@ const IdentityPanel = (props: {
           </Box>
         </Box>
 
-        {/* Stamp overlay — positioned absolutely over the card */}
-        <Box className="CharSetup__idCardStamp">
-          <img
-            src={getStampForJob(highJob)}
-            className="CharSetup__idCardStampImg"
-            alt="stamp"
-          />
-        </Box>
-
         {/* Bottom edge — card number + role */}
         <Box
           className="CharSetup__idCardFooter"
           style={{ borderTopColor: `${cardColor}14` }}
         >
           <Box>
-            ID: NT-{cardNum}-
-            {data.species?.substring(0, 3).toUpperCase() || "UNK"}
+            ID: {cardNum}-{data.species?.substring(0, 3).toUpperCase() || "UNK"}
           </Box>
           <Box style={{ color: `${cardColor}55` }}>
             {cardDept
@@ -2146,7 +2046,7 @@ const AppearanceCardBack = (props: {
 
         {/* Signature strip */}
         <Box className="CharSetup__idCardSignature">
-          <Box>NT-{cardNum}</Box>
+          <Box>ID-{cardNum}</Box>
           <Box>AUTHORIZED PERSONNEL ONLY</Box>
         </Box>
       </Box>
@@ -3508,621 +3408,6 @@ const LoadoutTweakControl = (props: { tweak: GearTweakDef; act: Function }) => {
 };
 
 // ================================================================
-// Augmentation Panel — Cyberpunk organ/module interface
-// ================================================================
-
-// FontAwesome icons for body parts
-const ORGAN_ICONS: Record<string, string> = {
-  head: "skull",
-  chest: "vest",
-  groin: "shield-halved",
-  l_arm: "hand-point-left",
-  r_arm: "hand-point-right",
-  l_hand: "hand",
-  r_hand: "hand",
-  l_leg: "shoe-prints",
-  r_leg: "shoe-prints",
-  l_foot: "socks",
-  r_foot: "socks",
-  heart: "heart-pulse",
-  eyes: "eye",
-  tongue: "language",
-  lungs: "lungs",
-  liver: "flask",
-  kidneys: "filter",
-  brain: "brain",
-  stomach: "utensils",
-  intestines: "dna",
-  bladder: "droplet",
-};
-
-// Status label/color helpers
-const getOrganStatusLabel = (
-  status: string | null,
-  tag: string,
-  isExternal: boolean,
-  brand: string | null,
-): { label: string; color: string; icon: string } => {
-  if (!status) return { label: "ORGANIC", color: "#6ec87a", icon: "leaf" };
-  if (status === "cyborg")
-    return {
-      label: brand || "PROSTHETIC",
-      color: "#4dc9f6",
-      icon: "microchip",
-    };
-  if (status === "amputated")
-    return { label: "AMPUTATED", color: "#f44336", icon: "times-circle" };
-  if (status === "mechanical") {
-    if (tag === "brain")
-      return { label: "POSITRONIC", color: "#4dc9f6", icon: "microchip" };
-    return { label: "SYNTHETIC", color: "#4dc9f6", icon: "microchip" };
-  }
-  if (status === "assisted") {
-    if (tag === "heart")
-      return { label: "PACEMAKER", color: "#26c6da", icon: "bolt" };
-    if (tag === "eyes")
-      return { label: "RETINAL OVERLAY", color: "#26c6da", icon: "bolt" };
-    if (tag === "brain")
-      return { label: "MACHINE-INTERFACE", color: "#26c6da", icon: "bolt" };
-    return { label: "ASSISTED", color: "#26c6da", icon: "bolt" };
-  }
-  return { label: "UNKNOWN", color: "#888", icon: "question" };
-};
-
-// Module flag/type constants
-const OM_FLAG_BIOLOGICAL = 4;
-const OM_FLAG_MECHANICAL = 8;
-const OM_TYPE_PROCESSOR = 1;
-const OM_TYPE_ACTUATOR = 2;
-
-const AugmentationPanel = (props: {
-  data: CharacterData;
-  act: Function;
-  context: any;
-}) => {
-  const { data, act, context } = props;
-  const speciesInfo = getSpeciesInfo(data.species_list, data.species);
-  const selectedOrgan = data.selected_organ || "chest";
-  const organData = data.organ_data || {};
-  const rlimbData = data.rlimb_data || {};
-  const installedModules = data.installed_modules || {};
-
-  const externalParts = (data.body_parts || []).filter(
-    (bp) => bp.type === "external",
-  );
-  const internalParts = (data.body_parts || []).filter(
-    (bp) => bp.type === "internal",
-  );
-
-  const selectedPart = (data.body_parts || []).find(
-    (bp) => bp.tag === selectedOrgan,
-  );
-  const isExternal = selectedPart?.type === "external";
-  const organStatus = organData[selectedOrgan] || null;
-  const organBrand = rlimbData[selectedOrgan] || null;
-  const organModules = installedModules[selectedOrgan] || [];
-
-  const validBrands = (data.robolimb_brands || []).filter((brand) => {
-    if (
-      brand.species_cannot_use &&
-      brand.species_cannot_use.includes(data.species)
-    )
-      return false;
-    if (brand.restricted_to && brand.restricted_to.length > 0)
-      if (!brand.restricted_to.includes(data.species)) return false;
-    if (brand.applies_to_part && brand.applies_to_part.length > 0)
-      if (!brand.applies_to_part.includes(selectedOrgan)) return false;
-    return true;
-  });
-
-  const isCyborg = organStatus === "cyborg";
-  const isMechanical = organStatus === "mechanical";
-  const isRobotic = isCyborg || isMechanical;
-
-  const highPriorityJob = data.job_high || null;
-
-  // CPU/processor modules are shown under "brain" in the UI but stored under
-  // "head" in the data (game code requires BP_HEAD for processors).
-  const isProcessor = (mod: any) => mod.module_type === OM_TYPE_PROCESSOR;
-  const headModules = installedModules["head"] || [];
-
-  const validModules = (data.organ_modules_available || []).filter((mod) => {
-    if (!mod.allowed_organs || mod.allowed_organs.length === 0) return false;
-    // Processors: show under brain, not head
-    if (isProcessor(mod)) {
-      return selectedOrgan === "brain";
-    }
-    if (!mod.allowed_organs.includes(selectedOrgan)) return false;
-    if (isRobotic) {
-      if (!(mod.module_flags & OM_FLAG_MECHANICAL)) return false;
-    } else {
-      if (!(mod.module_flags & OM_FLAG_BIOLOGICAL)) return false;
-    }
-    if (mod.module_type === OM_TYPE_ACTUATOR) {
-      if (
-        selectedOrgan === "head" ||
-        isCyborg ||
-        !["l_arm", "r_arm", "l_hand", "r_hand"].includes(selectedOrgan)
-      )
-        return false;
-    }
-    if (selectedOrgan === "eyes" && organStatus !== "mechanical") return false;
-    if (mod.allowed_roles && mod.allowed_roles.length > 0) {
-      if (!highPriorityJob || !mod.allowed_roles.includes(highPriorityJob)) {
-        if (!organModules.includes(mod.path)) return false;
-      }
-    }
-    return true;
-  });
-
-  // Aug point ratio for progress bar
-  const augRatio =
-    data.max_aug_points > 0
-      ? Math.min(data.total_aug_points / data.max_aug_points, 1)
-      : 0;
-  const augOverBudget = data.total_aug_points > data.max_aug_points;
-
-  // Status info for selected organ
-  const statusInfo = getOrganStatusLabel(
-    organStatus,
-    selectedOrgan,
-    !!isExternal,
-    organBrand,
-  );
-
-  // Count installed modules across all organs
-  const totalInstalledModules = Object.values(installedModules).reduce(
-    (sum: number, mods: any) => sum + (Array.isArray(mods) ? mods.length : 0),
-    0,
-  );
-
-  return (
-    <Box className="CharSetup__augPanel">
-      {/* === TOP HUD BAR === */}
-      <Box className="CharSetup__augHud">
-        {/* Aug points bar */}
-        <Box className="CharSetup__augHudRow">
-          <Box className="CharSetup__augHudLabel">
-            <Icon name="bolt" mr={0.5} />
-            AUG POINTS
-          </Box>
-          <Box className="CharSetup__augBarWrap">
-            <Box
-              className={
-                "CharSetup__augBarFill" +
-                (augOverBudget ? " CharSetup__augBarFill--over" : "")
-              }
-              style={{ width: `${augRatio * 100}%` }}
-            />
-            <Box className="CharSetup__augBarText">
-              {data.total_aug_points} / {data.max_aug_points}
-            </Box>
-          </Box>
-        </Box>
-        {/* Stats row */}
-        <Stack className="CharSetup__augHudStats">
-          <Stack.Item grow>
-            <Icon name="microchip" mr={0.5} />
-            {totalInstalledModules} MODULE
-            {totalInstalledModules !== 1 ? "S" : ""} ACTIVE
-          </Stack.Item>
-          {!!data.config.use_cortical_stacks && (
-            <Stack.Item>
-              <Box
-                as="span"
-                className="CharSetup__augLaceChip"
-                onClick={() => {
-                  if (!speciesInfo?.no_lace) act("toggleCorticalStack");
-                }}
-              >
-                <Icon
-                  name={data.has_cortical_stack ? "link" : "unlink"}
-                  mr={0.5}
-                />
-                NEURAL LACE:{" "}
-                {speciesInfo?.no_lace
-                  ? "N/A"
-                  : data.has_cortical_stack
-                    ? "ONLINE"
-                    : "OFFLINE"}
-              </Box>
-            </Stack.Item>
-          )}
-        </Stack>
-      </Box>
-
-      {/* === MAIN CONTENT: LEFT selector + RIGHT detail === */}
-      <Stack fill className="CharSetup__augBody">
-        {/* LEFT — Organ selector */}
-        <Stack.Item className="CharSetup__augSelector">
-          {/* External */}
-          <Box className="CharSetup__augGroupHeader">
-            <Icon name="user" mr={0.5} />
-            EXTERNAL
-          </Box>
-          {externalParts.map((bp) => {
-            const status = organData[bp.tag];
-            const info = getOrganStatusLabel(
-              status,
-              bp.tag,
-              true,
-              rlimbData[bp.tag],
-            );
-            const isSelected = selectedOrgan === bp.tag;
-            // Head: subtract CPU modules (they show under Brain)
-            const headCpuCount =
-              bp.tag === "head"
-                ? (installedModules["head"] || []).filter((p) =>
-                    (data.organ_modules_available || []).some(
-                      (m) =>
-                        m.path === p && m.module_type === OM_TYPE_PROCESSOR,
-                    ),
-                  ).length
-                : 0;
-            const modCount =
-              (installedModules[bp.tag] || []).length - headCpuCount;
-            return (
-              <Box
-                key={bp.tag}
-                className={
-                  "CharSetup__augOrganBtn" +
-                  (isSelected ? " CharSetup__augOrganBtn--selected" : "")
-                }
-                onClick={() => act("selectOrgan", { organ: bp.tag })}
-              >
-                <Icon
-                  name={ORGAN_ICONS[bp.tag] || "circle"}
-                  className="CharSetup__augOrganIcon"
-                  style={{ color: info.color }}
-                />
-                <Box className="CharSetup__augOrganInfo">
-                  <Box className="CharSetup__augOrganName">{bp.name}</Box>
-                  <Box
-                    className="CharSetup__augOrganStatus"
-                    style={{ color: info.color }}
-                  >
-                    {info.label}
-                  </Box>
-                </Box>
-                {modCount > 0 && (
-                  <Box className="CharSetup__augModBadge">{modCount}</Box>
-                )}
-              </Box>
-            );
-          })}
-
-          {/* Internal */}
-          <Box className="CharSetup__augGroupHeader" mt={0.5}>
-            <Icon name="heart-pulse" mr={0.5} />
-            INTERNAL
-          </Box>
-          {internalParts.map((bp) => {
-            const status = organData[bp.tag];
-            const info = getOrganStatusLabel(status, bp.tag, false, null);
-            const isSelected = selectedOrgan === bp.tag;
-            // Brain shows CPU modules stored under head
-            const brainCpuCount =
-              bp.tag === "brain"
-                ? (installedModules["head"] || []).filter((p) =>
-                    (data.organ_modules_available || []).some(
-                      (m) =>
-                        m.path === p && m.module_type === OM_TYPE_PROCESSOR,
-                    ),
-                  ).length
-                : 0;
-            const modCount =
-              (installedModules[bp.tag] || []).length + brainCpuCount;
-            return (
-              <Box
-                key={bp.tag}
-                className={
-                  "CharSetup__augOrganBtn" +
-                  (isSelected ? " CharSetup__augOrganBtn--selected" : "")
-                }
-                onClick={() => act("selectOrgan", { organ: bp.tag })}
-              >
-                <Icon
-                  name={ORGAN_ICONS[bp.tag] || "circle"}
-                  className="CharSetup__augOrganIcon"
-                  style={{ color: info.color }}
-                />
-                <Box className="CharSetup__augOrganInfo">
-                  <Box className="CharSetup__augOrganName">{bp.name}</Box>
-                  <Box
-                    className="CharSetup__augOrganStatus"
-                    style={{ color: info.color }}
-                  >
-                    {info.label}
-                  </Box>
-                </Box>
-                {modCount > 0 && (
-                  <Box className="CharSetup__augModBadge">{modCount}</Box>
-                )}
-              </Box>
-            );
-          })}
-        </Stack.Item>
-
-        {/* RIGHT — Detail panel */}
-        <Stack.Item grow className="CharSetup__augDetail">
-          {selectedPart && (
-            <Box>
-              {/* Organ header */}
-              <Box className="CharSetup__augDetailHeader">
-                <Icon
-                  name={ORGAN_ICONS[selectedOrgan] || "circle"}
-                  className="CharSetup__augDetailIcon"
-                  style={{ color: statusInfo.color }}
-                />
-                <Box>
-                  <Box className="CharSetup__augDetailTitle">
-                    {selectedPart.name}
-                  </Box>
-                  <Box
-                    className="CharSetup__augDetailStatus"
-                    style={{ color: statusInfo.color }}
-                  >
-                    <Icon name={statusInfo.icon} mr={0.5} />
-                    {statusInfo.label}
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* Status controls */}
-              <Box className="CharSetup__augSection">
-                <Box className="CharSetup__augSectionLabel">
-                  <Icon name="sliders-h" mr={0.5} />
-                  CONFIGURATION
-                </Box>
-                <Stack wrap>
-                  {isExternal ? (
-                    <>
-                      <Stack.Item>
-                        <Box
-                          className={
-                            "CharSetup__augChip" +
-                            (!organStatus ? " CharSetup__augChip--active" : "")
-                          }
-                          onClick={() =>
-                            act("setOrganStatus", {
-                              organ: selectedOrgan,
-                              action: "nothing",
-                            })
-                          }
-                        >
-                          <Icon name="leaf" mr={0.5} />
-                          Organic
-                        </Box>
-                      </Stack.Item>
-                      {selectedOrgan !== "chest" &&
-                        selectedOrgan !== "head" &&
-                        selectedOrgan !== "groin" && (
-                          <Stack.Item>
-                            <Box
-                              className={
-                                "CharSetup__augChip" +
-                                (organStatus === "amputated"
-                                  ? " CharSetup__augChip--danger"
-                                  : "")
-                              }
-                              onClick={() =>
-                                act("setOrganStatus", {
-                                  organ: selectedOrgan,
-                                  action: "amputated",
-                                })
-                              }
-                            >
-                              <Icon name="times-circle" mr={0.5} />
-                              Amputated
-                            </Box>
-                          </Stack.Item>
-                        )}
-                    </>
-                  ) : (
-                    <>
-                      <Stack.Item>
-                        <Box
-                          className={
-                            "CharSetup__augChip" +
-                            (!organStatus ? " CharSetup__augChip--active" : "")
-                          }
-                          onClick={() =>
-                            act("setOrganStatus", {
-                              organ: selectedOrgan,
-                              action: "nothing",
-                            })
-                          }
-                        >
-                          <Icon name="leaf" mr={0.5} />
-                          Organic
-                        </Box>
-                      </Stack.Item>
-                      <Stack.Item>
-                        <Box
-                          className={
-                            "CharSetup__augChip" +
-                            (organStatus === "assisted"
-                              ? " CharSetup__augChip--teal"
-                              : "")
-                          }
-                          onClick={() =>
-                            act("setOrganStatus", {
-                              organ: selectedOrgan,
-                              action: "assisted",
-                            })
-                          }
-                        >
-                          <Icon name="bolt" mr={0.5} />
-                          Assisted
-                        </Box>
-                      </Stack.Item>
-                      <Stack.Item>
-                        <Box
-                          className={
-                            "CharSetup__augChip" +
-                            (organStatus === "mechanical"
-                              ? " CharSetup__augChip--cyber"
-                              : "")
-                          }
-                          onClick={() =>
-                            act("setOrganStatus", {
-                              organ: selectedOrgan,
-                              action: "mechanical",
-                            })
-                          }
-                        >
-                          <Icon name="microchip" mr={0.5} />
-                          Synthetic
-                        </Box>
-                      </Stack.Item>
-                    </>
-                  )}
-                </Stack>
-              </Box>
-
-              {/* Prosthetic brands */}
-              {isExternal && validBrands.length > 0 && (
-                <Box className="CharSetup__augSection">
-                  <Box className="CharSetup__augSectionLabel">
-                    <Icon name="industry" mr={0.5} />
-                    PROSTHETIC MANUFACTURER
-                  </Box>
-                  <Box className="CharSetup__augBrandGrid">
-                    {validBrands.map((brand) => (
-                      <Box
-                        key={brand.company}
-                        className={
-                          "CharSetup__augBrandCard" +
-                          (organBrand === brand.company
-                            ? " CharSetup__augBrandCard--selected"
-                            : "")
-                        }
-                        onClick={() =>
-                          act("setOrganStatus", {
-                            organ: selectedOrgan,
-                            action: brand.company,
-                          })
-                        }
-                      >
-                        <Box className="CharSetup__augBrandName">
-                          {brand.company}
-                        </Box>
-                        <Box className="CharSetup__augBrandDesc">
-                          {brand.desc}
-                        </Box>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )}
-
-              {/* Modules */}
-              {validModules.length > 0 && (
-                <Box className="CharSetup__augSection">
-                  <Box className="CharSetup__augSectionLabel">
-                    <Icon name="puzzle-piece" mr={0.5} />
-                    AVAILABLE IMPLANTS
-                  </Box>
-                  {validModules.map((mod) => {
-                    const modIsProcessor = isProcessor(mod);
-                    // Processors are displayed under brain but stored under head
-                    const isInstalled = modIsProcessor
-                      ? headModules.includes(mod.path)
-                      : organModules.includes(mod.path);
-                    const costText =
-                      mod.loadout_cost > 0
-                        ? `${mod.loadout_cost} LP`
-                        : mod.augment_cost > 0
-                          ? `${mod.augment_cost} AP`
-                          : "FREE";
-                    const isActuator = mod.module_type === OM_TYPE_ACTUATOR;
-                    const typeLabel = modIsProcessor
-                      ? "CPU"
-                      : isActuator
-                        ? "ACTUATOR"
-                        : null;
-                    return (
-                      <Box
-                        key={mod.path}
-                        className={
-                          "CharSetup__augModCard" +
-                          (isInstalled
-                            ? " CharSetup__augModCard--installed"
-                            : "")
-                        }
-                        onClick={() =>
-                          act("toggleOrganModule", {
-                            organ: modIsProcessor ? "head" : selectedOrgan,
-                            module: mod.path,
-                          })
-                        }
-                      >
-                        <Stack align="center">
-                          <Stack.Item>
-                            <Box
-                              className={
-                                "CharSetup__augModToggle" +
-                                (isInstalled
-                                  ? " CharSetup__augModToggle--on"
-                                  : "")
-                              }
-                            >
-                              <Icon
-                                name={isInstalled ? "check-circle" : "circle"}
-                              />
-                            </Box>
-                          </Stack.Item>
-                          <Stack.Item grow>
-                            <Box className="CharSetup__augModName">
-                              {mod.name}
-                              {typeLabel && (
-                                <Box
-                                  as="span"
-                                  className="CharSetup__augModType"
-                                >
-                                  {typeLabel}
-                                </Box>
-                              )}
-                            </Box>
-                            <Box className="CharSetup__augModDesc">
-                              {mod.desc}
-                            </Box>
-                            {mod.allowed_roles &&
-                              mod.allowed_roles.length > 0 && (
-                                <Box className="CharSetup__augModRoles">
-                                  <Icon name="id-badge" mr={0.5} />
-                                  {mod.allowed_roles.join(", ")}
-                                </Box>
-                              )}
-                          </Stack.Item>
-                          <Stack.Item>
-                            <Box className="CharSetup__augModCost">
-                              {costText}
-                            </Box>
-                            {(mod.cpu_power > 0 || mod.cpu_load > 0) && (
-                              <Box className="CharSetup__augModCpu">
-                                <Icon name="microchip" mr={0.25} />
-                                {mod.cpu_power > 0
-                                  ? `+${mod.cpu_power}`
-                                  : `-${mod.cpu_load}`}
-                              </Box>
-                            )}
-                          </Stack.Item>
-                        </Stack>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
-          )}
-        </Stack.Item>
-      </Stack>
-    </Box>
-  );
-};
-
-// ================================================================
 // Career Panel — Job priorities, alt titles, fallback
 // ================================================================
 
@@ -4374,7 +3659,7 @@ const PersonalityPanel = (props: {
   const [personalityTab, setPersonalityTab] = useLocalState(
     context,
     "personalityTab",
-    "traits" as "traits" | "antag",
+    "traits" as "traits",
   );
 
   const tabDefs = [
@@ -4383,12 +3668,6 @@ const PersonalityPanel = (props: {
       label: "MEDICAL RECORD",
       icon: "file-medical",
       color: "#81c784",
-    },
-    {
-      id: "antag" as const,
-      label: "SECURITY DOSSIER",
-      icon: "shield-alt",
-      color: "#e57373",
     },
   ];
 
@@ -4420,12 +3699,6 @@ const PersonalityPanel = (props: {
       <Box className="CharSetup__medBody">
         {personalityTab === "traits" && (
           <TraitsSubPanel data={data} act={act} context={context} />
-        )}
-        {personalityTab === "antag" && (
-          <>
-            <AntagSubPanel data={data} act={act} />
-            <UplinkSubPanel data={data} act={act} />
-          </>
         )}
       </Box>
     </Box>
@@ -4465,7 +3738,7 @@ const TraitsSubPanel = (props: {
               PERSONNEL MEDICAL ASSESSMENT
             </Box>
             <Box className="CharSetup__medDocSub">
-              NANOTRASEN MEDICAL DIVISION // CREW HEALTH EVALUATION
+              PASSENGER HEALTH EVALUATION
             </Box>
           </Stack.Item>
           <Stack.Item>
@@ -4632,342 +3905,6 @@ const TraitsSubPanel = (props: {
   );
 };
 
-// --- Antagonist roles sub-panel — Security Dossier ---
-
-const ANTAG_PRIORITY_LABELS = {
-  high: { label: "HIGH", color: "#e57373", icon: "arrow-up" },
-  low: { label: "LOW", color: "#ffb74d", icon: "minus" },
-  never: { label: "NEVER", color: "#666", icon: "arrow-down" },
-};
-
-const AntagSubPanel = (props: { data: CharacterData; act: Function }) => {
-  const { data, act } = props;
-  const antagRoles = data.antag_roles || [];
-  const ghostRoles = data.ghost_roles || [];
-  const beSpecial = data.be_special_role || [];
-  const mayBeSpecial = data.may_be_special_role || [];
-
-  return (
-    <>
-      {/* Dossier header */}
-      <Box className="CharSetup__medDocHeader CharSetup__medDocHeader--red">
-        <Stack align="center">
-          <Stack.Item>
-            <Icon name="user-secret" className="CharSetup__medDocIcon" />
-          </Stack.Item>
-          <Stack.Item grow>
-            <Box className="CharSetup__medDocTitle">
-              THREAT ASSESSMENT PROFILE
-            </Box>
-            <Box className="CharSetup__medDocSub">
-              NANOTRASEN INTERNAL SECURITY // CLASSIFIED
-            </Box>
-          </Stack.Item>
-          <Stack.Item>
-            <Stack>
-              <Stack.Item>
-                <Box
-                  className="CharSetup__medBulkBtn"
-                  onClick={() =>
-                    act("setAllAntagPriority", { priority: "high" })
-                  }
-                >
-                  ALL HIGH
-                </Box>
-              </Stack.Item>
-              <Stack.Item>
-                <Box
-                  className="CharSetup__medBulkBtn"
-                  onClick={() =>
-                    act("setAllAntagPriority", { priority: "low" })
-                  }
-                >
-                  ALL LOW
-                </Box>
-              </Stack.Item>
-              <Stack.Item>
-                <Box
-                  className="CharSetup__medBulkBtn"
-                  onClick={() =>
-                    act("setAllAntagPriority", { priority: "never" })
-                  }
-                >
-                  ALL NEVER
-                </Box>
-              </Stack.Item>
-            </Stack>
-          </Stack.Item>
-        </Stack>
-      </Box>
-
-      {/* Antagonist roles */}
-      <Box className="CharSetup__medSection">
-        <Box className="CharSetup__medSectionHead CharSetup__medSectionHead--red">
-          <Icon name="skull-crossbones" mr={0.5} />
-          ANTAGONIST THREAT LEVELS
-        </Box>
-        {antagRoles.map((role) => {
-          const isHigh = beSpecial.includes(role.id);
-          const isLow = mayBeSpecial.includes(role.id);
-          const isBanned = role.status !== "available";
-          const priority = isHigh ? "high" : isLow ? "low" : "never";
-
-          return (
-            <Box
-              key={role.id}
-              className={
-                "CharSetup__medAntagRow" +
-                (isHigh ? " CharSetup__medAntagRow--high" : "") +
-                (isLow ? " CharSetup__medAntagRow--low" : "")
-              }
-            >
-              <Stack align="center">
-                <Stack.Item grow>
-                  <Box className="CharSetup__medAntagName">{role.name}</Box>
-                </Stack.Item>
-                <Stack.Item>
-                  {isBanned ? (
-                    <Box className="CharSetup__medAntagBanned">
-                      <Icon name="lock" mr={0.5} />
-                      {role.status === "whitelist" ? "RESTRICTED" : "REVOKED"}
-                    </Box>
-                  ) : (
-                    <Stack>
-                      {(["high", "low", "never"] as const).map((p) => {
-                        const info = ANTAG_PRIORITY_LABELS[p];
-                        const isSelected = priority === p;
-                        return (
-                          <Stack.Item key={p}>
-                            <Box
-                              className={
-                                "CharSetup__medAntagPrio" +
-                                (isSelected
-                                  ? " CharSetup__medAntagPrio--active"
-                                  : "")
-                              }
-                              style={
-                                isSelected
-                                  ? {
-                                      color: info.color,
-                                      borderColor: info.color,
-                                    }
-                                  : undefined
-                              }
-                              onClick={() =>
-                                act("setAntagPriority", {
-                                  role: role.id,
-                                  priority: p,
-                                })
-                              }
-                            >
-                              <Icon name={info.icon} mr={0.25} />
-                              {info.label}
-                            </Box>
-                          </Stack.Item>
-                        );
-                      })}
-                    </Stack>
-                  )}
-                </Stack.Item>
-              </Stack>
-            </Box>
-          );
-        })}
-      </Box>
-
-      {/* Ghost roles */}
-      {ghostRoles.length > 0 && (
-        <Box className="CharSetup__medSection">
-          <Box className="CharSetup__medSectionHead CharSetup__medSectionHead--red">
-            <Icon name="ghost" mr={0.5} />
-            OBSERVER ROLE CLEARANCE
-          </Box>
-          {ghostRoles.map((role) => {
-            const isActive =
-              beSpecial.includes(role.id) || mayBeSpecial.includes(role.id);
-            const isBanned = role.status !== "available";
-
-            return (
-              <Box
-                key={role.id}
-                className={
-                  "CharSetup__medAntagRow" +
-                  (isActive ? " CharSetup__medAntagRow--high" : "")
-                }
-              >
-                <Stack align="center">
-                  <Stack.Item grow>
-                    <Box className="CharSetup__medAntagName">{role.name}</Box>
-                  </Stack.Item>
-                  <Stack.Item>
-                    {isBanned ? (
-                      <Box className="CharSetup__medAntagBanned">
-                        <Icon name="lock" mr={0.5} />
-                        REVOKED
-                      </Box>
-                    ) : (
-                      <Box
-                        className={
-                          "CharSetup__medAntagPrio" +
-                          (isActive ? " CharSetup__medAntagPrio--active" : "")
-                        }
-                        style={
-                          isActive
-                            ? {
-                                color: "#81c784",
-                                borderColor: "#81c784",
-                              }
-                            : undefined
-                        }
-                        onClick={() =>
-                          act("setAntagPriority", {
-                            role: role.id,
-                            priority: isActive ? "never" : "high",
-                          })
-                        }
-                      >
-                        <Icon name={isActive ? "check" : "times"} mr={0.25} />
-                        {isActive ? "CLEARED" : "DENIED"}
-                      </Box>
-                    )}
-                  </Stack.Item>
-                </Stack>
-              </Box>
-            );
-          })}
-        </Box>
-      )}
-    </>
-  );
-};
-
-// --- Uplink sources sub-panel — Comms Config ---
-
-const UplinkSubPanel = (props: { data: CharacterData; act: Function }) => {
-  const { data, act } = props;
-  const currentOrder = data.uplink_source_order || [];
-  const available = (data.uplink_sources_available || []).filter(
-    (src) => !currentOrder.includes(src.name),
-  );
-
-  return (
-    <>
-      {/* Comms header */}
-      <Box className="CharSetup__medDocHeader CharSetup__medDocHeader--blue">
-        <Stack align="center">
-          <Stack.Item>
-            <Icon name="satellite-dish" className="CharSetup__medDocIcon" />
-          </Stack.Item>
-          <Stack.Item grow>
-            <Box className="CharSetup__medDocTitle">
-              COVERT COMMUNICATIONS ARRAY
-            </Box>
-            <Box className="CharSetup__medDocSub">
-              SYNDICATE NETWORK // PRIORITY ROUTING CONFIG
-            </Box>
-          </Stack.Item>
-        </Stack>
-      </Box>
-
-      <Box className="CharSetup__medSection">
-        <Box className="CharSetup__medSectionHead CharSetup__medSectionHead--blue">
-          <Icon name="sort-amount-down" mr={0.5} />
-          SOURCE PRIORITY ORDER
-        </Box>
-
-        <Box className="CharSetup__medCommsNote">
-          <Icon name="info-circle" mr={0.5} />
-          System attempts each source sequentially. First available connection
-          is established.
-        </Box>
-
-        {currentOrder.map((name, index) => {
-          const srcDef = (data.uplink_sources_available || []).find(
-            (s) => s.name === name,
-          );
-          return (
-            <Box key={name} className="CharSetup__medCommsRow">
-              <Stack align="center">
-                <Stack.Item>
-                  <Box className="CharSetup__medCommsIndex">
-                    {String(index + 1).padStart(2, "0")}
-                  </Box>
-                </Stack.Item>
-                <Stack.Item grow>
-                  <Box className="CharSetup__medCommsName">{name}</Box>
-                  {srcDef?.desc && (
-                    <Box className="CharSetup__medCommsDesc">{srcDef.desc}</Box>
-                  )}
-                </Stack.Item>
-                <Stack.Item>
-                  <Box
-                    className="CharSetup__medCommsBtn"
-                    onClick={() =>
-                      index > 0 &&
-                      act("moveUplinkSource", {
-                        name,
-                        direction: "up",
-                      })
-                    }
-                    style={{ opacity: index === 0 ? 0.3 : 1 }}
-                  >
-                    <Icon name="chevron-up" />
-                  </Box>
-                </Stack.Item>
-                <Stack.Item>
-                  <Box
-                    className="CharSetup__medCommsBtn"
-                    onClick={() =>
-                      index < currentOrder.length - 1 &&
-                      act("moveUplinkSource", {
-                        name,
-                        direction: "down",
-                      })
-                    }
-                    style={{
-                      opacity: index === currentOrder.length - 1 ? 0.3 : 1,
-                    }}
-                  >
-                    <Icon name="chevron-down" />
-                  </Box>
-                </Stack.Item>
-                <Stack.Item>
-                  <Box
-                    className="CharSetup__medCommsBtn CharSetup__medCommsBtn--danger"
-                    onClick={() => act("removeUplinkSource", { name })}
-                  >
-                    <Icon name="times" />
-                  </Box>
-                </Stack.Item>
-              </Stack>
-            </Box>
-          );
-        })}
-
-        {currentOrder.length === 0 && (
-          <Box className="CharSetup__medCommsWarn">
-            <Icon name="exclamation-triangle" mr={0.5} />
-            NO UPLINK SOURCES CONFIGURED. YOU WILL NOT RECEIVE AN UPLINK.
-          </Box>
-        )}
-
-        {available.length > 0 && (
-          <Box mt={0.5}>
-            <Dropdown
-              fluid
-              displayText="+ Add communications source..."
-              options={available.map((s) => s.name)}
-              onSelected={(val: string) =>
-                act("addUplinkSource", { name: val })
-              }
-            />
-          </Box>
-        )}
-      </Box>
-    </>
-  );
-};
-
 // ================================================================
 // Background Panel — Sims-style dynamic layout
 // ================================================================
@@ -5036,38 +3973,10 @@ const BackgroundPanel = (props: {
 // --- Records: expandable card layout ---
 
 const RECORD_DEFS = [
-  {
-    key: "medical",
-    label: "Medical Records",
-    icon: "heartbeat",
-    color: "#ff6b6b",
-  },
-  {
-    key: "general",
-    label: "Employment Records",
-    icon: "briefcase",
-    color: "#4ecdc4",
-  },
-  {
-    key: "security",
-    label: "Security Records",
-    icon: "shield-alt",
-    color: "#ffe66d",
-  },
-  {
-    key: "exploit",
-    label: "Exploitable Info",
-    icon: "user-secret",
-    color: "#c792ea",
-  },
   { key: "memory", label: "Memory", icon: "brain", color: "#82aaff" },
 ];
 
 const RECORD_VALUES: Record<string, (d: CharacterData) => string> = {
-  medical: (d) => d.med_record || "",
-  general: (d) => d.gen_record || "",
-  security: (d) => d.sec_record || "",
-  exploit: (d) => d.exploit_record || "",
   memory: (d) => d.memory || "",
 };
 
