@@ -3,6 +3,7 @@
 
 /decl/hierarchy/supply_pack/reagents/dichloromethane
 	name = "dichloromethane 99.9% (500 ml)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/dichloromethane
 	)
@@ -10,6 +11,7 @@
 
 /decl/hierarchy/supply_pack/reagents/calcium_carbonate
 	name = "calcium carbonate (1 kg)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/calcium_carbonate
 	)
@@ -31,6 +33,7 @@
 
 /decl/hierarchy/supply_pack/reagents/graphite
 	name = "graphite (1 kg)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/graphite
 	)
@@ -38,6 +41,7 @@
 
 /decl/hierarchy/supply_pack/reagents/water
 	name = "distilled water (1 L)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/big/water
 	)
@@ -45,6 +49,7 @@
 
 /decl/hierarchy/supply_pack/reagents/sodium_chloride
 	name = "sodium chloride (1 kg)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/sodium_chloride
 	)
@@ -52,18 +57,21 @@
 
 /decl/hierarchy/supply_pack/reagents/barium_dichloride
 	name = "barium dichloride (42 g)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/storage/fancy/vials/barium_dichloride
 	)
 
 /decl/hierarchy/supply_pack/reagents/disodium_sulfate
 	name = "disodium sulfate (1 kg)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/disodium_sulfate
 	)
 
 /decl/hierarchy/supply_pack/reagents/barium_sulfate
 	name = "barium sulfate (1 kg)"
+	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/barium_sulfate
 	)
