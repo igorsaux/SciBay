@@ -159,7 +159,8 @@ var/list/admin_verbs_debug = list(
 	/client/proc/enable_profiler,
 	/client/proc/debug_bloom,
 	/client/proc/allow_browser_inspect,
-	/client/proc/cmd_print_reagent_container_debug_info
+	/client/proc/cmd_print_reagent_container_debug_info,
+	/client/proc/cmd_print_value,
 	)
 
 var/list/admin_verbs_paranoid_debug = list(

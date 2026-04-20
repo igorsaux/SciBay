@@ -14,7 +14,7 @@
 
 /obj/item/lacmus/Value(base)
 	if(used)
-		return 0
+		return ceil(base * 0.2)
 	
 	return base
 

@@ -9,6 +9,11 @@
 	var/consumable = TRUE
 	var/flow_rate = 1.0
 
+/obj/item/filter/Value(base)
+	. = ..(base)
+
+	return ceil(base * max(1 - clogged, 0.1))
+
 /obj/item/filter/proc/filter_into(obj/item/reagent_containers/source, obj/item/reagent_containers/dist, mob/activator = null)
 	if(consumable && clogged >= 1.0)
 		if(activator)

@@ -41,3 +41,11 @@ GLOBAL_LIST_EMPTY(price_cache)
 // Price when selling to cargo
 /proc/get_sell_price(atom/A)
 	return ceil(get_base_value(A) * GLOB.economy_sell_margin)
+
+/client/proc/cmd_print_value(atom/A)
+	set name = "Print Value"
+
+	if(!check_rights(R_DEBUG))
+		return
+
+	to_chat(usr, "Base: [get_base_value(A)], buy: [get_buy_price(A)], sell: [get_sell_price(A)]")
