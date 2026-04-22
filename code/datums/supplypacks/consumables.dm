@@ -36,6 +36,13 @@
 	)
 	containername = "\improper droppers crate"
 
+/decl/hierarchy/supply_pack/consumables/measuring_spoons
+	name = "measuring spoons (6)"
+	contains = list(
+		/obj/item/reagent_containers/vessel/spoon = 6,
+	)
+	containername = "\improper measuring spoons crate"
+
 /decl/hierarchy/supply_pack/consumables/cloth_filters
 	name = "cloth filters (25)"
 	contains = list(

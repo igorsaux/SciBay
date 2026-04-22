@@ -23,6 +23,7 @@ var/list/worths = list(
 	/obj/item/filter/membrane = -526,
 	/obj/item/storage/fancy/vials = -820,
 	/obj/item/reagent_containers/dropper = -250,
+	/obj/item/reagent_containers/vessel/spoon = -20,
 	/obj/item/reagent_containers/vessel/beaker = -80,
 	/obj/item/reagent_containers/vessel/beaker/large = -160,
 	/obj/item/reagent_containers/vessel/beaker/vial = -60,
