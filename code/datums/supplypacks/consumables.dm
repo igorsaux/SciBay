@@ -39,7 +39,7 @@
 /decl/hierarchy/supply_pack/consumables/measuring_spoons
 	name = "measuring spoons (6)"
 	contains = list(
-		/obj/item/reagent_containers/vessel/spoon = 6,
+		/obj/item/reagent_containers/spoon = 6,
 	)
 	containername = "\improper measuring spoons crate"
 
