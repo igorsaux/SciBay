@@ -1,3 +1,0 @@
-[donations]
-## Set to true to enable donations subsystem. Server must be connected to proper database.
-enable = false

@@ -128,7 +128,7 @@ var/server_name = "OnyxBay"
 	if(byond_version < RECOMMENDED_VERSION)
 		to_world_log("Your server's byond version does not meet the recommended requirements for this server. Please update BYOND")
 
-	// Load up the base config.toml
+	// Load up the base config.jsonc
 	config.load_configuration()
 
 	// As early as possible

@@ -8,7 +8,6 @@
 	var/list/allowed_maps
 
 /datum/configuration_section/mapping/load_data(list/data)
-
 	CONFIG_LOAD_STR(preferable_engine,  data["preferable_engine"])
 	CONFIG_LOAD_STR(preferable_biodome, data["preferable_biodome"])
 	CONFIG_LOAD_STR(preferable_bar, 	data["preferable_bar"])

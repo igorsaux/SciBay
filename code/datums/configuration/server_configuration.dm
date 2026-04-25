@@ -60,35 +60,38 @@ GLOBAL_REAL(config, /datum/server_configuration) = new
 	return list("raw_data")
 
 /datum/server_configuration/proc/load_configuration()
-	#define RUSTG_CHECK(expr) do { var/ret = expr; if(ret != "") { CRASH(ret) } } while(FALSE)
-
 	create_gamemodes_cache()
 
-	RUSTG_CHECK(rustg_cfg_begin_builder())
-	RUSTG_CHECK(rustg_cfg_add_source_glob("config/default/**/*"))
+	// Load example.jsonc as base first
+	var/list/merged_data = list()
 
-	var/mode = world.GetConfig("env", "MODE")
+	if(fexists("config.example.jsonc"))
+		var/parsed = json_decode(file2text("config.example.jsonc"), JSON_ALLOW_COMMENTS)
 
-	if(mode)
-		RUSTG_CHECK(rustg_cfg_add_source_glob("config/[mode]/**/*"))
+		if(islist(parsed))
+			merged_data = list_merge(merged_data, parsed)
 
-	var/server_id = world.GetConfig("env", "ONYXBAY__GENERAL__SERVER_ID")
+	// Then load config.jsonc as override
+	if(fexists("config.jsonc"))
+		var/parsed = json_decode(file2text("config.jsonc"), JSON_ALLOW_COMMENTS)
 
-	if(server_id)
-		RUSTG_CHECK(rustg_cfg_add_source_glob("config/[server_id]/**/*"))
+		if(islist(parsed))
+			merged_data = list_merge(merged_data, parsed)
 
-	RUSTG_CHECK(rustg_cfg_add_source_env("ONYXBAY", "__"))
-	RUSTG_CHECK(rustg_cfg_end_builder())
+	if(!merged_data.len)
+		CRASH("No configuration file found! Create config.jsonc or copy config.example.jsonc")
 
-	raw_data = json_decode(rustg_cfg_try_deserialize())
+	// Convert merged data to raw_data format expected by load_all_sections
+	raw_data = list()
 
-	// Now pass through all our stuff
+	for(var/section_name in merged_data)
+		raw_data[section_name] = merged_data[section_name]
+
+	// Now pass through all our sections
 	load_all_sections()
 
 	// Clear our list to save RAM
 	raw_data = list()
-
-	#undef RUSTG_CHECK
 
 /datum/server_configuration/proc/load_all_sections()
 	for(var/V in vars)

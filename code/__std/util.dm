@@ -47,3 +47,18 @@
 	while(holder.loc && istype(holder.loc, /obj))
 		holder = holder.loc
 	return holder
+
+/// Recursively merge source into destination. Source values override destination values.
+/proc/list_merge(list/destination, list/source)
+	ASSERT(islist(destination))
+	ASSERT(islist(source))
+
+	for(var/key in source)
+		if(islist(source[key]) && islist(destination[key]))
+			// Recursively merge nested lists
+			destination[key] = list_merge(destination[key], source[key])
+		else
+			// Override with source value
+			destination[key] = source[key]
+
+	return destination

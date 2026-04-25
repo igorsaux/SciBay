@@ -12,12 +12,7 @@ Thumbs.db
 *.so
 !liblibz.so
 data/
-cfg/
-# ignore config, but not subdirs
-config/*
-!config/default/
-!config/dev/
-!config/lobby_art/README.md
+config.jsonc
 build_log.txt
 use_map
 stopserver
