@@ -10,6 +10,7 @@
   <div class="itemContent" style="width: 100%">
     {{:helper.link('Browse Goods', 'cart', {'set_screen' : 1}, data.screen == 1 ? 'selected' : null)}}
     {{:helper.link('Shopping Cart', 'calculator', {'set_screen' : 2}, data.screen == 2 ? 'selected' : null)}}
+    {{:helper.link('History', 'history', {'set_screen' : 3}, data.screen == 3 ? 'selected' : null)}}
   </div>
 </div>
 
@@ -117,6 +118,28 @@
   </div>
   {{else}}
   <div class="notice" style="text-align: center">Your cart is empty.</div>
+  {{/if}}
+</div>
+{{else data.screen == 3}}
+<div class="item">
+  <center><h3>Operation History</h3></center>
+  {{if data.history && data.history.length > 0}}
+  <table style="width: 100%">
+    <tr>
+      <th style="width: 20%; text-align: left">Time</th>
+      <th style="width: 20%; text-align: left">Items</th>
+      <th style="width: 60%; text-align: right">Diff</th>
+    </tr>
+    {{for data.history}}
+    <tr>
+      <td>{{:value.time}}</td>
+      <td>{{:value.items}}</td>
+      <td style="text-align: right; color: {{:value.color}}">{{if value.type == 'sell'}}↑{{else}}↓{{/if}} {{:value.diff}} {{:data.currency}}</td>
+    </tr>
+    {{/for}}
+  </table>
+  {{else}}
+  <div class="notice" style="text-align: center">No operations recorded.</div>
   {{/if}}
 </div>
 {{/if}}

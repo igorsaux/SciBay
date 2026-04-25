@@ -9,6 +9,8 @@ SUBSYSTEM_DEF(supply)
 	var/list/requestlist = list()
 	var/list/donelist = list()
 	var/list/master_supply_list = list()
+	/// Infinite history of buy/sell operations
+	var/list/history = list()
 
 /datum/controller/subsystem/supply/Initialize()
 	. = ..()
@@ -56,10 +58,26 @@ SUBSYSTEM_DEF(supply)
 	
 	GLOB.credits += value
 
+	// Record sell in history
+	if(value > 0)
+		history += list(list(
+			"type" = "sell",
+			"time" = stationtime2text(),
+			"items" = "-",
+			"diff" = "[value]",
+			"color" = "#44bb44"
+		))
+
 //Buyin
 /datum/controller/subsystem/supply/proc/buy()
-	if(!shoppinglist.len)
+	if(!length(shoppinglist))
 		return
+
+	// Count items before clearing shoppinglist
+	var/item_count = length(shoppinglist)
+	var/total_cost = 0
+	for(var/datum/supply_order/SO in shoppinglist)
+		total_cost += SO.object.get_cost()
 
 	var/list/clear_turfs = list()
 	var/area/public_space/cargo/AR = locate(/area/public_space/cargo)
@@ -81,7 +99,7 @@ SUBSYSTEM_DEF(supply)
 			clear_turfs += T
 
 	for(var/S in shoppinglist)
-		if(!clear_turfs.len)
+		if(!length(clear_turfs))
 			break
 
 		var/turf/pickedloc = pick_n_take(clear_turfs)
@@ -114,12 +132,23 @@ SUBSYSTEM_DEF(supply)
 			if(!islist(SP.access))
 				A.req_access = list(SP.access)
 			else if(islist(SP.access))
-				var/list/L = SP.access // access var is a plain var, we need a list
+				// access var is a plain var, we need a list
+				var/list/L = SP.access
 				A.req_access = L.Copy()
 
 		var/list/spawned = SP.spawn_contents(A)
 		for(var/atom/content in spawned)
-			slip.info += "<li>[content.name]</li>" //add the item to the manifest
+			//add the item to the manifest
+			slip.info += "<li>[content.name]</li>"
+
+	// Record buy in history
+	history += list(list(
+		"type" = "purchase",
+		"time" = stationtime2text(),
+		"items" = "[item_count]",
+		"diff" = "[total_cost]",
+		"color" = "#dd4444"
+	))
 
 /datum/supply_order
 	var/ordernum
@@ -127,4 +156,5 @@ SUBSYSTEM_DEF(supply)
 	var/orderedby = null
 	var/comment = null
 	var/reason = null
-	var/orderedrank = null //used for supply console printing
+	//used for supply console printing
+	var/orderedrank = null

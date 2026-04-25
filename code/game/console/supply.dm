@@ -4,7 +4,8 @@
 	screen_state = "thick_supply"
 	req_access = list(access_cargo)
 
-	var/screen = 1 // 1: Catalog, 2: Cart
+	/// 1: Catalog, 2: Cart, 3: History
+	var/screen = 1
 	var/selected_category
 	var/list/category_names
 	var/list/category_contents
@@ -73,12 +74,13 @@
 			to_chat(user, SPAN_WARNING("Insufficient funds!"))
 			return TOPIC_NOACTION
 			
-		if(SSsupply.shoppinglist.len == 0)
+		if(length(SSsupply.shoppinglist) == 0)
 			return TOPIC_NOACTION
 
 		// Deduct points and trigger buy logic
 		GLOB.credits -= total_cost
-		SSsupply.buy() // Assuming this proc handles spawning items from shoppinglist and clearing it
+		// Assuming this proc handles spawning items from shoppinglist and clearing it
+		SSsupply.buy()
 		
 		to_chat(user, SPAN_NOTICE("Order placed successfully! Items will arrive shortly."))
 		return TOPIC_HANDLED
@@ -103,7 +105,8 @@
 	data["cart_total"] = cart_total
 
 	switch(screen)
-		if(1) // Catalog
+		// Catalog
+		if(1)
 			data["categories"] = category_names
 
 			if(selected_category)
@@ -122,14 +125,29 @@
 					purchases.Add(list(item_data))
 					
 				data["possible_purchases"] = purchases
-
-		if(2) // Cart
+		// Cart
+		if(2)
 			var/list/cart[0]
 
 			for(var/datum/supply_order/SO in SSsupply.shoppinglist)
 				cart.Add(order_to_nanoui(SO))
 
 			data["cart"] = cart
+		// History
+		if(3)
+			var/list/history_display = list()
+			var/history_count = length(SSsupply.history)
+			
+			// Show only last 10 entries
+			for(var/i = 1; i <= history_count; i++)
+				var/entry_idx = history_count - i + 1
+				if(i > 10)
+					break
+				if(entry_idx >= 1 && entry_idx <= history_count)
+					var/entry = SSsupply.history[entry_idx]
+					history_display += list(entry)
+			
+			data["history"] = history_display
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
@@ -167,4 +185,4 @@
 		"vendor" = SO.object.vendor,
 		"orderer" = SO.orderedby,
 		"cost" = SO.object.get_cost()
-		))
+	))
