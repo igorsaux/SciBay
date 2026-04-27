@@ -297,8 +297,6 @@
 			return global.last_chew;
 		if("last_round_duration")
 			return global.last_round_duration;
-		if("license_to_url")
-			return global.license_to_url;
 		if("light_overlay_cache")
 			return global.light_overlay_cache;
 		if("lighting_overlays_initialised")
@@ -800,8 +798,6 @@
 			global.last_chew=newval;
 		if("last_round_duration")
 			global.last_round_duration=newval;
-		if("license_to_url")
-			global.license_to_url=newval;
 		if("light_overlay_cache")
 			global.light_overlay_cache=newval;
 		if("lighting_overlays_initialised")

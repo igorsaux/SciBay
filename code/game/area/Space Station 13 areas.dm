@@ -62,7 +62,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	dynamic_lighting = 1
 	has_gravity = 0
 	area_flags = AREA_FLAG_EXTERNAL | AREA_FLAG_UNIQUE_AREA | AREA_FLAG_CAVES_ALLOWED
-	ambient_music_tags = list(MUSIC_TAG_SPACE)
 	ambience_off = list(SFX_AMBIENT_SPACE)
 	ambience_powered = list(SFX_AMBIENT_SPACE)
 
@@ -135,7 +134,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	turf_initializer = /decl/turf_initializer/maintenance
 	ambience_off = list(SFX_AMBIENT_OFF_GLOBAL, SFX_AMBIENT_OFF_MAINTENANCE)
 	ambience_powered = list(SFX_AMBIENT_POWERED_GLOBAL, SFX_AMBIENT_POWERED_MAINTENANCE)
-	ambient_music_tags = list(MUSIC_TAG_MYSTIC)
 
 /area/rnd
 	ambience_powered = list(SFX_AMBIENT_POWERED_GLOBAL, SFX_AMBIENT_SCIENCE)

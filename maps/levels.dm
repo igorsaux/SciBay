@@ -4,7 +4,3 @@
 	traits = list(
 		ZTRAIT_EMPTY
 	)
-
-/datum/space_level/telecomms
-	path = 'telecomms.dmm'
-	travel_chance = 15

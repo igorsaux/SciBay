@@ -286,10 +286,3 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 
 /datum/sound_token/static_environment/PrivGetEnvironment()
 	return sound.environment
-
-/obj/sound_test
-	var/sound = 'sound/music/classic/TestLoop1.ogg'
-
-/obj/sound_test/New()
-	..()
-	GLOB.sound_player.PlayLoopingSound(src, /obj/sound_test, sound, 50, 3)

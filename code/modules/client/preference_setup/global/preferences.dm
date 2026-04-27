@@ -140,31 +140,6 @@ var/global/list/_client_preferences_by_type
 	key = "SOUND_MIDI"
 	category = PREF_CATEGORY_AUDIO
 
-/datum/client_preference/play_lobby_music
-	description ="Play lobby music"
-	key = "SOUND_LOBBY"
-	category = PREF_CATEGORY_AUDIO
-
-/datum/client_preference/play_lobby_music/changed(mob/preference_mob, new_value)
-	if(new_value == GLOB.PREF_YES)
-		if(isnewplayer(preference_mob) && preference_mob.client)
-			GLOB.lobby_music.play_to(preference_mob.client)
-	else
-		sound_to(preference_mob.client, sound(null, repeat = 0, wait = 0, volume = 0, channel = 1))
-
-/datum/client_preference/volume_lobby_music
-	description ="Lobby music volume"
-	key = "SOUND_LOBBY_VOLUME"
-	category = PREF_CATEGORY_AUDIO
-	options = list(GLOB.PREF_LOW, GLOB.PREF_MED, GLOB.PREF_HIGH)
-	default_value = GLOB.PREF_MED
-
-/datum/client_preference/volume_lobby_music/changed(mob/preference_mob, new_value)
-	if(isnewplayer(preference_mob) && preference_mob.client)
-		var/sound/S = sound(channel = 1, volume = GLOB.lobby_music.get_volume_from_pref(new_value))
-		S.status = SOUND_UPDATE
-		sound_to(preference_mob.client, S)
-
 /datum/client_preference/play_ambiance
 	description ="Play ambience"
 	key = "SOUND_AMBIENCE"
@@ -173,21 +148,6 @@ var/global/list/_client_preferences_by_type
 /datum/client_preference/play_ambiance/changed(mob/preference_mob, new_value)
 	if(new_value == GLOB.PREF_NO)
 		sound_to(preference_mob, sound(null, repeat = 0, wait = 0, volume = 0, channel = 1))
-
-/datum/client_preference/play_ambience_music
-	description = "Play ambience music"
-	key = "SOUND_AMBIENCE_MUSIC"
-	category = PREF_CATEGORY_AUDIO
-
-/datum/client_preference/play_ambience_music/changed(mob/preference_mob, new_value)
-	if(new_value == GLOB.PREF_NO)
-		preference_mob.client?.last_time_ambient_music_played = 0
-		sound_to(preference_mob, sound(null, repeat = 0, wait = 0, volume = 0, channel = SOUND_CHANNEL_AMBIENT_MUSIC))
-
-/datum/client_preference/play_jukeboxes
-	description ="Play jukeboxes"
-	key = "SOUND_JUKEBOXES"
-	category = PREF_CATEGORY_AUDIO
 
 /datum/client_preference/give_wayfinding
 	description = "Spawn with a wayfinder tracker"

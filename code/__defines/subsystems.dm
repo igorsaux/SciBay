@@ -45,7 +45,6 @@
 #define SS_INIT_STORYTELLER     -15
 #define SS_INIT_TICKER          -20
 #define SS_INIT_EXPLOSIONS      -69
-#define SS_INIT_ANNOUNCERS      -90
 #define SS_INIT_VOTE      		-95
 #define SS_INIT_ORDER_CHAT 		-100 // Should be last to ensure chat remains smooth during init.
 

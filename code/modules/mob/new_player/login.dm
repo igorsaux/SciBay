@@ -43,7 +43,6 @@
 		return
 
 	client.prefs.apply_post_login_preferences(client)
-	client.playtitlemusic()
 
 	new_player_panel(TRUE)
 	handle_changelog()

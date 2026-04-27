@@ -82,7 +82,6 @@ var/list/admin_verbs_admin = list(
 	/client/proc/fixatmos,
 	/client/proc/change_regular_announcement,
 	/datum/admins/proc/change_lobby_art,
-	/datum/admins/proc/change_lobby_music
 	)
 
 var/list/admin_verbs_sounds = list(

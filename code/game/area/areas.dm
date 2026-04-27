@@ -13,7 +13,6 @@
 	var/static_equip
 	var/static_light = 0
 	var/static_environ
-	var/list/ambient_music_tags = list(MUSIC_TAG_NORMAL)
 
 	var/environment_type   = ENVIRONMENT_NONE
 	var/is_station         = FALSE

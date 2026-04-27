@@ -118,7 +118,6 @@ var/server_name = "OnyxBay"
 #define RECOMMENDED_VERSION 514
 /world/New()
 	__init_tracy()
-	__detect_rust_g()
 	__z_detect()
 
 	SetupLogs()
@@ -148,12 +147,6 @@ var/server_name = "OnyxBay"
 	if(config && config.game.use_age_restriction_for_jobs != null && config.general.server_suffix && world.port > 0)
 		// dumb and hardcoded but I don't care~
 		config.general.server_name += " #[(world.port % 1000) / 100]"
-
-	var/list/lobby_music_tracks = subtypesof(/lobby_music)
-	var/lobby_music_type = /lobby_music
-	if(lobby_music_tracks.len)
-		lobby_music_type = pick(lobby_music_tracks)
-	GLOB.lobby_music = new lobby_music_type()
 
 	callHook("startup")
 

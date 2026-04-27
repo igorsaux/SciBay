@@ -421,8 +421,7 @@
 	spawn_nothing_percentage = 50
 
 /obj/random/closet/maint/spawn_choices()
-	return list(/obj/random/maintenance/clean = 5,
-				/obj/random/music_tape = 1)
+	return list(/obj/random/maintenance/clean = 5)
 
 /obj/random/closet/maint/closet
 	name = "random maintenance better closet trash"
@@ -1193,19 +1192,6 @@ something, make sure it's not in one of the other lists.
 				/obj/structure/sign/christmas/sockninja = 1,
 				/obj/structure/sign/christmas/sockwizard = 1,
 				/obj/structure/sign/christmas/socksindy = 2)
-
-/obj/random/music_tape
-	name = "random music tape"
-	desc = "This is a random music tape."
-	icon_state = "landmark_tape"
-
-/obj/random/music_tape/spawn_choices()
-	return list(/obj/item/music_tape_box/jazz = 10,
-				/obj/item/music_tape_box/classic = 30,
-				/obj/item/music_tape_box/frontier = 5,
-				/obj/item/music_tape_box/exodus = 5,
-				/obj/item/music_tape_box/retrojazz = 5,
-				/obj/item/music_tape_box/valhalla = 3)
 
 // Selects one spawn point out of a group of points with the same ID and asks it to generate its items
 var/list/multi_point_spawns

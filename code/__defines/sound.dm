@@ -42,27 +42,13 @@
 #define ASTEROID CAVE
 #define SPACE UNDERWATER
 
-#define VOLUME_AMBIENT_MUSIC 50
-
-// Timing
-#define AMBIENT_MUSIC_COOLDOWN 2 MINUTES
-// TODO: Also add cooldown for ambients.
-
 // Sound channels
 // TODO: Replace hardcoded values with these defines.
 #define SOUND_CHANNEL_AMBIENT       1
-#define SOUND_CHANNEL_AMBIENT_MUSIC 2
-#define SOUND_CHANNEL_HUM           3
-#define SOUND_CHANNEL_WEATHER       4
-#define SOUND_CHANNEL_NUKE          5
-#define SOUND_CHANNEL_RED_ALERT     6
-
-// Ambient music tags
-#define MUSIC_TAG_NORMAL          0
-#define MUSIC_TAG_MYSTIC          1
-#define MUSIC_TAG_SPACE           2
-#define MUSIC_TAG_SPACE_TRAVELING 3
-#define MUSIC_TAG_CENTCOMM        4
+#define SOUND_CHANNEL_HUM           2
+#define SOUND_CHANNEL_WEATHER       3
+#define SOUND_CHANNEL_NUKE          4
+#define SOUND_CHANNEL_RED_ALERT     5
 
 // SFX List
 // FIREARMS SOUND
@@ -132,16 +118,6 @@
 #define SFX_AMBIENT_MORGUE              "ambient_morgue"
 #define SFX_AMBIENT_JUNGLE              "ambient_jungle"
 #define SFX_AMBIENT_DESERT              "ambient_desert"
-
-// AMBIENT MUSIC
-#define SFX_AMBIENT_MUSIC_NORMAL       "ambient_music_normal"
-#define SFX_AMBIENT_MUSIC_MYSTIC       "ambient_music_mystic"
-#define SFX_AMBIENT_MUSIC_SPACE        "ambient_music_space"
-#define SFX_AMBIENT_MUSIC_SPACE_TRAVEL "ambient_music_space_travel"
-#define SFX_AMBIENT_MUSIC_CENTCOMM     "ambient_music_centcomm"
-#define SFX_AMBIENT_MUSIC_THUNDERDOME  "ambient_music_court"
-#define SFX_AMBIENT_MUSIC_PICNIC       "ambient_music_picnic"
-#define SFX_AMBIENT_MUSIC_COURT        "ambient_music_court"
 
 // ITEMS USING
 #define SFX_USE_HANDCUFFS           "use_handcuffs"

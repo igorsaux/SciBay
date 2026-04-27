@@ -93,7 +93,6 @@
 		SSair.mark_for_update(src)
 
 	RecalculateOpacity()
-	update_astar_node()
 	update_graphic()
 
 /turf/Destroy()
@@ -358,28 +357,6 @@ var/const/enterloopsanity = 100
 	turf_height = max_height
 	for(var/mob/M in contents)
 		M.update_height_offset(turf_height)
-
-/// Used for astar pathfinding
-/turf/proc/__get_astar_linked_nodes()
-	return list()
-
-/// Used for astar pathfinding
-/turf/proc/__get_astar_node_mask()
-	. = density ? NODE_DENSE_BIT : 0
-	. |= NODE_TURF_BIT
-
-/turf/proc/__get_astar_node()
-	return list(
-		"position" = list("x" = x, "y" = y, "z" = z),
-		"mask" = __get_astar_node_mask(),
-		"links" = __get_astar_linked_nodes(),
-	)
-
-/turf/proc/update_astar_node()
-	var/result = rustg_update_nodes_astar(json_encode(list(__get_astar_node())))
-
-	if(result != "1")
-		CRASH(result)
 
 // Updates turf participation in ZAS according to outside status. Must be called whenever the outside status of a turf may change.
 /turf/proc/update_external_atmos_participation()
