@@ -41,7 +41,6 @@
 
 /decl/hierarchy/supply_pack/reagents/water
 	name = "distilled water (1 L)"
-	vendor = "MercuPura Chemicals"
 	contains = list(
 		/obj/item/reagent_containers/vessel/bottle/chemical/big/water
 	)
