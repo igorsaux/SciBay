@@ -10,12 +10,6 @@
 	down_icon_state = "balaclava_r"
 	pull_mask = 1
 	w_class = ITEM_SIZE_SMALL
-	rad_resist_type = /datum/rad_resist/mask_balaclava
-
-/datum/rad_resist/mask_balaclava
-	alpha_particle_resist = 21.6 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.4 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/mask/balaclava/tactical
 	name = "green balaclava"
@@ -32,12 +26,6 @@
 	body_parts_covered = HEAD|FACE
 	w_class = ITEM_SIZE_SMALL
 	siemens_coefficient = 3.0
-	rad_resist_type = /datum/rad_resist/mask_luchador
-
-/datum/rad_resist/mask_luchador
-	alpha_particle_resist = 20 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.25 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/mask/luchador/tecnicos
 	name = "Tecnicos Mask"

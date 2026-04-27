@@ -158,10 +158,6 @@
 	var/list/mutations = list() //Carbon -- Doohl
 	//see: setup.dm for list of mutations
 
-	/// Total radiation dose. Sv.
-	var/radiation = SPACE_RADIATION
-	var/rad_resist_type = /datum/rad_resist/mob
-
 	var/voice_name = "unidentifiable voice"
 
 	var/faction = "neutral" //Used for checking whether hostile simple animals will attack you, possibly more stuff later
@@ -249,8 +245,3 @@
 
 	///For storing what do_after's someone has, key = string, value = amount of interactions of that type happening.
 	var/list/do_afters
-
-/datum/rad_resist/mob
-	alpha_particle_resist = 6 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.1 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT

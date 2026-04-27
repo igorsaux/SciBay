@@ -7,7 +7,6 @@
 	item_state = "eng_helm"
 	siemens_coefficient = 0.3
 	armor = list(melee = 60, bullet = 50, laser = 60, energy = 45, bomb = 35, bio = 100)
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
 
 /obj/item/clothing/suit/space/void/engineering
 	name = "engineering voidsuit"
@@ -17,7 +16,6 @@
 	siemens_coefficient = 0.3
 	armor = list(melee = 60, bullet = 50, laser = 60, energy = 45, bomb = 35, bio = 100)
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner)
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
 
 /obj/item/clothing/suit/space/void/engineering/New()
 	..()
@@ -35,7 +33,6 @@
 	item_state = "engalt_helm"
 	armor = list(melee = 80, bullet = 70, laser = 60, energy = 65, bomb = 35, bio = 100)
 	light_overlay = "helmet_light_dual_low"
-	rad_resist_type = /datum/rad_resist/suit_radiation
 
 /obj/item/clothing/suit/space/void/engineering/alt
 	name = "engineering hardsuit"
@@ -43,7 +40,6 @@
 	icon_state = "engalt_voidsuit"
 	item_state = "engalt_voidsuit"
 	armor = list(melee = 80, bullet = 70, laser = 60, energy = 65, bomb = 35, bio = 100)
-	rad_resist_type = /datum/rad_resist/suit_radiation
 
 /obj/item/clothing/suit/space/void/engineering/alt/New()
 	..()
@@ -61,7 +57,6 @@
 	item_state = "rad_helm"
 	siemens_coefficient = 0.15
 	armor = list(melee = 55, bullet = 45, laser = 130, energy = 65, bomb = 65, bio = 100)
-	rad_resist_type = /datum/rad_resist/suit_radiation
 	max_heat_protection_temperature = ATMOS_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 
 /obj/item/clothing/suit/space/void/engineering/meltdown
@@ -71,8 +66,7 @@
 	item_state = "rad_voidsuit"
 	siemens_coefficient = 0.15
 	armor = list(melee = 55, bullet = 45, laser = 130, energy = 65, bomb = 65, bio = 100)
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner,/obj/item/device/geiger)
-	rad_resist_type = /datum/rad_resist/suit_radiation
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner)
 	max_heat_protection_temperature = ATMOS_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 
 /obj/item/clothing/suit/space/void/engineering/meltdown/New()

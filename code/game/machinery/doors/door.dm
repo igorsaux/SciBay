@@ -37,17 +37,11 @@
 	var/tryingToLock = FALSE // for autoclosing
 	// turf animation
 	var/atom/movable/fake_overlay/c_animation = null
-	rad_resist_type = /datum/rad_resist/door
 
 	// Don't mess with these unless you absolutely know what you're doing.
 	var/anim_time_1 = 3
 	var/anim_time_2 = 7
 	var/anim_time_3 = 0
-
-/datum/rad_resist/door
-	alpha_particle_resist = 350 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.5 MEGA ELECTRONVOLT
-	hawking_resist = 81 MILLI ELECTRONVOLT
 
 /obj/machinery/door/Initialize()
 	. = ..()

@@ -138,61 +138,6 @@
 			spawn(0)
 				emote("cough")
 
-/mob/living/carbon/human/handle_mutations_and_radiation()
-	if(getFireLoss())
-		if((MUTATION_COLD_RESISTANCE in mutations) || (prob(1)))
-			heal_organ_damage(0,1)
-
-	radiation -= RADIATION_SPEED_COEFFICIENT
-	radiation = max(radiation, SPACE_RADIATION)
-
-	// Okay, let's imagine that there is no radiation
-	if(radiation <= SAFE_RADIATION_DOSE)
-		if(species.species_appearance_flags & RADIATION_GLOWS)
-			set_light(0)
-	else
-		if(radiation >= (100 SIEVERT))
-			dust()
-			return
-
-		if(species.species_appearance_flags & RADIATION_GLOWS)
-			set_light(0.3, 0.1, max(1,min(20, radiation * 25)), 2, species.get_flesh_colour(src))
-
-		var/damage = radiation / (0.5 SIEVERT)
-
-		if(radiation > (1 SIEVERT))
-			if(prob(5))
-				to_chat(src, SPAN("warning", "You feel weak."))
-				Weaken(3)
-
-				if(!lying)
-					emote("collapse")
-			if(prob(5) && species.name == SPECIES_HUMAN) // Apes go bald
-				if((h_style != species.default_h_style || f_style != species.default_f_style))
-					to_chat(src, SPAN("warning", "Your hair falls out."))
-					h_style = species.default_h_style
-					f_style = species.default_f_style
-					update_hair()
-					update_facial_hair()
-
-		if(radiation > (2 SIEVERT))
-			if(prob(5))
-				take_overall_damage(0, damage, 0, "Radiation Burns", FALSE)
-			if(prob(1))
-				to_chat(src, SPAN("warning", "You feel strange!"))
-				adjustCloneLoss(radiation * damage)
-				emote("gasp")
-
-		if(damage)
-			damage *= species.radiation_mod
-			adjustToxLoss(damage)
-			update_health()
-
-			if(length(external_organs))
-				var/obj/item/organ/external/O = pick(external_organs)
-				if(istype(O))
-					O.add_autopsy_data("Radiation Poisoning", damage)
-
 // Calculate how vulnerable the human is to under- and overpressure.
 // Returns 0 (equals 0 %) if sealed in an undamaged suit, 1 if unprotected (equals 100%).
 // Suitdamage can modifiy this in 10% steps.

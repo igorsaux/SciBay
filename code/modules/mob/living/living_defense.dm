@@ -431,8 +431,3 @@
 		if(!isnull(M.evasion))
 			result += M.evasion
 	return result
-
-/mob/living/proc/calc_rad_resist(radiation_type)
-	ASSERT(IS_VALID_RADIATION_TYPE(radiation_type))
-
-	// TODO: Add code

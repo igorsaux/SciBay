@@ -11,8 +11,6 @@
 	turf_height_offset = 12
 	climb_delay = 1.5 SECONDS
 
-	rad_resist_type = /datum/rad_resist/none
-
 	var/flipped = 0
 	var/maxhealth = 10
 	var/health = 10

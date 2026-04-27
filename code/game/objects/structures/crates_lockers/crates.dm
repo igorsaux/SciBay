@@ -195,12 +195,6 @@
 	icon_state = "radiation"
 	icon_opened = "radiationopen"
 	icon_closed = "radiation"
-	rad_resist_type = /datum/rad_resist/crate_radiation
-
-/datum/rad_resist/crate_radiation
-	alpha_particle_resist = 808 MEGA ELECTRONVOLT
-	beta_particle_resist = 24 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/structure/closet/crate/science
 	name = "science crate"

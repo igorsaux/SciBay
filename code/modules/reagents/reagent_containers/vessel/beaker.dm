@@ -26,13 +26,6 @@
 	drop_sound = SFX_DROP_HELMET
 	pickup_sound = SFX_PICKUP_HELMET
 
-	rad_resist_type = /datum/rad_resist/beaker_large
-
-/datum/rad_resist/beaker_large
-	alpha_particle_resist = 11.8 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.8 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/reagent_containers/vessel/beaker/large
 	name = "large beaker"
 	desc = "A 500 ml beaker."

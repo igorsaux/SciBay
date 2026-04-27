@@ -50,18 +50,11 @@
 	item_state = "emergencyhelm"
 	desc = "A simple helmet with a built in light, smells like mothballs."
 	flash_protection = FLASH_PROTECTION_NONE
-	rad_resist_type = /datum/rad_resist/space_emergency
-
-/datum/rad_resist/space_emergency
-	alpha_particle_resist = 31.8 MEGA ELECTRONVOLT
-	beta_particle_resist = 5.7 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/suit/space/emergency
 	name = "Emergency Softsuit"
 	icon_state = "syndicate-orange"
 	desc = "A thin, ungainly softsuit colored in blaze orange for rescuers to easily locate, looks pretty fragile."
-	rad_resist_type = /datum/rad_resist/space_emergency
 
 /obj/item/clothing/suit/space/emergency/New()
 	..()
@@ -76,12 +69,6 @@
 	siemens_coefficient = 0.5
 	flash_protection = FLASH_PROTECTION_MODERATE
 	action_button_name = null
-	rad_resist_type = /datum/rad_resist/space_goliath
-
-/datum/rad_resist/space_goliath
-	alpha_particle_resist = 40 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.8 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/head/helmet/space/goliath/attack_self(mob/user)
 	return

@@ -67,7 +67,6 @@
 
 /obj/random/technology_scanner/spawn_choices()
 	return list(/obj/item/device/t_scanner = 10,
-				/obj/item/device/geiger = 5,
 			)
 
 /obj/random/powercell

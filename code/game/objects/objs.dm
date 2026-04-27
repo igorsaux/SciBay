@@ -16,8 +16,6 @@
 	var/armor_penetration = 0
 	var/anchor_fall = FALSE
 	var/pull_slowdown = PULL_SLOWDOWN_WEIGHT // How much it slows us down while we are pulling it
-	/// Used if the obj is dense.
-	var/rad_resist_type = /datum/rad_resist/none
 	hitby_sound = 'sound/effects/metalhit2.ogg'
 	var/turf_height_offset = 0
 	var/climb_delay = 2 SECONDS // Default for everything. Doesn't make the thing climbable on its own, it still requires ATOM_FLAG_CLIMBABLE.
@@ -172,15 +170,6 @@
 			update_icon()
 			return
 	return ..()
-
-/obj/examine(mob/user, infix)
-	. = ..()
-
-	if(hasHUD(user, HUD_SCIENCE))
-		. += "Stopping Power:"
-
-		. += "α-particle: [fmt_siunit(CONV_JOULE_ELECTRONVOLT(get_rad_resist_value(rad_resist_type, RADIATION_ALPHA_PARTICLE)), "eV", 3)]"
-		. += "β-particle: [fmt_siunit(CONV_JOULE_ELECTRONVOLT(get_rad_resist_value(rad_resist_type, RADIATION_ALPHA_PARTICLE)), "eV", 3)]"
 
 /obj/proc/wrench_floor_bolts(mob/user, delay=20)
 	playsound(loc, 'sound/items/Ratchet.ogg', 100, 1)

@@ -69,13 +69,6 @@
 	flash_protection = FLASH_PROTECTION_MAJOR
 	tint = TINT_HEAVY
 
-	rad_resist_type = /datum/rad_resist/bomb_hood
-
-/datum/rad_resist/bomb_hood
-	alpha_particle_resist = 19.2 MEGA ELECTRONVOLT
-	beta_particle_resist = 8.9 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/clothing/suit/bomb_suit
 	name = "bomb suit"
 	desc = "A suit designed for safety when handling explosives."
@@ -112,7 +105,6 @@
 	flags_inv = BLOCKHAIR
 	body_parts_covered = HEAD|FACE|EYES
 	armor = list(melee = 20, bullet = 0, laser = 20, energy = 10, bomb = 0, bio = 60)
-	rad_resist_type = /datum/rad_resist/suit_radiation
 
 /obj/item/clothing/suit/radiation
 	name = "Radiation suit"
@@ -126,17 +118,6 @@
 	gas_transfer_coefficient = 0.90
 	permeability_coefficient = 0.50
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS|HANDS|FEET
-	allowed = list(/obj/item/device/flashlight, /obj/item/device/geiger, /obj/item/tank/emergency,/obj/item/clothing/head/radiation,/obj/item/clothing/mask/gas)
+	allowed = list(/obj/item/device/flashlight, /obj/item/tank/emergency,/obj/item/clothing/head/radiation,/obj/item/clothing/mask/gas)
 	armor = list(melee = 20, bullet = 0, laser = 20, energy = 10, bomb = 0, bio = 60)
 	flags_inv = HIDEJUMPSUIT|HIDETAIL|HIDEGLOVES|HIDESHOES
-
-	rad_resist_type = /datum/rad_resist/suit_radiation
-
-/datum/rad_resist/suit_radiation
-	alpha_particle_resist = 800 MEGA ELECTRONVOLT
-	beta_particle_resist = 600 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
-/obj/item/clothing/suit/radiation/New()
-	..()
-	slowdown_per_slot[slot_shoes] = 1.5

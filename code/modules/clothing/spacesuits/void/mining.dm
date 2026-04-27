@@ -7,7 +7,6 @@
 	item_state = "mining_helm"
 	armor = list(melee = 110, bullet = 75, laser = 45, energy = 5, bomb = 55, bio = 100)
 	light_overlay = "helmet_light_dual_low"
-	rad_resist_type = /datum/rad_resist/deathsquad
 
 /obj/item/clothing/suit/space/void/mining
 	name = "mining voidsuit"
@@ -16,7 +15,6 @@
 	item_state = "mining_voidsuit"
 	armor = list(melee = 110, bullet = 75, laser = 45, energy = 5, bomb = 55, bio = 100)
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/device/t_scanner)
-	rad_resist_type = /datum/rad_resist/deathsquad
 
 /obj/item/clothing/suit/space/void/mining/prepared
 	helmet = /obj/item/clothing/head/helmet/space/void/mining

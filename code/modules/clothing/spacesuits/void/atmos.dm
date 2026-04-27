@@ -8,7 +8,6 @@
 	armor = list(melee = 50, bullet = 45, laser = 70, energy = 45, bomb = 35, bio = 100)
 	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
 	light_overlay = "helmet_light_dual_low"
-	rad_resist_type = /datum/rad_resist/void_med
 
 /obj/item/clothing/suit/space/void/atmos
 	name = "atmos voidsuit"
@@ -18,7 +17,6 @@
 	armor = list(melee = 50, bullet = 45, laser = 70, energy = 45, bomb = 35, bio = 100)
 	max_heat_protection_temperature = FIRESUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner)
-	rad_resist_type = /datum/rad_resist/void_med
 
 /obj/item/clothing/suit/space/void/atmos/prepared
 	helmet = /obj/item/clothing/head/helmet/space/void/atmos

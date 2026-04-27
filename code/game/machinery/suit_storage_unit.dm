@@ -414,7 +414,6 @@
 	for(i=0,i<4,i++)
 		sleep(50)
 		if(occupant)
-			occupant.rad_act(new /datum/radiation_source(new /datum/radiation(4 TERA BECQUEREL, RADIATION_ALPHA_PARTICLE), src))
 			if (occupant.can_feel_pain())
 				occupant.emote("scream")
 			if(issuperUV)
@@ -1016,8 +1015,6 @@
 			occupant.take_organ_damage(0,radiation_level*2 + rand(1,3))
 		if(radiation_level > 1)
 			occupant.take_organ_damage(0,radiation_level + rand(1,3))
-
-		occupant.rad_act(new /datum/radiation_source(new /datum/radiation((1250 KILO BECQUEREL) * radiation_level, RADIATION_ALPHA_PARTICLE), src))
 
 /obj/machinery/suit_cycler/proc/finished_job()
 	var/turf/T = get_turf(src)

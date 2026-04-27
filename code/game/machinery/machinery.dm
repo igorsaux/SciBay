@@ -118,13 +118,6 @@ Class Procs:
 	var/beep_last_played = 0
 	var/list/beepsounds = null
 
-	rad_resist_type = /datum/rad_resist/machinery
-
-/datum/rad_resist/machinery
-	alpha_particle_resist = 160 MEGA ELECTRONVOLT
-	beta_particle_resist = 26.6 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/machinery/Initialize(mapload, d=0, populate_components = TRUE)
 	. = ..()
 	if(d)

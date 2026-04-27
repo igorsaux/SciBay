@@ -6,7 +6,6 @@
 	density = 1
 	plane = DEFAULT_PLANE
 	explosion_block = 1
-	rad_resist_type = /datum/rad_resist/wall
 
 /turf/unsimulated/wall/fakeglass
 	name = "window"

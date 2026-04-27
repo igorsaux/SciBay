@@ -103,12 +103,6 @@
 	var/tool_sound
 	/// 1.0 is normal price, 0.5 is half price, etc.
 	var/price_modifier = 1
-	rad_resist_type = /datum/rad_resist/item
-
-/datum/rad_resist/item
-	alpha_particle_resist = 35 MEGA ELECTRONVOLT
-	beta_particle_resist = 6 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/New()
 	..()

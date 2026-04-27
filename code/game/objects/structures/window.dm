@@ -53,13 +53,6 @@
 		else
 			. += SPAN_NOTICE("There is a thick layer of silicate covering it.")
 
-	rad_resist_type = /datum/rad_resist/window
-
-/datum/rad_resist/window
-	alpha_particle_resist = 664 MEGA ELECTRONVOLT
-	beta_particle_resist = 4.8 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/structure/window/GetExplosionBlock()
 	return reinf && (state == 5) ? real_explosion_block : 0
 

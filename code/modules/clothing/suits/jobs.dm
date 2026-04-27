@@ -185,7 +185,7 @@
 	icon_state = "hazard"
 	item_state = "hazard"
 	blood_overlay_type = "armorblood"
-	allowed = list (/obj/item/device/geiger, /obj/item/device/flashlight, /obj/item/device/multitool, /obj/item/device/pipe_painter, /obj/item/device/t_scanner, \
+	allowed = list (/obj/item/device/flashlight, /obj/item/device/multitool, /obj/item/device/pipe_painter, /obj/item/device/t_scanner, \
 	/obj/item/crowbar, /obj/item/screwdriver, /obj/item/weldingtool, /obj/item/wirecutters, /obj/item/wrench, /obj/item/tank/emergency, \
 	/obj/item/clothing/mask/gas, /obj/item/taperoll/engineering)
 	body_parts_covered = UPPER_TORSO
@@ -244,7 +244,7 @@
 	icon_closed = "paramedic"
 	blood_overlay_type = "armorblood"
 	allowed = list(/obj/item/stack/medical, /obj/item/reagent_containers/dropper, /obj/item/reagent_containers/hypospray, /obj/item/reagent_containers/syringe, \
-	/obj/item/device/flashlight, /obj/item/tank, /obj/item/device/geiger, /obj/item/crowbar, \
+	/obj/item/device/flashlight, /obj/item/tank, /obj/item/crowbar, \
 	/obj/item/reagent_containers/vessel/flask, /obj/item/storage/pill_bottle)
 	body_parts_covered = UPPER_TORSO|ARMS
 	armor = list(melee = 30, bullet = 20, laser = 40, energy = 10, bomb = 0, bio = 50)

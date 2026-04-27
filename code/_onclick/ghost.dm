@@ -39,9 +39,6 @@
 	if(user.client)
 		if(user.gas_scan)
 			print_atmos_analysis(user, atmosanalyzer_scan(src))
-		if(user.rads_scan)
-			var/dose = SSradiation.get_total_absorbed_dose_at_turf(get_turf(src), AVERAGE_HUMAN_WEIGHT)
-			to_chat(user, EXAMINE_BLOCK(SPAN_NOTICE("Radiation: [fmt_siunit(dose, "Gy/s", 3)].")))
 		if(user.inquisitiveness)
 			user.examinate(src)
 	return

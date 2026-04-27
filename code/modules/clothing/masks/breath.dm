@@ -20,13 +20,6 @@
 	use_alt_layer = TRUE
 	can_use_alt_layer = TRUE
 
-	rad_resist_type = /datum/rad_resist/mask_breath
-
-/datum/rad_resist/mask_breath
-	alpha_particle_resist = 16 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.6 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/clothing/mask/breath/medical
 	desc = "A close-fitting sterile mask that can be manually connected to an air supply for treatment."
 	name = "medical mask"

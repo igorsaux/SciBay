@@ -32,12 +32,3 @@
 #define ATMOS_PRECISION 0.0001
 
 #define INFINITY	1.#INF
-
-/// Constant radiation background, approximately the same radiation is received by astronauts every day.
-#define SPACE_RADIATION                (0.0006 SIEVERT)
-#define SAFE_RADIATION_DOSE            (0.001 SIEVERT)
-
-// Energy
-#define ALPHA_PARTICLE_ENERGY (5 MEGA ELECTRONVOLT)
-#define BETA_PARTICLE_ENERGY  (0.5 MEGA ELECTRONVOLT)
-#define HAWKING_RAY_ENERGY    (122 MILLI ELECTRONVOLT)

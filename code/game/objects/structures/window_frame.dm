@@ -174,8 +174,6 @@
 	layer = WINDOW_FRAME_LAYER
 	explosion_resistance = 1
 
-	rad_resist_type = /datum/rad_resist/window
-
 	var/max_health = 8
 	var/health = 8
 	var/pane_melee_mult = 1.0 // Stronger frames protect their windowpanes from some damage.
@@ -196,11 +194,6 @@
 	var/last_recursion = 0
 
 	var/list/mobs_can_pass = list()
-
-/datum/rad_resist/window
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.1 MEGA ELECTRONVOLT
-	hawking_resist = 0.1 ELECTRONVOLT
 
 /obj/structure/window_frame/Initialize()
 	. = ..()
@@ -929,8 +922,6 @@
 	max_health = 10
 	pane_melee_mult = 0.9
 
-	rad_resist_type = /datum/rad_resist/none
-
 // Pretty much the same as the old grille, but smarter.
 /obj/structure/window_frame/grille
 	frame_state = FRAME_GRILLE
@@ -944,13 +935,6 @@
 	max_health = 12
 	pane_melee_mult = 0.7
 
-	rad_resist_type = /datum/rad_resist/window_frame_grille
-
-/datum/rad_resist/window_frame_grille
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0 MEGA ELECTRONVOLT
-	hawking_resist = 0 ELECTRONVOLT
-
 /obj/structure/window_frame/broken
 	frame_state = FRAME_DESTROYED
 	name = "broken grille"
@@ -961,8 +945,6 @@
 	hitby_loudness_multiplier = 0.5
 	density = FALSE
 	max_health = 6
-
-	rad_resist_type = /datum/rad_resist/none
 
 /obj/structure/window_frame/broken/Initialize()
 	. = ..()
@@ -978,8 +960,6 @@
 	icon_border = "winborder"
 	density = FALSE
 
-	rad_resist_type = /datum/rad_resist/none
-
 /obj/structure/window_frame/relectric
 	frame_state = FRAME_RELECTRIC
 	name = "wired reinforced window frame"
@@ -992,8 +972,6 @@
 	max_health = 10
 	pane_melee_mult = 0.9
 
-	rad_resist_type = /datum/rad_resist/none
-
 // The simpliest window to exist. To be used in totally-no-safety-required areas.
 /obj/structure/window_frame/glass
 	name = "window"
@@ -1001,13 +979,6 @@
 	density = TRUE
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/glass
-
-	rad_resist_type = /datum/rad_resist/window_frame_glass
-
-/datum/rad_resist/window_frame_glass
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.2 MEGA ELECTRONVOLT
-	hawking_resist = 0 ELECTRONVOLT
 
 // Regular window with reinforced glass. Default window for most occasions.
 /obj/structure/window_frame/rglass
@@ -1017,13 +988,6 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rglass
 
-	rad_resist_type = /datum/rad_resist/window_frame_rglass
-
-/datum/rad_resist/window_frame_rglass
-	alpha_particle_resist = 120 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.4 MEGA ELECTRONVOLT
-	hawking_resist = 0.2 ELECTRONVOLT
-
 /obj/structure/window_frame/black
 	name = "window"
 	icon_state = "winframe-black"
@@ -1031,13 +995,6 @@
 	density = TRUE
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/black
-
-	rad_resist_type = /datum/rad_resist/window_frame_black
-
-/datum/rad_resist/window_frame_black
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.2 MEGA ELECTRONVOLT
-	hawking_resist = 0.2 ELECTRONVOLT
 
 /obj/structure/window_frame/rblack
 	name = "window"
@@ -1047,13 +1004,6 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rblack
 
-	rad_resist_type = /datum/rad_resist/window_frame_rblack
-
-/datum/rad_resist/window_frame_rblack
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.4 MEGA ELECTRONVOLT
-	hawking_resist = 0.2 ELECTRONVOLT
-
 // Reinforced window with two reinforced glass panes. Mostly used for hulls.
 /obj/structure/window_frame/reinforced/hull
 	name = "reinforced window"
@@ -1062,13 +1012,6 @@
 	preset_outer_pane = /datum/windowpane/rglass
 	preset_inner_pane = /datum/windowpane/rglass
 
-	rad_resist_type = /datum/rad_resist/window_frame_rhull
-
-/datum/rad_resist/window_frame_rhull
-	alpha_particle_resist = 200 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.8 MEGA ELECTRONVOLT
-	hawking_resist = 0.4 ELECTRONVOLT
-
 // Reinforced window with two reinforced plass panes. Totally the best choice to constrain extremely high temperatures (combustion chamber/engine/etc.)
 /obj/structure/window_frame/reinforced/thermal
 	name = "reinforced window"
@@ -1076,13 +1019,6 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rplass
 	preset_inner_pane = /datum/windowpane/rplass
-
-	rad_resist_type = /datum/rad_resist/window_frame_rthermal
-
-/datum/rad_resist/window_frame_rthermal
-	alpha_particle_resist = 250 MEGA ELECTRONVOLT
-	beta_particle_resist = 1 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/structure/window_frame/reinforced/unfinished
 	name = "unfinished reinforced window"
@@ -1097,26 +1033,12 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/glass
 
-	rad_resist_type = /datum/rad_resist/window_frame_gglass
-
-/datum/rad_resist/window_frame_gglass
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.2 MEGA ELECTRONVOLT
-	hawking_resist = 0.1 ELECTRONVOLT
-
 // Can't hold the second windowpane, but can be used to shock people.
 /obj/structure/window_frame/grille/rglass
 	name = "windowed grille"
 	icon_state = "grille-rglass"
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rglass
-
-	rad_resist_type = /datum/rad_resist/window_frame_grglass
-
-/datum/rad_resist/window_frame_grglass
-	alpha_particle_resist = 120 MEGA ELECTRONVOLT
-	beta_particle_resist = 0.4 MEGA ELECTRONVOLT
-	hawking_resist = 0.2 ELECTRONVOLT
 
 /obj/structure/window_frame/electric/glass
 	name = "electrochromic window"
@@ -1125,8 +1047,6 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/glass
 
-	rad_resist_type = /datum/rad_resist/window_frame_gglass
-
 /obj/structure/window_frame/electric/rglass
 	name = "electrochromic window"
 	icon_state = "winframe_e-rglass"
@@ -1134,23 +1054,17 @@
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rglass
 
-	rad_resist_type = /datum/rad_resist/window_frame_grglass
-
 /obj/structure/window_frame/relectric/glass
 	name = "reinforced electrochromic window"
 	icon_state = "winframe_re-glass"
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/glass
 
-	rad_resist_type = /datum/rad_resist/window_frame_gglass
-
 /obj/structure/window_frame/relectric/rglass
 	name = "reinforced electrochromic window"
 	icon_state = "winframe_re-rglass"
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 	preset_outer_pane = /datum/windowpane/rglass
-
-	rad_resist_type = /datum/rad_resist/window_frame_grglass
 
 /obj/structure/window_frame/indestructible
 	name = "window"

@@ -9,7 +9,6 @@
 	item_flags = ITEM_FLAG_STOPPRESSUREDAMAGE | ITEM_FLAG_THICKMATERIAL
 	flags_inv = BLOCKHAIR
 	siemens_coefficient = 0.6
-	rad_resist_type = /datum/rad_resist/deathsquad
 
 /obj/item/clothing/suit/space/void/deathsquad
 	name = "deathsquad voidsuit"
@@ -21,16 +20,10 @@
 	armor = list(melee = 120, bullet = 150, laser = 150, energy = 65, bomb = 90, bio = 100)
 	flags_inv = HIDESHOES|HIDEJUMPSUIT
 	siemens_coefficient = 0.6
-	rad_resist_type = /datum/rad_resist/deathsquad
 
 /obj/item/clothing/suit/space/void/deathsquad/New()
 	..()
 	slowdown_per_slot[slot_wear_suit] = 1
-
-/datum/rad_resist/deathsquad
-	alpha_particle_resist = 59.4 MEGA ELECTRONVOLT
-	beta_particle_resist = 13.2 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/suit/space/void/deathsquad/prepared
 	helmet = /obj/item/clothing/head/helmet/space/deathsquad
@@ -68,7 +61,6 @@
 	item_state = "explorer_helm"
 	armor = list(melee = 20, bullet = 10, laser = 15,energy = 45, bomb = 30, bio = 100)
 	light_overlay = "explorer_light"
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
 
 /obj/item/clothing/suit/space/void/exploration
 	name = "exploration voidsuit"
@@ -77,7 +69,6 @@
 	item_state = "explorer_voidsuit"
 	armor = list(melee = 20, bullet = 10, laser = 15,energy = 45, bomb = 30, bio = 100)
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/material/hatchet/machete,/obj/item/shovel)
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
 
 /obj/item/clothing/suit/space/void/exploration/prepared
 	helmet = /obj/item/clothing/head/helmet/space/void/exploration
@@ -91,7 +82,6 @@
 	icon_state = "salvage_helm"
 	item_state = "salvage_helm"
 	armor = list(melee = 50, bullet = 10, laser = 30,energy = 15, bomb = 35, bio = 100)
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
 
 /obj/item/clothing/suit/space/void/engineering/salvage
 	name = "salvage voidsuit"
@@ -100,12 +90,6 @@
 	item_state = "salvage_voidsuit"
 	armor = list(melee = 50, bullet = 10, laser = 30,energy = 15, bomb = 35, bio = 100)
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner)
-	rad_resist_type = /datum/rad_resist/void_engi_salvage
-
-/datum/rad_resist/void_engi_salvage
-	alpha_particle_resist = 400 MEGA ELECTRONVOLT
-	beta_particle_resist = 300 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/suit/space/void/engineering/salvage/prepared
 	helmet = /obj/item/clothing/head/helmet/space/void/engineering/salvage

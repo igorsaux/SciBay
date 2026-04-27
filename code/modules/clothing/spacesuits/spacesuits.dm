@@ -29,7 +29,6 @@
 	light_overlay = "helmet_light"
 	brightness_on = 4
 	on = 0
-	rad_resist_type = /datum/rad_resist/space_gear
 
 /obj/item/clothing/suit/space
 	name = "Space suit"

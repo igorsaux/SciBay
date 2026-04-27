@@ -49,8 +49,6 @@
 			return global.SSnano;
 		if("SSopen_space")
 			return global.SSopen_space;
-		if("SSradiation")
-			return global.SSradiation;
 		if("SSskybox")
 			return global.SSskybox;
 		if("SSsupply")
@@ -546,8 +544,6 @@
 			global.SSnano=newval;
 		if("SSopen_space")
 			global.SSopen_space=newval;
-		if("SSradiation")
-			global.SSradiation=newval;
 		if("SSskybox")
 			global.SSskybox=newval;
 		if("SSsupply")

@@ -1,32 +1,6 @@
 /mob/living/carbon/brain/handle_breathing()
 	return
 
-/mob/living/carbon/brain/handle_mutations_and_radiation()
-	radiation -= (0.001 SIEVERT)
-	radiation = Clamp(radiation, SPACE_RADIATION, (3 SIEVERT))
-
-	if(radiation <= SAFE_RADIATION_DOSE)
-		return
-
-	if(radiation >= (3 SIEVERT))
-		if(!container)//If it's not in an MMI
-			to_chat(src, "<span class='notice'>You feel weak.</span>")
-		else//Fluff-wise, since the brain can't detect anything itself, the MMI handles thing like that
-			to_chat(src, "<span class='warning'>STATUS: CRITICAL AMOUNTS OF RADIATION DETECTED.</span>")
-
-	var/damage = radiation / (0.05 SIEVERT)
-
-	if(damage)
-		adjustToxLoss(damage)
-		update_health()
-
-		if(prob(5))
-			if(!container)
-				to_chat(src, "<span class='warning'>You feel weak.</span>")
-			else
-				to_chat(src, "<span class='warning'>STATUS: DANGEROUS LEVELS OF RADIATION DETECTED.</span>")
-
-
 /mob/living/carbon/brain/handle_environment(datum/gas_mixture/environment)
 	if(!environment)
 		return

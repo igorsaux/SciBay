@@ -6,7 +6,6 @@
 	desc = "A crimson helmet sporting clean lines and durable plating. Engineered to look menacing."
 	armor = list(melee = 70, bullet = 80, laser = 100, energy = 35, bomb = 30, bio = 100)
 	siemens_coefficient = 0.3
-	rad_resist_type = /datum/rad_resist/space_gear
 
 /obj/item/clothing/suit/space/syndicate
 	name = "red space suit"
@@ -17,12 +16,6 @@
 	allowed = list(/obj/item/gun,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/tank/emergency)
 	armor = list(melee = 70, bullet = 80, laser = 100, energy = 35, bomb = 30, bio = 100)
 	siemens_coefficient = 0.3
-	rad_resist_type = /datum/rad_resist/space_gear
-
-/datum/rad_resist/space_gear
-	alpha_particle_resist = 59.4 MEGA ELECTRONVOLT
-	beta_particle_resist = 13.2 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 //Green syndicate space suit
 /obj/item/clothing/head/helmet/space/syndicate/green

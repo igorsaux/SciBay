@@ -311,7 +311,6 @@ Loot piles can be depleted, if loot_depleted is turned on.  Note that players wh
 		/obj/item/smes_coil,
 		/obj/item/device/lightreplacer,
 		/obj/item/device/hailer,
-		/obj/item/device/geiger,
 		/obj/item/wrench,
 		/obj/item/screwdriver,
 		/obj/item/wirecutters,

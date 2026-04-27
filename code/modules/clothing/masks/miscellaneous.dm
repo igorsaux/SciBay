@@ -52,13 +52,6 @@
 	pull_mask = 1
 	use_alt_layer = TRUE
 
-	rad_resist_type = /datum/rad_resist/mask_syrgical
-
-/datum/rad_resist/mask_syrgical
-	alpha_particle_resist = 13.5 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.2 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/clothing/mask/fakemoustache
 	name = "fake moustache"
 	desc = "Warning: moustache is fake."
@@ -167,12 +160,6 @@
 	siemens_coefficient = 0.7
 	body_parts_covered = HEAD|FACE|EYES
 	armor = list(melee = 5, bullet = 5, laser = 5, energy = 0, bomb = 0, bio = 0)
-	rad_resist_type = /datum/rad_resist/mask_rubber
-
-/datum/rad_resist/mask_rubber
-	alpha_particle_resist = 16 MEGA ELECTRONVOLT
-	beta_particle_resist = 3.4 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/mask/rubber/trasen
 	name = "Jack Trasen mask"
@@ -252,13 +239,6 @@
 	use_alt_layer = TRUE
 	can_use_alt_layer = TRUE
 
-	rad_resist_type = /datum/rad_resist/bandana
-
-/datum/rad_resist/bandana
-	alpha_particle_resist = 12 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.18 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/clothing/mask/bandana/equipped(mob/user, slot)
 	switch(slot)
 		if(slot_wear_mask) //Mask is the default for all the settings
@@ -318,12 +298,6 @@
 	desc = "A fine black bandana with nanotech lining and a skull emblem. Can be worn on the head or face."
 	icon_state = "bandskull"
 	item_state = "bandskull"
-	rad_resist_type = /datum/rad_resist/bandana
-
-/datum/rad_resist/bandana
-	alpha_particle_resist = 12 MEGA ELECTRONVOLT
-	beta_particle_resist = 2.18 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /obj/item/clothing/mask/bandana/customwhite //Custom item
 	name = "white bandana"

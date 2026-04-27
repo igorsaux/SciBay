@@ -17,8 +17,6 @@ var/global/list/stool_cache = list() //haha stool
 	throwforce = 10
 	w_class = ITEM_SIZE_HUGE
 
-	rad_resist_type = /datum/rad_resist/none
-
 	var/material/material
 	var/material/padding_material
 

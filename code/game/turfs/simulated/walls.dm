@@ -12,8 +12,6 @@
 	hitby_sound = 'sound/effects/metalhit2.ogg'
 	explosion_block = 1
 
-	rad_resist_type = /datum/rad_resist/wall
-
 	var/damage = 0
 	var/damage_overlay = 0
 	var/global/damage_overlays[16]
@@ -41,11 +39,6 @@
 	 * Gets reset to 0 if the wall reaches maximum health, so a new variation is picked when the wall gets shot again
 	 */
 	var/bullethole_variation = 0
-
-/datum/rad_resist/wall
-	alpha_particle_resist = 100 MEGA ELECTRONVOLT
-	beta_particle_resist = 20.2 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
 
 /turf/simulated/wall/Initialize(mapload, materialtype, rmaterialtype)
 	. = ..(mapload)

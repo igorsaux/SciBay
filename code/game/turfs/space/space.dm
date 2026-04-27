@@ -10,8 +10,6 @@
 	thermal_conductivity = OPEN_HEAT_TRANSFER_COEFFICIENT
 	var/dirt = 0
 
-	rad_resist_type = /datum/rad_resist/none
-
 /turf/space/Initialize()
 	. = ..()
 	icon_state = "white"

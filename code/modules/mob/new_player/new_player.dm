@@ -330,12 +330,11 @@
 		var/obj/S = job_master.get_roundstart_spawnpoint(job.title)
 		spawn_turf = get_turf(S)
 
-	var/dose = SSradiation.get_total_absorbed_dose_at_turf(spawn_turf, AVERAGE_HUMAN_WEIGHT)
 	var/airstatus = IsTurfAtmosUnsafe(spawn_turf)
-	if(airstatus || dose > SAFE_RADIATION_DOSE )
+	if(airstatus)
 		var/reply = alert(usr, "Warning. Your selected spawn location seems to have unfavorable conditions. \
 		You may die shortly after spawning. \
-		Spawn anyway? More information: [airstatus] Radiation: [fmt_siunit(dose, "Gy/s", 3)]", "Atmosphere warning", "Abort", "Spawn anyway")
+		Spawn anyway? More information: [airstatus]", "Atmosphere warning", "Abort", "Spawn anyway")
 		if(reply == "Abort")
 			return 0
 		else

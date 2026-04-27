@@ -43,13 +43,6 @@
 
 	var/intact_closet = TRUE // List operations overhead bad
 
-	rad_resist_type = /datum/rad_resist/closet
-
-/datum/rad_resist/closet
-	alpha_particle_resist = 41 MEGA ELECTRONVOLT
-	beta_particle_resist = 3.4 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/structure/closet/nodoor
 	nodoor = TRUE
 	opened = TRUE

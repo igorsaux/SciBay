@@ -21,13 +21,6 @@
 	pickup_sound = SFX_PICKUP_HELMET
 	coverage = 0.8
 
-	rad_resist_type = /datum/rad_resist/helmet
-
-/datum/rad_resist/helmet
-	alpha_particle_resist = 25 MEGA ELECTRONVOLT
-	beta_particle_resist = 5 MEGA ELECTRONVOLT
-	hawking_resist = 1 ELECTRONVOLT
-
 /obj/item/clothing/head/helmet/attack_self(mob/user)
 	if(visor_body_parts_covered)
 		togglevisor(user)
