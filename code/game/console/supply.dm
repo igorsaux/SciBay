@@ -4,156 +4,177 @@
 	screen_state = "thick_supply"
 	req_access = list(access_cargo)
 
-	/// 1: Catalog, 2: Cart, 3: History
-	var/screen = 1
+	/// Current history page (1-indexed)
+	var/history_page = 1
+	/// Items per page in history view
+	var/history_per_page = 10
 	var/selected_category
 	var/list/category_names
 	var/list/category_contents
 
-/obj/console/supply/OnTopic(mob/user, href_list)
-	if(!user.Adjacent(src))
-		return TOPIC_NOACTION
+/obj/console/supply/attack_hand(mob/user)
+	. = ..()
 
-	if(href_list["select_category"])
-		selected_category = href_list["select_category"]
+	tgui_interact(user)
 
-		return TOPIC_HANDLED
-
-	if(href_list["set_screen"])
-		screen = text2num(href_list["set_screen"])
-
-		return TOPIC_HANDLED
-
-	// Anyone can add to cart
-	if(href_list["add_to_cart"])
-		var/decl/hierarchy/supply_pack/P = locate(href_list["add_to_cart"]) in SSsupply.master_supply_list
-		
-		if(!istype(P) || P.is_category())
-			return TOPIC_NOACTION
-
-		var/idname = ishuman(user) ? user:get_authentification_name() : user.real_name
-		SSsupply.ordernum++
-
-		var/datum/supply_order/O = new /datum/supply_order()
-		O.ordernum = SSsupply.ordernum
-		O.object = P
-		O.orderedby = idname
-		SSsupply.shoppinglist += O
-
-		return TOPIC_HANDLED
-
-	// Removing from cart
-	if(href_list["remove_from_cart"])
-		var/id = text2num(href_list["remove_from_cart"])
-
-		for(var/datum/supply_order/SO in SSsupply.shoppinglist)
-			if(SO.ordernum == id)
-				SSsupply.shoppinglist -= SO
-				break
-
-		return TOPIC_HANDLED
-
-	// Admin/Cargo access required below
-	if(!allowed(user))
-		return TOPIC_NOACTION
-
-	// Instant sell, no price shown
-	if(href_list["sell"])
-		SSsupply.sell() 
-		to_chat(user, SPAN_NOTICE("Goods in the loading area have been sold."))
-
-		return TOPIC_HANDLED
-	
-	// Checkout process
-	if(href_list["checkout"])
-		var/total_cost = 0
-		for(var/datum/supply_order/SO in SSsupply.shoppinglist)
-			total_cost += SO.object.get_cost()
-			
-		if(total_cost > GLOB.credits)
-			to_chat(user, SPAN_WARNING("Insufficient funds!"))
-			return TOPIC_NOACTION
-			
-		if(length(SSsupply.shoppinglist) == 0)
-			return TOPIC_NOACTION
-
-		// Deduct points and trigger buy logic
-		GLOB.credits -= total_cost
-		// Assuming this proc handles spawning items from shoppinglist and clearing it
-		SSsupply.buy()
-		
-		to_chat(user, SPAN_NOTICE("Order placed successfully! Items will arrive shortly."))
-		return TOPIC_HANDLED
-
-/obj/console/supply/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1, state = GLOB.default_state)
+/obj/console/supply/tgui_data(mob/user)
 	var/list/data = list()
 	var/is_admin = allowed(user)
-	
+
 	if(!category_names || !category_contents)
 		generate_categories()
 
 	data["is_admin"] = is_admin
-	data["screen"] = screen
-	data["credits"] = "[GLOB.credits]"
+	data["credits"] = GLOB.credits
 	data["currency"] = "₠"
-	
-	// Calculate cart total
+
+	// Cart totals
 	var/cart_total = 0
 	for(var/datum/supply_order/SO in SSsupply.shoppinglist)
 		cart_total += SO.object.get_cost()
 
 	data["cart_total"] = cart_total
+	data["cart_count"] = length(SSsupply.shoppinglist)
 
-	switch(screen)
-		// Catalog
-		if(1)
-			data["categories"] = category_names
+	// Categories
+	data["categories"] = category_names
+	data["selected_category"] = selected_category
 
-			if(selected_category)
-				data["category"] = selected_category
-				
-				var/list/cart_counts = list()
+	// Items for the selected category
+	if(selected_category && category_contents[selected_category])
+		var/list/cart_counts = list()
 
-				for(var/datum/supply_order/SO in SSsupply.shoppinglist)
-					var/ref = "\ref[SO.object]"
-					cart_counts[ref] = (cart_counts[ref] || 0) + 1
-				
-				var/list/purchases = list()
+		for(var/datum/supply_order/SO in SSsupply.shoppinglist)
+			var/ref = "\ref[SO.object]"
 
-				for(var/list/item_data in category_contents[selected_category])
-					item_data["in_cart"] = cart_counts[item_data["ref"]] || 0
-					purchases.Add(list(item_data))
-					
-				data["possible_purchases"] = purchases
-		// Cart
-		if(2)
-			var/list/cart[0]
+			cart_counts[ref] = (cart_counts[ref] || 0) + 1
+
+		var/list/purchases = list()
+
+		for(var/list/item_data in category_contents[selected_category])
+			var/list/item = item_data.Copy()
+
+			item["in_cart"] = cart_counts[item["ref"]] || 0
+			purchases.Add(list(item))
+
+		data["possible_purchases"] = purchases
+	else
+		data["possible_purchases"] = list()
+
+	// Cart items
+	var/list/cart = list()
+
+	for(var/datum/supply_order/SO in SSsupply.shoppinglist)
+		cart.Add(list(list(
+			"id" = SO.ordernum,
+			"object" = SO.object.name,
+			"vendor" = SO.object.vendor,
+			"orderer" = SO.orderedby,
+			"cost" = SO.object.get_cost()
+		)))
+
+	data["cart"] = cart
+
+	// History with proper pagination
+	var/history_count = length(SSsupply.history)
+	var/total_pages = max(1, CEILING(history_count / history_per_page, 1))
+	history_page = clamp(history_page, 1, total_pages)
+
+	var/list/history_display = list()
+	if(history_count > 0)
+		// Most recent entries first, paginated
+		var/start_idx = history_count - (history_page - 1) * history_per_page
+		var/end_idx = max(1, start_idx - history_per_page + 1)
+
+		for(var/i = start_idx; i >= end_idx; i--)
+			history_display += list(SSsupply.history[i])
+
+	data["history"] = history_display
+	data["history_page"] = history_page
+	data["history_total_pages"] = total_pages
+	data["history_count"] = history_count
+
+	return data
+
+/obj/console/supply/tgui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	. = ..()
+
+	if(.)
+		return TRUE
+
+	switch(action)
+		if("select_category")
+			selected_category = params["category"]
+
+			return TRUE
+
+		// Anyone can add to cart
+		if("add_to_cart")
+			var/decl/hierarchy/supply_pack/P = locate(params["ref"]) in SSsupply.master_supply_list
+
+			if(!istype(P) || P.is_category())
+				return TRUE
+
+			var/idname = ishuman(usr) ? usr:get_authentification_name() : usr.real_name
+			SSsupply.ordernum++
+
+			var/datum/supply_order/O = new /datum/supply_order()
+			O.ordernum = SSsupply.ordernum
+			O.object = P
+			O.orderedby = idname
+			SSsupply.shoppinglist += O
+
+			return TRUE
+		if("remove_from_cart")
+			var/id = text2num(params["id"])
 
 			for(var/datum/supply_order/SO in SSsupply.shoppinglist)
-				cart.Add(order_to_nanoui(SO))
-
-			data["cart"] = cart
-		// History
-		if(3)
-			var/list/history_display = list()
-			var/history_count = length(SSsupply.history)
-			
-			// Show only last 10 entries
-			for(var/i = 1; i <= history_count; i++)
-				var/entry_idx = history_count - i + 1
-				if(i > 10)
+				if(SO.ordernum == id)
+					SSsupply.shoppinglist -= SO
 					break
-				if(entry_idx >= 1 && entry_idx <= history_count)
-					var/entry = SSsupply.history[entry_idx]
-					history_display += list(entry)
-			
-			data["history"] = history_display
 
-	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
-	if (!ui)
-		ui = new(user, src, ui_key, "supply.tmpl", name, 1050, 800, state = state)
-		ui.set_auto_update(1)
-		ui.set_initial_data(data)
+			return TRUE
+		// Admin/Cargo access required below
+		if("sell")
+			if(!allowed(usr))
+				return TRUE
+
+			SSsupply.sell()
+			to_chat(usr, SPAN_NOTICE("Goods in the loading area have been sold."))
+
+			return TRUE
+		if("checkout")
+			if(!allowed(usr))
+				return TRUE
+
+			var/total_cost = 0
+
+			for(var/datum/supply_order/SO in SSsupply.shoppinglist)
+				total_cost += SO.object.get_cost()
+
+			if(total_cost > GLOB.credits)
+				to_chat(usr, SPAN_WARNING("Insufficient funds!"))
+				return TRUE
+
+			if(length(SSsupply.shoppinglist) == 0)
+				return TRUE
+
+			GLOB.credits -= total_cost
+			SSsupply.buy()
+			to_chat(usr, SPAN_NOTICE("Order placed successfully! Items will arrive shortly."))
+
+			return TRUE
+		if("set_history_page")
+			history_page = text2num(params["page"])
+
+			return TRUE
+
+/obj/console/supply/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+
+	if(!ui)
+		ui = new(user, src, "SupplyTerminal", "Supply Terminal", 800, 600)
+		ui.set_autoupdate(TRUE)
 		ui.open()
 
 /obj/console/supply/proc/generate_categories()
@@ -166,7 +187,7 @@
 
 		category_names.Add(sp.name)
 
-		var/list/category[0]
+		var/list/category = list()
 
 		for(var/decl/hierarchy/supply_pack/spc in sp.children)
 			category.Add(list(list(
@@ -177,12 +198,3 @@
 			)))
 
 		category_contents[sp.name] = category
-
-/obj/console/supply/proc/order_to_nanoui(datum/supply_order/SO)
-	return list(list(
-		"id" = SO.ordernum,
-		"object" = SO.object.name,
-		"vendor" = SO.object.vendor,
-		"orderer" = SO.orderedby,
-		"cost" = SO.object.get_cost()
-	))
