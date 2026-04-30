@@ -13,6 +13,21 @@
 	drop_sound = SFX_DROP_GLASSSMALL
 	pickup_sound = SFX_PICKUP_GLASSSMALL
 
+/obj/item/reagent_containers/dropper/examine(mob/user, infix)
+	. = ..()
+
+	. += "Can hold up to <b>[round(volume * 1000, 1)]</b> ml."
+
+	if(!Adjacent(user))
+		return
+
+	var/used_volume = get_used_volume()
+
+	if(used_volume > 0.0)
+		. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 1)]</b>ml of liquid.")
+	else
+		. += SPAN_NOTICE("It is empty.")
+
 /obj/item/reagent_containers/dropper/afterattack(obj/target, mob/user, proximity)
 	if(!proximity)
 		return

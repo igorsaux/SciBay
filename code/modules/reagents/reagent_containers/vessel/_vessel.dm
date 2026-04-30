@@ -163,7 +163,7 @@
 
 	. += "Can hold up to <b>[round(volume * 1000, 1)]</b> ml."
 
-	if(get_dist(src, user) > 2)
+	if(!Adjacent(user))
 		return
 
 	var/used_volume = get_used_volume()
