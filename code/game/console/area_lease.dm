@@ -3,7 +3,6 @@
 	desc = "A localized interface for signing short-term spatial lease agreements."
 	icon_state = "tiny"
 	screen_state = "tiny_lift"
-	density = 0
 	turf_height_offset = 0
 	req_access = list(access_captain)
 
@@ -12,7 +11,7 @@
 
 	if(!allowed(user))
 		to_chat(user, SPAN_WARNING("Access Denied."))
-		return TRUE
+		return
 
 	tgui_interact(user)
 
@@ -59,7 +58,7 @@
 				
 			GLOB.credits -= current_area.price
 			
-			to_chat(usr, SPAN_NOTICE("You have successfully leased [current_area.name]."))
+			to_chat(ui.user, SPAN_NOTICE("You have successfully leased [current_area.name]."))
 			current_area.is_owned = TRUE
 			
 			qdel(src)

@@ -1,6 +1,9 @@
 /obj/console
 	icon = 'icons/console.dmi'
 	icon_state = "thick"
+	layer = BELOW_OBJ_LAYER
+	density = 1
+	anchored = 1
 
 	var/screen_state = null
 
