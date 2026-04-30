@@ -413,6 +413,11 @@
 	var/colored_weight = 0
 
 	var/liquid_phases = Z_CHEM_GET_LIQUID_PHASES(src)
+	var/solid_phases = Z_CHEM_GET_SOLID_PHASES(src)
+
+	if(liquid_phases <= 0 && solid_phases <= 0)
+		return "#FFFFFF00"
+
 	if(liquid_phases)
 		for(var/i = 0 to liquid_phases - 1)
 			var/list/flavor = Z_CHEM_GET_LIQUID_PHASE_FLAVOR(src, i)
@@ -437,7 +442,6 @@
 				total_weight += weight
 				colored_weight += weight
 
-	var/solid_phases = Z_CHEM_GET_SOLID_PHASES(src)
 	if(solid_phases)
 		for(var/i = 0 to solid_phases - 1)
 			var/list/flavor = Z_CHEM_GET_SOLID_PHASE_FLAVOR(src, i)
@@ -463,10 +467,10 @@
 				colored_weight += weight
 
 	if(total_weight <= 0)
-		return "#FFFFFF00"
+		return "#ffffff50"
 
 	if(colored_weight <= 0)
-		return "#FFFFFF00"
+		return "#ffffff50"
 
 	var/base_r = total_r / colored_weight
 	var/base_g = total_g / colored_weight
