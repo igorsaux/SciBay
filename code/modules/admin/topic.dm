@@ -39,40 +39,6 @@
 
 				message_admins("[key_name_admin(usr)] removed [adm_ckey] from the admins list")
 				log_admin("[key_name(usr)] removed [adm_ckey] from the admins list")
-				log_admin_rank_modification(adm_ckey, "Removed")
-
-		else if(task == "rank")
-			var/new_rank
-			if(admin_ranks.len)
-				new_rank = input("Please select a rank", "New rank", null, null) as null|anything in (admin_ranks|"*New Rank*")
-			else
-				new_rank = input("Please select a rank", "New rank", null, null) as null|anything in list("Game Master","Game Admin", "Trial Admin", "Admin Observer","*New Rank*")
-
-			var/rights = 0
-			if(D)
-				rights = D.rights
-			switch(new_rank)
-				if(null,"") return
-				if("*New Rank*")
-					new_rank = input("Please input a new rank", "New custom rank", null, null) as null|text
-					if(!new_rank)
-						to_chat(usr, "<font color='red'>Error: Topic 'editrights': Invalid rank</font>")
-						return
-
-			if(D)
-				D.disassociate()								//remove adminverbs and unlink from client
-				D.rank = new_rank								//update the rank
-				D.rights = rights								//update the rights based on admin_ranks (default: 0)
-			else
-				D = new /datum/admins(new_rank, rights, adm_ckey)
-
-			var/client/C = GLOB.ckey_directory[adm_ckey]					//find the client with the specified ckey (if they are logged in)
-			D.associate(C)											//link up with the client and add verbs
-
-			to_chat(C, "[key_name_admin(usr)] has set your admin rank to: [new_rank].")
-			message_admins("[key_name_admin(usr)] edited the admin rank of [adm_ckey] to [new_rank]")
-			log_admin("[key_name(usr)] edited the admin rank of [adm_ckey] to [new_rank]")
-			log_admin_rank_modification(adm_ckey, new_rank)
 
 		else if(task == "permissions")
 			if(!D)	return
@@ -87,7 +53,6 @@
 			to_chat(C, "[key_name_admin(usr)] has toggled your permission: [new_permission].")
 			message_admins("[key_name_admin(usr)] toggled the [new_permission] permission of [adm_ckey]")
 			log_admin("[key_name(usr)] toggled the [new_permission] permission of [adm_ckey]")
-			log_admin_permission_modification(adm_ckey, permissionlist[new_permission])
 
 		edit_admin_permissions()
 
@@ -707,10 +672,6 @@
 	else if(href_list["admin_secrets"])
 		var/datum/admin_secret_item/item = locate(href_list["admin_secrets"]) in admin_secrets.items
 		item.execute(usr)
-
-	else if(href_list["populate_inactive_customitems"])
-		if(check_rights(R_ADMIN|R_SERVER))
-			populate_inactive_customitems_list(src.owner)
 
 	else if(href_list["vsc"])
 		if(check_rights(R_ADMIN|R_SERVER))

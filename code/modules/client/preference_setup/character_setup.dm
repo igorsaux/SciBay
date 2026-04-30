@@ -585,9 +585,6 @@
 	data["hideDonate"] = hide_donate_gear
 	data["slotFilter"] = slot_filter
 
-	data["patronTier"] = user.client?.donator_info?.get_full_patron_tier()
-	data["currentOpyxes"] = user.client?.donator_info ? round(user.client.donator_info.opyxes) : 0
-
 	// === CAREER DYNAMIC DATA ===
 	data["job_high"] = pref.job_high
 	data["job_medium"] = pref.job_medium
@@ -1323,26 +1320,6 @@
 			mark_preview_dirty()
 			return TRUE
 
-		if("buyGear")
-			var/hash = params["hash"]
-			var/datum/gear/G = hash_to_gear[hash]
-			if(!G || !G.price)
-				return FALSE
-			if(!owner.client?.donator_info)
-				return FALSE
-			if(owner.client.donator_info.has_item(G.type))
-				return FALSE
-			var/adjusted_price = G.discount ? G.price * G.discount : G.price
-			var/comment = "Donation store purchase: [G.type]"
-			var/transaction = SSdonations.create_transaction(owner.client, -adjusted_price, DONATIONS_TRANSACTION_TYPE_PURCHASE, comment)
-			if(transaction)
-				if(SSdonations.give_item(owner.client, G.type, transaction))
-					update_static_data(owner)
-					return TRUE
-				else
-					SSdonations.remove_transaction(owner.client, transaction)
-			return FALSE
-
 		if("toggleHideUnavailable")
 			hide_unavailable_gear = !hide_unavailable_gear
 			return TRUE
@@ -1664,7 +1641,6 @@
 					gear_icon_state = temp2.icon_state
 					QDEL_NULL(temp2)
 				break
-	var/owned = G.price && user.client?.donator_info?.has_item(G.type)
 	var/list/entry = list(
 		"name" = G.display_name,
 		"hash" = G.gear_hash,
@@ -1674,9 +1650,6 @@
 		"slotName" = G.slot ? slot_to_description(G.slot) : "",
 		"subgroup" = G.subgroup || "",
 		"cost" = G.cost,
-		"price" = owned ? 0 : (G.price || 0),
-		"discount" = owned ? 0 : (G.discount || 0),
-		"patronTier" = G.patron_tier,
 		"description" = G.description || "",
 		"allowed" = gear_allowed_to_see(G, user),
 		"canEquip" = G.is_allowed_to_equip(user)
@@ -1733,7 +1706,6 @@
 			if(!islist(gear_virtual_item.color))
 				tweaked_color = gear_virtual_item.color
 		QDEL_NULL(gear_virtual_item)
-	var/detail_owned = G.price && user.client?.donator_info?.has_item(G.type)
 	return list(
 		"name" = G.display_name,
 		"hash" = G.gear_hash,
@@ -1744,9 +1716,6 @@
 		"slot" = G.slot,
 		"slotName" = G.slot ? slot_to_description(G.slot) : "",
 		"cost" = G.cost,
-		"price" = detail_owned ? 0 : (G.price || 0),
-		"discount" = detail_owned ? 0 : (G.discount || 0),
-		"patronTier" = G.patron_tier,
 		"canEquip" = G.is_allowed_to_equip(user),
 		"equipped" = islist(pref.gear_list[pref.gear_slot]) && (G.display_name in pref.gear_list[pref.gear_slot])
 	)

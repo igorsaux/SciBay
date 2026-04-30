@@ -84,60 +84,47 @@
 	cover_type["white"]  = /obj/item/welding_cover/white
 	gear_tweaks += new /datum/gear_tweak/path(cover_type)
 
-//Donator's Shop
-
 /datum/gear/rubberducky
 	display_name = "bike horn"
 	path = /obj/item/bikehorn
-	price = 25
 
 /datum/gear/rubberducky
 	display_name = "vuvuzela"
 	path = /obj/item/bikehorn/vuvuzela
-	price = 25
 
 /datum/gear/rubberducky
 	display_name = "rubber ducky"
 	path = /obj/item/bikehorn/rubberducky
-	price = 25
 
 /datum/gear/champion
 	display_name = "champion's belt"
 	path = /obj/item/storage/belt/champion
 	slot = slot_belt
-	price = 20
 
 /datum/gear/bedsheet_clown
 	display_name = "clown's bedsheet"
 	path = /obj/item/bedsheet/clown
-	price = 10
 
 /datum/gear/bedsheet_mime
 	display_name = "mime's bedsheet"
 	path = /obj/item/bedsheet/mime
-	price = 10
 
 /datum/gear/bedsheet_rainbow
 	display_name = "rainbow's bedsheet"
 	path = /obj/item/bedsheet/rainbow
-	price = 10
 
 /datum/gear/bosunwhistle
 	display_name = "bosun's whistle"
 	path = /obj/item/toy/bosunwhistle
-	price = 75
 
 /datum/gear/balloon
 	display_name = "balloon"
 	path = /obj/item/toy/balloon
-	price = 100
 
 /datum/gear/balloon/nanotrasen
 	display_name = "'motivational' balloon"
 	path = /obj/item/toy/balloon/nanotrasen
-	price = 75
 
 /datum/gear/spinningtoy
 	display_name = "gravitational singularity"
 	path = /obj/item/toy/spinningtoy
-	price = 30

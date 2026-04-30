@@ -4,7 +4,7 @@
 		return
 	if(!C)
 		return
-	if(!check_rights(0, FALSE, C) && !C.donator_info.patreon_tier_available(PATREON_SCIENTIST))
+	if(!check_rights(0, FALSE, C))
 		return
 	var/static/list/emojis = icon_states(icon('icons/emoji.dmi'))
 	var/parsed = ""

@@ -95,12 +95,3 @@
 					output += "&nbsp;&nbsp;&nbsp;&nbsp;[device]<br>"
 
 	show_browser(usr, output, "window=radioreport")
-
-/client/proc/reload_admins()
-	set name = "Reload Admins"
-	set category = "Debug"
-
-	if(!check_rights(R_SERVER))	return
-
-	message_admins("[usr] manually reloaded admins")
-	load_admins()

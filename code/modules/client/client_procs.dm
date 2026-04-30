@@ -211,23 +211,6 @@
 
 			A.associate(src)
 
-	else if((config.multiaccount.panic_bunker != 0) && (get_player_age(ckey) < config.multiaccount.panic_bunker))
-		var/player_age = get_player_age(ckey)
-		if(config.multiaccount.panic_server_address && TopicData != "redirect")
-			log_access("Panic Bunker: ([key_name(key, include_name = FALSE)] | age [player_age]) - attempted to connect. Redirected to [config.multiaccount.panic_server_name ? config.multiaccount.panic_server_name : config.multiaccount.panic_server_address]")
-			message_admins(SPAN("adminnotice", "Panic Bunker: ([key] | age [player_age]) - attempted to connect. Redirected to [config.multiaccount.panic_server_name ? config.multiaccount.panic_server_name : config.multiaccount.panic_server_address]"))
-			to_chat(src, SPAN("notice", "Server is already full. Sending you to [config.multiaccount.panic_server_name ? config.multiaccount.panic_server_name : config.multiaccount.panic_server_address]."))
-			winset(src, null, "command=.options")
-			send_link(src, "[config.multiaccount.panic_server_address]?redirect")
-		else
-			log_access("Panic Bunker: ([key_name(key, include_name = FALSE)] | age [player_age]) - attempted to connect. Redirecting is not configured.")
-			message_admins("<span class='adminnotice'>Panic Bunker: ([key] | age [player_age]) - Redirecting is not configured.</span>")
-		qdel(src)
-		return
-
-	var/age = get_player_age(ckey)
-	message_staff("[src] ([age < 10 ? "<font color='#ff0000'>[age]</font>" : age]) has connected.")
-
 	setup_preferences()
 	view_size = new(src, get_screen_size(TRUE))
 
@@ -260,11 +243,6 @@
 			winset(src, null, "command=\".configure graphics-hwmode off\"")
 			sleep(2) // wait a bit more, possibly fixes hardware mode not re-activating right
 			winset(src, null, "command=\".configure graphics-hwmode on\"")
-
-	log_client_to_db()
-	SSdonations.log_client_to_db(src)
-	SSdonations.update_donator(src)
-	SSdonations.update_donator_items(src)
 
 	send_resources()
 
@@ -311,19 +289,6 @@
 
 // here because it's similar to below
 
-// Returns null if no DB connection can be established, or -1 if the requested key was not found in the database
-
-/proc/get_player_age(key)
-	if(!establish_db_connection())
-		return null
-
-	var/DBQuery/query = sql_query("SELECT datediff(Now(),firstseen) as age FROM erro_player WHERE ckey = $ckey", dbcon, list(ckey = ckey(key)))
-
-	if(query.NextRow())
-		return text2num(query.item[1])
-	else
-		return -1
-
 /proc/is_player_rejected_by_player_limit(mob/user, ckey)
 	if(ckey in admin_datums)
 		return FALSE
@@ -332,54 +297,6 @@
 			return FALSE
 		return TRUE
 	return FALSE
-
-/client/proc/log_client_to_db()
-	if(IsGuestKey(src.key))
-		return
-
-	if(!establish_db_connection())
-		return
-
-	var/DBQuery/query = sql_query("SELECT id, datediff(Now(),firstseen) as age FROM erro_player WHERE ckey = $ckey", dbcon, list(ckey = ckey))
-	var/id = 0
-	player_age = 0	// New players won't have an entry so knowing we have a connection we set this to zero to be updated if their is a record.
-	while(query.NextRow())
-		id = query.item[1]
-		player_age = text2num(query.item[2])
-		break
-
-	var/DBQuery/query_ip = sql_query("SELECT ckey FROM erro_player WHERE ip = $address", dbcon, list(address = address || "127.0.0.1"))
-	related_accounts_ip = ""
-	while(query_ip.NextRow())
-		related_accounts_ip += "[query_ip.item[1]], "
-		break
-
-	var/DBQuery/query_cid = sql_query("SELECT ckey FROM erro_player WHERE computerid = $computer_id", dbcon, list(computer_id = computer_id))
-	related_accounts_cid = ""
-	while(query_cid.NextRow())
-		related_accounts_cid += "[query_cid.item[1]], "
-		break
-
-	// Just the standard check to see if it's actually a number
-	if(id)
-		if(istext(id))
-			id = text2num(id)
-		if(!isnum(id))
-			return
-
-	var/admin_rank = "Player"
-	if(src.holder)
-		admin_rank = src.holder.rank
-
-	if(id)
-		// Player already identified previously, we need to just update the 'lastseen', 'ip' and 'computer_id' variables
-		sql_query("UPDATE erro_player SET lastseen = Now(), ip = $address, computerid = $computer_id, lastadminrank = $admin_rank WHERE id = $id", dbcon, list(address = address || "127.0.0.1", computer_id = computer_id, admin_rank = admin_rank, id = id))
-	else
-		// New player!! Need to insert all the stuff
-		sql_query("INSERT INTO erro_player VALUES (null, $ckey, Now(), Now(), $address, $computer_id, $admin_rank)", dbcon, list(ckey = ckey, address = address || "127.0.0.1", computer_id = computer_id, admin_rank = admin_rank))
-
-	sql_query("INSERT INTO connection(datetime, ckey, ip, computerid) VALUES (Now(), $ckey, $address, $computer_id)", dbcon, list(ckey = ckey, address = address || "127.0.0.1", computer_id = computer_id))
-
 
 #undef UPLOAD_LIMIT
 

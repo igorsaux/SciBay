@@ -69,8 +69,6 @@
 			return global.admin_datums;
 		if("admin_pm_repository")
 			return global.admin_pm_repository;
-		if("admin_ranks")
-			return global.admin_ranks;
 		if("admin_secrets")
 			return global.admin_secrets;
 		if("admin_verbs_admin")
@@ -151,8 +149,6 @@
 			return global.cargo_supply_packs;
 		if("changelog_hash")
 			return global.changelog_hash;
-		if("checked_for_inactives")
-			return global.checked_for_inactives;
 		if("chemical_reactions_list")
 			return global.chemical_reactions_list;
 		if("client_preference_stats_")
@@ -269,8 +265,6 @@
 			return global.id_card_states;
 		if("image_repository")
 			return global.image_repository;
-		if("inactive_keys")
-			return global.inactive_keys;
 		if("init")
 			return global.init;
 		if("intents")
@@ -564,8 +558,6 @@
 			global.admin_datums=newval;
 		if("admin_pm_repository")
 			global.admin_pm_repository=newval;
-		if("admin_ranks")
-			global.admin_ranks=newval;
 		if("admin_secrets")
 			global.admin_secrets=newval;
 		if("admin_verbs_admin")
@@ -650,8 +642,6 @@
 			global.cargo_supply_packs=newval;
 		if("changelog_hash")
 			global.changelog_hash=newval;
-		if("checked_for_inactives")
-			global.checked_for_inactives=newval;
 		if("chemical_reactions_list")
 			global.chemical_reactions_list=newval;
 		if("client_preference_stats_")
@@ -768,8 +758,6 @@
 			global.id_card_states=newval;
 		if("image_repository")
 			global.image_repository=newval;
-		if("inactive_keys")
-			global.inactive_keys=newval;
 		if("init")
 			global.init=newval;
 		if("intents")

@@ -137,102 +137,82 @@
 	trenchcoats += /obj/item/clothing/suit/storage/toggle/browncoat
 	gear_tweaks += new /datum/gear_tweak/path/specified_types_list(trenchcoats)
 
-//
-// Donator's shop
-//
-
 /datum/gear/suit/pirate
 	display_name = "pirate suit"
 	path = /obj/item/clothing/suit/pirate
 	subgroup = "Costumes"
-	price = 15
 
 /datum/gear/suit/cardborg
 	display_name = "cardborg suit"
 	path = /obj/item/clothing/suit/cardborg
 	subgroup = "Costumes"
-	price = 6
 
 /datum/gear/suit/santa
 	display_name = "santa's suit"
 	path = /obj/item/clothing/suit/space/santa
 	subgroup = "Costumes"
-	price = 40
 
 /datum/gear/suit/plaguedoctorsuit
 	display_name = "plague doctor suit"
 	path = /obj/item/clothing/suit/bio_suit/plaguedoctorsuit
 	subgroup = "Costumes"
-	price = 20
 
 /datum/gear/suit/hgpirate
 	display_name = "pirate captain coat"
 	path = /obj/item/clothing/suit/hgpirate
 	subgroup = "Jackets & Coats"
-	price = 10
 
 /datum/gear/suit/johnny_coat
 	display_name = "johnny coat"
 	path = /obj/item/clothing/suit/johnny_coat
 	subgroup = "Jackets & Coats"
-	price = 10
 
 /datum/gear/suit/judgerobe
 	display_name = "judge's robe"
 	path = /obj/item/clothing/suit/judgerobe
 	subgroup = "Costumes"
-	price = 10
 
 /datum/gear/suit/monkeysuit
 	display_name = "monkey suit"
 	path = /obj/item/clothing/suit/monkeysuit
 	subgroup = "Costumes"
-	price = 10
 
 /datum/gear/suit/chickensuit
 	display_name = "chicken suit"
 	path = /obj/item/clothing/suit/chickensuit
 	subgroup = "Costumes"
-	price = 10
 
 /datum/gear/suit/yuri
 	display_name = "yuri coat"
 	path = /obj/item/clothing/suit/yuri
 	subgroup = "Jackets & Coats"
-	price = 10
 
 /datum/gear/suit/bee
 	display_name = "bee suit"
 	path = /obj/item/clothing/suit/storage/hooded/bee
 	subgroup = "Costumes"
-	price = 10
 
 /datum/gear/suit/ianshirt
 	display_name = "ian shirt"
 	path = /obj/item/clothing/suit/ianshirt
 	subgroup = "Costumes"
-	price = 5
 
 /datum/gear/suit/punk_jacket_AC
 	display_name = "punk jacket black"
 	path = /obj/item/clothing/suit/storage/toggle/punk_jacket_AC
 	subgroup = "Jackets & Coats"
-	price = 20
 
 /datum/gear/suit/punk_jacket_RD
 	display_name = "punk jacket raven"
 	path = /obj/item/clothing/suit/storage/toggle/punk_jacket_RD
 	subgroup = "Jackets & Coats"
-	price = 20
 
 /datum/gear/suit/punk_jacket_TS
 	display_name = "punk jacket brown"
 	path = /obj/item/clothing/suit/storage/toggle/punk_jacket_TS
 	subgroup = "Jackets & Coats"
-	price = 20
 
 /datum/gear/suit/fashionable_coat
 	display_name = "fashionable coat"
 	path = /obj/item/clothing/suit/storage/fashionable_coat
 	subgroup = "Jackets & Coats"
-	price = 20

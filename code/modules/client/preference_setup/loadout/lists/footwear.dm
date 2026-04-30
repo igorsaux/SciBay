@@ -31,7 +31,6 @@
 	description = "Cheap, yet elegant, pair of female shoes. These are definitely made for walking tho."
 	allowed_roles = CIVILIAN_ROLES
 	cost = 2
-	price = 10
 
 /datum/gear/shoes/sandal
 	display_name = "sandals selection"
@@ -60,31 +59,22 @@
 	path = /obj/item/clothing/shoes/cheapboots/work
 	cost = 2
 
-//
-// Donator's shop
-//
-
 /datum/gear/shoes/clown_shoes
 	display_name = "clown shoes"
 	path = /obj/item/clothing/shoes/clown_shoes
-	price = 18
 
 /datum/gear/shoes/cyborg_shoes
 	display_name = "cyborg shoes"
 	path = /obj/item/clothing/shoes/cyborg
-	price = 2
 
 /datum/gear/shoes/swimmingfins
 	display_name = "swimming fins"
 	path = /obj/item/clothing/shoes/swimmingfins
-	price = 5
 
 /datum/gear/shoes/slippers
 	display_name = "bunny slippers"
 	path = /obj/item/clothing/shoes/slippers
-	price = 5
 
 /datum/gear/shoes/mime_shoes
 	display_name = "mime shoes"
 	path = /obj/item/clothing/shoes/mime
-	price = 12

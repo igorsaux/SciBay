@@ -147,88 +147,68 @@
 	path = /obj/item/clothing/head/beanie
 	flags = GEAR_HAS_COLOR_SELECTION
 
-//
-// Donator's shop
-//
-
 /datum/gear/head/kitty
 	display_name = "kitty ears"
 	path = /obj/item/clothing/head/kitty
-	price = 20
 
 /datum/gear/head/witchwig
 	display_name = "witchwig"
 	path = /obj/item/clothing/head/witchwig
-	price = 30
 
 /datum/gear/head/bearpelt
 	display_name = "bearpelt"
 	path = /obj/item/clothing/head/bearpelt
-	price = 30
 
 /datum/gear/head/rabbitears
 	display_name = "rabbit ears"
 	path = /obj/item/clothing/head/rabbitears
-	price = 16
 
 /datum/gear/head/petehat
 	display_name = "pete hat"
 	path = /obj/item/clothing/head/collectable/petehat
-	price = 5
 
 /datum/gear/head/cardborg
 	display_name = "cardborg hat"
 	path = /obj/item/clothing/head/cardborg
-	price = 5
 
 /datum/gear/head/pirate
 	display_name = "pirate cap"
 	path = /obj/item/clothing/head/pirate
-	price = 10
 
 /datum/gear/head/plaguedoctorhat
 	display_name = "plague doctor hat"
 	path = /obj/item/clothing/head/plaguedoctorhat
-	price = 10
 
 /datum/gear/head/sombrero
 	display_name = "sombrero"
 	path = /obj/item/clothing/head/sombrero
-	price = 5
 
 /datum/gear/head/chicken
 	display_name = "chicken head"
 	path = /obj/item/clothing/head/chicken
-	price = 18
 
 /datum/gear/head/rasta
 	display_name = "rasta hat"
 	path = /obj/item/clothing/head/rasta
-	price = 10
 
 /datum/gear/head/richard
 	display_name = "cock head"
 	path = /obj/item/clothing/head/richard
-	price = 20
 
 /datum/gear/head/pumpkinhead
 	display_name = "pumpkin head"
 	path = /obj/item/clothing/head/pumpkinhead
-	price = 12
 
 /datum/gear/head/yurihead
 	display_name = "yuri helmet"
 	path = /obj/item/clothing/head/yuri
-	price = 10
 
 /datum/gear/head/capcap_alt
 	display_name = "captain's cap"
 	path = /obj/item/clothing/head/caphat/cap/capcap_alt
-	price = 10
 	allowed_roles = list(/datum/job/captain)
 
 /datum/gear/head/captain_alt
 	display_name = "old captain's hat"
 	path = /obj/item/clothing/head/caphat/alt
-	price = 10
 	allowed_roles = list(/datum/job/captain)

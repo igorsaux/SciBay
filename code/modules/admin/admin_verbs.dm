@@ -11,7 +11,6 @@ var/list/admin_verbs_default = list(
 	/client/proc/debug_glob_variables,
 //	/client/proc/check_antagonists,		//shows all antags,
 	/client/proc/cmd_mentor_check_new_players,
-	/client/proc/checkAccount
 //	/client/proc/deadchat				//toggles deadchat on/off,
 	)
 
@@ -69,7 +68,6 @@ var/list/admin_verbs_admin = list(
 	/client/proc/cmd_admin_rejuvenate,
 	/client/proc/toggleghostwriters,
 	/client/proc/toggledrones,
-	/client/proc/check_customitem_activity,
 	/client/proc/man_up,
 	/client/proc/global_man_up,
 	/client/proc/toggle_antagHUD_use,
@@ -121,7 +119,6 @@ var/list/admin_verbs_server = list(
 	/client/proc/cmd_debug_del_all,
 	/datum/admins/proc/adspawn,
 	/datum/admins/proc/adjump,
-	/client/proc/check_customitem_activity,
 	/client/proc/nanomapgen_DumpImage,
 	/client/proc/cmd_set_station_date
 	)
@@ -137,7 +134,6 @@ var/list/admin_verbs_debug = list(
 	/client/proc/cmd_debug_del_all,
 	/client/proc/cmd_debug_tog_aliens,
 	/client/proc/air_report,
-	/client/proc/reload_admins,
 	/client/proc/restart_controller,
 	/client/proc/enable_debug_verbs,
 	/client/proc/callproc,
@@ -220,7 +216,6 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/callproc,
 	/client/proc/callproc_target,
 	/client/proc/Debug2,
-	/client/proc/reload_admins,
 	/client/proc/cmd_debug_make_powernets,
 	/client/proc/debug_controller,
 	/client/proc/cmd_debug_mob_lists,

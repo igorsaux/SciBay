@@ -198,104 +198,15 @@
 		AttemptLateSpawn(job, client.prefs.spawnpoint)
 		return
 
-	if(href_list["privacy_poll"])
-		if(!establish_db_connection())
-			return
-		var/voted = 0
-
-		//First check if the person has not voted yet.
-		var/DBQuery/query = sql_query("SELECT * FROM erro_privacy WHERE ckey = $ckey", dbcon, list(ckey = ckey))
-		while(query.NextRow())
-			voted = 1
-			break
-
-		//This is a safety switch, so only valid options pass through
-		var/option = "UNKNOWN"
-		switch(href_list["privacy_poll"])
-			if("signed")
-				option = "SIGNED"
-			if("anonymous")
-				option = "ANONYMOUS"
-			if("nostats")
-				option = "NOSTATS"
-			if("later")
-				close_browser(usr, "window=privacypoll")
-				return
-			if("abstain")
-				option = "ABSTAIN"
-
-		if(option == "UNKNOWN")
-			return
-
-		if(!voted)
-			sql_query("INSERT INTO erro_privacy VALUES (null, Now(), $ckey, $option)", dbcon, list(ckey = ckey, option = option))
-			to_chat(usr, "<b>Thank you for your vote!</b>")
-			close_browser(usr, "window=privacypoll")
-
 	if(!ready && href_list["preference"])
 		if(client)
 			client.prefs.process_link(src, href_list)
 	else if(!href_list["late_join"])
 		new_player_panel()
 
-	if(href_list["showpoll"])
-
-		handle_player_polling()
-		return
-
-	if(href_list["pollid"])
-
-		var/pollid = href_list["pollid"]
-		if(istext(pollid))
-			pollid = text2num(pollid)
-		if(isnum(pollid))
-			src.poll_player(pollid)
-		return
-
 	if(href_list["invalid_jobs"])
 		show_invalid_jobs = !show_invalid_jobs
 		LateChoices()
-
-	if(href_list["votepollid"] && href_list["votetype"])
-		var/pollid = text2num(href_list["votepollid"])
-		var/votetype = href_list["votetype"]
-		switch(votetype)
-			if("OPTION")
-				var/optionid = text2num(href_list["voteoptionid"])
-				vote_on_poll(pollid, optionid)
-			if("TEXT")
-				var/replytext = href_list["replytext"]
-				log_text_poll_reply(pollid, replytext)
-			if("NUMVAL")
-				var/id_min = text2num(href_list["minid"])
-				var/id_max = text2num(href_list["maxid"])
-
-				if( (id_max - id_min) > 100 )	//Basic exploit prevention
-					to_chat(usr, "The option ID difference is too big. Please contact administration or the database admin.")
-					return
-
-				for(var/optionid = id_min; optionid <= id_max; optionid++)
-					if(!isnull(href_list["o[optionid]"]))	//Test if this optionid was replied to
-						var/rating
-						if(href_list["o[optionid]"] == "abstain")
-							rating = null
-						else
-							rating = text2num(href_list["o[optionid]"])
-							if(!isnum(rating))
-								return
-
-						vote_on_numval_poll(pollid, optionid, rating)
-			if("MULTICHOICE")
-				var/id_min = text2num(href_list["minoptionid"])
-				var/id_max = text2num(href_list["maxoptionid"])
-
-				if( (id_max - id_min) > 100 )	//Basic exploit prevention
-					to_chat(usr, "The option ID difference is too big. Please contact administration or the database admin.")
-					return
-
-				for(var/optionid = id_min; optionid <= id_max; optionid++)
-					if(!isnull(href_list["option_[optionid]"]))	//Test if this optionid was selected
-						vote_on_poll(pollid, optionid, 1)
 
 /mob/new_player/proc/IsJobAvailable(datum/job/job)
 	if(!job)	return 0
