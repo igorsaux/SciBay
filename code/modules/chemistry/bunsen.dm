@@ -5,6 +5,7 @@
 	icon_state = "bunsen"
 	layer = BELOW_OBJ_LAYER
 	w_class = ITEM_SIZE_LARGE
+	randpixel = 0
 
 	var/is_on = FALSE
 	var/strength = 0.1
