@@ -918,17 +918,7 @@
 	else
 		icon_state = "heya"
 		dodgecount = 0
-		if(!config.misc.meme_content)
-			speak("aaand you'd be dunked on by now but the big shots told me to stop dunking on people. lucks for you.")
-			return
-		speak(pick("geeettttttt dunked on!!!","told ya."))
-		if(istype(user, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = user
-			if(very_dangerous)
-				H.ChangeToSkeleton()
-			for(var/obj/item/I in H)
-				H.drop(I)
-		playsound(user.loc, pick('sound/effects/xylophone1.ogg','sound/effects/xylophone2.ogg','sound/effects/xylophone3.ogg'), 60)
+		speak("aaand you'd be dunked on by now but the big shots told me to stop dunking on people. lucks for you.")
 
 /obj/item/toy/banbanana
 	name = "BANana"

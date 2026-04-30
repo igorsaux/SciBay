@@ -117,10 +117,6 @@
 /proc/log_adminwarn(text, location, notify_admin)
 	log_generic("ADMINWARN", text, location, config.log.adminwarn, notify_admin, MESSAGE_TYPE_ADMINLOG)
 
-/proc/log_pda(text)
-	log_generic("PDA", text, null, config.log.pda)
-	log_story("PDA", text, null)
-
 /proc/log_misc(text) //Replace with log_game ?
 	log_generic("MISC", text)
 

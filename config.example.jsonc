@@ -54,35 +54,6 @@
         "wait_for_sigusr1": false
     },
     // ============================================================================
-    // DATABASE CONNECTIONS
-    // ============================================================================
-    "database": {
-        // Server the MySQL database can be found at
-        // Examples: localhost, 200.135.5.43, www.mysqldb.com, etc.
-        "address": "localhost",
-        // MySQL server port (default is 3306)
-        "port": 3306,
-        // Database the population, death, karma, etc. tables may be found in
-        "database": "tgstation",
-        // Username/Login used to access the database
-        "login": "mylogin",
-        // Password used to access the database
-        "password": "mypassword",
-        // The following information is for feedback tracking via the blackbox server
-        "feedback_database": "feedback",
-        "feedback_login": "root",
-        "feedback_password": "pass",
-        // Track population and death statistics
-        // Comment this out to disable
-        // ENABLE_STAT_TRACKING
-        // Third database, external bots can only access it
-        "donation_address": "localhost",
-        "donation_port": 3306,
-        "donation_database": "donations",
-        "donation_login": "root",
-        "donation_password": "pass"
-    },
-    // ============================================================================
     // ADMIN SETTINGS
     // ============================================================================
     "admin": {
@@ -112,21 +83,6 @@
         "promote_localhost": true
     },
     // ============================================================================
-    // BAN SETTINGS
-    // ============================================================================
-    "ban": {
-        // Set to true if you want to use the SQL based banning system. The legacy systems use the files in the data folder. You need to set up your database to use the SQL based system.
-        "ban_legacy_system": true,
-        // Chooses whether mods have the ability to issue tempbans for jobs or not
-        "mods_can_job_tempban": true,
-        // Maximum mod tempban duration (in minutes)
-        "mod_tempban_max": 1440,
-        // Maximum mod job tempban duration (in minutes)
-        "mod_job_tempban_max": 1440,
-        // Minimal playtime for round bans (in minutes)
-        "round_minimal_playtime": 30
-    },
-    // ============================================================================
     // GAME SETTINGS
     // ============================================================================
     "game": {
@@ -134,17 +90,6 @@
         "default_view": "15x15",
         // Widescreen view size, in tiles.
         "default_view_wide": "19x15",
-        // Preset name from file 'event_presets.toml', leave empty to not use a preset.
-        "events_preset": "default",
-        // Set to true to enable map voting; you'll need to use the script at tools/server.sh or an equivalent for it to take effect
-        // You'll also likely need to enable wait_for_sigusr1.
-        "map_switching": false,
-        // Set to true to enable random map switching (exclude the current map) at the end of a round
-        "auto_map_switching": false,
-        // Set to true to enable an automatic map vote and switch at end of round. MAP_SWITCHING must also be enabled.
-        "auto_map_vote": false,
-        // Set to true to give assistants maint access.
-        "assistant_maint": false,
         // Set to true to make rounds which end instantly (Rev, Wizard, Malf) to continue until the shuttle is called or the station is nuked.
         // Malf and Rev will let the shuttle be called when the antags/protags are dead.
         "continuous_rounds": false,
@@ -154,52 +99,6 @@
         // This is intended for servers with low populations - where there are not enough players to fill all roles, so players need to do more than just one job.
         // Also for servers where they don't want people to hide in their own departments.
         "jobs_have_minimal_access": true,
-        // Set to jobban everyone who's key is not listed in data/whitelist.txt from Captain, HoS, HoP, CE, RD, CMO, Warden, Security, Detective, and AI positions.
-        // Set to true to jobban, leave commented out to allow these positions for everyone (but see GUEST_JOBBAN above and regular jobbans)
-        "use_whitelist": false,
-        // Set to true to restrict non-admins from using humanoid alien races.
-        "use_ingame_alien_whitelist": false,
-        // Uncomment to use the alien whitelist system with SQL instead. (requires the above uncommented aswell)
-        // currently commented in code / wouldn't work
-        "use_alien_whitelist_sql": false,
-        // Set to true to have certain jobs require your account to be at least a certain number of days old to select. You can configure the exact age requirement for different jobs by editing
-        // the minimal_player_age variable in the files in folder /code/game/jobs/job/.. for the job you want to edit. Set minimal_player_age to 0 to disable age requirement for that job.
-        // REQUIRES the database set up to work. Keep it hashed if you don't have a database set up.
-        // NOTE: If you have just set-up the database keep this DISABLED, as player age is determined from the first time they connect to the server with the database up. If you just set it up, it means
-        // you have noone older than 0 days, since noone has been logged yet. Only turn this on once you have had the database up for 30 days.
-        "use_age_restriction_for_jobs": false,
-        // Set to true to have certain antag roles require your account to be at least a certain number of days old for round start and auto-spawn selection.
-        // Non-automatic antagonist recruitment, such as being converted to cultism is not affected. Has the same database requirements and notes as USE_AGE_RESTRICTION_FOR_JOBS.
-        "use_age_restriction_for_antags": false,
-        // Set to true to enable ghost spawners
-        "ghost_spawners": true,
-        // Base minimal age in days for a player to play on antags. Depends on use_age_restriction_for_antags.
-        // If not defined with a variable won't be used at all.
-        // "traitor_min_age": 14,
-        // "changeling_min_age": 14,
-        // "ninja_min_age": 14,
-        // "raider_min_age": 14,
-        // "nuke_min_age": 14,
-        // "wizard_min_age": 14,
-        // "xeno_min_age": 14,
-        // "malf_min_age": 14,
-        // "cultist_min_age": 14,
-        // "blob_min_age": 14,
-        // "actor_min_age": 14,
-        // "ert_min_age": 14,
-        // "revolutionary_min_age": 14,
-        // "vampire_min_age": 14,
-        // "thrall_min_age": 14,
-        // Deprecated
-        // "renegade_min_age": 14,
-        // "borer_min_age": 14,
-        // "loyalist_min_age": 14,
-        // "meme_min_age": 14,
-        // "deathsquad_min_age": 14,
-        // "commando_min_age": 14,
-        // "deity_min_age": 14,
-        // "godcultist_min_age": 14,
-        // "loyalists_min_age": 14,
         // Settings to disable ooc things after round start.
         "disable_ooc_at_roundstart": false,
         "disable_looc_at_roundstart": false,
@@ -221,65 +120,6 @@
         "restart_timeout": 600
     },
     // ============================================================================
-    // GAMEMODE SETTINGS
-    // ============================================================================
-    "gamemode": {
-        // Set to true to scale amount of traitors based on amount of players.
-        "traitor_scaling": true,
-        // Uncomment and set value to disable antag objectives.
-        // "none" enable all
-        // "verb" to allow getting objectives via special verb
-        // "all" disable them at all
-        "disable_objectives": "none",
-        // Make ERT's be only called by admins
-        "ert_admin_only": false,
-        // If security is prohibited from being most antagonists
-        "protect_roles_from_antagonist": false,
-        // Probablities for game modes chosen in "secret" and "random" modes.
-        // Default probablity is 1, increase to make that mode more likely to be picked.
-        // Set to 0 to disable that mode.
-        "probabilities": {
-            "extended": 0,
-            "traitor": 3,
-            "changeling": 3,
-            "wizard": 1,
-            "malfunction": 1,
-            "ninja": 1,
-            "revolution": 2,
-            "cult": 2,
-            "nuke": 1,
-            "meteor": 1,
-            "calamity": 2,
-            // Deity.
-            "god": 1,
-            // Cult & wizard.
-            "conflux": 2,
-            // Ninja & traitor.
-            "intrigue": 2,
-            // Changelings & wizards.
-            "lizard": 2,
-            // Changeling, malf & renegade.
-            "paranoia": 2,
-            // Changeling & traitor.
-            "traitorling": 3,
-            // Revolution & wizard.
-            "unity": 1,
-            // Cult & revolution.
-            "uprising": 2,
-            // Ninja & wizard.
-            "visitors": 1,
-            // Nuke & revolution.
-            "siege": 2,
-            "heist": 0,
-            // Deathsquad & xenophage.
-            "bughunt": 0,
-            // Nuke & heist.
-            "crossfire": 0,
-            // Borer, changeling & xenophage.
-            "infestation": 0
-        }
-    },
-    // ============================================================================
     // MISC SETTINGS
     // ============================================================================
     "misc": {
@@ -297,10 +137,6 @@
         "emojis_allowed": true,
         // Set to false to disable the restrictive weldervision overlay.
         "welder_vision_allowed": true,
-        // Set to false to disable respawning by default.
-        "abandon_allowed": true,
-        // Respawn delay in minutes before one may respawn as a crew member.
-        "respawn_delay": 30,
         // Strength of ambient star light. Set to 0 or less to turn off. A value of 1 is unlikely to have a noticeable effect in most lighting systems.
         "starlight": 0,
         // Disconnect players who did nothing during the set amount of minutes.
@@ -357,40 +193,6 @@
         "diagonal_movement_disabled": 0
     },
     // ============================================================================
-    // WHITELIST SETTINGS
-    // ============================================================================
-    "whitelist": {
-        "enable": false,
-        "jobs_enable": false,
-        "ckeys": [],
-        "enable_alien_whitelist": false
-    },
-    // ============================================================================
-    // VOTE SETTINGS
-    // ============================================================================
-    "vote": {
-        // Allow players to initiate a restart vote.
-        "allow_vote_restart": true,
-        // Allow players to initate a mode-change start.
-        "allow_vote_mode": true,
-        // If true, votes can be called to add extra antags to the round.
-        "allow_extra_antags": false,
-        // Min delay (deciseconds) between voting sessions (default 10 minutes).
-        "delay": 6000,
-        // Time period (deciseconds) which voting session will last (default 1 minute).
-        "period": 600,
-        // Autovote initial delay (deciseconds) before first automatic transfer vote call (default 180 minutes).
-        "autotransfer_initial": 108000,
-        // Autovote delay (deciseconds) before sequential automatic transfer votes are called (default 60 minutes).
-        "autotransfer_interval": 36000,
-        // Time left (seconds) before round start when automatic gamemote vote is called (default 100).
-        "autogamemode_timeleft": 100,
-        // Prevents dead players from voting or starting votes.
-        "no_dead_vote": false,
-        // Players' votes default to "No vote" (otherwise, default to "No change").
-        "default_no_vote": true
-    },
-    // ============================================================================
     // EXTERNAL CONNECTIONS
     // ============================================================================
     "external": {
@@ -426,19 +228,6 @@
         "humans_need_surnames": false,
         // Uncomment to allow metadata like OOC notes for players.
         "allow_metadata": false
-    },
-    // ============================================================================
-    // EVENTS
-    // ============================================================================
-    "events": {
-        "preset": {
-            "default": {
-                // Default state for unspecified events (enable all the other events in this case)
-                "default": true
-                // Disables the event 'meteor_wave_base'
-                // "meteor_wave_base": false
-            }
-        }
     },
     // ============================================================================
     // ERROR HANDLING
@@ -563,132 +352,9 @@
     // MAPPING SETTINGS
     // ============================================================================
     "mapping": {
-        // How many derelicts are going to show up
-        "derelicts_amount": 2,
-        // Which engine should be on map (not all the maps support this).
-        // Pick one from: "random", "singularity", "supermatter"
-        "preferable_engine": "singularity",
-        // Which bar should be on map (not all the maps support this).
-        // Pick one from: "random", "classic", "modern", "saloon"
-        "preferable_bar": "classic",
-        // Which biodome should be spawned on NSS Frontier
-        // Pick one from: "random", "forest", "winter", "beach", "concert"
-        "preferable_biodome": "forest",
         "allowed_maps": {
             "Example": false
         }
-    },
-    // ============================================================================
-    // MCU SETTINGS
-    // ============================================================================
-    "mcu": {
-        "enable": true,
-        "budget_percent": 10,
-        "hardcap": 25,
-        "power_scale": 500,
-        "rad_scale": 0.00005,
-        "max_elf_size": 2000000,
-        // Deciseconds
-        "tts_cooldown_per_char": 5,
-        // Deciseconds
-        "signaler_set_cooldown": 10,
-        // Deciseconds
-        "signaler_send_cooldown": 10,
-        // Deciseconds
-        "light_cooldown": 10,
-        // Deciseconds
-        "env_sensor_cooldown": 25,
-        "battery_recharge_percent": 0.25,
-        // Deciseconds
-        "prize_box_cooldown": 100
-    },
-    // ============================================================================
-    // MULTIACCOUNT SETTINGS
-    // ============================================================================
-    "multiaccount": {
-        // If set true, redirects all players whose age less than 1 day.
-        // to a specific server. Also redirects if server full. Set false to disable.
-        "panic_bunker": false,
-        // If panic bunker is on and a player is rejected (see above),
-        // server will attempt to send them to this connected server (see below) instead.
-        // "panic_server_address": "byond://address:port",
-        // Name of the place to send people rejected by the bunker.
-        // "panic_server_name": "Put the name here",
-        // Set to true to enable The Epic Anti-Multiaccount System.
-        "eams": false,
-        // Set to true to prohibit sending in OOC for players blocked by EAMS.
-        "eams_blocks_ooc": false
-    },
-    // ============================================================================
-    // REVIVAL SETTINGS
-    // ============================================================================
-    "revival": {
-        // If cortical stacks (aka neurolace) are to be used.
-        "use_cortical_stacks": true,
-        // Amount of time (in hundredths of seconds) for which a brain retains the "spark of life" after the person's death (set to -1 for infinite).
-        "revival_brain_life": -1
-    },
-    // ============================================================================
-    // DONATIONS
-    // ============================================================================
-    "donations": {
-        // Set to true to enable donations subsystem. Server must be connected to proper database.
-        "enable": false
-    },
-    // ============================================================================
-    // GAME TIPS
-    // ============================================================================
-    "game-tips": {
-        // Enable/disable tips display - when true, shows tips at the bottom of the screen in lobby
-        "enable": true,
-        // When true, all players see the same tip; when false, each player gets a random individual tip each time they join/reconnect
-        "one_tip_for_everyone": true,
-        // Array of tip messages to display
-        "tips": [
-            "Мыши могут стать курьерами, если на них кликнуть маленьким предметом, держа в другой руке скотч",
-            "Обезьяньи кубы отлично утоляют голод и жажду. Одного кубика хватит до конца раунда",
-            "Пневмопушка способна насильно кормить едой, достаточно лишь целиться в рот",
-            "Вы можете спрятать предметы в кустах, а также что-либо в них найти",
-            "Во вкладке с мехкостюмом есть режим стрейфа, позволяющий быстрее менять вектор движения",
-            "«Альт» + ЛКМ позволяет открыть и даже закрыть ноутбук",
-            "Некоторые провода у генератора щита станции могут быть порезаны для вызова экстренного отключения",
-            "Держа в руках дрона ИИ, вы можете прослушивать все радиоканалы. Активный ИИ-дрон в руке позволит открывать все шлюзы",
-            "Мышеловки можно прикрутить к сигналлеру, создавая отличную ловушку",
-            "Закрытую турель можно заварить сваркой, так она не сможет открыться в следующий раз",
-            "Вы можете спрятать свой любимый нож в ботинке, кликнув по нему",
-            "Вы можете прикрутить маячок на мехкостюм, чтобы в дальнейшем через консоль уничтожить его",
-            "В сливной бачок туалета можно прятать предметы, открыв крышку ломом",
-            "Чтобы поменять руки, нажмите латинскую «X» на вашей клавиатуре",
-            "Лекарства, принятые через рот и кровь, растворяются отдельно, тем самым можно добиться двойного эффекта",
-            "Блюющий человек отправит принятые через рот таблетки обратно, откуда они пришли",
-            "На успех операции влияет не только качество инструмента, но и освещение, тряска хирурга, его зрение, боль и операционный стол",
-            "Отдых на кровати помогает инфекциям пройти быстрее",
-            "Вы знали, что некоторые продукты имеют лечебные свойства? Куриный суп — от вирусов, морковь — для глаз, гематоген — для восполнения крови",
-            "Бинты можно намотать вместо перчаток, самое время для подпольного бойцовского клуба",
-            "Медицинская маска спасает от перцового газа — не стесняйтесь надевать намордник",
-            "Перчатки из латекса могут оставить ваши отпечатки на предметах",
-            "Маска клоуна и мима может служить как полноценный противогаз",
-            "Не забывайте читать новости, есть шанс, что вы стали победителем лотереи",
-            "Спичку можно зажечь об ботинок",
-            "Вы можете сделать собственную статую, достаточно достать долото в шахтёрском вендомате и им отковырять кусок булыги из астероидной породы",
-            "Положение визора HUD можно сменить через ПКМ с правого глаза на левый, если это мешает вашей причёске",
-            "Из астероидного песка делается известняк, из него же лопатой можно сделать грядки",
-            "Красную коробочку в вашем рюкзаке можно сложить в ломик",
-            "Многие действия и фразы можно забиндить через макросы, кликнув ПКМ по окошку игры. Обязательно смените на русскую раскладку перед сохранением",
-            "Вы можете спасти мозг члена экипажа, поместив его в ММИ в первые пять минут после смерти",
-            "Экзамайн мозга даёт информацию об игроке, а именно, сидит ли он всё ещё в нём или же ушёл в призраки/из игры",
-            "Сканер здоровья показывает не точную дату смерти, а примерно спустя пять минут после смерти всего человека",
-            "Сытость ускоряет регенерацию тела и крови",
-            "Если вы лежите с чёрным экраном, то при достижении 25% активности мозга вы можете ввести команду «succumb», чтобы сдаться",
-            "Глазные импланты защищают от сварки ваши... глаза",
-            "Медицинские визоры показывают заражённого вирусом только если вирус был изучен и добавлен в базу вирусов вирусолога",
-            "Пакет крови можно подключить напрямую к человеку, но чтобы кровь капала, необходимо держать пакет в активной руке",
-            "Если шприцом ввести жидкую плазму в лампочку, то она взорвётся при вкручивании",
-            "Если емагнуть прибор для замены лампочек, то все установленные им лампочки будут взрываться при вкручивании/включении",
-            "Если вы оказались в наручниках, то вы можете прогрызть себе путь на свободу, кликая на себя хармом и целясь в рот",
-            "Вы можете оставлять чужие отпечатки на предметах и объектах, если возьмёте в активную руку чужую отрезанную кисть или же руку",
-            "Многие вещи вы можете (и даже интереснее!) узнавать игровым путём, необязательно пролистывать вики или расспрашивать всех в дискорде. Проще говоря: узнай IC!"
-        ]
     },
     // ============================================================================
     // WEBSOCKET SETTINGS

@@ -6,15 +6,10 @@ GLOBAL_REAL(config, /datum/server_configuration) = new
 /// Represents a base configuration datum. Has everything else bundled into it
 /datum/server_configuration
 	var/datum/configuration_section/admin/admin = new
-	var/datum/configuration_section/ban/ban = new
 	var/datum/configuration_section/character_setup/character_setup = new
-	var/datum/configuration_section/database/database = new
-	var/datum/configuration_section/donations/donations = new
 	var/datum/configuration_section/error/error = new
-	var/datum/configuration_section/events/events = new
 	var/datum/configuration_section/external/external = new
 	var/datum/configuration_section/game/game = new
-	var/datum/configuration_section/gamemode/gamemode = new
 	var/datum/configuration_section/general/general = new
 	var/datum/configuration_section/ghost/ghost = new
 	var/datum/configuration_section/health/health = new
@@ -24,13 +19,7 @@ GLOBAL_REAL(config, /datum/server_configuration) = new
 	var/datum/configuration_section/mapping/mapping = new
 	var/datum/configuration_section/misc/misc = new
 	var/datum/configuration_section/movement/movement = new
-	var/datum/configuration_section/multiaccount/multiaccount = new
-	var/datum/configuration_section/revival/revival = new
 	var/datum/configuration_section/texts/texts = new
-	var/datum/configuration_section/vote/vote = new
-	var/datum/configuration_section/whitelist/whitelist = new
-	var/datum/configuration_section/game_tips/game_tips = new
-	var/datum/configuration_section/mcu/mcu = new
 	var/datum/configuration_section/ws/ws = new
 
 	/// Raw data. Stored here to avoid passing data between procs constantly
@@ -110,8 +99,9 @@ GLOBAL_REAL(config, /datum/server_configuration) = new
 
 	for(var/game_mode in gamemode_cache)
 		var/datum/game_mode/M = gamemode_cache[game_mode]
-		if(M && M.isStartRequirementsSatisfied(totalPlayers) && !isnull(config.gamemode.probabilities[M.config_tag]) && config.gamemode.probabilities[M.config_tag] > 0)
-			runnable_modes[M.config_tag] = config.gamemode.probabilities[M.config_tag]
+		if(M && M.isStartRequirementsSatisfied(totalPlayers))
+			runnable_modes[M.config_tag] = 1.0
+
 	return runnable_modes
 
 /datum/server_configuration/proc/get_votable_modes()

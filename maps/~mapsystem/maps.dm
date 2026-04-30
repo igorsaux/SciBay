@@ -83,13 +83,6 @@ var/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 /datum/map/proc/setup_map()
 	ASSERT(length(map_levels))
 
-	var/derelicts_index = config.mapping.derelicts_amount
-	while(length(derelict_levels) && derelicts_index)
-		var/list/rand_derelict = pick(derelict_levels)
-		derelict_levels.Remove(rand_derelict)
-		map_levels.Add(rand_derelict)
-		derelicts_index--
-
 	for(var/level = 1; level <= length(map_levels); level++)
 		var/datum/space_level/L = map_levels[level]
 

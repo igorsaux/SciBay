@@ -187,9 +187,6 @@ Works together with spawning an observer, noted above.
 	ghost.can_reenter_corpse = can_reenter_corpse
 	ghost.timeofdeath = is_ooc_dead() ? src.timeofdeath : world.time
 
-	if(!ghost.client?.holder && !config.ghost.allow_antag_hud)
-		ghost.verbs -= /mob/observer/ghost/verb/toggle_antagHUD
-
 	if(ghost.client)
 		ghost.updateghostprefs()
 
@@ -276,32 +273,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	medHUD = !medHUD
 
 	to_chat(src, SPAN_NOTICE("Medical HUD has been [medHUD ? "enabled" : "disabled"]"))
-
-/mob/observer/ghost/verb/toggle_antagHUD()
-	set category = "Ghost"
-	set name = "Toggle Antag HUD"
-	set desc = "Toggles Antag HUD allowing you to see who is the antagonist"
-
-	if(!client)
-		return
-
-	var/mentor = is_mentor(client)
-	if(!config.ghost.allow_antag_hud && (!client.holder || mentor))
-		to_chat(src, SPAN_WARNING("Admins have disabled this for this round."))
-		return
-
-	if(config.ghost.antag_hud_restricted && !has_enabled_antagHUD && (!client.holder || mentor))
-		var/response = tgui_alert(src, "If you turn this on, you will not be able to take any part in the round.", "Toggle Antag HUD", list("Yes", "No"))
-		if(isnull(response) || response == "No")
-			return
-		can_reenter_corpse = 0
-
-	if(!has_enabled_antagHUD && (!client.holder || mentor))
-		has_enabled_antagHUD = TRUE
-
-	antagHUD = !antagHUD
-
-	to_chat(src, SPAN_NOTICE("Antag HUD has been [antagHUD ? "enabled" : "disabled"]"))
 
 /mob/observer/ghost/verb/dead_tele()
 	set category = "Ghost"
@@ -552,10 +523,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	if(mind?.current && (mind.current in GLOB.living_mob_list_) && (can_reenter_corpse in list(CORPSE_CAN_REENTER, CORPSE_CAN_REENTER_AND_RESPAWN)))
 		if(feedback)
 			to_chat(src, SPAN_WARNING("Your non-dead body prevents you from respawning."))
-		return FALSE
-	if(config.ghost.antag_hud_restricted && has_enabled_antagHUD == TRUE)
-		if(feedback)
-			to_chat(src, SPAN_WARNING("antagHUD restrictions prevent you from respawning."))
 		return FALSE
 
 	var/timedifference = world.time - timeofdeath

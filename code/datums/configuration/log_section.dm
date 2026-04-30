@@ -6,7 +6,6 @@
 	var/emote
 	var/ooc
 	var/whisper
-	var/pda
 	var/attack
 	var/vote
 	var/admin
@@ -27,7 +26,6 @@
 	CONFIG_LOAD_BOOL(emote, data["emote"])
 	CONFIG_LOAD_BOOL(ooc, data["ooc"])
 	CONFIG_LOAD_BOOL(whisper, data["whisper"])
-	CONFIG_LOAD_BOOL(pda, data["pda"])
 	CONFIG_LOAD_BOOL(attack, data["attack"])
 	CONFIG_LOAD_BOOL(vote, data["vote"])
 	CONFIG_LOAD_BOOL(admin, data["admin"])

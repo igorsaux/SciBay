@@ -144,10 +144,6 @@ var/server_name = "OnyxBay"
 	else
 		name = "[server_name] - [GLOB.using_map.full_name]"
 
-	if(config && config.game.use_age_restriction_for_jobs != null && config.general.server_suffix && world.port > 0)
-		// dumb and hardcoded but I don't care~
-		config.general.server_name += " #[(world.port % 1000) / 100]"
-
 	callHook("startup")
 
 	. = ..()
@@ -183,8 +179,6 @@ var/world_topic_spam_protect_time = world.timeofday
 		s["mode"] = PUBLIC_GAME_MODE
 		s["respawn"] = config.misc.abandon_allowed
 		s["enter"] = config.game.enter_allowed
-		s["vote"] = config.vote.allow_vote_mode
-		s["ai"] = config.misc.allow_ai
 		s["host"] = host ? host : null
 
 		// This is dumb, but spacestation13.com's banners break if player count isn't the 8th field of the reply, so... this has to go here.
@@ -471,12 +465,6 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	features += config.misc.abandon_allowed ? "respawn" : "no respawn"
 
-	if (config && config.vote.allow_vote_mode)
-		features += "vote"
-
-	if (config && config.misc.allow_ai)
-		features += "AI allowed"
-
 	var/n = 0
 	for (var/mob/M in GLOB.player_list)
 		if (M.client)
@@ -524,152 +512,3 @@ var/world_topic_spam_protect_time = world.timeofday
 #undef WORLD_SETUP_LOG_DETAILED
 #undef WORLD_SETUP_LOG
 #undef WORLD_LOG_START
-
-#define FAILED_DB_CONNECTION_CUTOFF 5
-var/failed_db_connections = 0
-var/failed_old_db_connections = 0
-var/failed_don_db_connections = 0
-
-
-/hook/startup/proc/connectDB()
-	if(!config.external.sql_enabled)
-		log_to_dd("SQL disabled. Your server will not use feedback database.")
-	else if(!setup_database_connection())
-		log_to_dd("Your server failed to establish a connection with the feedback database.")
-	else
-		log_to_dd("Feedback database connection established.")
-	return TRUE
-
-/proc/setup_database_connection()
-	if(failed_db_connections > FAILED_DB_CONNECTION_CUTOFF)	//If it failed to establish a connection more than 5 times in a row, don't bother attempting to connect anymore.
-		return 0
-
-	if(!dbcon)
-		dbcon = new()
-
-	var/user = config.database.feedback_login
-	var/pass = config.database.feedback_password
-	var/db = config.database.feedback_database
-	var/address = config.database.address
-	var/port = config.database.port
-
-	dbcon.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
-	. = dbcon.IsConnected()
-	if ( . )
-		failed_db_connections = 0	//If this connection succeeded, reset the failed connections counter.
-	else
-		failed_db_connections++		//If it failed, increase the failed connections counter.
-		log_to_dd(dbcon.ErrorMsg())
-
-	return .
-
-//This proc ensures that the connection to the feedback database (global variable dbcon) is established
-/proc/establish_db_connection()
-	if(!config.external.sql_enabled)
-		return FALSE
-
-	if(failed_db_connections > FAILED_DB_CONNECTION_CUTOFF)
-		return FALSE
-
-	if(!dbcon || !dbcon.IsConnected())
-		return setup_database_connection()
-	else
-		return TRUE
-
-
-/hook/startup/proc/connectOldDB()
-	if(!config.external.sql_enabled)
-		log_to_dd("SQL disabled. Your server configured to use legacy admin and ban system.")
-	else if(!setup_old_database_connection())
-		log_to_dd("Your server failed to establish a connection with the SQL database.")
-	else
-		log_to_dd("SQL database connection established.")
-	return TRUE
-
-//These two procs are for the old database, while it's being phased out. See the tgstation.sql file in the SQL folder for more information.
-//If you don't know what any of this do, look at the same code above
-/proc/setup_old_database_connection()
-
-	if(failed_old_db_connections > FAILED_DB_CONNECTION_CUTOFF)
-		return 0
-
-	if(!dbcon_old)
-		dbcon_old = new()
-
-	var/user = config.database.login
-	var/pass = config.database.password
-	var/db = config.database.database
-	var/address = config.database.address
-	var/port = config.database.port
-
-	dbcon_old.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
-	. = dbcon_old.IsConnected()
-	if ( . )
-		failed_old_db_connections = 0
-	else
-		failed_old_db_connections++
-		to_world_log(dbcon.ErrorMsg())
-
-	return .
-
-/proc/establish_old_db_connection()
-	if(!config.external.sql_enabled)
-		return FALSE
-
-	if(failed_old_db_connections > FAILED_DB_CONNECTION_CUTOFF)
-		return FALSE
-
-	if(!dbcon_old || !dbcon_old.IsConnected())
-		return setup_old_database_connection()
-	else
-		return TRUE
-
-
-/hook/startup/proc/connectDonDB()
-	if(!config.external.sql_enabled)
-		log_to_dd("SQL disabled. Your server will not use Donations database.")
-	else if(!setup_don_database_connection())
-		log_to_dd("Your server failed to establish a connection with the Donations database.")
-	else
-		log_to_dd("Donations database connection established.")
-	return TRUE
-
-//If you don't know what any of this do, look at the same code above
-proc/setup_don_database_connection()
-
-	if(failed_don_db_connections > FAILED_DB_CONNECTION_CUTOFF)
-		return 0
-
-	if(!dbcon_don)
-		dbcon_don = new()
-
-	var/user = config.database.donation_login
-	var/pass = config.database.donation_password
-	var/db = config.database.donation_database
-	var/address = config.database.donation_address
-	var/port = config.database.donation_port
-	dbcon_don.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
-	log_debug("Connecting to donationsDB")
-
-	. = dbcon_don.IsConnected()
-	if ( . )
-		failed_don_db_connections = 0
-	else
-		failed_don_db_connections++
-		log_to_dd(dbcon.ErrorMsg())
-
-	return .
-
-/proc/establish_don_db_connection()
-	if(!config.external.sql_enabled)
-		return FALSE
-
-	if(failed_don_db_connections > FAILED_DB_CONNECTION_CUTOFF)
-		return FALSE
-
-	if(!dbcon_don || !dbcon_don.IsConnected())
-		return setup_don_database_connection()
-	else
-		return TRUE
-
-#undef FAILED_DB_CONNECTION_CUTOFF

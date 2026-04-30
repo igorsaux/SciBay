@@ -142,15 +142,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	. += "(<a href='?src=\ref[src];random=1'>&reg;</A>)"
 	. += "<br>"
 
-	if(config.revival.use_cortical_stacks)
-		. += "Neural lace: "
-		if(mob_species.spawn_flags & SPECIES_NO_LACE)
-			. += "incompatible."
-		else
-			. += pref.has_cortical_stack ? "present." : "<b>not present.</b>"
-			. += " \[<a href='byond://?src=\ref[src];toggle_stack=1'>toggle</a>\]"
-		. += "<br>"
-
 	. += "Height: <a href='?src=\ref[src];body_height=1'>[human_height_text(pref.body_height)]</a><br>"
 	. += "Species: <a href='?src=\ref[src];show_species=1'>[pref.species]</a><br>"
 	. += "Blood Type: <a href='?src=\ref[src];blood_type=1'>[pref.b_type]</a><br>"
@@ -444,8 +435,6 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	dat += "<small>"
 	if(current_species.spawn_flags & SPECIES_CAN_JOIN)
 		dat += "</br><b>Often present among humans.</b>"
-	if(current_species.spawn_flags & SPECIES_IS_WHITELISTED & config.whitelist.enable_alien_whitelist)
-		dat += "</br><b>Whitelist restricted.</b>"
 	if(!current_species.has_organ[BP_HEART])
 		dat += "</br><b>Does not have blood.</b>"
 	if(!current_species.has_organ[BP_LUNGS])
@@ -469,21 +458,7 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 	dat += "</small></td>"
 	dat += "</tr>"
 	dat += "</table><center><hr/>"
-
-	var/restricted = 0
-	if(config.whitelist.enable_alien_whitelist) //If we're using the whitelist, make sure to check it!
-		if (!(current_species.spawn_flags & SPECIES_CAN_JOIN))
-			restricted = 2
-
-	if (restricted)
-		if (restricted == 1)
-			dat += "<font color='red'><b>You cannot play as this species.</br><small>If you wish to be whitelisted, contact admins by AHelp.</small></b></font></br>"
-		else if (restricted == 2)
-			dat += "<font color='red'><b>You cannot play as this species.</br><small>This species is not available as a player race.</small></b></font></br>"
-		else if (restricted == 3)
-			dat += "<font color='red'><b>You cannot play as this species.</br><small>You was banned to play species!</small></b></font></br>"
-	if (!restricted)
-		dat += "\[<a href='?src=\ref[src];set_species=[pref.species_preview]'>select</a>\]"
+	dat += "\[<a href='?src=\ref[src];set_species=[pref.species_preview]'>select</a>\]"
 	dat += "</center></body>"
 
 	show_browser(user, dat, "window=species;size=700x400")

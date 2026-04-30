@@ -6,9 +6,6 @@ SUBSYSTEM_DEF(misc)
 /datum/controller/subsystem/misc/Initialize()
 	BakeBitmaskOverlays()
 
-	if(config.game.generate_asteroid)
-		GLOB.using_map.perform_map_generation(FALSE)
-
 	job_master = new /datum/controller/occupations()
 	job_master.SetupOccupations(setup_titles=1)
 	job_master.LoadJobs()

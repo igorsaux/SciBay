@@ -179,12 +179,6 @@
 			return global.custom_event_msg;
 		if("damage_icon_parts")
 			return global.damage_icon_parts;
-		if("dbcon")
-			return global.dbcon;
-		if("dbcon_old")
-			return global.dbcon_old;
-		if("dbcon_don")
-			return global.dbcon_don;
 		if("debug_verbs")
 			return global.debug_verbs;
 		if("decls_repository")
@@ -209,10 +203,6 @@
 			return global.explosion_in_progress;
 		if("explosion_turfs")
 			return global.explosion_turfs;
-		if("failed_db_connections")
-			return global.failed_db_connections;
-		if("failed_old_db_connections")
-			return global.failed_old_db_connections;
 		if("file_uid")
 			return global.file_uid;
 		if("fileaccess_timer")
@@ -672,12 +662,6 @@
 			global.custom_event_msg=newval;
 		if("damage_icon_parts")
 			global.damage_icon_parts=newval;
-		if("dbcon")
-			global.dbcon=newval;
-		if("dbcon_old")
-			global.dbcon_old=newval;
-		if("dbcon_don")
-			global.dbcon_don=newval
 		if("debug_verbs")
 			global.debug_verbs=newval;
 		if("decls_repository")
@@ -702,10 +686,6 @@
 			global.explosion_in_progress=newval;
 		if("explosion_turfs")
 			global.explosion_turfs=newval;
-		if("failed_db_connections")
-			global.failed_db_connections=newval;
-		if("failed_old_db_connections")
-			global.failed_old_db_connections=newval;
 		if("file_uid")
 			global.file_uid=newval;
 		if("fileaccess_timer")

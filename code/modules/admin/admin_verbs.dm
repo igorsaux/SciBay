@@ -60,18 +60,13 @@ var/list/admin_verbs_admin = list(
 	/client/proc/cmd_admin_say,			//admin-only ooc chat,
 	/datum/admins/proc/togglehubvisibility, //toggles visibility on the BYOND Hub,
 	/datum/admins/proc/PlayerNotes,
-	/client/proc/panicbunker,			//toggles Panic Bunker
 	/client/proc/cmd_mod_say,
 	/datum/admins/proc/show_player_info,
 	/client/proc/free_slot,			//frees slot for chosen job,
 	/client/proc/cmd_admin_change_custom_event,
 	/client/proc/cmd_admin_rejuvenate,
-	/client/proc/toggleghostwriters,
-	/client/proc/toggledrones,
 	/client/proc/man_up,
 	/client/proc/global_man_up,
-	/client/proc/toggle_antagHUD_use,
-	/client/proc/toggle_antagHUD_restrictions,
 	/client/proc/allow_character_respawn,    // Allows a ghost to respawn ,
 	/client/proc/aooc,
 	/client/proc/change_human_appearance_admin,	// Allows an admin to change the basic appearance of human-based mobs ,
@@ -97,7 +92,6 @@ var/list/admin_verbs_fun = list(
 	/client/proc/cinematic,
 	/client/proc/editappear,
 	/client/proc/roll_dices,
-	/client/proc/projectile_basketball,
 	/client/proc/toggle_possess_mode
 	)
 
@@ -132,7 +126,6 @@ var/list/admin_verbs_debug = list(
 	/client/proc/cmd_debug_mob_lists,
 	/client/proc/cmd_admin_delete,
 	/client/proc/cmd_debug_del_all,
-	/client/proc/cmd_debug_tog_aliens,
 	/client/proc/air_report,
 	/client/proc/restart_controller,
 	/client/proc/enable_debug_verbs,
@@ -220,13 +213,11 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/debug_controller,
 	/client/proc/cmd_debug_mob_lists,
 	/client/proc/cmd_debug_del_all,
-	/client/proc/cmd_debug_tog_aliens,
 	/client/proc/air_report,
 	/client/proc/enable_debug_verbs,
 	/client/proc/roll_dices,
 	/proc/possess,
 	/proc/release,
-	/client/proc/projectile_basketball,
 	/client/proc/toggle_possess_mode,
 	/client/proc/enable_profiler,
 	/client/proc/debug_glob_variables
@@ -629,34 +620,6 @@ var/list/admin_verbs_mentor = list(
 			message_admins("A job slot for [job] has been opened by [key_name_admin(usr)]")
 			return
 
-/client/proc/toggleghostwriters()
-	set name = "Toggle ghost writers"
-	set category = "Server"
-	if(!holder)	return
-	if(config)
-		if(config.ghost.allow_cult_ghostwriter)
-			config.ghost.allow_cult_ghostwriter = 0
-			to_chat(src, "<b>Disallowed ghost writers.</b>")
-			message_admins("Admin [key_name_admin(usr)] has disabled ghost writers.", 1)
-		else
-			config.ghost.allow_cult_ghostwriter = 1
-			to_chat(src, "<b>Enabled ghost writers.</b>")
-			message_admins("Admin [key_name_admin(usr)] has enabled ghost writers.", 1)
-
-/client/proc/toggledrones()
-	set name = "Toggle maintenance drones"
-	set category = "Server"
-	if(!holder)	return
-	if(config)
-		if(config.misc.allow_drone_spawn)
-			config.misc.allow_drone_spawn = 0
-			to_chat(src, "<b>Disallowed maint drones.</b>")
-			message_admins("Admin [key_name_admin(usr)] has disabled maint drones.", 1)
-		else
-			config.misc.allow_drone_spawn = 1
-			to_chat(src, "<b>Enabled maint drones.</b>")
-			message_admins("Admin [key_name_admin(usr)] has enabled maint drones.", 1)
-
 /client/proc/man_up()
 	set category = "Fun"
 	set name = "Man Up"
@@ -683,17 +646,6 @@ var/list/admin_verbs_mentor = list(
 			sound_to(C, sound('sound/voice/ManUp1.ogg'))
 
 	log_and_message_admins("told everyone to man up and deal with it.")
-
-/client/proc/projectile_basketball()
-	set category = "Fun"
-	set desc="Globally Toggles the ability to catch bullets with your hands"
-	set name="Projectile Basketball"
-
-	if(!check_rights(R_ADMIN))
-		return
-
-	config.misc.projectile_basketball = !(config.misc.projectile_basketball)
-	log_and_message_admins("toggled projectile basketball mode.")
 
 /client/proc/enable_profiler()
 	set category = "Debug"

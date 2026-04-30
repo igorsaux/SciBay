@@ -256,13 +256,7 @@
 		set_macros()
 
 	if(config.general.player_limit && is_player_rejected_by_player_limit(usr, ckey))
-		if(config.multiaccount.panic_server_address && TopicData != "redirect")
-			DIRECT_OUTPUT(src, SPAN("warning", "<h1>This server is currently full and not accepting new connections. Sending you to [config.multiaccount.panic_server_name ? config.multiaccount.panic_server_name : config.multiaccount.panic_server_address]</h1>"))
-			winset(src, null, "command=.options")
-			send_link(src, "[config.multiaccount.panic_server_address]?redirect")
-
-		else
-			DIRECT_OUTPUT(src, SPAN_WARNING("<h1>This server is currently full and not accepting new connections.</h1>"))
+		DIRECT_OUTPUT(src, SPAN_WARNING("<h1>This server is currently full and not accepting new connections.</h1>"))
 
 		log_admin("[ckey] tried to join but the server is full (player_limit=[config.general.player_limit])")
 		qdel(src)

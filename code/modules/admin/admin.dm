@@ -627,18 +627,6 @@ var/global/floorIsLava = 0
 
 	show_browser(usr, out, "window=edit_mode[src]")
 
-
-/datum/admins/proc/toggletintedweldhelmets()
-	set category = "Debug"
-	set desc="Reduces view range when wearing welding helmets"
-	set name="Toggle tinted welding helmets."
-	config.misc.welder_vision_allowed = !( config.misc.welder_vision_allowed )
-	if (config.misc.welder_vision_allowed)
-		to_world("<B>Reduced welder vision has been enabled!</B>")
-	else
-		to_world("<B>Reduced welder vision has been disabled!</B>")
-	log_and_message_admins("toggled welder vision.")
-
 /datum/admins/proc/toggleguests()
 	set category = "Server"
 	set desc="Guests can't enter"

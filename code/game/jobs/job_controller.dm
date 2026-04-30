@@ -110,9 +110,6 @@ var/global/datum/controller/occupations/job_master
 		if(job.minimum_character_age && (joining.client.prefs.age < job.minimum_character_age))
 			to_chat(joining, SPAN_WARNING("Your character's in-game age is too low for this job."))
 			return FALSE
-		if(!job.player_old_enough(joining.client))
-			to_chat(joining, SPAN_WARNING("Your player age (days since first seen on the server) is too low for this job."))
-			return FALSE
 		if(GAME_STATE != RUNLEVEL_GAME)
 			to_chat(joining, SPAN_WARNING("The round is either not ready, or has already finished..."))
 			return FALSE
@@ -138,8 +135,6 @@ var/global/datum/controller/occupations/job_master
 			if(!job)
 				return FALSE
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
-				return FALSE
-			if(!job.player_old_enough(player.client))
 				return FALSE
 			if(job.is_restricted(player.client.prefs))
 				return FALSE
@@ -170,9 +165,6 @@ var/global/datum/controller/occupations/job_master
 		Debug("Running FOC, Job: [job], Level: [level], Flag: [flag]")
 		var/list/candidates = list()
 		for(var/mob/new_player/player in unassigned)
-			if(!job.player_old_enough(player.client))
-				Debug("FOC player not old enough, Player: [player]")
-				continue
 			if(job.minimum_character_age && (player.client.prefs.age < job.minimum_character_age))
 				Debug("FOC character not old enough, Player: [player]")
 				continue
@@ -197,10 +189,6 @@ var/global/datum/controller/occupations/job_master
 				continue
 
 			if(job.title in GLOB.command_positions) //If you want a command position, select it!
-				continue
-
-			if(!job.player_old_enough(player.client))
-				Debug("GRJ player not old enough, Player: [player]")
 				continue
 
 			if((job.current_positions < job.spawn_positions) || job.spawn_positions == -1)
@@ -319,10 +307,6 @@ var/global/datum/controller/occupations/job_master
 				// Loop through all jobs
 				for(var/datum/job/job in shuffledoccupations) // SHUFFLE ME BABY
 					if(!job || mode.disabled_jobs.Find(job.title) )
-						continue
-
-					if(!job.player_old_enough(player.client))
-						Debug("DO player not old enough, Player: [player], Job:[job.title]")
 						continue
 
 					// If the player wants that job on this level, then try give it to him.
@@ -520,9 +504,6 @@ var/global/datum/controller/occupations/job_master
 			for(var/mob/new_player/player in GLOB.player_list)
 				if(!(player.ready && player.mind && !player.mind.assigned_role))
 					continue //This player is not ready
-				if(!job.player_old_enough(player.client))
-					level6++
-					continue
 				if(player.client.prefs.IsJobPriority(job, JOB_PRIORITY_HIGH))
 					level1++
 				else if(player.client.prefs.IsJobPriority(job, JOB_PRIORITY_MIDDLE))

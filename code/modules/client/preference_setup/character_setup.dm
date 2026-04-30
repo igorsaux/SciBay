@@ -205,7 +205,6 @@
 	// Config flags
 	data["config"] = list(
 		"allow_metadata" = config.character_setup.allow_metadata,
-		"use_cortical_stacks" = config.revival.use_cortical_stacks,
 		"max_name_len" = MAX_NAME_LEN,
 		"loadout_slots" = config.character_setup.loadout_slots,
 		"character_slots" = config.character_setup.character_slots
@@ -285,9 +284,6 @@
 				job_entry["alt_titles"] = alt_names
 			if(J.total_positions == 0 && J.spawn_positions == 0)
 				job_entry["status"] = "unavailable"
-			else if(!J.player_old_enough(user.client))
-				job_entry["status"] = "too_young_player"
-				job_entry["available_in_days"] = J.available_in_days(user.client)
 			else if(J.minimum_character_age && pref.age < J.minimum_character_age)
 				job_entry["status"] = "too_young_char"
 			else

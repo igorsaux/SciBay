@@ -144,9 +144,6 @@
 				client.prefs.real_name = random_name(client.prefs.gender)
 			observer.real_name = client.prefs.real_name
 			observer.SetName(observer.real_name)
-			if(!client.holder && !config.ghost.allow_antag_hud) // For new ghosts we remove the verb from even showing up if it's not allowed.
-				observer.verbs -= /mob/observer/ghost/verb/toggle_antagHUD // Poor guys, don't know what they are missing!
-
 			observer.key = key
 
 			new /atom/movable/screen/splash/fake(null, TRUE, observer.client, SSlobby.current_lobby_art)
@@ -211,7 +208,6 @@
 /mob/new_player/proc/IsJobAvailable(datum/job/job)
 	if(!job)	return 0
 	if(!job.is_position_available()) return 0
-	if(!job.player_old_enough(src.client))	return 0
 
 	return 1
 
@@ -467,21 +463,3 @@
 
 /mob/new_player/is_eligible_for_antag_spawn(antag_id)
 	return TRUE
-
-/mob/new_player/proc/show_game_tip()
-	if(!config.game_tips.enable)
-		return
-	
-	var/atom/movable/screen/text = new()
-
-	text.screen_loc = "CENTER,SOUTH+1%"
-	text.maptext_width = 256
-	text.maptext_height = 100
-	text.maptext_y = -50
-	text.maptext_x = -112
-	text.maptext = MAPTEXT("<center><font size=5>Подсказка раунда</font><br><br>[config.game_tips.get_tip()]</center>")
-	text.plane = FULLSCREEN_PLANE
-
-	client.screen += text
-
-	animate(text, 3 SECONDS, maptext_y = 0)
