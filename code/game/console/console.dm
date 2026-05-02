@@ -4,6 +4,7 @@
 	layer = BELOW_OBJ_LAYER
 	density = 1
 	anchored = 1
+	w_class = ITEM_SIZE_NO_CONTAINER
 
 	var/screen_state = null
 

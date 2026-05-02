@@ -61,8 +61,8 @@
 	volume = 0.002 LITER
 	bottom_area = 0.00011
 	w_class = ITEM_SIZE_TINY
-	amount_per_transfer_from_this = 5
-	possible_transfer_amounts = "5;10;15;25;30;50"
+	amount_per_transfer_from_this = 1
+	possible_transfer_amounts = "1;5;10;15;25;30;50"
 
 	override_lid_state = LID_OPEN
 	lid_type = /datum/vessel_lid/cork

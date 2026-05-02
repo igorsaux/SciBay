@@ -26,6 +26,9 @@
 	drop_sound = SFX_DROP_BOTTLE
 	can_be_splashed = TRUE
 
+	var/__stirring = 0.0
+	var/__stratification = 0.0
+
 	var/brittle = FALSE
 	var/smash_weaken = 0 // Decides how much weakening it may inflict (if any) when smashing someone's head
 
@@ -93,6 +96,18 @@
 /obj/item/reagent_containers/vessel/Destroy()
 	QDEL_NULL(lid)
 	return ..()
+
+/obj/item/reagent_containers/vessel/think()
+	if(__stirring > 0.0)
+		__stratification = 0.0
+
+	. = ..()
+
+/obj/item/reagent_containers/vessel/on_poured_to()
+	. = ..()
+
+	__stirring = 0.0
+	__stratification = 0.0
 
 /obj/item/reagent_containers/vessel/pickup(mob/user)
 	..()

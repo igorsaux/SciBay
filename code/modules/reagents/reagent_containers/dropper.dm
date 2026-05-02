@@ -52,6 +52,8 @@
 		if(liquids_trans <= 0.0)
 			to_chat(user, SPAN_NOTICE("There is no more room in \the [target]."))
 			return TRUE
+		
+		C.on_poured_to()
 
 		to_chat(user, SPAN_NOTICE("You transfer [round(liquids_trans * 1000, 1)] ml of the solution."))
 		update_icon()

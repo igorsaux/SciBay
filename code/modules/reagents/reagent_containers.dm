@@ -35,7 +35,6 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	var/alist/startswith // List of reagents to start with
 
 	var/__last_integrate = 0
-	var/__stirring = 0.0
 
 	var/__cached_height = 0
 	var/__cached_area = 0
@@ -278,8 +277,12 @@ var/obj/item/nullspace_container/nullspace_container = new()
 
 	update_icon()
 	target.update_icon()
+	target.on_poured_to()
 
 	return TRUE
+
+/obj/item/reagent_containers/proc/on_poured_to()
+	return
 
 /obj/item/reagent_containers/MouseDrop_T(atom/movable/dropping, mob/living/user, params)
 	. = ..()

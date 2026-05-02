@@ -45,13 +45,17 @@
 	if(!istype(target, /obj/item/reagent_containers))
 		return
 
-	if(!target.is_open_container())
+	var/obj/item/reagent_containers/C = target
+
+	if(!C.is_open_container())
 		to_chat(user, SPAN_WARNING("\The [target] is closed."))
 		return
 
 	// Spoon has contents - pour into target
 	if(!is_empty())
-		standard_pour_into(user, target)
+		C.on_poured_to()
+		standard_pour_into(user, C)
+
 		return
 
 	// Spoon is empty - try to fill from target
