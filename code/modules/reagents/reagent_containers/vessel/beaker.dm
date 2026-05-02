@@ -49,7 +49,7 @@
 
 /obj/item/reagent_containers/vessel/beaker/vial
 	name = "vial"
-	desc = "A small 2 ml glass vial."
+	desc = "A small 5 ml glass vial."
 	icon_state = "vial"
 	center_of_mass = "x=16;y=10"
 	force = 2.5
@@ -58,8 +58,8 @@
 	mod_handy = 0.4
 	matter = list(MATERIAL_GLASS = 1250)
 
-	volume = 0.002 LITER
-	bottom_area = 0.00011
+	volume = 0.005 LITER
+	bottom_area = 0.00028
 	w_class = ITEM_SIZE_TINY
 	amount_per_transfer_from_this = 1
 	possible_transfer_amounts = "1;5;10;15;25;30;50"
