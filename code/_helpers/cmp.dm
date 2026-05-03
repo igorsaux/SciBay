@@ -54,3 +54,6 @@
 
 /proc/cmp_mob_health(mob/living/mob_a, mob/living/mob_b)
 	return mob_b.health - mob_a.health
+
+/proc/cmp_solid_density_asc(list/a, list/b)
+	return a["density"] - b["density"]

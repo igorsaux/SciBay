@@ -29,7 +29,7 @@
 
 	var/obj/item/centrifuge_rotor/rotor = null
 
-	var/__last_stratification = 0
+	var/__last_think = 0
 
 /obj/item/centrifuge/attackby(obj/item/W, mob/user)
 	if(isWrench(W))
@@ -424,7 +424,7 @@
 	is_running = TRUE
 	current_rpm = min(target_rpm, max_rpm, rotor.max_rpm)
 	run_end_time = world.time + target_duration
-	__last_stratification = world.time
+	__last_think = world.time
 	rotor.cycles_used++
 
 	visible_message(SPAN_NOTICE("\The [src] whirs to life."))
@@ -468,9 +468,10 @@
 
 		return
 
-	var/dt = (world.time - __last_stratification) / 10
+	var/dt = (world.time - __last_think) / 10
 	var/radius_mm = rotor.radius * 1000
-	var/current_g = 1.118e-5 * radius_mm * (current_rpm ** 2)
+	var/relative_g = 1.0 + 1.118e-5 * radius_mm * (current_rpm ** 2)
+	var/total_g = G0 * relative_g
 
 	// Rotor wear: high-speed stress and age fatigue
 	if(current_rpm > rotor.max_rpm * 0.85)
@@ -492,8 +493,7 @@
 		if(QDELETED(V))
 			continue
 
-		V.__stratification += Z_CHEM_GET_STRATIFICATION_RATE(V, current_g) * dt
-		V.__stratification = clamp(V.__stratification, 0.0, 1.0)
+		V.adjust_stratification(Z_CHEM_GET_STRATIFICATION_RATE(V, total_g) * dt)
 
 		ASSERT(Z_CHEM_EXCHANGE_HEAT(V, chamber_temp, 5 * V.bottom_area, dt) != null)
 
@@ -512,7 +512,7 @@
 		chamber_temp += 0.3
 		chamber_temp = min(chamber_temp, max_temp)
 
-	__last_stratification = world.time
+	__last_think = world.time
 	set_next_think(world.time + 1 SECOND)
 
 /obj/item/centrifuge/proc/handle_rotor_failure()

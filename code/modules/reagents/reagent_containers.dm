@@ -34,7 +34,10 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	var/can_be_splashed = FALSE
 	var/alist/startswith // List of reagents to start with
 
-	var/__last_integrate = 0
+	var/__stratification = 0.0
+	var/__stirring = 0.0
+
+	var/__last_think = 0
 
 	var/__cached_height = 0
 	var/__cached_area = 0
@@ -70,13 +73,33 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	ASSERT(Z_CHEM_RESET_GAS(src, volume))
 	ASSERT(Z_CHEM_SET_TEMPERATURE(src, 20 CELSIUS, volume))
 
-	__last_integrate = world.time
-	set_next_think(world.time + world.tick_lag)
+	__last_think = world.time
+	set_next_think(__last_think + world.tick_lag)
 
 /obj/item/reagent_containers/Destroy()
 	ASSERT(Z_CHEM_DESTROY(src))
 
 	. = ..()
+
+/obj/item/reagent_containers/proc/set_stirring(value)
+	__stirring = clamp(value, 0.0, 1.0)
+
+	if(__stirring > 0.0)
+		__stratification = 0.0
+	
+	ASSERT(Z_CHEM_SET_STIRRING(src, __stirring) != null)
+
+/obj/item/reagent_containers/proc/adjust_stirring(delta)
+	set_stirring(__stirring + delta)
+
+/obj/item/reagent_containers/proc/set_stratification(value)
+	if(__stirring > 0.0)
+		__stratification = 0.0
+	else
+		__stratification = clamp(value, 0.0, 1.0)
+
+/obj/item/reagent_containers/proc/adjust_stratification(delta)
+	set_stratification(__stratification + delta)
 
 /obj/item/reagent_containers/verb/set_APTFT() //set amount_per_transfer_from_this
 	set name = "Set transfer amount"
@@ -99,20 +122,22 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	ASSERT(Z_CHEM_SET_GAS_CONTACT_AREA(src, neck_area || bottom_area))
 
 /obj/item/reagent_containers/think()
-	var/dt = (world.time - __last_integrate) / 10
+	var/dt = (world.time - __last_think) / 10
+
+	update(dt)
+	__last_think = world.time
+	set_next_think(__last_think + world.tick_lag)
+
+/obj/item/reagent_containers/proc/update(dt)
 	var/turf/T = get_turf(src)
 
-	if(!T)
-		__last_integrate = world.time
-		set_next_think(world.time + world.tick_lag)
-		return
+	if(T)
+		var/datum/gas_mixture/M = T.return_air()
+
+		ASSERT(Z_CHEM_EXCHANGE_HEAT(src, M.temperature, 10 * __cached_area, dt) != null)
 
 	if(is_open_container())
 		ASSERT(Z_CHEM_RESET_GAS(src, volume))
-
-	var/datum/gas_mixture/M = T.return_air()
-
-	ASSERT(Z_CHEM_EXCHANGE_HEAT(src, M.temperature, 10 * __cached_area, dt) != null)
 
 	if(istype(loc, /obj/item/bunsen))
 		var/obj/item/bunsen/B = loc
@@ -160,8 +185,6 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	// 	steam_overlay = null
 	// 	return
 		
-	__last_integrate = world.time
-	set_next_think(world.time + world.tick_lag)
 	update_icon()
 
 /obj/item/reagent_containers/attack_self(mob/user)
@@ -252,7 +275,7 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	else
 		SetName("[initial(name)] ([label_text])")
 
-/obj/item/reagent_containers/proc/standard_pour_into(mob/user, obj/item/reagent_containers/target)
+/obj/item/reagent_containers/proc/standard_pour_into(mob/user, obj/item/reagent_containers/target, transfer_amount = null)
 	if(!Z_CHEM_HAS_CONTENTS(target))
 		return FALSE
 
@@ -264,8 +287,8 @@ var/obj/item/nullspace_container/nullspace_container = new()
 		to_chat(user, SPAN_NOTICE("\The [src] is empty."))
 		return TRUE
 
-	var/to_transfer = amount_per_transfer_from_this / 1000
-	var/total_trans = Z_CHEM_POUR(src, target, to_transfer, target.volume)
+	var/to_transfer = transfer_amount || (amount_per_transfer_from_this / 1000)
+	var/total_trans = Z_CHEM_POUR(src, target, to_transfer, target.volume, __stratification)
 	ASSERT(total_trans != null)
 
 	if(total_trans <= 0.0)

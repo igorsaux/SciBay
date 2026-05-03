@@ -287,40 +287,6 @@
 	else
 		return ..()
 
-/obj/item/reagent_containers/vessel/shaker/proc/shake(mob/user)
-	if(lid?.state != LID_CLOSED)
-		to_chat(user, SPAN_WARNING("On second thought shaking it with an open lid is not a good idea..."))
-		return
-
-	if(!shaking)
-		shaking = TRUE
-		var/adjective = pick(
-			"furiously",
-			"passionately",
-			"with vigor",
-			"with determination",
-			"like a devil",
-			"with care and love",
-			"like there is no tomorrow")
-		user.visible_message(SPAN_NOTICE("\The [user] shakes \the [src] [adjective]!"), SPAN_NOTICE("You shake \the [src] [adjective]!"))
-		ClearOverlays()
-		icon_state = "[base_icon_state]_shaking"
-		if(iscarbon(loc))
-			var/mob/living/carbon/M = loc
-			M.update_inv_l_hand()
-			M.update_inv_r_hand()
-		playsound(loc, 'sound/effects/shaker.ogg', 50, 1)
-		if(do_after(user, 30, src))
-			atom_flags ^= ATOM_FLAG_NO_REACT
-			atom_flags |= ATOM_FLAG_NO_REACT
-			shaking = FALSE
-		icon_state = base_icon
-		update_icon()
-		if(iscarbon(loc))
-			var/mob/living/carbon/M = loc
-			M.update_inv_l_hand()
-			M.update_inv_r_hand()
-
 /obj/item/reagent_containers/vessel/shaker/bluespace
 	name = "bluespace shaker"
 	desc = "A bluespace metal shaker to mix drinks in. If you shake it too hard, a singularity will appear."

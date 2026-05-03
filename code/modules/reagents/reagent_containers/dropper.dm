@@ -24,7 +24,7 @@
 	var/used_volume = get_used_volume()
 
 	if(used_volume > 0.0)
-		. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 1)]</b>ml of liquid.")
+		. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 2)]</b>ml of liquid.")
 	else
 		. += SPAN_NOTICE("It is empty.")
 

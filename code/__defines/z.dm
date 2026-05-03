@@ -193,7 +193,7 @@ var/__z_name = null
 
 #define Z_CHEM_ADD_VOLUME(SRC, MOLECULE, VOLUME, PARTICLE_DIAMETER) call_ext(__z_name, "byond:Z_chem_add_volume")(SRC, MOLECULE, VOLUME, PARTICLE_DIAMETER)
 
-#define Z_CHEM_POUR(SRC, DST, VOLUME, DST_MAX_VOLUME) call_ext(__z_name, "byond:Z_chem_pour")(SRC, DST, VOLUME, DST_MAX_VOLUME)
+#define Z_CHEM_POUR(SRC, DST, VOLUME, DST_MAX_VOLUME, STRATIFICATION) call_ext(__z_name, "byond:Z_chem_pour")(SRC, DST, VOLUME, DST_MAX_VOLUME, STRATIFICATION)
 
 #define Z_CHEM_ENSURE_GAS(SRC) call_ext(__z_name, "byond:Z_chem_ensure_gas")(SRC)
 

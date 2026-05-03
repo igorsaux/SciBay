@@ -2,12 +2,14 @@
 
 #define M_PI    3.14159265
 
-// kPa*L/(K*mol).
+/// kPa*L/(K*mol).
 #define R_IDEAL_GAS_EQUATION       8.31
-// kPa.
+/// kPa.
 #define ONE_ATMOSPHERE             101.325
-// (mol^3 * s^3) / (kg^3 * L).
+/// (mol^3 * s^3) / (kg^3 * L).
 #define IDEAL_GAS_ENTROPY_CONSTANT 1164
+/// Standard gravitational acceleration, m/s^2.
+#define G0 9.80665
 
 // Radiation constants.
 

@@ -26,9 +26,6 @@
 	drop_sound = SFX_DROP_BOTTLE
 	can_be_splashed = TRUE
 
-	var/__stirring = 0.0
-	var/__stratification = 0.0
-
 	var/brittle = FALSE
 	var/smash_weaken = 0 // Decides how much weakening it may inflict (if any) when smashing someone's head
 
@@ -97,17 +94,24 @@
 	QDEL_NULL(lid)
 	return ..()
 
-/obj/item/reagent_containers/vessel/think()
-	if(__stirring > 0.0)
-		__stratification = 0.0
+/obj/item/reagent_containers/vessel/update(dt)
+	var/solids = Z_CHEM_GET_SOLID_PHASES(src)
+	var/liquids = Z_CHEM_GET_LIQUID_PHASES(src)
+
+	ASSERT(solids != null)
+	ASSERT(liquids != null)
+
+	adjust_stratification(Z_CHEM_GET_STRATIFICATION_RATE(src, G0) * dt)
+	// Smooth decay: 0.5 per second gives a ~2 second fade to still.
+	adjust_stirring(-0.5 * dt)
 
 	. = ..()
 
 /obj/item/reagent_containers/vessel/on_poured_to()
 	. = ..()
 
-	__stirring = 0.0
-	__stratification = 0.0
+	set_stirring(0.0)
+	set_stratification(0.0)
 
 /obj/item/reagent_containers/vessel/pickup(mob/user)
 	..()
@@ -163,6 +167,7 @@
 
 /obj/item/reagent_containers/vessel/proc/get_filling_state()
 	var/percent = round((get_used_volume() / volume) * 100)
+
 	for(var/k in cached_number_list_decode(filling_states))
 		if(percent <= k)
 			return k
@@ -193,7 +198,7 @@
 				phases += "solid"
 
 			if(length(phases))
-				. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 1)]</b>ml of [phases.Join(" and ")].")
+				. += SPAN_NOTICE("It contains <b>[round(used_volume * 1000, 2)]</b>ml of [phases.Join(" and ")].")
 			else
 				. += SPAN_NOTICE("It is empty.")
 		else
@@ -235,6 +240,39 @@
 
 	if(lid)
 		. += "[lid.get_examine_hint()]"
+
+	if(__stirring > 0.0)
+		var/stirring_text
+
+		if(__stirring >= 0.8)
+			stirring_text = "violently turbulent"
+		else if(__stirring >= 0.5)
+			stirring_text = "vigorously churning"
+		else if(__stirring >= 0.2)
+			stirring_text = "swirling gently"
+		else
+			stirring_text = "barely moving"
+
+		. += SPAN_NOTICE("The contents are [stirring_text].")
+
+	if(__stirring <= 0.0)
+		var/total_phases = Z_CHEM_GET_LIQUID_PHASES(src) + Z_CHEM_GET_SOLID_PHASES(src)
+
+		if(total_phases >= 2)
+			var/strat_text
+
+			if(__stratification >= 0.95)
+				strat_text = "sharply separated into distinct layers"
+			else if(__stratification >= 0.7)
+				strat_text = "mostly stratified with clear boundaries"
+			else if(__stratification >= 0.3)
+				strat_text = "partially separated"
+			else if(__stratification >= 0.05)
+				strat_text = "slightly heterogeneous"
+			else
+				strat_text = "fully mixed"
+
+			. += SPAN_NOTICE("The mixture is [strat_text].")
 
 	if(Adjacent(user, src) && is_open_container())
 		. += get_contents_smell_description()
@@ -285,7 +323,19 @@
 	
 	for(var/i = 1 to visible_liquids_count)
 		var/list/layer_data = visible_liquid_layers[i]
-		var/phase_name = visible_liquids_count > 1 ? "liquid layer [i]" : "liquid"
+		var/phase_name = visible_liquids_count > 1 ? "liquid layer" : "liquid"
+		
+		if(__stratification > 0.5 && visible_liquids_count > 1)
+			if(i == 1)
+				phase_name = "top liquid layer"
+			else if(i == visible_liquids_count)
+				phase_name = "bottom liquid layer"
+			else
+				phase_name = "middle liquid layer"
+		
+		if(__stirring > 0.5)
+			phase_name = "turbulent [phase_name]"
+		
 		var/liquid_desc = get_phase_color_description(layer_data["flavor"], phase_name)
 
 		if(liquid_desc)
@@ -299,7 +349,20 @@
 		var/diameter = Z_CHEM_GET_SOLID_PHASE_PARTICLE_DIAMETER(src, i)
 
 		if(solid_flavor)
-			var/solid_desc = get_solid_phase_description(solid_flavor, diameter, i, solid_phases)
+			var/phase_name = solid_phases > 1 ? "sediment layer" : "sediment"
+			
+			if(__stratification > 0.5 && solid_phases > 1)
+				if(i == 0)
+					phase_name = "upper sediment layer"
+				else if(i == solid_phases - 1)
+					phase_name = "lower sediment layer"
+				else
+					phase_name = "middle sediment layer"
+			
+			if(__stirring > 0.5)
+				phase_name = "suspended [phase_name]"
+			
+			var/solid_desc = get_solid_phase_description(solid_flavor, diameter, phase_name)
 
 			if(solid_desc)
 				descriptions += solid_desc
@@ -344,7 +407,7 @@
 
 	return desc
 
-/obj/item/reagent_containers/vessel/proc/get_solid_phase_description(list/flavor, diameter, phase_idx, total_phases)
+/obj/item/reagent_containers/vessel/proc/get_solid_phase_description(list/flavor, diameter, phase_name)
 	if(!flavor || !length(flavor) || length(flavor) < 2)
 		return null
 
@@ -362,7 +425,8 @@
 	var/color_name = __z_color_names[primary_color + 1]
 	var/color_hex = __z_color_hex[primary_color + 1]
 
-	var/desc = "There is "
+	var/desc = "The [phase_name] is "
+
 	if(intensity_word)
 		desc += "[intensity_word] "
 
@@ -521,16 +585,20 @@
 /obj/item/reagent_containers/vessel/afterattack(obj/target, mob/user, proximity)
 	if(!is_open_container() || !proximity) //Is the container open & are they next to whatever they're clicking?
 		return //If not, do nothing.
+
 	for(var/type in can_be_placed_into) //Is it something it can be placed into?
 		if(istype(target, type))
 			return
+
 	if(standard_pour_into(user, target)) //Pouring into another beaker?
 		return
+
 	return ..()
 
 //when thrown on impact, brittle containers smash and spill their contents
 /obj/item/reagent_containers/vessel/throw_impact(atom/hit_atom, datum/thrownthing/TT)
 	..()
+
 	if(brittle && TT.thrower && TT.thrower.a_intent != I_HELP)
 		if(TT.speed < throw_speed || smash_check(TT.dist_travelled)) // not as reliable as smashing directly
 			smash(loc, hit_atom)
@@ -541,8 +609,10 @@
 
 	var/list/chance_table = list(95, 95, 90, 85, 75, 60, 40, 15) //starting from distance 0
 	var/idx = max(distance + 1, 1) //since list indices start at 1
+
 	if(idx > chance_table.len)
 		return FALSE
+
 	return prob(chance_table[idx])
 
 /obj/item/reagent_containers/vessel/proc/smash(newloc, atom/against = null)
@@ -621,6 +691,30 @@
 		else
 			playsound(src, 'sound/effects/slap.ogg', 100, 1, -2)
 		QDEL_NULL(flipping)
+
+/obj/item/reagent_containers/vessel/verb/shake()
+	set src in view(1)
+	set category = "Object"
+	set name = "Shake"
+
+	if(!Z_CHEM_HAS_CONTENTS(src))
+		to_chat(usr, SPAN_NOTICE("There is nothing inside \the [src] to shake."))
+
+		return
+
+	var/prev_stirring = __stirring
+	adjust_stirring(0.25)
+
+	if(prev_stirring >= 1.0)
+		usr.visible_message(
+			SPAN_NOTICE("[usr] shakes \the [src] furiously, but the contents are already in full turbulent motion."),
+			SPAN_NOTICE("You shake \the [src] as hard as you can, but the contents cannot be agitated any further.")
+		)
+	else
+		usr.visible_message(
+			SPAN_NOTICE("[usr] shakes \the [src]."),
+			SPAN_NOTICE("You shake \the [src], agitating the contents.")
+		)
 
 /obj/item/reagent_containers/vessel/proc/bottleflip(mob/user)
 	playsound(src, 'sound/effects/woosh.ogg', 50, 1, -2)
