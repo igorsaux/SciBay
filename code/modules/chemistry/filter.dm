@@ -57,6 +57,7 @@
 
 	var/total_transferred = 0.0
 	var/total_blocked_vol = 0.0
+	var/total_clogging_vol = 0.0
 
 	var/liquids_vol = source.get_liquids_volume()
 
@@ -95,16 +96,24 @@
 			var/diameter = Z_CHEM_GET_SOLID_PHASE_PARTICLE_DIAMETER(source, i)
 			ASSERT(diameter != null)
 
-			if(diameter <= pore_size)
+			var/size_ratio = diameter / pore_size
+
+			if(size_ratio <= 1.0)
+				// Particle is smaller than pore - passes through freely
 				var/transferred = Z_CHEM_TRANSFER_SOLID_PHASE_VOLUME(source, dist, i, vol_to_process, dist.volume)
 				ASSERT(transferred != null)
 				
 				total_transferred += transferred
+			else if(size_ratio <= 1.5)
+				// Particle is comparable to pore size - causes pore blocking/blinding
+				total_blocked_vol += vol_to_process
+				total_clogging_vol += vol_to_process
 			else
+				// Particle is much larger than pore - surface rejection only, no internal clogging
 				total_blocked_vol += vol_to_process
 
-	if(total_blocked_vol > 0 && consumable)
-		clogged = min(1.0, clogged + (total_blocked_vol / clog_capacity))
+	if(total_clogging_vol > 0 && consumable)
+		clogged = min(1.0, clogged + (total_clogging_vol / clog_capacity))
 
 	if(total_transferred > 0)
 		if(activator)
@@ -127,7 +136,7 @@
 			to_chat(activator, SPAN_WARNING("The remaining solids in \the [source] are too large to pass through \the [src]!"))
 
 	if(consumable && clogged >= 1.0 && activator)
-		to_chat(activator, SPAN_WARNING("\The [src] has become completely clogged with large particles!"))
+		to_chat(activator, SPAN_WARNING("\The [src] has become completely clogged with particles!"))
 
 	return TRUE
 
