@@ -581,6 +581,7 @@
 /obj/item/centrifuge/ultra
 	name = "ultracentrifuge"
 	desc = "An analytical ultracentrifuge for subcellular fractionation."
+	density = 1
 
 	max_rpm = 150000
 	target_rpm_settable = TRUE
