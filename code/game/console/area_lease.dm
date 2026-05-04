@@ -19,7 +19,7 @@
 	var/list/data = list()
 	var/area/private_space/current_area = get_area(src)
 	
-	data["credits"] = GLOB.credits
+	data["credits"] = SSsupply.money
 	
 	// Check if the console is in a valid leasable area
 	if(istype(current_area))
@@ -31,7 +31,7 @@
 		data["is_for_sale"] = !isnull(current_area.price) && !current_area.is_owned
 		
 		if(!isnull(current_area.price))
-			data["can_afford"] = (GLOB.credits >= current_area.price)
+			data["can_afford"] = (SSsupply.money >= current_area.price)
 	else
 		data["valid_area"] = FALSE
 
@@ -53,10 +53,10 @@
 			if(isnull(current_area.price))
 				return TRUE
 				
-			if(GLOB.credits < current_area.price)
+			if(SSsupply.money < current_area.price)
 				return TRUE
 				
-			GLOB.credits -= current_area.price
+			SSsupply.money -= current_area.price
 			
 			to_chat(ui.user, SPAN_NOTICE("You have successfully leased [current_area.name]."))
 			current_area.is_owned = TRUE

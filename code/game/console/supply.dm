@@ -25,7 +25,7 @@
 		generate_categories()
 
 	data["is_admin"] = is_admin
-	data["credits"] = GLOB.credits
+	data["credits"] = SSsupply.money
 	data["currency"] = "₠"
 
 	// Cart totals
@@ -152,14 +152,14 @@
 			for(var/datum/supply_order/SO in SSsupply.shoppinglist)
 				total_cost += SO.object.get_cost()
 
-			if(total_cost > GLOB.credits)
+			if(total_cost > SSsupply.money)
 				to_chat(usr, SPAN_WARNING("Insufficient funds!"))
 				return TRUE
 
 			if(length(SSsupply.shoppinglist) == 0)
 				return TRUE
 
-			GLOB.credits -= total_cost
+			SSsupply.money -= total_cost
 			SSsupply.buy()
 			to_chat(usr, SPAN_NOTICE("Order placed successfully! Items will arrive shortly."))
 

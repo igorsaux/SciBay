@@ -3,7 +3,7 @@ SUBSYSTEM_DEF(supply)
 	priority = SS_PRIORITY_SUPPLY
 	flags = SS_NO_TICK_CHECK | SS_NO_FIRE
 
-	//control
+	var/money
 	var/ordernum
 	var/list/shoppinglist = list()
 	var/list/requestlist = list()
@@ -15,6 +15,7 @@ SUBSYSTEM_DEF(supply)
 /datum/controller/subsystem/supply/Initialize()
 	. = ..()
 
+	money = 150000
 	ordernum = rand(1,9000)
 
 	//Build master supply list
@@ -24,7 +25,7 @@ SUBSYSTEM_DEF(supply)
 				master_supply_list += spc
 
 /datum/controller/subsystem/supply/stat_entry()
-	..("Credits: [GLOB.credits]")
+	..("Credits: [money]")
 
 //To stop things being sent to centcomm which should not be sent to centcomm. Recursively checks for these types.
 /datum/controller/subsystem/supply/proc/forbidden_atoms_check(atom/A)
@@ -56,7 +57,7 @@ SUBSYSTEM_DEF(supply)
 
 		qdel(AM)
 	
-	GLOB.credits += value
+	money += value
 
 	// Record sell in history
 	if(value > 0)
