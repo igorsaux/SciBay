@@ -63,3 +63,21 @@
 		/obj/item/filter/membrane = 25,
 	)
 	containername = "\improper membrane filters crate"
+
+/decl/hierarchy/supply_pack/consumables/paper
+	name = "paper (60)"
+	cost = 240
+	contains = list(
+		/obj/item/paper_bin = 2,
+	)
+	containername = "\improper paper crate"
+
+/decl/hierarchy/supply_pack/consumables/pens
+	name = "pens (12)"
+	cost = 95
+	contains = list(
+		/obj/item/pen = 4,
+		/obj/item/pen/red = 4,
+		/obj/item/pen/blue = 4,
+	)
+	containername = "\improper pens crate"
