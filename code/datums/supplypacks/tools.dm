@@ -10,6 +10,7 @@
 
 /decl/hierarchy/supply_pack/tools/scales
 	name = "scales"
+	vendor = "KESTNER"
 	contains = list(
 		/obj/item/scales
 	)
@@ -36,3 +37,11 @@
 		/obj/item/filter/sieve,
 	)
 	containername = "\improper sieve crate"
+
+/decl/hierarchy/supply_pack/tools/orbital_shaker
+	name = "orbital shaker"
+	vendor = "KESTNER"
+	contains = list(
+		/obj/item/orbital_shaker,
+	)
+	containername = "\improper orbital shaker crate"

@@ -94,25 +94,6 @@
 	QDEL_NULL(lid)
 	return ..()
 
-/obj/item/reagent_containers/vessel/update(dt)
-	var/solids = Z_CHEM_GET_SOLID_PHASES(src)
-	var/liquids = Z_CHEM_GET_LIQUID_PHASES(src)
-
-	ASSERT(solids != null)
-	ASSERT(liquids != null)
-
-	adjust_stratification(Z_CHEM_GET_STRATIFICATION_RATE(src, G0) * dt)
-	// Smooth decay: 0.5 per second gives a ~2 second fade to still.
-	adjust_stirring(-0.5 * dt)
-
-	. = ..()
-
-/obj/item/reagent_containers/vessel/on_poured_to()
-	. = ..()
-
-	set_stirring(0.0)
-	set_stratification(0.0)
-
 /obj/item/reagent_containers/vessel/pickup(mob/user)
 	..()
 	update_icon()
@@ -703,7 +684,7 @@
 		return
 
 	var/prev_stirring = __stirring
-	adjust_stirring(0.25)
+	adjust_stirring(0.15)
 
 	if(prev_stirring >= 1.0)
 		usr.visible_message(

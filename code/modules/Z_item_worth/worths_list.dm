@@ -17,6 +17,7 @@ var/list/worths = list(
 	/obj/item/bunsen = 13400,
 	/obj/item/scales = 6500,
 	/obj/item/thermometer = 1200,
+	/obj/item/orbital_shaker = 18500,
 	/obj/item/centrifuge/mini = -15000,
 	/obj/item/centrifuge/benchtop/lowspeed = -85000,
 	/obj/item/centrifuge/benchtop/highspeed = -350000,

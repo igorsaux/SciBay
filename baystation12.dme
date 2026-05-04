@@ -965,6 +965,7 @@
 #include "code\modules\chemistry\centrifuge.dm"
 #include "code\modules\chemistry\filter.dm"
 #include "code\modules\chemistry\lacmus.dm"
+#include "code\modules\chemistry\orbital_shaker.dm"
 #include "code\modules\chemistry\scales.dm"
 #include "code\modules\chemistry\thermometer.dm"
 #include "code\modules\client\asset_cache.dm"

@@ -175,7 +175,22 @@ var/obj/item/nullspace_container/nullspace_container = new()
 
 		if(boiling_sfx_cd)
 			playsound(src, 'sound/effects/bubbles2.ogg', 50, FALSE)
-	
+
+	var/solids = Z_CHEM_GET_SOLID_PHASES(src)
+	var/liquids = Z_CHEM_GET_LIQUID_PHASES(src)
+
+	ASSERT(solids != null)
+	ASSERT(liquids != null)
+
+	adjust_stratification(Z_CHEM_GET_STRATIFICATION_RATE(src, G0) * dt)
+
+	var/new_stirring = __stirring * (0.9 ** dt)
+
+	if(new_stirring < 0.01)
+		new_stirring = 0.0
+
+	adjust_stirring(new_stirring - __stirring)
+
 	// TODO:
 	// var/moles_evaporated = Z_CHEM_GET_EVAPORATED_MOLES(src)
 	// ASSERT(moles_evaporated != null)
@@ -305,7 +320,8 @@ var/obj/item/nullspace_container/nullspace_container = new()
 	return TRUE
 
 /obj/item/reagent_containers/proc/on_poured_to()
-	return
+	set_stirring(0.0)
+	set_stratification(0.0)
 
 /obj/item/reagent_containers/MouseDrop_T(atom/movable/dropping, mob/living/user, params)
 	. = ..()
